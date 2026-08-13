@@ -11,6 +11,7 @@ import { ModulePageComponent } from './module-page.component';
 import { MatchesComponent } from './matches.component';
 import { MatchDetailComponent } from './match-detail.component';
 import { LiveCenterComponent } from './live-center.component';
+import { ScorerComponent } from './scorer.component';
 import { TeamsComponent } from './teams.component';
 import { CreateMatchComponent } from './create-match.component';
 
@@ -26,10 +27,10 @@ export const routes: Routes = [
       { path: 'matches', component: MatchesComponent },
       { path: 'matches/new', component: CreateMatchComponent },
       { path: 'matches/:id/live', component: LiveCenterComponent },
-      { path: 'matches/:id/scorer', component: LiveCenterComponent },
+      { path: 'matches/:id/scorer', component: ScorerComponent },
       { path: 'matches/:id', component: MatchDetailComponent },
       { path: 'live', component: LiveCenterComponent },
-      { path: 'scorer', component: LiveCenterComponent },
+      { path: 'scorer', component: ScorerComponent },
       { path: 'teams', component: TeamsComponent },
       { path: 'players', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') },
       { path: 'tournaments', ...modulePage('Tournaments', 'Organize leagues, fixtures, points tables, and knockout stages.') },
@@ -43,10 +44,10 @@ export const routes: Routes = [
   { path: 'matches', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchesComponent }] },
   { path: 'matches/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateMatchComponent }] },
   { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
-  { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
+  { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'matches/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] },
   { path: 'live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
-  { path: 'scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
+  { path: 'scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'teams', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamsComponent }] },
   { path: 'teams/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateTeamComponent }] },
   { path: 'players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') }] },
