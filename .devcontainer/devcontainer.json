@@ -1,0 +1,19 @@
+{
+  "name": "CricPulse UI",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "forwardPorts": [4200],
+  "portsAttributes": {
+    "4200": {
+      "label": "CricPulse Angular UI",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "angular.ng-template"
+      ]
+    }
+  }
+}
