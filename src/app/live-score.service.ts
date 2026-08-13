@@ -9,6 +9,13 @@ export interface LiveScore {
   runs: number;
   wickets: number;
   legalBalls: number;
+  currentOver?: number;
+  currentBall?: number;
+  strikerId?: string;
+  nonStrikerId?: string;
+  bowlerId?: string;
+  overBalls?: string[];
+  eventVersion?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -17,19 +24,42 @@ export class LiveScoreService {
 
   watch(inningsId: string): Observable<LiveScore> {
     return new Observable<LiveScore>((subscriber) => {
+      if (!inningsId) {
+        subscriber.error(new Error('Innings ID is required'));
+        return;
+      }
+
+      let subscription: StompSubscription | undefined;
+      let stopped = false;
+
       const client = new Client({
         brokerURL: this.apiUrl.replace('http', 'ws') + '/ws',
-        reconnectDelay: 5000,
+        reconnectDelay: 3000,
+        connectionTimeout: 10000,
         onConnect: () => {
+          if (stopped) return;
+          subscription?.unsubscribe();
           subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
-            subscriber.next(JSON.parse(message.body) as LiveScore);
+            try {
+              const score = JSON.parse(message.body) as LiveScore;
+              if (score && score.inningsId === inningsId) subscriber.next(score);
+            } catch {
+              subscriber.error(new Error('Invalid live score payload'));
+            }
           });
         },
-        onStompError: (frame) => subscriber.error(frame.headers['message'] ?? 'WebSocket error')
+        onStompError: (frame) => {
+          subscriber.error(new Error(frame.headers['message'] ?? 'WebSocket error'));
+        },
+        onWebSocketError: () => {
+          // STOMP will reconnect automatically. Keep the scorer screen alive.
+        }
       });
-      let subscription: StompSubscription | undefined;
+
       client.activate();
+
       return () => {
+        stopped = true;
         subscription?.unsubscribe();
         void client.deactivate();
       };
