@@ -14,6 +14,7 @@ import { LiveCenterComponent } from './live-center.component';
 import { ScorerComponent } from './scorer.component';
 import { TeamsComponent } from './teams.component';
 import { CreateMatchComponent } from './create-match.component';
+import { PublicLiveScoreComponent } from './public-live-score.component';
 
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'live/:id', component: PublicLiveScoreComponent },
   {
     path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], children: [
       { path: '', component: HomeComponent },
