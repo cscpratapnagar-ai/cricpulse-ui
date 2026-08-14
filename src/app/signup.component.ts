@@ -16,7 +16,7 @@ import { Router, RouterLink } from '@angular/router';
           <label>Full name<input name="fullName" [(ngModel)]="fullName" placeholder="Your full name" required /></label>
           <label>Email address<input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" required /></label>
           <label>Phone number<input name="phone" type="tel" [(ngModel)]="phone" placeholder="+91 98765 43210" required /><small>Mobile number is required and must be unique.</small></label>
-          <label>Password><input name="password" type="password" [(ngModel)]="password" placeholder="At least 8 characters" required /><small [class.valid]="password.length >= 8">{{ password.length }}/8 minimum</small></label>
+          <label>Password<input name="password" type="password" [(ngModel)]="password" placeholder="At least 8 characters" required /><small [class.valid]="password.length >= 8">{{ password.length }}/8 minimum</small></label>
           <label>Confirm password<input name="confirmPassword" type="password" [(ngModel)]="confirmPassword" placeholder="Re-enter your password" required /></label>
           <button [disabled]="loading">{{ loading ? 'Creating account...' : 'Create free account' }} <b>→</b></button>
         </form>
@@ -55,8 +55,7 @@ export class SignupComponent {
     this.http.post('http://localhost:8080/api/users', { fullName: name, email, phone, password: this.password, role: 'PLAYER' }).subscribe({
       next: () => {
         this.loading = false;
-        this.toastType = 'success';
-        this.showToast('Account created successfully. You can sign in now.', 'Account created');
+        this.showToast('Account created successfully. You can sign in now.', 'Account created', 'success');
         setTimeout(() => this.router.navigateByUrl('/login?registered=1'), 900);
       },
       error: (response: HttpErrorResponse) => {
@@ -85,8 +84,8 @@ export class SignupComponent {
     this.showToast('We could not create your account. Please check your details and try again.');
   }
 
-  private showToast(message: string, title = 'Account creation failed'): void {
-    this.toastType = this.toastType === 'success' ? 'success' : 'error';
+  private showToast(message: string, title = 'Account creation failed', type: 'error' | 'success' = 'error'): void {
+    this.toastType = type;
     this.toastTitle = title;
     this.toast = message;
     if (this.toastTimer) clearTimeout(this.toastTimer);
