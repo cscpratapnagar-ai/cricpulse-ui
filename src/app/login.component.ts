@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 interface AuthResponse { accessToken: string; userId: string; fullName: string; email: string; role: string; }
 interface ApiError { error?: { code?: string; message?: string }; }
 interface CurrentUser { userId?: string; id?: string; fullName?: string; email?: string; role?: string; }
+interface Team { id: string; name: string; city: string; ownerId: string; }
 
 @Component({
   selector: 'app-login', standalone: true, imports: [FormsModule, RouterLink],
@@ -27,11 +28,23 @@ export class LoginComponent {
         this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
           next: user => {
             localStorage.setItem('cricketpulse_user', JSON.stringify(user));
-            this.router.navigateByUrl('/dashboard');
+            localStorage.removeItem('cricketpulse_team');
+            this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+              next: teams => {
+                if (teams.length > 0) localStorage.setItem('cricketpulse_team', JSON.stringify(teams[0]));
+                else localStorage.removeItem('cricketpulse_team');
+                this.router.navigateByUrl('/dashboard');
+              },
+              error: () => {
+                localStorage.removeItem('cricketpulse_team');
+                this.router.navigateByUrl('/dashboard');
+              }
+            });
           },
           error: () => {
             localStorage.removeItem('cricketpulse_access_token');
             localStorage.removeItem('cricketpulse_user');
+            localStorage.removeItem('cricketpulse_team');
             this.loading = false;
             this.message = 'Sign-in succeeded, but your session could not be verified. Please try again.';
           }
@@ -39,6 +52,7 @@ export class LoginComponent {
       },
       error: (err: HttpErrorResponse & ApiError) => {
         this.loading = false;
+        localStorage.removeItem('cricketpulse_team');
         this.message = err?.error?.code === 'INVALID_CREDENTIALS'
           ? 'Incorrect email or password.'
           : err?.error?.message || (err.status === 0 ? 'Cannot connect to CricketPulse server. Please make sure the backend is running.' : 'Unable to sign in right now. Please try again.');
