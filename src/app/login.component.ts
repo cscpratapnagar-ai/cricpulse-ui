@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 interface AuthResponse { accessToken: string; userId: string; fullName: string; email: string; role: string; }
 interface ApiError { error?: { code?: string; message?: string }; }
+interface CurrentUser { userId?: string; id?: string; fullName?: string; email?: string; role?: string; }
 
 @Component({
   selector: 'app-login', standalone: true, imports: [FormsModule, RouterLink],
@@ -17,21 +18,30 @@ export class LoginComponent {
 
   submit(): void {
     this.message = '';
-    if (!this.email.trim() || !this.password) { this.message = 'Enter your email and password.'; return; }
+    const email = this.email.trim().toLowerCase();
+    if (!email || !this.password) { this.message = 'Enter your email and password.'; return; }
     this.loading = true;
-    this.http.post<AuthResponse>('http://localhost:8080/api/auth/login', {
-      email: this.email.trim(), password: this.password
-    }).subscribe({
+    this.http.post<AuthResponse>('http://localhost:8080/api/auth/login', { email, password }).subscribe({
       next: response => {
         localStorage.setItem('cricketpulse_access_token', response.accessToken);
-        localStorage.setItem('cricketpulse_user', JSON.stringify(response));
-        this.router.navigateByUrl('/dashboard');
+        this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+          next: user => {
+            localStorage.setItem('cricketpulse_user', JSON.stringify(user));
+            this.router.navigateByUrl('/dashboard');
+          },
+          error: () => {
+            localStorage.removeItem('cricketpulse_access_token');
+            localStorage.removeItem('cricketpulse_user');
+            this.loading = false;
+            this.message = 'Sign-in succeeded, but your session could not be verified. Please try again.';
+          }
+        });
       },
-      error: (err: ApiError) => {
+      error: (err: HttpErrorResponse & ApiError) => {
         this.loading = false;
         this.message = err?.error?.code === 'INVALID_CREDENTIALS'
           ? 'Incorrect email or password.'
-          : err?.error?.message || 'Unable to sign in right now. Please try again.';
+          : err?.error?.message || (err.status === 0 ? 'Cannot connect to CricketPulse server. Please make sure the backend is running.' : 'Unable to sign in right now. Please try again.');
       }
     });
   }
