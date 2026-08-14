@@ -1,6 +1,15 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpClient, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
+
+export interface CurrentUser {
+  userId?: string;
+  id?: string;
+  fullName?: string;
+  email?: string;
+  role?: string;
+}
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = localStorage.getItem('cricketpulse_access_token');
@@ -10,7 +19,21 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
 export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
-  return localStorage.getItem('cricketpulse_access_token') ? true : router.createUrlTree(['/login']);
+  const http = inject(HttpClient);
+  const token = localStorage.getItem('cricketpulse_access_token');
+
+  if (!token) return router.createUrlTree(['/login']);
+
+  return http.get<CurrentUser>('http://localhost:8080/api/auth/me').pipe(
+    map(user => {
+      localStorage.setItem('cricketpulse_user', JSON.stringify(user));
+      return true;
+    }),
+    catchError(() => {
+      clearSession();
+      return of(router.createUrlTree(['/login']));
+    })
+  );
 };
 
 export function clearSession(): void {
