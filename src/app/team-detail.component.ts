@@ -1,0 +1,29 @@
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+
+interface Team { id:string; name:string; city?:string; ownerId:string; }
+interface Member { teamId:string; playerId:string; userId:string; fullName:string; email:string; phone?:string; role:string; }
+
+@Component({selector:'app-team-detail',standalone:true,template:`
+<section class="page">
+  @if(team){
+    <header class="hero"><div><div class="eyebrow">TEAM MANAGEMENT</div><h1>{{team.name}}</h1><p>◉ {{team.city || 'Location not set'}} · Your team workspace</p></div><button class="back" (click)="history.back()">← Back</button></header>
+    <div class="stats"><div><b>{{members.length}}</b><span>Squad Members</span></div><div><b>{{count('CAPTAIN')}}</b><span>Captain</span></div><div><b>{{count('MANAGER')}}</b><span>Manager</span></div><div><b>{{count('PLAYER')}}</b><span>Players</span></div></div>
+    <section class="card"><div class="section-head"><div><div class="eyebrow">SQUAD</div><h2>Team Members</h2></div><button class="primary" (click)="showAdd=true">+ Add Player</button></div>
+      @if(showAdd){<div class="add"><input [(value)]="email" placeholder="Player account email" (input)="email=$any($event.target).value"><select [value]="role" (change)="role=$any($event.target).value"><option>PLAYER</option><option>CAPTAIN</option><option>VICE_CAPTAIN</option><option>MANAGER</option></select><button class="primary" (click)="addMember()">Add</button><button class="ghost" (click)="showAdd=false">Cancel</button></div>}
+      <div class="members">@for(m of members; track m.playerId){<article class="member"><div class="avatar">{{m.fullName.charAt(0).toUpperCase()}}</div><div class="identity"><strong>{{m.fullName}}</strong><small>{{m.email}}</small></div><select [value]="m.role" [disabled]="m.role==='OWNER'" (change)="changeRole(m,$any($event.target).value)"><option>OWNER</option><option>MANAGER</option><option>CAPTAIN</option><option>VICE_CAPTAIN</option><option>PLAYER</option></select><button class="remove" [disabled]="m.role==='OWNER'" (click)="remove(m)">Remove</button></article>} @empty {<div class="empty">No squad members yet. Add players using their registered email.</div>}</div>
+    </section>
+  } @else {<div class="empty full">Loading team...</div>}
+</section>`,styles:[`:host{display:block}.page{max-width:1150px;padding:42px 4vw 100px}.hero{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:26px}.eyebrow{color:#b8f45c;font-size:10px;font-weight:850;letter-spacing:2px}h1{font-size:clamp(34px,5vw,52px);letter-spacing:-3px;margin:8px 0}h2{margin:7px 0;font-size:27px}p,small{color:#91aa9d}.back,.ghost,.remove{border:1px solid #ffffff18;background:#0c2119;color:#dbe9e1;border-radius:9px;padding:11px 14px;cursor:pointer}.primary{border:0;background:#b8f45c;color:#10251e;border-radius:9px;padding:11px 15px;font-weight:850;cursor:pointer}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stats div,.card{background:#0c2119d9;border:1px solid #ffffff15;border-radius:18px;padding:20px}.stats b{display:block;font-size:28px}.stats span{font-size:11px;color:#789386}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.add{display:flex;gap:9px;padding:14px;border:1px solid #b8f45c30;border-radius:13px;margin-bottom:15px}.add input,.add select,.member select{background:#081a14;color:#dbe9e1;border:1px solid #ffffff18;border-radius:8px;padding:10px}.add input{flex:1}.members{display:grid;gap:9px}.member{display:flex;align-items:center;gap:13px;padding:13px;border:1px solid #ffffff0d;border-radius:12px;background:#091a14}.avatar{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:#173d2d;color:#b8f45c;font-weight:900}.identity{flex:1;display:grid;gap:3px}.identity strong{font-size:14px}.member select{font-size:11px}.remove{font-size:11px}.remove:disabled,.member select:disabled{opacity:.45;cursor:not-allowed}.empty{text-align:center;padding:35px;color:#789386}.full{margin-top:50px}@media(max-width:700px){.hero,.section-head,.add{flex-direction:column;align-items:stretch}.stats{grid-template-columns:repeat(2,1fr)}.member{flex-wrap:wrap}.identity{min-width:150px}.member select{flex:1}}`]
+})
+export class TeamDetailComponent {
+  private http=inject(HttpClient); private route=inject(ActivatedRoute); history=window.history;
+  team:Team|null=null; members:Member[]=[]; email=''; role='PLAYER'; showAdd=false;
+  constructor(){const id=this.route.snapshot.paramMap.get('id'); if(id){this.http.get<Team>(`http://localhost:8080/api/teams/${id}`).subscribe(t=>{this.team=t;this.loadMembers(id);});}}
+  loadMembers(id:string){this.http.get<Member[]>(`http://localhost:8080/api/teams/${id}/members`).subscribe(x=>this.members=x);}
+  count(role:string){return this.members.filter(x=>x.role===role).length;}
+  addMember(){if(!this.team||!this.email.trim())return;this.http.post<Member>(`http://localhost:8080/api/teams/${this.team.id}/members`,{email:this.email.trim(),role:this.role}).subscribe({next:m=>{this.members=[...this.members.filter(x=>x.playerId!==m.playerId),m];this.email='';this.showAdd=false;},error:e=>alert(e?.error?.message||'Unable to add player')});}
+  changeRole(m:Member,role:string){if(!this.team)return;this.http.patch<Member>(`http://localhost:8080/api/teams/${this.team.id}/members/${m.playerId}`,{role}).subscribe({next:x=>m.role=x.role,error:e=>alert(e?.error?.message||'Unable to change role')});}
+  remove(m:Member){if(!this.team||!confirm(`Remove ${m.fullName} from this team?`))return;this.http.delete(`http://localhost:8080/api/teams/${this.team.id}/members/${m.playerId}`).subscribe({next:()=>this.members=this.members.filter(x=>x.playerId!==m.playerId),error:e=>alert(e?.error?.message||'Unable to remove player')});}
+}
