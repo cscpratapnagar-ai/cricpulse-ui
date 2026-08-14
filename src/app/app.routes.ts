@@ -15,6 +15,7 @@ import { ScorerComponent } from './scorer.component';
 import { TeamsComponent } from './teams.component';
 import { CreateMatchComponent } from './create-match.component';
 import { PublicLiveScoreComponent } from './public-live-score.component';
+import { TeamDetailComponent } from './team-detail.component';
 
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 
@@ -23,8 +24,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'live/:id', component: PublicLiveScoreComponent },
-  {
-    path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], children: [
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], children: [
       { path: '', component: HomeComponent },
       { path: 'matches', component: MatchesComponent },
       { path: 'matches/new', component: CreateMatchComponent },
@@ -34,6 +34,7 @@ export const routes: Routes = [
       { path: 'live', component: LiveCenterComponent },
       { path: 'scorer', component: ScorerComponent },
       { path: 'teams', component: TeamsComponent },
+      { path: 'teams/:id', component: TeamDetailComponent },
       { path: 'players', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') },
       { path: 'tournaments', ...modulePage('Tournaments', 'Organize leagues, fixtures, points tables, and knockout stages.') },
       { path: 'analytics', ...modulePage('Analytics', 'Turn scorecards into performance insights for players and teams.') },
@@ -41,8 +42,7 @@ export const routes: Routes = [
       { path: 'settings', ...modulePage('Settings', 'Manage your profile, workspace preferences, and notifications.') },
       { path: 'teams/new', component: CreateTeamComponent },
       { path: 'player/onboarding', component: PlayerOnboardingComponent }
-    ]
-  },
+    ] },
   { path: 'matches', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchesComponent }] },
   { path: 'matches/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateMatchComponent }] },
   { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
