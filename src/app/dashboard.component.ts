@@ -5,6 +5,7 @@ import { ElementRef, ViewChild } from '@angular/core';
 import { clearSession } from './auth';
 
 interface CurrentUser { userId: string; fullName: string; role: string; }
+interface Team { id: string; name: string; city: string; ownerId: string; }
 
 @Component({
   selector: 'app-dashboard', standalone: true, imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -41,9 +42,25 @@ interface CurrentUser { userId: string; fullName: string; role: string; }
   `]
 })
 export class DashboardComponent implements AfterViewInit {
-  private readonly http=inject(HttpClient); private readonly router=inject(Router); user:CurrentUser|null=null; team:{name:string}|null=null; sidebarOpen=false;
+  private readonly http=inject(HttpClient); private readonly router=inject(Router); user:CurrentUser|null=null; team:Team|null=null; sidebarOpen=false;
   @ViewChild('sidebar') sidebar?: ElementRef<HTMLElement>;
-  constructor(){const saved=localStorage.getItem('cricketpulse_team');this.team=saved?JSON.parse(saved) as {name:string}:null;this.router.events.subscribe(event=>{if(event instanceof NavigationEnd){setTimeout(()=>this.resetSidebarScroll(),0)}});this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({next:u=>this.user=u,error:()=>{clearSession();this.closeSidebar();void this.router.navigateByUrl('/login')}})}
+  constructor(){
+    localStorage.removeItem('cricketpulse_team');
+    this.router.events.subscribe(event=>{if(event instanceof NavigationEnd){setTimeout(()=>this.resetSidebarScroll(),0)}});
+    this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+      next:u=>{
+        this.user=u;
+        this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+          next:teams=>{
+            this.team=teams.length>0?teams[0]:null;
+            if(this.team) localStorage.setItem('cricketpulse_team',JSON.stringify(this.team));
+          },
+          error:()=>{this.team=null;localStorage.removeItem('cricketpulse_team')}
+        });
+      },
+      error:()=>{clearSession();this.closeSidebar();void this.router.navigateByUrl('/login')}
+    });
+  }
   ngAfterViewInit():void{this.resetSidebarScroll()}
   get initials():string{return(this.user?.fullName||'P').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}
   get teamInitial():string{return(this.team?.name||'P').charAt(0).toUpperCase()}
@@ -51,6 +68,6 @@ export class DashboardComponent implements AfterViewInit {
   openSidebar():void{this.sidebarOpen=true;document.body.style.overflow='hidden'}
   closeSidebar():void{this.sidebarOpen=false;document.body.style.overflow=''}
   private resetSidebarScroll():void{if(this.sidebar){this.sidebar.nativeElement.scrollTop=0;this.sidebar.nativeElement.style.overflowY=window.innerWidth<=800?'auto':'hidden'}}
-  logout():void{clearSession();void this.router.navigateByUrl('/login')}
+  logout():void{clearSession();localStorage.removeItem('cricketpulse_team');void this.router.navigateByUrl('/login')}
   ngOnDestroy():void{document.body.style.overflow=''}
 }
