@@ -17,6 +17,7 @@ import { CreateMatchComponent } from './create-match.component';
 import { PublicLiveScoreComponent } from './public-live-score.component';
 import { TeamDetailComponent } from './team-detail.component';
 import { PlayingXiV2Component } from './playing-xi-v2.component';
+import { BulkTeamPlayersV2Component } from './bulk-team-players-v2.component';
 
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 
@@ -37,6 +38,7 @@ export const routes: Routes = [
       { path: 'scorer', component: ScorerComponent },
       { path: 'teams', component: TeamsComponent },
       { path: 'teams/:id', component: TeamDetailComponent },
+      { path: 'teams/:id/players/bulk', component: BulkTeamPlayersV2Component },
       { path: 'players', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') },
       { path: 'tournaments', ...modulePage('Tournaments', 'Organize leagues, fixtures, points tables, and knockout stages.') },
       { path: 'analytics', ...modulePage('Analytics', 'Turn scorecards into performance insights for players and teams.') },
@@ -55,6 +57,7 @@ export const routes: Routes = [
   { path: 'scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'teams', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamsComponent }] },
   { path: 'teams/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateTeamComponent }] },
+  { path: 'teams/:id/players/bulk', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: BulkTeamPlayersV2Component }] },
   { path: 'players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') }] },
   { path: 'tournaments', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Tournaments', 'Organize leagues, fixtures, points tables, and knockout stages.') }] },
   { path: 'analytics', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Analytics', 'Turn scorecards into performance insights for players and teams.') }] },
