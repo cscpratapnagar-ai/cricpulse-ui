@@ -18,6 +18,7 @@ import { PublicLiveScoreComponent } from './public-live-score.component';
 import { TeamDetailComponent } from './team-detail.component';
 import { PlayingXiV2Component } from './playing-xi-v2.component';
 import { BulkTeamPlayersV2Component } from './bulk-team-players-v2.component';
+import { TossComponent } from './toss.component';
 
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'matches', component: MatchesComponent },
       { path: 'matches/new', component: CreateMatchComponent },
       { path: 'matches/:id/playing-xi', component: PlayingXiV2Component },
+      { path: 'matches/:id/toss', component: TossComponent },
       { path: 'matches/:id/live', component: LiveCenterComponent },
       { path: 'matches/:id/scorer', component: ScorerComponent },
       { path: 'matches/:id', component: MatchDetailComponent },
@@ -50,6 +52,7 @@ export const routes: Routes = [
   { path: 'matches', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchesComponent }] },
   { path: 'matches/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateMatchComponent }] },
   { path: 'matches/:id/playing-xi', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayingXiV2Component }] },
+  { path: 'matches/:id/toss', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TossComponent }] },
   { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
   { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'matches/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] },
