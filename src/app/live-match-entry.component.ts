@@ -1,0 +1,92 @@
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+interface ExistingInnings {
+  id?: string;
+  inningsId?: string;
+  matchId: string;
+  inningsNumber: number;
+  battingTeamId: string;
+  bowlingTeamId?: string;
+  runs: number;
+  wickets: number;
+  legalBalls: number;
+  status: string;
+}
+
+@Component({
+  selector: 'app-live-match-entry',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <section class="page">
+      @if (loading) {
+        <div class="card loading">Checking live match…</div>
+      } @else if (error) {
+        <div class="card error-card">
+          <span>LIVE MATCH</span>
+          <h1>Unable to open match</h1>
+          <p>{{ error }}</p>
+          <button (click)="retry()">Try again</button>
+        </div>
+      } @else if (innings) {
+        <div class="card resume-card">
+          <div class="icon">▶</div>
+          <div class="copy">
+            <span>LIVE MATCH · INNINGS {{ innings.inningsNumber }}</span>
+            <h1>Resume Match</h1>
+            <p>The innings is already in progress. Continue from the saved score.</p>
+            <div class="stats">
+              <div><strong>{{ innings.runs }}/{{ innings.wickets }}</strong><small>SCORE</small></div>
+              <div><strong>{{ overs(innings.legalBalls) }}</strong><small>OVERS</small></div>
+              <div><strong>{{ innings.status }}</strong><small>STATUS</small></div>
+            </div>
+          </div>
+          <button class="resume" (click)="resume()">Resume Match <b>→</b></button>
+        </div>
+      }
+    </section>
+  `,
+  styles: [`
+    :host{display:block}.page{max-width:1100px;padding:44px 4vw 100px;color:#edf8f2}.card{border:1px solid #ffffff18;border-radius:24px;background:linear-gradient(180deg,#0f271ed9,#0a1914f2);box-shadow:0 18px 50px #0005}.loading{padding:45px;color:#91aa9d}.resume-card{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:28px;border-color:#b8f45c38;background:linear-gradient(110deg,#b8f45c0d,#0c2119)}.icon{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:#b8f45c;color:#10251e;font-weight:950}.copy>span,.error-card>span{color:#b8f45c;font-size:10px;font-weight:900;letter-spacing:2px}.copy h1,.error-card h1{margin:7px 0;font-size:clamp(32px,5vw,52px);letter-spacing:-3px}.copy p,.error-card p{color:#91aa9d;font-size:12px}.stats{display:flex;gap:12px;margin-top:18px}.stats div{min-width:88px;padding:12px;border:1px solid #ffffff12;border-radius:12px;background:#ffffff05}.stats strong{display:block;font-size:18px}.stats small{display:block;margin-top:4px;color:#789386;font-size:8px;letter-spacing:1px;font-weight:900}.resume,.error-card button{border:0;border-radius:12px;padding:15px 20px;background:#b8f45c;color:#10251e;font-weight:900;cursor:pointer;white-space:nowrap}.resume b{margin-left:16px}.error-card{padding:40px}.error-card button{margin-top:10px}@media(max-width:700px){.resume-card{grid-template-columns:1fr}.stats{display:grid;grid-template-columns:repeat(3,1fr)}.resume{width:100%}.icon{width:48px;height:48px}.page{padding:28px 20px 80px}}
+  `]
+})
+export class LiveMatchEntryComponent {
+  private readonly http=inject(HttpClient);
+  private readonly route=inject(ActivatedRoute);
+  private readonly router=inject(Router);
+  private readonly api='http://localhost:8080/api';
+  readonly matchId=this.route.snapshot.paramMap.get('id')||'';
+  loading=true;
+  error='';
+  innings:ExistingInnings|null=null;
+
+  constructor(){this.check()}
+
+  check():void{
+    if(!this.matchId){this.loading=false;this.error='Match id is missing.';return;}
+    this.http.get<ExistingInnings>(this.api+'/matches/'+this.matchId+'/current-innings').subscribe({
+      next:innings=>{this.innings=innings;this.loading=false;},
+      error:e=>{
+        if(e?.status===404){
+          void this.router.navigateByUrl('/matches/'+this.matchId+'/opening-players');
+          return;
+        }
+        this.loading=false;
+        this.error=e?.error?.message||'Unable to check current innings.';
+      }
+    });
+  }
+
+  resume():void{
+    if(!this.innings)return;
+    const id=this.innings.id||this.innings.inningsId;
+    if(!id){this.error='Existing innings id is missing from the server response.';return;}
+    void this.router.navigateByUrl('/matches/'+this.matchId+'/live-scoring?inningsId='+encodeURIComponent(id));
+  }
+
+  retry():void{this.loading=true;this.error='';this.innings=null;this.check()}
+  overs(balls:number):string{return Math.floor(balls/6)+'.'+(balls%6)}
+}
