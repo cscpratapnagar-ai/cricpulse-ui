@@ -127,7 +127,9 @@ html, body {
   overflow: hidden;
 }
 
-.app-shell .topbar {
+/* IMPORTANT: scope this only to the shell header. A live-scoring page also has
+   a .topbar of its own; the old descendant selector was overriding that page. */
+.app-shell > .content > .topbar {
   flex: 0 0 78px;
 }
 
@@ -141,7 +143,7 @@ html, body {
 }
 
 @media (max-width: 800px) {
-  .app-shell .topbar {
+  .app-shell > .content > .topbar {
     flex-basis: 64px;
     height: 64px;
   }
