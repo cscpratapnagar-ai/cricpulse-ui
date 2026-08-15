@@ -11,6 +11,7 @@ import { ModulePageComponent } from './module-page.component';
 import { MatchesComponent } from './matches.component';
 import { MatchDetailComponent } from './match-detail.component';
 import { LiveCenterComponent } from './live-center.component';
+import { LiveMatchEntryComponent } from './live-match-entry.component';
 import { ScorerComponent } from './scorer.component';
 import { LiveScoringComponent } from './live-scoring.component';
 import { TeamsComponent } from './teams.component';
@@ -45,13 +46,12 @@ export const routes: Routes = [
       { path: 'matches/:id/toss', component: TossComponent },
       { path: 'matches/:id/opening-players', component: OpeningPlayersComponent },
       { path: 'matches/:id/live-scoring', component: LiveScoringComponent },
-      { path: 'matches/:id/live', component: LiveCenterComponent },
+      { path: 'matches/:id/live', component: LiveMatchEntryComponent },
       { path: 'matches/:id/scorer', component: ScorerComponent },
       { path: 'matches/:id', component: MatchDetailComponent },
       { path: 'live', component: LiveCenterComponent },
       { path: 'scorer', component: ScorerComponent },
       { path: 'teams', component: TeamsComponent },
-      // Static route MUST come before the dynamic :id route.
       { path: 'teams/new', component: CreateTeamComponent },
       { path: 'teams/:id/players/bulk', component: BulkTeamPlayersV2Component },
       { path: 'teams/:id', component: TeamDetailComponent },
@@ -70,13 +70,12 @@ export const routes: Routes = [
   { path: 'matches/:id/toss', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TossComponent }] },
   { path: 'matches/:id/opening-players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: OpeningPlayersComponent }] },
   { path: 'matches/:id/live-scoring', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveScoringComponent }] },
-  { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
+  { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveMatchEntryComponent }] },
   { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'matches/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] },
   { path: 'live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] },
   { path: 'scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'teams', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamsComponent }] },
-  // Static route MUST come before the dynamic :id route.
   { path: 'teams/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateTeamComponent }] },
   { path: 'teams/:id/players/bulk', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: BulkTeamPlayersV2Component }] },
   { path: 'teams/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamDetailComponent }] },
