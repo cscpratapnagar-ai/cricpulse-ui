@@ -3,48 +3,23 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
-
 interface Match { id:string; name:string; status:string; teamAId:string; teamBId:string; teamAName?:string; teamBName?:string; format?:string; }
 interface XIPlayer { teamId:string; playerId:string; name:string; captain:boolean; viceCaptain:boolean; wicketKeeper:boolean; }
-
-@Component({
-  selector:'app-opening-players', standalone:true, imports:[CommonModule,RouterLink,SelectFieldComponent],
-  template:`
-  <section class="page">
-    <a class="back" [routerLink]="['/matches',matchId,'toss']">← Back to toss</a>
-    @if(loading){<div class="card loading">Loading opening players…</div>}
-    @else if(match){
-      <header class="hero">
-        <div><span>MATCH SETUP · OPENING PLAYERS</span><h1>{{match.name}}</h1><p>{{battingName}} will bat first · {{bowlingName}} will bowl first.</p></div>
-        <b>{{match.format || 'MATCH'}}</b>
-      </header>
-      @if(error){<div class="error">{{error}}</div>}
-      <section class="card setup">
-        <div class="section-head"><div><span>01 · FIRST INNINGS</span><h2>Choose the opening players</h2><p>Two batters and one opening bowler are required before scoring starts.</p></div></div>
-        <div class="fields">
-          <app-select-field label="Striker" name="striker" placeholder="Select striker" [options]="battingOptions" [(value)]="strikerId" />
-          <app-select-field label="Non-Striker" name="nonStriker" placeholder="Select non-striker" [options]="battingOptions" [(value)]="nonStrikerId" />
-          <app-select-field label="Opening Bowler" name="bowler" placeholder="Select opening bowler" [options]="bowlingOptions" [(value)]="bowlerId" />
-        </div>
-        @if(strikerId && strikerId === nonStrikerId){<div class="error">Striker and non-striker must be different players.</div>}
-        <div class="actions"><a [routerLink]="['/matches',matchId,'toss']">Back</a><button [disabled]="!canStart" (click)="startInnings()">Start Innings <b>→</b></button></div>
-      </section>
-    }
-  </section>`,
-  styles:[`:host{display:block}.page{max-width:1120px;padding:42px 4vw 100px;color:#edf8f2}.back{display:inline-block;color:#91aa9d;text-decoration:none;font-size:12px;margin-bottom:42px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:28px}.hero span,.section-head span{color:#b8f45c;font-size:10px;font-weight:850;letter-spacing:2px}.hero h1{margin:14px 0 8px;font-size:clamp(42px,6vw,68px);letter-spacing:-4px;line-height:.95}.hero p,.section-head p{color:#91aa9d;font-size:12px}.hero>b{color:#b8f45c;font-size:10px}.card{border:1px solid #ffffff18;border-radius:22px;background:#0c2119d9;box-shadow:0 20px 55px #0004}.setup{padding:28px}.section-head h2{margin:8px 0;font-size:24px}.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}.actions{display:flex;justify-content:flex-end;align-items:center;gap:20px;margin-top:28px}.actions a{color:#91aa9d;text-decoration:none;font-size:12px}.actions button{padding:14px 20px;border:0;border-radius:10px;background:#b8f45c;color:#10251e;font-weight:850;cursor:pointer}.actions button:disabled{opacity:.45;cursor:not-allowed}.actions button b{margin-left:18px}.error{margin-top:16px;padding:12px 14px;border:1px solid #ff6b6030;border-radius:10px;background:#ff6b6010;color:#ffaaa4;font-size:12px}.loading{padding:35px;color:#91aa9d}@media(max-width:760px){.page{padding:30px 20px 90px}.hero{display:block}.fields{grid-template-columns:1fr}.actions{justify-content:space-between}}`]
-})
+@Component({selector:'app-opening-players',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],template:`
+<section class="page"><a class="back" [routerLink]="['/matches',matchId,'toss']">← Back to toss</a>
+@if(loading){<div class="card loading">Loading opening players…</div>}@else if(match){<header class="hero"><div><span>MATCH SETUP · OPENING PLAYERS</span><h1>{{match.name}}</h1><p>{{battingName}} will bat first · {{bowlingName}} will bowl first.</p></div><b>{{match.format||'MATCH'}}</b></header>
+@if(error){<div class="error">{{error}}</div>}<section class="card setup"><div class="section-head"><div><span>01 · FIRST INNINGS</span><h2>Choose the opening players</h2><p>Two batters and one opening bowler are required before scoring starts.</p></div></div><div class="fields"><app-select-field label="Striker" name="striker" placeholder="Select striker" [options]="battingOptions" [(value)]="strikerId"/><app-select-field label="Non-Striker" name="nonStriker" placeholder="Select non-striker" [options]="battingOptions" [(value)]="nonStrikerId"/><app-select-field label="Opening Bowler" name="bowler" placeholder="Select opening bowler" [options]="bowlingOptions" [(value)]="bowlerId"/></div>
+@if(strikerId&&strikerId===nonStrikerId){<div class="error">Striker and non-striker must be different players.</div>}<div class="actions"><a [routerLink]="['/matches',matchId,'toss']">Back</a><button [disabled]="!canStart" (click)="startInnings()">Start Innings <b>→</b></button></div></section>}
+</section>`,styles:[`:host{display:block}.page{max-width:1120px;padding:42px 4vw 100px;color:#edf8f2}.back{display:inline-block;color:#91aa9d;text-decoration:none;font-size:12px;margin-bottom:42px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:28px}.hero span,.section-head span{color:#b8f45c;font-size:10px;font-weight:850;letter-spacing:2px}.hero h1{margin:14px 0 8px;font-size:clamp(42px,6vw,68px);letter-spacing:-4px;line-height:.95}.hero p,.section-head p{color:#91aa9d;font-size:12px}.hero>b{color:#b8f45c;font-size:10px}.card{border:1px solid #ffffff18;border-radius:22px;background:#0c2119d9;box-shadow:0 20px 55px #0004}.setup{padding:28px}.section-head h2{margin:8px 0;font-size:24px}.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}.actions{display:flex;justify-content:flex-end;align-items:center;gap:20px;margin-top:28px}.actions a{color:#91aa9d;text-decoration:none;font-size:12px}.actions button{padding:14px 20px;border:0;border-radius:10px;background:#b8f45c;color:#10251e;font-weight:850;cursor:pointer}.actions button:disabled{opacity:.45;cursor:not-allowed}.actions button b{margin-left:18px}.error{margin-top:16px;padding:12px 14px;border:1px solid #ff6b6030;border-radius:10px;background:#ff6b6010;color:#ffaaa4;font-size:12px}.loading{padding:35px;color:#91aa9d}@media(max-width:760px){.page{padding:30px 20px 90px}.hero{display:block}.fields{grid-template-columns:1fr}.actions{justify-content:space-between}}`]})
 export class OpeningPlayersComponent {
-  private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); private readonly router=inject(Router); private readonly api='http://localhost:8080/api';
-  matchId=this.route.snapshot.paramMap.get('id')||''; match:Match|null=null; xi:XIPlayer[]=[]; loading=true; error=''; strikerId=''; nonStrikerId=''; bowlerId=''; battingTeamId=''; bowlingTeamId='';
-  constructor(){this.load()}
-  get battingName(){return this.match ? (this.battingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Batting Team' : 'Batting Team'}
-  get bowlingName(){return this.match ? (this.bowlingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Bowling Team' : 'Bowling Team'}
-  get battingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.battingTeamId).map(p=>({value:p.playerId,label:p.name}))}
-  get bowlingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.bowlingTeamId).map(p=>({value:p.playerId,label:p.name}))}
-  get canStart(){return !!this.matchId&&!!this.strikerId&&!!this.nonStrikerId&&!!this.bowlerId&&this.strikerId!==this.nonStrikerId}
-  load(){
-    if(!this.matchId){this.loading=false;this.error='Match id is missing.';return}
-    this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({next:m=>{this.match=m;this.http.get<any>(`${this.api}/matches/${this.matchId}/toss`).subscribe({next:t=>{if(!t.recorded){this.router.navigate(['/matches',this.matchId,'toss']);return}this.battingTeamId=t.battingTeamId;this.bowlingTeamId=t.bowlingTeamId;this.http.get<XIPlayer[]>(`${this.api}/matches/${this.matchId}/playing-xi`).subscribe({next:xi=>{this.xi=xi;this.loading=false},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load Playing XI.'}})},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load toss.'}})},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load match.'}})
-  }
-  startInnings(){if(!this.canStart)return;void this.router.navigate(['/matches',this.matchId,'scorer'],{queryParams:{striker:this.strikerId,nonStriker:this.nonStrikerId,bowler:this.bowlerId}})}
+ private readonly http=inject(HttpClient);private readonly route=inject(ActivatedRoute);private readonly router=inject(Router);private readonly api='http://localhost:8080/api';
+ matchId=this.route.snapshot.paramMap.get('id')||'';match:Match|null=null;xi:XIPlayer[]=[];loading=true;error='';strikerId='';nonStrikerId='';bowlerId='';battingTeamId='';bowlingTeamId='';
+ constructor(){this.load()}
+ get battingName(){return this.match?(this.battingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Batting Team':'Batting Team'}
+ get bowlingName(){return this.match?(this.bowlingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Bowling Team':'Bowling Team'}
+ get battingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.battingTeamId).map(p=>({value:p.playerId,label:p.name}))}
+ get bowlingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.bowlingTeamId).map(p=>({value:p.playerId,label:p.name}))}
+ get canStart(){return !!this.matchId&&!!this.strikerId&&!!this.nonStrikerId&&!!this.bowlerId&&this.strikerId!==this.nonStrikerId}
+ load(){if(!this.matchId){this.loading=false;this.error='Match id is missing.';return}this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({next:m=>{this.match=m;this.http.get<any>(`${this.api}/matches/${this.matchId}/toss`).subscribe({next:t=>{if(!t.recorded){this.router.navigate(['/matches',this.matchId,'toss']);return}this.battingTeamId=t.battingTeamId;this.bowlingTeamId=t.bowlingTeamId;this.http.get<XIPlayer[]>(`${this.api}/matches/${this.matchId}/playing-xi`).subscribe({next:xi=>{this.xi=xi;this.loading=false},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load Playing XI.'}})},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load toss.'}})},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load match.'}})}
+ startInnings(){if(!this.canStart)return;void this.router.navigate(['/matches',this.matchId,'live-scoring'],{queryParams:{striker:this.strikerId,nonStriker:this.nonStrikerId,bowler:this.bowlerId}})}
 }
