@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { Observable } from 'rxjs';
 
@@ -36,6 +37,7 @@ export interface LiveScore {
 
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
+  private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8080';
 
   watch(inningsId: string): Observable<LiveScore> {
@@ -44,23 +46,18 @@ export class LiveScoreService {
       let subscription: StompSubscription | undefined;
       let stopped = false;
 
-      // IMPORTANT: Resume must hydrate the screen immediately from the persisted
-      // innings state. WebSocket messages are event-driven and may not emit until
-      // the next delivery, which previously made striker/non-striker/partnership
-      // appear as zero until the user clicked a delivery.
-      fetch(`${this.apiUrl}/api/scoring/innings/${encodeURIComponent(inningsId)}`, {
-        headers: { Accept: 'application/json' }
-      })
-        .then(async response => {
-          if (!response.ok) throw new Error(`Unable to load innings (${response.status})`);
-          return response.json() as Promise<LiveScore>;
-        })
-        .then(score => {
+      // Always hydrate through Angular HttpClient. The app's authInterceptor adds
+      // the logged-in bearer token; native fetch bypassed that interceptor, so the
+      // initial resume GET could fail silently while delivery refresh (HttpClient)
+      // worked correctly.
+      this.http.get<LiveScore>(`${this.apiUrl}/api/scoring/innings/${encodeURIComponent(inningsId)}`).subscribe({
+        next: score => {
           if (!stopped && score?.inningsId === inningsId) subscriber.next(score);
-        })
-        .catch(error => {
-          if (!stopped) subscriber.error(error instanceof Error ? error : new Error('Unable to load innings'));
-        });
+        },
+        error: error => {
+          if (!stopped) subscriber.error(error instanceof Error ? error : new Error(`Unable to load innings (${error?.status ?? 'unknown'})`));
+        }
+      });
 
       const client = new Client({
         brokerURL: this.apiUrl.replace('http', 'ws') + '/ws',
@@ -76,7 +73,7 @@ export class LiveScoreService {
             } catch { subscriber.error(new Error('Invalid live score payload')); }
           });
         },
-        onStompError: (frame) => subscriber.error(new Error(frame.headers['message'] ?? 'WebSocket error')),
+        onStompError: frame => subscriber.error(new Error(frame.headers['message'] ?? 'WebSocket error')),
         onWebSocketError: () => { }
       });
       client.activate();
