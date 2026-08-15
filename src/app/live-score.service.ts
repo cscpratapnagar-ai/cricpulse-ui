@@ -43,6 +43,25 @@ export class LiveScoreService {
       if (!inningsId) { subscriber.error(new Error('Innings ID is required')); return; }
       let subscription: StompSubscription | undefined;
       let stopped = false;
+
+      // IMPORTANT: Resume must hydrate the screen immediately from the persisted
+      // innings state. WebSocket messages are event-driven and may not emit until
+      // the next delivery, which previously made striker/non-striker/partnership
+      // appear as zero until the user clicked a delivery.
+      fetch(`${this.apiUrl}/api/scoring/innings/${encodeURIComponent(inningsId)}`, {
+        headers: { Accept: 'application/json' }
+      })
+        .then(async response => {
+          if (!response.ok) throw new Error(`Unable to load innings (${response.status})`);
+          return response.json() as Promise<LiveScore>;
+        })
+        .then(score => {
+          if (!stopped && score?.inningsId === inningsId) subscriber.next(score);
+        })
+        .catch(error => {
+          if (!stopped) subscriber.error(error instanceof Error ? error : new Error('Unable to load innings'));
+        });
+
       const client = new Client({
         brokerURL: this.apiUrl.replace('http', 'ws') + '/ws',
         reconnectDelay: 3000,
