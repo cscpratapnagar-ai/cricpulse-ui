@@ -25,6 +25,14 @@ interface TossResponse {
   recorded: boolean;
 }
 
+interface TossSaveResponse {
+  matchId: string;
+  tossWinnerTeamId: string;
+  decision: string;
+  battingTeamId: string;
+  bowlingTeamId: string;
+}
+
 @Component({
   selector: 'app-toss',
   standalone: true,
@@ -187,7 +195,7 @@ export class TossComponent {
       return;
     }
     this.saving = true;
-    this.http.post<Omit<TossResponse, 'recorded'>>(`${this.api}/matches/${this.matchId}/toss`, {
+    this.http.post<TossSaveResponse>(`${this.api}/matches/${this.matchId}/toss`, {
       matchId: this.matchId,
       winnerTeamId: this.winnerTeamId,
       decision: this.decision
