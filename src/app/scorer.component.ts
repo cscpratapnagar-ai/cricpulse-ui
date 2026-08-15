@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of, startWith } from 'rxjs';
 import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
 import { LiveScore, LiveScoreService } from './live-score.service';
@@ -36,7 +36,6 @@ interface InningsResponse { id: string; inningsNumber: number; }
           <div class="score-main"><div class="score-label">{{ battingTeamName }} · INNINGS {{ inningsNumber }}</div>@if (score$ | async; as score) {<div class="score">{{ score?.runs ?? 0 }}<em>/{{ score?.wickets ?? 0 }}</em></div><div class="score-sub"><b>{{ overs(score?.legalBalls ?? 0) }}</b> OVERS <span>•</span> LIVE SYNC <strong>●</strong></div>} @else {<div class="score">0<em>/0</em></div>}</div>
           <div class="match-state"><span>SCORING SESSION</span><strong>{{ currentOverLabel }}</strong><small>{{ message || 'Ready for next delivery' }}</small></div>
         </section>
-
         <section class="workspace">
           <div class="main-column">
             <article class="card delivery-card">
@@ -64,7 +63,7 @@ interface InningsResponse { id: string; inningsNumber: number; }
   `]
 })
 export class ScorerComponent {
-  private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); private readonly liveScore=inject(LiveScoreService);
+  private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); private readonly router=inject(Router); private readonly liveScore=inject(LiveScoreService);
   readonly runs=[0,1,2,3,4,6]; readonly inningsOptions:SelectOption[]=[{value:'1',label:'Innings 1'},{value:'2',label:'Innings 2'}];
   matchId=this.route.snapshot.paramMap.get('id')||''; match:Match|null=null; inningsId=''; inningsNumber='1'; battingTeamId=''; strikerId=''; nonStrikerId=''; bowlerId=''; battingPlayers:Player[]=[]; bowlingPlayers:Player[]=[]; score$=of<LiveScore|null>(null); starting=false; message=''; currentLegalBalls=0; currentOver=0; currentBall=1; overBalls:string[]=[]; partnershipRuns=0; partnershipBalls=0;
   constructor(){if(this.matchId)this.loadMatch();}
@@ -75,8 +74,37 @@ export class ScorerComponent {
   get currentOverLabel():string{return `${this.currentOver}.${Math.max(0,this.currentBall-1)}`;}
   private loadMatch():void{this.http.get<Match>(`http://localhost:8080/api/matches/${this.matchId}`).subscribe({next:m=>{this.match=m;this.battingTeamId=m.teamAId;this.loadPlayers(m.teamAId,m.teamBId);},error:()=>this.message='Could not load the match.'});}
   private loadPlayers(battingId:string,bowlingId:string):void{this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${battingId}`).subscribe({next:p=>{this.battingPlayers=p;this.strikerId=p[0]?.id||'';this.nonStrikerId=p[1]?.id||'';},error:()=>this.battingPlayers=[]});this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${bowlingId}`).subscribe({next:p=>{this.bowlingPlayers=p;this.bowlerId=p[0]?.id||'';},error:()=>this.bowlingPlayers=[]});}
-  startInnings():void{if(!this.match||!this.battingTeamId){this.message='Choose the batting team first.';return;}this.starting=true;this.http.post<InningsResponse>('http://localhost:8080/api/scoring/innings',{matchId:this.match.id,inningsNumber:Number(this.inningsNumber),battingTeamId:this.battingTeamId}).subscribe({next:r=>{this.inningsId=r.id;this.inningsNumber=String(r.inningsNumber);this.connectLive();this.message='Innings started. Ready for ball one.';this.starting=false;},error:()=>{this.message='Could not start innings.';this.starting=false;}});}
-  private connectLive():void{this.score$=this.liveScore.watch(this.inningsId).pipe(startWith(null),catchError(()=>of(null)));}
+  startInnings():void{
+    if(!this.match||!this.battingTeamId){this.message='Choose the batting team first.';return;}
+    this.starting=true;
+    this.message='Starting innings…';
+    this.http.post<InningsResponse>('http://localhost:8080/api/scoring/innings',{matchId:this.match.id,inningsNumber:Number(this.inningsNumber),battingTeamId:this.battingTeamId}).subscribe({
+      next:r=>{
+        this.starting=false;
+        this.inningsId=r.id;
+        this.inningsNumber=String(r.inningsNumber);
+        this.router.navigate(['/matches',this.matchId,'live-scoring'],{queryParams:{inningsId:r.id,striker:this.strikerId,nonStriker:this.nonStrikerId,bowler:this.bowlerId}}).then(ok=>{
+          if(!ok){this.message='Innings started, but Live Scoring navigation failed.';this.connectLive();}
+        }).catch(()=>{this.message='Innings started, but Live Scoring navigation failed.';this.connectLive();});
+      },
+      error:err=>{
+        this.starting=false;
+        if(err?.status===400&&String(err?.error?.message||'').toLowerCase().includes('already exists')){
+          this.message='Innings already exists. Opening Live Scoring…';
+          this.http.get<LiveScore>(`http://localhost:8080/api/matches/${this.matchId}/current-innings`).subscribe({
+            next:existing=>{
+              this.inningsId=existing.inningsId;
+              this.router.navigate(['/matches',this.matchId,'live-scoring'],{queryParams:{inningsId:existing.inningsId}});
+            },
+            error:()=>{this.message='Innings already exists, but could not load it.';}
+          });
+          return;
+        }
+        this.message=err?.error?.message||'Could not start innings.';
+      }
+    });
+  }
+  private connectLive():void{if(this.inningsId)this.score$=this.liveScore.watch(this.inningsId).pipe(startWith(null),catchError(()=>of(null)));}
   record(runs:number):void{this.submit(runs,0,null,null,true);}
   extra(type:string):void{this.submit(0,1,type,null,type!=='WIDE'&&type!=='NO_BALL');}
   wicket():void{this.submit(0,0,null,'BOWLED',true);}
