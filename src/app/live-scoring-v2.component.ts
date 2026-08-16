@@ -37,8 +37,6 @@ export class LiveScoringV2Component {
  get bowlingName(){return this.match?((this.bowlingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Bowling Team'):'Bowling Team';}
  get activeBowlerId(){return this.selectedBowlerId||this.score?.currentBowlerId||'';}
  get needsBowlerChange(){return !!this.score&&this.score.status==='LIVE'&&this.score.legalBalls>0&&this.score.legalBalls%6===0&&!this.selectedBowlerId;}
- // Bowler is selectable only at the start of an over. At an over boundary the
- // previous over's final delivery must not make the new over look occupied.
  get canChangeBowler(){return !!this.score&&this.score.status==='LIVE'&&!this.busy&&(this.score.legalBalls||0)%6===0;}
  get canDeliver(){return !!this.score&&this.score.status==='LIVE'&&!!this.activeBowlerId&&!this.needsBowlerChange&&!this.busy&&(this.score.wickets??0)<10;}
  get ballLabel(){const b=this.score?.legalBalls||0;return `${Math.floor(b/6)}.${b%6}`;}
