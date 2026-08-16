@@ -22,6 +22,7 @@ import { PlayingXiV2Component } from './playing-xi-v2.component';
 import { BulkTeamPlayersV2Component } from './bulk-team-players-v2.component';
 import { TossComponent } from './toss.component';
 import { OpeningPlayersComponent } from './opening-players.component';
+import { MatchResultComponent } from './match-result.component';
 
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 
@@ -38,6 +39,7 @@ export const routes: Routes = [
     { path: 'matches/:id/toss', component: TossComponent },
     { path: 'matches/:id/opening-players', component: OpeningPlayersComponent },
     { path: 'matches/:id/live-scoring', component: LiveScoringV2Component },
+    { path: 'matches/:id/result', component: MatchResultComponent },
     { path: 'matches/:id/live', component: LiveMatchEntryComponent },
     { path: 'matches/:id/scorer', component: ScorerComponent },
     { path: 'matches/:id', component: MatchDetailComponent },
@@ -60,6 +62,7 @@ export const routes: Routes = [
   { path: 'matches/:id/toss', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TossComponent }] },
   { path: 'matches/:id/opening-players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: OpeningPlayersComponent }] },
   { path: 'matches/:id/live-scoring', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveScoringV2Component }] },
+  { path: 'matches/:id/result', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchResultComponent }] },
   { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveMatchEntryComponent }] },
   { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] },
   { path: 'matches/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] },
