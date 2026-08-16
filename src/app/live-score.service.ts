@@ -11,28 +11,11 @@ export interface LiveFallOfWicket { wicketNumber: number; playerId: string; runs
 export interface LiveOver { overNumber: number; bowlerId: string; runs: number; wickets: number; legalBalls: number; wides: number; noBalls: number; byes: number; legByes: number; completed: boolean; }
 
 export interface LiveScore {
-  inningsId: string;
-  matchId: string;
-  inningsNumber: number;
-  runs: number;
-  wickets: number;
-  legalBalls: number;
-  totalOvers?: number | null;
-  status?: string;
-  targetRuns?: number | null;
-  currentOver?: number;
-  currentBall?: number;
-  strikerId?: string | null;
-  nonStrikerId?: string | null;
-  currentBowlerId?: string | null;
-  overBalls?: string[];
-  eventVersion?: number;
-  batters?: LiveBatter[];
-  bowlers?: LiveBowler[];
-  overs?: LiveOver[];
-  recentBalls?: LiveRecentBall[];
-  partnership?: LivePartnership | null;
-  fallOfWickets?: LiveFallOfWicket[];
+  inningsId: string; matchId: string; inningsNumber: number; runs: number; wickets: number; legalBalls: number;
+  totalOvers?: number | null; status?: string; targetRuns?: number | null; currentOver?: number; currentBall?: number;
+  strikerId?: string | null; nonStrikerId?: string | null; currentBowlerId?: string | null; overBalls?: string[];
+  eventVersion?: number; batters?: LiveBatter[]; bowlers?: LiveBowler[]; overs?: LiveOver[];
+  recentBalls?: LiveRecentBall[]; partnership?: LivePartnership | null; fallOfWickets?: LiveFallOfWicket[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,17 +29,10 @@ export class LiveScoreService {
       let subscription: StompSubscription | undefined;
       let stopped = false;
 
-      // Always hydrate through Angular HttpClient. The app's authInterceptor adds
-      // the logged-in bearer token; native fetch bypassed that interceptor, so the
-      // initial resume GET could fail silently while delivery refresh (HttpClient)
-      // worked correctly.
-      this.http.get<LiveScore>(`${this.apiUrl}/api/scoring/innings/${encodeURIComponent(inningsId)}`).subscribe({
-        next: score => {
-          if (!stopped && score?.inningsId === inningsId) subscriber.next(score);
-        },
-        error: error => {
-          if (!stopped) subscriber.error(error instanceof Error ? error : new Error(`Unable to load innings (${error?.status ?? 'unknown'})`));
-        }
+      // Public viewer must never depend on scorer authentication.
+      this.http.get<LiveScore>(`${this.apiUrl}/api/public/innings/${encodeURIComponent(inningsId)}`).subscribe({
+        next: score => { if (!stopped && score?.inningsId === inningsId) subscriber.next(score); },
+        error: error => { if (!stopped) subscriber.error(new Error(`Unable to load public score (${error?.status ?? 'unknown'})`)); }
       });
 
       const client = new Client({
@@ -69,7 +45,7 @@ export class LiveScoreService {
           subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
             try {
               const score = JSON.parse(message.body) as LiveScore;
-              if (score && score.inningsId === inningsId) subscriber.next(score);
+              if (score?.inningsId === inningsId) subscriber.next(score);
             } catch { subscriber.error(new Error('Invalid live score payload')); }
           });
         },
