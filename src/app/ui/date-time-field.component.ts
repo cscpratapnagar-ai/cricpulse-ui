@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
-interface CalendarDay { date: Date; number: number; currentMonth: boolean; selected: boolean; }
+interface CalendarDay { date: Date; number: number; currentMonth: boolean; selected: boolean; today: boolean; }
 
 @Component({
   selector: 'app-date-time-field',
@@ -8,12 +8,22 @@ interface CalendarDay { date: Date; number: number; currentMonth: boolean; selec
   template: `
     <label class="field">
       <span>{{label}}</span>
-      <button type="button" class="trigger" (click)="toggle()"><span [class.muted]="!value">{{displayValue}}</span><b>v</b></button>
+      <button type="button" class="trigger" [class.open]="open" [attr.aria-expanded]="open" (click)="toggle()">
+        <span [class.muted]="!selectedDate">{{displayValue}}</span><b>⌄</b>
+      </button>
       @if(open){
-        <div class="picker" [class.up]="openUp">
-          <div class="picker-head"><button type="button" (click)="previousMonth()">&#8249;</button><strong>{{monthLabel}}</strong><button type="button" (click)="nextMonth()">&#8250;</button></div>
+        <div class="picker" [class.up]="openUp" role="dialog" aria-label="Calendar">
+          <div class="picker-head">
+            <button type="button" aria-label="Previous month" (click)="previousMonth()">‹</button>
+            <strong>{{monthLabel}}</strong>
+            <button type="button" aria-label="Next month" (click)="nextMonth()">›</button>
+          </div>
           <div class="weekdays">@for(day of weekdays; track day){<span>{{day}}</span>}</div>
-          <div class="calendar">@for(day of calendarDays; track day.date.getTime()){<button type="button" [class.muted-day]="!day.currentMonth" [class.selected]="day.selected" (click)="selectDay(day)">{{day.number}}</button>}</div>
+          <div class="calendar">
+            @for(day of calendarDays; track day.date.getTime()){
+              <button type="button" [class.muted-day]="!day.currentMonth" [class.today]="day.today" [class.selected]="day.selected" [attr.aria-selected]="day.selected" (click)="selectDay(day)">{{day.number}}</button>
+            }
+          </div>
           @if(includeTime){
             <div class="time-row"><span>TIME</span><select [value]="hour" (change)="hour=$any($event.target).value;emitValue()">@for(item of hours; track item){<option [value]="item">{{item}}</option>}</select><b>:</b><select [value]="minute" (change)="minute=$any($event.target).value;emitValue()">@for(item of minutes; track item){<option [value]="item">{{item}}</option>}</select><select [value]="period" (change)="period=$any($event.target).value;emitValue()"><option>AM</option><option>PM</option></select></div>
           }
@@ -22,7 +32,7 @@ interface CalendarDay { date: Date; number: number; currentMonth: boolean; selec
       }
     </label>
   `,
-  styles: [`:host{display:block}.field{position:relative;display:grid;gap:8px;color:#b9ccc2;font-size:12px;font-weight:750}.trigger{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;width:100%;height:50px;padding:0 15px;border:1px solid #ffffff1c;border-radius:11px;background:linear-gradient(135deg,#ffffff0c,#ffffff05);color:#f3fbf6;font:inherit;text-align:left;cursor:pointer}.trigger:focus,.trigger:hover{border-color:#b8f45c;box-shadow:0 0 0 3px #b8f45c18}.trigger b{color:#b8f45c;font-size:12px}.muted{color:#789386}.picker{position:absolute;z-index:50;top:78px;left:0;width:300px;padding:16px;border:1px solid #ffffff25;border-radius:16px;background:#10251ef7;box-shadow:0 24px 60px #000b;backdrop-filter:blur(18px)}.picker.up{top:auto;bottom:78px}.picker-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.picker-head strong{color:#f3fbf6;font-size:13px}.picker-head button,.picker-foot button{border:0;background:transparent;color:#b8f45c;cursor:pointer;font-size:20px}.weekdays,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekdays{margin-bottom:6px}.weekdays span{color:#789386;font-size:9px;text-align:center}.calendar button{height:31px;border:0;border-radius:8px;background:transparent;color:#e3f2e9;font-size:11px;cursor:pointer}.calendar button:hover{background:#b8f45c20;color:#b8f45c}.calendar .muted-day{color:#527366}.calendar .selected{background:#b8f45c;color:#10251e;font-weight:900}.time-row{display:flex;align-items:center;gap:6px;margin-top:17px;padding-top:14px;border-top:1px solid #ffffff15}.time-row span{margin-right:auto;color:#789386;font-size:9px;letter-spacing:1px}.time-row select{padding:7px 4px;border:1px solid #ffffff18;border-radius:7px;background:#ffffff0b;color:#fff;font-size:11px}.time-row select option{background:#10251e}.picker-foot{display:flex;justify-content:space-between;margin-top:12px}.picker-foot button{font-size:11px;font-weight:800}.picker-foot button:last-child{color:#91aa9d}@media(max-width:650px){.picker{width:min(300px,calc(100vw - 42px))}}`]
+  styles: [`:host{display:block}.field{position:relative;display:grid;gap:8px;color:#b9ccc2;font-size:12px;font-weight:750}.trigger{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;width:100%;height:50px;padding:0 15px;border:1px solid #ffffff1c;border-radius:11px;background:linear-gradient(135deg,#ffffff0c,#ffffff05);color:#f3fbf6;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}.trigger:hover,.trigger.open{border-color:#b8f45c;box-shadow:0 0 0 3px #b8f45c18}.trigger b{color:#b8f45c;font-size:15px;line-height:1}.muted{color:#789386}.picker{position:absolute;z-index:100;top:78px;left:0;width:300px;box-sizing:border-box;padding:16px;border:1px solid #ffffff25;border-radius:16px;background:#10251ef7;box-shadow:0 24px 60px #000b;backdrop-filter:blur(18px)}.picker.up{top:auto;bottom:78px}.picker-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.picker-head strong{color:#f3fbf6;font-size:13px}.picker-head button,.picker-foot button{width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#b8f45c;cursor:pointer;font-size:22px}.picker-head button:hover,.picker-foot button:hover{background:#b8f45c18}.weekdays,.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekdays{margin-bottom:6px}.weekdays span{color:#789386;font-size:9px;text-align:center}.calendar button{height:32px;border:0;border-radius:8px;background:transparent;color:#e3f2e9;font-size:11px;cursor:pointer}.calendar button:hover{background:#b8f45c20;color:#b8f45c}.calendar .muted-day{color:#527366}.calendar .today{box-shadow:inset 0 0 0 1px #b8f45c55}.calendar .selected{background:#b8f45c;color:#10251e;font-weight:900;box-shadow:none}.time-row{display:flex;align-items:center;gap:6px;margin-top:17px;padding-top:14px;border-top:1px solid #ffffff15}.time-row span{margin-right:auto;color:#789386;font-size:9px;letter-spacing:1px}.time-row select{padding:7px 4px;border:1px solid #ffffff18;border-radius:7px;background:#ffffff0b;color:#fff;font-size:11px}.time-row select option{background:#10251e}.picker-foot{display:flex;justify-content:space-between;margin-top:12px}.picker-foot button{width:auto;height:auto;font-size:11px;font-weight:800;padding:5px 7px}.picker-foot button:last-child{color:#91aa9d}@media(max-width:650px){.picker{width:min(300px,calc(100vw - 42px))}}`]
 })
 export class DateTimeFieldComponent {
   @Input() label = ''; @Input() name = ''; @Input() value = ''; @Input() includeTime = true;
@@ -32,17 +42,17 @@ export class DateTimeFieldComponent {
   constructor(private host: ElementRef<HTMLElement>){ this.syncFromValue(); }
   get monthLabel(): string { return this.viewDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
   get displayValue(): string { if(!this.selectedDate)return this.includeTime ? 'Select date and time' : 'Select date'; const date=this.selectedDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); return this.includeTime ? `${date} - ${this.hour}:${this.minute} ${this.period}` : date; }
-  get calendarDays(): CalendarDay[] { const first=new Date(this.viewDate.getFullYear(),this.viewDate.getMonth(),1); const start=new Date(first); start.setDate(1-first.getDay()); return Array.from({length:42},(_,i)=>{const d=new Date(start); d.setDate(start.getDate()+i); return {date:d,number:d.getDate(),currentMonth:d.getMonth()===this.viewDate.getMonth(),selected:!!this.selectedDate&&d.toDateString()===this.selectedDate.toDateString()}; }); }
-  toggle(): void { this.open=!this.open; if(this.open) setTimeout(() => this.updatePlacement()); }
+  get calendarDays(): CalendarDay[] { const first=new Date(this.viewDate.getFullYear(),this.viewDate.getMonth(),1); const start=new Date(first); start.setDate(1-first.getDay()); const today=new Date(); return Array.from({length:42},(_,i)=>{const d=new Date(start); d.setDate(start.getDate()+i); return {date:d,number:d.getDate(),currentMonth:d.getMonth()===this.viewDate.getMonth(),selected:!!this.selectedDate&&d.toDateString()===this.selectedDate.toDateString(),today:d.toDateString()===today.toDateString()}; }); }
+  toggle(): void { this.open=!this.open; if(this.open){ if(this.selectedDate)this.viewDate=new Date(this.selectedDate.getFullYear(),this.selectedDate.getMonth(),1); else this.viewDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); setTimeout(()=>this.updatePlacement()); } }
   private updatePlacement(): void { const trigger=this.host.nativeElement.querySelector('.trigger'); if(!trigger)return; const box=trigger.getBoundingClientRect(); const pickerHeight=this.includeTime?390:330; const spaceBelow=window.innerHeight-box.bottom; const spaceAbove=box.top; this.openUp=spaceBelow < pickerHeight && spaceAbove > spaceBelow; }
   previousMonth(): void { this.viewDate=new Date(this.viewDate.getFullYear(),this.viewDate.getMonth()-1,1); }
   nextMonth(): void { this.viewDate=new Date(this.viewDate.getFullYear(),this.viewDate.getMonth()+1,1); }
-  selectDay(day: CalendarDay): void { this.selectedDate=day.date; this.viewDate=new Date(day.date.getFullYear(),day.date.getMonth(),1); this.emitValue(); if(!this.includeTime)this.open=false; }
-  today(): void { this.selectedDate=new Date(); this.viewDate=new Date(); this.emitValue(); if(!this.includeTime)this.open=false; }
+  selectDay(day: CalendarDay): void { this.selectedDate=new Date(day.date.getFullYear(),day.date.getMonth(),day.date.getDate()); this.viewDate=new Date(day.date.getFullYear(),day.date.getMonth(),1); this.emitValue(); if(!this.includeTime)this.open=false; }
+  today(): void { const now=new Date(); this.selectedDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()); this.viewDate=new Date(now.getFullYear(),now.getMonth(),1); this.emitValue(); if(!this.includeTime)this.open=false; }
   clear(): void { this.selectedDate=null; this.value=''; this.valueChange.emit(''); this.open=false; }
-  emitValue(): void { if(!this.selectedDate)return; const d=new Date(this.selectedDate); if(this.includeTime){ const h=Number(this.hour)%12+(this.period==='PM'?12:0); d.setHours(h,Number(this.minute),0,0); } else { d.setHours(0,0,0,0); } const pad=(n:number)=>String(n).padStart(2,'0'); this.value=this.includeTime ? `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}` : `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; this.valueChange.emit(this.value); }
-  private syncFromValue(): void { if(!this.value)return; const d=new Date(this.value); if(Number.isNaN(d.getTime()))return; this.selectedDate=d; this.viewDate=new Date(d.getFullYear(),d.getMonth(),1); const h=d.getHours(); this.period=h>=12?'PM':'AM'; this.hour=String(h%12||12); this.minute=String(Math.floor(d.getMinutes()/15)*15).padStart(2,'0'); }
-  @HostListener('document:click',['$event']) close(event: Event): void { if(this.open&&!((event.target as HTMLElement).closest('app-date-time-field')))this.open=false; }
+  emitValue(): void { if(!this.selectedDate)return; const d=new Date(this.selectedDate); if(this.includeTime){const h=Number(this.hour)%12+(this.period==='PM'?12:0); d.setHours(h,Number(this.minute),0,0);}else d.setHours(0,0,0,0); const pad=(n:number)=>String(n).padStart(2,'0'); this.value=this.includeTime?`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; this.valueChange.emit(this.value); }
+  private syncFromValue(): void { if(!this.value)return; const d=new Date(this.value); if(Number.isNaN(d.getTime()))return; this.selectedDate=new Date(d.getFullYear(),d.getMonth(),d.getDate()); this.viewDate=new Date(d.getFullYear(),d.getMonth(),1); const h=d.getHours(); this.period=h>=12?'PM':'AM'; this.hour=String(h%12||12); this.minute=String(Math.floor(d.getMinutes()/15)*15).padStart(2,'0'); }
+  @HostListener('document:click',['$event']) close(event: Event): void { if(this.open&&!this.host.nativeElement.contains(event.target as Node))this.open=false; }
   @HostListener('window:resize') onResize(): void { if(this.open)this.updatePlacement(); }
   @HostListener('window:scroll') onScroll(): void { if(this.open)this.updatePlacement(); }
 }
