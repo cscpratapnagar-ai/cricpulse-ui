@@ -36,7 +36,11 @@ interface Match {
             </div>
           </div>
           <div class="hero-actions">
-            <a class="primary" [routerLink]="['/matches', match.id, 'playing-xi']">Playing XI →</a>
+            @if (match.status === 'COMPLETED') {
+              <a class="primary" [routerLink]="['/matches', match.id, 'result']">🏆 View Match Result →</a>
+            } @else {
+              <a class="primary" [routerLink]="['/matches', match.id, 'playing-xi']">Playing XI →</a>
+            }
             @if (match.status === 'SCHEDULED') {
               <a class="toss-action" [routerLink]="['/matches', match.id, 'toss']">🏏 Toss →</a>
             }
