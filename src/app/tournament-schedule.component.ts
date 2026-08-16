@@ -64,4 +64,3 @@ export class TournamentScheduleComponent {
  private toOffset(v:string){const d=new Date(v);return d.toISOString();}
  format(v:string){return new Date(v).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});}
 }
-`;
