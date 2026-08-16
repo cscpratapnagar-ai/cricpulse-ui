@@ -33,7 +33,7 @@ interface MatchResult {
       @if (loading) {
         <section class="card loading">Loading match result…</section>
       } @else if (result) {
-        <a class="back" [routerLink]="['/matches', result.matchId]">← Back to match</a>
+        <a class="back" [routerLink]="['/matches', result.matchId, 'overview']">← Back to match</a>
 
         <header class="hero card">
           <div>
@@ -82,7 +82,7 @@ interface MatchResult {
         </section>
 
         <div class="actions">
-          <a [routerLink]="['/matches', result.matchId]">Match Centre →</a>
+          <a [routerLink]="['/matches', result.matchId, 'overview']">Match Centre →</a>
           <a [routerLink]="['/matches', result.matchId, 'live']">Scoreboard →</a>
         </div>
       } @else {
