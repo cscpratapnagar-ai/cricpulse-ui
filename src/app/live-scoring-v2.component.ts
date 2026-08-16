@@ -38,7 +38,7 @@ export class LiveScoringV2Component {
  get bowlingName(){return this.match?((this.bowlingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Bowling Team'):'Bowling Team';}
  get activeBowlerId(){return this.selectedBowlerId||this.score?.currentBowlerId||'';}
  get needsBowlerChange(){return !!this.score&&this.score.status==='LIVE'&&this.score.legalBalls>0&&this.score.legalBalls%6===0&&!this.selectedBowlerId;}
- get canChangeBowler(){return !!this.score&&this.score.status==='LIVE'&&!this.busy&&this.score.legalBalls%6===0;}
+ get canChangeBowler(){if(!this.score||this.score.status!=='LIVE'||this.busy)return false;const legal=this.score.legalBalls||0;if(legal%6!==0)return false;const currentOver=legal===0?0:Math.floor(legal/6);return !(this.score.recentBalls||[]).some((b:any)=>b.overNumber===currentOver);}
  get canDeliver(){return !!this.score&&this.score.status==='LIVE'&&!!this.activeBowlerId&&!this.needsBowlerChange&&!this.busy&&(this.score.wickets??0)<10;}
  get ballLabel(){const b=this.score?.legalBalls||0;return `${Math.floor(b/6)}.${b%6}`;}
  get publicScoreUrl(){return `/live/${this.matchId}`;}
