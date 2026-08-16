@@ -3,11 +3,150 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-interface Tournament{id:string;name:string;format:string;overs:number;startDate:string|null;location:string|null;status:string;}
-interface Team{id:string;name:string;city:string|null;seed:number|null;}
-interface Fixture{matchId:string;fixtureNumber:number|null;stage:string;matchName:string;teamAName:string;teamBName:string;status:string;scheduledAt:string|null;}
-interface Point{teamId:string;teamName:string;played:number;wins:number;losses:number;ties:number;points:number;runsFor:number;runsAgainst:number;nrr:number;}
+interface Tournament { id:string; name:string; format:string; overs:number; startDate:string|null; location:string|null; status:string; }
+interface Team { id:string; name:string; city:string|null; seed:number|null; }
+interface Fixture { matchId:string; fixtureNumber:number|null; stage:string; matchName:string; teamAName:string; teamBName:string; status:string; scheduledAt:string|null; }
+interface Point { teamId:string; teamName:string; played:number; wins:number; losses:number; ties:number; points:number; runsFor:number; runsAgainst:number; nrr:number; }
 
-@Component({selector:'app-tournament-analytics',standalone:true,imports:[CommonModule,RouterLink],template:`<section class="page"><a class="back" [routerLink]="['/tournaments',id]">← Tournament</a>@if(loading){<section class="card state">Loading tournament analytics…</section>}@else if(t){<header class="hero card"><div><span class="eyebrow">CRICPULSE · COMPETITION INTELLIGENCE</span><h1>{{t.name}}</h1><p>{{t.format}} · {{t.overs}} overs{{t.location?' · '+t.location:''}}</p></div><span class="badge">LIVE ANALYTICS</span></header><section class="metrics"><article class="card metric"><span>TEAMS</span><strong>{{teams.length}}</strong><small>Registered</small></article><article class="card metric"><span>FIXTURES</span><strong>{{fixtures.length}}</strong><small>{{completed}} completed</small></article><article class="card metric"><span>COMPLETION</span><strong>{{completion}}%</strong><small>League schedule</small></article><article class="card metric"><span>POINTS LEADER</span><strong class="leader">{{leader?.teamName||'—'}}</strong><small>{{leader?leader.points+' points':'No completed match'}}</small></article></section><section class="grid"><section class="card panel"><div class="head"><div><span class="eyebrow">COMPETITION HEALTH</span><h2>Fixture pipeline</h2></div></div><div class="progress"><div [style.width.%]="completion"></div></div><div class="health-row"><div><strong>{{scheduled}}</strong><span>Scheduled</span></div><div><strong>{{completed}}</strong><span>Completed</span></div><div><strong>{{pending}}</strong><span>Pending</span></div></div><div class="next">{{nextFixtureText}}</div></section><section class="card panel"><div class="head"><div><span class="eyebrow">TEAM PERFORMANCE</span><h2>Current leaders</h2></div></div>@if(points.length){<div class="leader-list">@for(p of topTeams;track p.teamId;let i=$index){<div class="row"><span class="rank">#{{i+1}}</span><div><strong>{{p.teamName}}</strong><small>{{p.wins}}W · {{p.played}}P · NRR {{p.nrr|number:'1.3-3'}}</small></div><b>{{p.points}} PTS</b></div>}}</div>}@else{<p class="muted">Complete matches to populate team analytics.</p>}</section></section><section class="card panel"><div class="head"><div><span class="eyebrow">RUN PRODUCTION</span><h2>Runs for vs runs against</h2></div><span class="hint">Based on completed fixtures</span></div>@if(points.length){<div class="bars">@for(p of topRuns;track p.teamId){<div class="bar-row"><div class="bar-label"><strong>{{p.teamName}}</strong><span>{{p.runsFor}} / {{p.runsAgainst}}</span></div><div class="bar-track"><i [style.width.%]="barWidth(p.runsFor)"></i><em [style.width.%]="barWidth(p.runsAgainst)"></em></div></div>}}</div>}@else{<p class="muted">No completed match data yet.</p>}</section><div class="actions"><a [routerLink]="['/tournaments',id,'qualification']">Qualification Preview →</a><a [routerLink]="['/tournaments',id,'schedule']">Schedule Fixtures →</a></div>}@else{<section class="card state"><h2>Tournament not found</h2><a routerLink="/tournaments">Back to tournaments →</a></section>}</section>`,styles:[`:host{display:block}.page{max-width:1180px;margin:auto;padding:34px 4vw 100px;color:#edf8f2}.card{border:1px solid #ffffff16;border-radius:22px;background:linear-gradient(180deg,#0f271ee8,#091712f7);box-shadow:0 18px 50px #0006}.back{display:inline-block;margin-bottom:18px;color:#91aa9d;text-decoration:none;font-size:12px}.back:hover{color:#b8f45c}.eyebrow{display:block;color:#789386;font-size:9px;font-weight:900;letter-spacing:2px}.hero{display:flex;justify-content:space-between;align-items:center;padding:30px}.hero h1{margin:8px 0 5px;font-size:clamp(36px,6vw,60px);letter-spacing:-3px}.hero p{margin:0;color:#91aa9d;font-size:11px}.badge{padding:9px 12px;border-radius:99px;background:#b8f45c15;color:#b8f45c;font-size:8px;font-weight:900;letter-spacing:1px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.metric{padding:20px}.metric span{display:block;color:#789386;font-size:8px;font-weight:900;letter-spacing:1.5px}.metric strong{display:block;margin-top:10px;font-size:30px;letter-spacing:-1px}.metric .leader{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric small{display:block;margin-top:5px;color:#789386;font-size:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{padding:22px;margin-bottom:18px}.head{display:flex;justify-content:space-between;align-items:start;margin-bottom:18px}.head h2{margin:6px 0 0;font-size:19px}.hint{color:#789386;font-size:8px}.progress{height:10px;border-radius:99px;background:#ffffff09;overflow:hidden}.progress div{height:100%;border-radius:99px;background:#b8f45c;transition:width .3s}.health-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.health-row div{padding:13px;border:1px solid #ffffff0d;border-radius:12px}.health-row strong{display:block;font-size:20px}.health-row span{display:block;margin-top:4px;color:#789386;font-size:8px}.next{margin-top:14px;color:#91aa9d;font-size:9px}.leader-list{display:grid;gap:5px}.row{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:12px;border-top:1px solid #ffffff0d}.row strong{font-size:10px}.row small{display:block;margin-top:4px;color:#789386;font-size:8px}.row>b{color:#b8f45c;font-size:9px}.rank{color:#789386;font-size:9px}.bar-row{display:grid;grid-template-columns:160px 1fr;gap:15px;align-items:center;margin:15px 0}.bar-label{display:flex;justify-content:space-between;gap:10px}.bar-label strong,.bar-label span{font-size:9px}.bar-label span{color:#789386}.bar-track{position:relative;height:14px;border-radius:99px;background:#ffffff06;overflow:hidden}.bar-track i,.bar-track em{position:absolute;left:0;top:0;height:100%;border-radius:99px}.bar-track i{background:#b8f45c}.bar-track em{background:#edf8f230}.muted{color:#789386;font-size:10px}.actions{display:flex;justify-content:flex-end;gap:10px}.actions a,.state a{padding:12px 16px;border-radius:11px;background:#b8f45c;color:#10251e;text-decoration:none;font-size:10px;font-weight:900}.state{padding:50px}.state h2{margin-bottom:18px}@media(max-width:800px){.metrics{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}.actions{flex-direction:column}.actions a{text-align:center}}@media(max-width:480px){.page{padding:24px 16px 70px}.hero{flex-direction:column;align-items:flex-start;gap:15px}.metrics{grid-template-columns:1fr}.health-row{grid-template-columns:1fr 1fr}.metric .leader{font-size:16px}}`]
+@Component({
+  selector: 'app-tournament-analytics',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
+    <section class="page">
+      <a class="back" [routerLink]="['/tournaments', id]">← Tournament</a>
+
+      @if (loading) {
+        <section class="card state">Loading tournament analytics…</section>
+      } @else if (t) {
+        <header class="hero card">
+          <div>
+            <span class="eyebrow">CRICPULSE · COMPETITION INTELLIGENCE</span>
+            <h1>{{ t.name }}</h1>
+            <p>{{ t.format }} · {{ t.overs }} overs{{ t.location ? ' · ' + t.location : '' }}</p>
+          </div>
+          <span class="badge">LIVE ANALYTICS</span>
+        </header>
+
+        <section class="metrics">
+          <article class="card metric"><span>TEAMS</span><strong>{{ teams.length }}</strong><small>Registered</small></article>
+          <article class="card metric"><span>FIXTURES</span><strong>{{ fixtures.length }}</strong><small>{{ completed }} completed</small></article>
+          <article class="card metric"><span>COMPLETION</span><strong>{{ completion }}%</strong><small>League schedule</small></article>
+          <article class="card metric"><span>POINTS LEADER</span><strong class="leader">{{ leader?.teamName || '—' }}</strong><small>{{ leader ? leader.points + ' points' : 'No completed match' }}</small></article>
+        </section>
+
+        <section class="grid">
+          <section class="card panel">
+            <div class="head"><div><span class="eyebrow">COMPETITION HEALTH</span><h2>Fixture pipeline</h2></div></div>
+            <div class="progress"><div [style.width.%]="completion"></div></div>
+            <div class="health-row">
+              <div><strong>{{ scheduled }}</strong><span>Scheduled</span></div>
+              <div><strong>{{ completed }}</strong><span>Completed</span></div>
+              <div><strong>{{ pending }}</strong><span>Pending</span></div>
+            </div>
+            <div class="next">{{ nextFixtureText }}</div>
+          </section>
+
+          <section class="card panel">
+            <div class="head"><div><span class="eyebrow">TEAM PERFORMANCE</span><h2>Current leaders</h2></div></div>
+            @if (points.length) {
+              <div class="leader-list">
+                @for (p of topTeams; track p.teamId; let i = $index) {
+                  <div class="row">
+                    <span class="rank">#{{ i + 1 }}</span>
+                    <div><strong>{{ p.teamName }}</strong><small>{{ p.wins }}W · {{ p.played }}P · NRR {{ p.nrr | number:'1.3-3' }}</small></div>
+                    <b>{{ p.points }} PTS</b>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="muted">Complete matches to populate team analytics.</p>
+            }
+          </section>
+        </section>
+
+        <section class="card panel">
+          <div class="head"><div><span class="eyebrow">RUN PRODUCTION</span><h2>Runs for vs runs against</h2></div><span class="hint">Based on completed fixtures</span></div>
+          @if (points.length) {
+            <div class="bars">
+              @for (p of topRuns; track p.teamId) {
+                <div class="bar-row">
+                  <div class="bar-label"><strong>{{ p.teamName }}</strong><span>{{ p.runsFor }} / {{ p.runsAgainst }}</span></div>
+                  <div class="bar-track"><i [style.width.%]="barWidth(p.runsFor)"></i><em [style.width.%]="barWidth(p.runsAgainst)"></em></div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="muted">No completed match data yet.</p>
+          }
+        </section>
+
+        <div class="actions">
+          <a [routerLink]="['/tournaments', id, 'qualification']">Qualification Preview →</a>
+          <a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures →</a>
+        </div>
+      } @else {
+        <section class="card state">
+          <h2>Tournament not found</h2>
+          <a routerLink="/tournaments">Back to tournaments →</a>
+        </section>
+      }
+    </section>
+  `,
+  styles: [`
+    :host{display:block}.page{max-width:1180px;margin:auto;padding:34px 4vw 100px;color:#edf8f2}.card{border:1px solid #ffffff16;border-radius:22px;background:linear-gradient(180deg,#0f271ee8,#091712f7);box-shadow:0 18px 50px #0006}.back{display:inline-block;margin-bottom:18px;color:#91aa9d;text-decoration:none;font-size:12px}.back:hover{color:#b8f45c}.eyebrow{display:block;color:#789386;font-size:9px;font-weight:900;letter-spacing:2px}.hero{display:flex;justify-content:space-between;align-items:center;padding:30px}.hero h1{margin:8px 0 5px;font-size:clamp(36px,6vw,60px);letter-spacing:-3px}.hero p{margin:0;color:#91aa9d;font-size:11px}.badge{padding:9px 12px;border-radius:99px;background:#b8f45c15;color:#b8f45c;font-size:8px;font-weight:900;letter-spacing:1px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.metric{padding:20px}.metric span{display:block;color:#789386;font-size:8px;font-weight:900;letter-spacing:1.5px}.metric strong{display:block;margin-top:10px;font-size:30px;letter-spacing:-1px}.metric .leader{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric small{display:block;margin-top:5px;color:#789386;font-size:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{padding:22px;margin-bottom:18px}.head{display:flex;justify-content:space-between;align-items:start;margin-bottom:18px}.head h2{margin:6px 0 0;font-size:19px}.hint{color:#789386;font-size:8px}.progress{height:10px;border-radius:99px;background:#ffffff09;overflow:hidden}.progress div{height:100%;border-radius:99px;background:#b8f45c;transition:width .3s}.health-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.health-row div{padding:13px;border:1px solid #ffffff0d;border-radius:12px}.health-row strong{display:block;font-size:20px}.health-row span{display:block;margin-top:4px;color:#789386;font-size:8px}.next{margin-top:14px;color:#91aa9d;font-size:9px}.leader-list{display:grid;gap:5px}.row{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:12px;border-top:1px solid #ffffff0d}.row strong{font-size:10px}.row small{display:block;margin-top:4px;color:#789386;font-size:8px}.row>b{color:#b8f45c;font-size:9px}.rank{color:#789386;font-size:9px}.bar-row{display:grid;grid-template-columns:160px 1fr;gap:15px;align-items:center;margin:15px 0}.bar-label{display:flex;justify-content:space-between;gap:10px}.bar-label strong,.bar-label span{font-size:9px}.bar-label span{color:#789386}.bar-track{position:relative;height:14px;border-radius:99px;background:#ffffff06;overflow:hidden}.bar-track i,.bar-track em{position:absolute;left:0;top:0;height:100%;border-radius:99px}.bar-track i{background:#b8f45c}.bar-track em{background:#edf8f230}.muted{color:#789386;font-size:10px}.actions{display:flex;justify-content:flex-end;gap:10px}.actions a,.state a{padding:12px 16px;border-radius:11px;background:#b8f45c;color:#10251e;text-decoration:none;font-size:10px;font-weight:900}.state{padding:50px}.state h2{margin-bottom:18px}@media(max-width:800px){.metrics{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr}.actions{flex-direction:column}.actions a{text-align:center}}@media(max-width:480px){.page{padding:24px 16px 70px}.hero{flex-direction:column;align-items:flex-start;gap:15px}.metrics{grid-template-columns:1fr}.health-row{grid-template-columns:1fr 1fr}.metric .leader{font-size:16px}}`
 })
-export class TournamentAnalyticsComponent{private readonly http=inject(HttpClient);private readonly route=inject(ActivatedRoute);readonly api='http://localhost:8080/api';id=this.route.snapshot.paramMap.get('id')||'';loading=true;t:Tournament|null=null;teams:Team[]=[];fixtures:Fixture[]=[];points:Point[]=[];constructor(){if(this.id)this.load();else this.loading=false;}load(){this.http.get<Tournament>(`${this.api}/tournaments/${this.id}`).subscribe({next:t=>{this.t=t;this.loadData();},error:()=>this.loading=false});}private loadData(){Promise.all([this.http.get<Team[]>(`${this.api}/tournaments/${this.id}/teams`).toPromise(),this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`).toPromise(),this.http.get<Point[]>(`${this.api}/tournaments/${this.id}/points-table`).toPromise()]).then(([teams,fixtures,points])=>{this.teams=teams||[];this.fixtures=fixtures||[];this.points=points||[];this.loading=false;}).catch(()=>this.loading=false);}get completed(){return this.fixtures.filter(f=>f.status==='COMPLETED').length;}get scheduled(){return this.fixtures.filter(f=>f.status==='SCHEDULED').length;}get pending(){return this.fixtures.filter(f=>f.status!=='COMPLETED'&&f.status!=='SCHEDULED').length;}get completion(){return this.fixtures.length?Math.round(this.completed/this.fixtures.length*100):0;}get leader(){return this.points[0];}get topTeams(){return this.points.slice(0,5);}get topRuns(){return [...this.points].sort((a,b)=>b.runsFor-a.runsFor).slice(0,6);}get nextFixtureText(){const f=this.fixtures.filter(x=>x.status!=='COMPLETED'&&x.scheduledAt).sort((a,b)=>new Date(a.scheduledAt!).getTime()-new Date(b.scheduledAt!).getTime())[0];return f?`Next scheduled: ${f.teamAName} vs ${f.teamBName} · ${new Date(f.scheduledAt!).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}`:'No upcoming scheduled fixture.';}barWidth(v:number){const max=Math.max(1,...this.points.map(p=>Math.max(p.runsFor,p.runsAgainst)));return Math.round(v/max*100);}}
+export class TournamentAnalyticsComponent {
+  private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
+  readonly api = 'http://localhost:8080/api';
+  id = this.route.snapshot.paramMap.get('id') || '';
+  loading = true;
+  t: Tournament | null = null;
+  teams: Team[] = [];
+  fixtures: Fixture[] = [];
+  points: Point[] = [];
+
+  constructor(){
+    if (this.id) this.load(); else this.loading = false;
+  }
+
+  load(){
+    this.http.get<Tournament>(`${this.api}/tournaments/${this.id}`).subscribe({
+      next: t => { this.t = t; this.loadData(); },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  private loadData(){
+    Promise.all([
+      this.http.get<Team[]>(`${this.api}/tournaments/${this.id}/teams`).toPromise(),
+      this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`).toPromise(),
+      this.http.get<Point[]>(`${this.api}/tournaments/${this.id}/points-table`).toPromise()
+    ]).then(([teams, fixtures, points]) => {
+      this.teams = teams || [];
+      this.fixtures = fixtures || [];
+      this.points = points || [];
+      this.loading = false;
+    }).catch(() => this.loading = false);
+  }
+
+  get completed(){ return this.fixtures.filter(f => f.status === 'COMPLETED').length; }
+  get scheduled(){ return this.fixtures.filter(f => f.status === 'SCHEDULED').length; }
+  get pending(){ return this.fixtures.filter(f => f.status !== 'COMPLETED' && f.status !== 'SCHEDULED').length; }
+  get completion(){ return this.fixtures.length ? Math.round(this.completed / this.fixtures.length * 100) : 0; }
+  get leader(){ return this.points[0]; }
+  get topTeams(){ return this.points.slice(0,5); }
+  get topRuns(){ return [...this.points].sort((a,b) => b.runsFor - a.runsFor).slice(0,6); }
+  get nextFixtureText(){
+    const f = this.fixtures
+      .filter(x => x.status !== 'COMPLETED' && x.scheduledAt)
+      .sort((a,b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime())[0];
+    return f ? `Next scheduled: ${f.teamAName} vs ${f.teamBName} · ${new Date(f.scheduledAt!).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}` : 'No upcoming scheduled fixture.';
+  }
+
+  barWidth(v:number){
+    const max = Math.max(1, ...this.points.map(p => Math.max(p.runsFor, p.runsAgainst)));
+    return Math.round(v / max * 100);
+  }
+}
