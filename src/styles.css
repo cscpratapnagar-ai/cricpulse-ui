@@ -3,6 +3,9 @@
 --cp-text:#edf8f2;--cp-text-muted:#8ba397;--cp-border:rgba(255,255,255,.09);--cp-border-strong:rgba(255,255,255,.16);
 --cp-accent:#b8f45c;--cp-accent-contrast:#142018;--cp-accent-soft:rgba(184,244,92,.12);
 --cp-danger:#ff6b6b;--cp-info:#6db8ff;--cp-shadow-sm:0 10px 30px rgba(0,0,0,.16);
+/* Compatibility aliases: every screen must consume semantic tokens, never theme-specific fallbacks. */
+--cp-muted:var(--cp-text-muted);--cp-surface-2:var(--cp-surface-raised);--cp-accent-ink:var(--cp-accent-contrast);
+--cp-overlay:rgba(3,10,7,.62);--cp-backdrop:rgba(3,10,7,.48);
 color-scheme:dark
 }
 html[data-theme='light']{
@@ -10,6 +13,9 @@ html[data-theme='light']{
 --cp-text:#12271f;--cp-text-muted:#61776d;--cp-border:rgba(18,39,31,.18);--cp-border-strong:rgba(18,39,31,.30);
 --cp-accent:#5b941d;--cp-accent-contrast:#ffffff;--cp-accent-soft:rgba(91,148,29,.12);
 --cp-danger:#d94d57;--cp-info:#287dcc;--cp-shadow-sm:0 10px 30px rgba(20,50,38,.09);
+/* Same semantic aliases in light mode so legacy fallbacks cannot leak dark colors. */
+--cp-muted:var(--cp-text-muted);--cp-surface-2:var(--cp-surface-raised);--cp-accent-ink:var(--cp-accent-contrast);
+--cp-overlay:rgba(244,247,245,.78);--cp-backdrop:rgba(18,39,31,.18);
 color-scheme:light
 }
 *,*::before,*::after{box-sizing:border-box}html,body{margin:0;min-width:320px;min-height:100%;background:var(--cp-bg);color:var(--cp-text);transition:background-color .25s ease,color .25s ease}body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -44,3 +50,45 @@ html[data-theme='light'] input,html[data-theme='light'] select,html[data-theme='
 .page-head>div>p,.page-intro p,.hero p,.match-hero p,.subtitle,.section-copy{font-size:var(--cp-type-body)!important;line-height:1.55}
 /* Avoid unreadable micro typography in operational screens */
 @media(min-width:701px){.table-labels,.fixture-mini small,.progress-copy small,.save-status,.head-count span,.tags span{letter-spacing:.01em!important}}
+
+
+/* Theme consistency contract -------------------------------------------------
+   Older feature screens used fallback tokens such as var(--cp-surface-2,#081a14).
+   Defining the aliases above makes those screens theme-aware. These guards cover
+   browser controls, overlays and components while preserving each screen's design.
+----------------------------------------------------------------------------- */
+html[data-theme]{background:var(--cp-bg)}
+html[data-theme] body,html[data-theme] app-root{background:var(--cp-bg);color:var(--cp-text)}
+html[data-theme] .app-shell,html[data-theme] .page-content{background:var(--cp-bg)}
+html[data-theme='light']{
+  --cp-selection-bg:rgba(91,148,29,.18);
+}
+html[data-theme='dark']{
+  --cp-selection-bg:rgba(184,244,92,.18);
+}
+::selection{background:var(--cp-selection-bg);color:var(--cp-text)}
+/* Smooth but bounded theme transitions. Motion-sensitive users are respected. */
+html.theme-transition *,html.theme-transition *::before,html.theme-transition *::after{
+  transition-property:background-color,border-color,color,box-shadow,fill,stroke!important;
+  transition-duration:.18s!important;
+  transition-timing-function:ease!important;
+}
+/* Native browser controls inherit the active palette instead of OS defaults. */
+input,textarea,button,select{color:var(--cp-text)}
+html[data-theme='light'] input::placeholder,html[data-theme='light'] textarea::placeholder{color:#71847b;opacity:1}
+html[data-theme='dark'] input::placeholder,html[data-theme='dark'] textarea::placeholder{color:#789087;opacity:1}
+/* Loading layer was previously hard-coded dark. Keep both modes intentional. */
+html[data-theme='light'] .loader-overlay{background:radial-gradient(circle at top,#dcebdd 0,rgba(244,247,245,.88) 42%,rgba(232,239,234,.96) 100%)}
+html[data-theme='light'] .loader-card{border-color:rgba(91,148,29,.22);background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(237,243,239,.98));box-shadow:0 24px 80px rgba(20,50,38,.14)}
+html[data-theme='light'] .loader-card:before{background:radial-gradient(circle at center,rgba(91,148,29,.12),transparent 65%)}
+html[data-theme='light'] .brand-row small,html[data-theme='light'] .copy p{color:var(--cp-text-muted)}
+html[data-theme='light'] .pitch-loader{border-color:var(--cp-border);background:linear-gradient(180deg,rgba(18,39,31,.04),rgba(18,39,31,.015))}
+html[data-theme='light'] .pitch-loader:before{background:linear-gradient(90deg,transparent,#5b941d55,#5b941d,#5b941d55,transparent)}
+/* Prevent custom dropdowns/menus from inheriting stale dark fallback paint. */
+html[data-theme='light'] .menu,html[data-theme='light'] .role-menu,html[data-theme='light'] .workspace-menu,html[data-theme='light'] .command-palette{
+  background:var(--cp-surface)!important;color:var(--cp-text)
+}
+html[data-theme='light'] .toolbar{background:var(--cp-surface-2)!important}
+@media (prefers-reduced-motion:reduce){
+  html.theme-transition *,html.theme-transition *::before,html.theme-transition *::after{transition:none!important}
+}
