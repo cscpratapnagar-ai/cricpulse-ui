@@ -1,0 +1,25 @@
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { NgIf } from '@angular/common';
+
+export interface SelectOption { value: string; label: string; }
+
+@Component({
+  selector: 'app-select-field',
+  standalone: true,
+  imports: [NgIf],
+  template: `<label class="field"><span *ngIf="label">{{label}}</span><div class="select-wrap"><button type="button" class="select-trigger" [disabled]="disabled" [class.disabled]="disabled" [class.open]="open" (click)="toggle()"><span [class.muted]="!selectedOption">{{selectedOption?.label || placeholder}}</span><b>v</b></button>@if(open && !disabled){<div class="options" [class.up]="openUp" role="listbox"><button type="button" class="option placeholder-option" [class.active]="!value" (click)="select({value:'',label:placeholder})">{{placeholder}}</button>@for(option of options; track option.value){<button type="button" class="option" [class.active]="option.value===value" (click)="select(option)">{{option.label}}</button>}</div>}</div></label>`,
+  styles: [`:host{display:block}.field{display:grid;gap:8px;color:var(--cp-text);font-size:12px;font-weight:750;line-height:1.35}.select-wrap{position:relative}.select-trigger{display:flex;align-items:center;justify-content:space-between;box-sizing:border-box;width:100%;height:50px;padding:0 14px;border:1px solid var(--cp-border);border-radius:12px;background:color-mix(in srgb,var(--cp-text) 2%,transparent);color:var(--cp-text);outline:none;font:inherit;text-align:left;cursor:pointer;font-size:13px;line-height:1.35;transition:border-color .2s,box-shadow .2s,background .2s}.select-trigger:hover:not(:disabled),.select-trigger.open{border-color:color-mix(in srgb,var(--cp-accent) 58%,var(--cp-border));box-shadow:0 0 0 3px var(--cp-accent-soft);background:var(--cp-surface)}.select-trigger b{color:var(--cp-accent);font-size:12px;transition:transform .2s}.select-trigger.open b{transform:rotate(180deg)}.select-trigger.disabled{opacity:.5;cursor:not-allowed}.muted{color:var(--cp-text-muted)}.options{position:absolute;z-index:1000;top:calc(100% + 8px);left:0;width:100%;box-sizing:border-box;max-height:235px;overflow-y:auto;padding:6px;border:1px solid var(--cp-border-strong);border-radius:13px;background:var(--cp-surface-raised);box-shadow:var(--cp-shadow-sm),0 20px 45px color-mix(in srgb,#000 18%,transparent);backdrop-filter:blur(18px);overscroll-behavior:contain}.options.up{top:auto;bottom:calc(100% + 8px)}.option{display:block;width:100%;padding:11px 12px;border:0;border-radius:8px;background:transparent;color:var(--cp-text);font:inherit;font-size:13px;font-weight:700;line-height:1.4;text-align:left;cursor:pointer;transition:background .15s,color .15s,transform .15s}.option:hover{transform:translateX(2px)}.option:hover,.option.active{background:var(--cp-accent);color:var(--cp-accent-contrast);font-weight:850}.placeholder-option{color:var(--cp-text-muted);border-bottom:1px solid var(--cp-border);border-radius:5px}html[data-theme='light'] .options{background:#fff;border-color:rgba(18,39,31,.22)}html[data-theme='light'] .option{color:#12271f}html[data-theme='dark'] .options{background:#102a21}html[data-theme='dark'] .option{color:#edf8f2}@media(max-width:650px){.options{max-height:200px}}` ]
+})
+export class SelectFieldComponent {
+  @Input() label = ''; @Input() name = ''; @Input() placeholder = 'Select'; @Input() options: SelectOption[] = []; @Input() value = ''; @Input() disabled = false;
+  @Output() valueChange = new EventEmitter<string>();
+  open = false; openUp = false;
+  constructor(private host: ElementRef<HTMLElement>) {}
+  get selectedOption(): SelectOption | undefined { return this.options.find(option => option.value === this.value); }
+  toggle(): void { if(this.disabled)return; this.open = !this.open; if(this.open) setTimeout(() => this.updatePlacement()); }
+  private updatePlacement(): void { const trigger=this.host.nativeElement.querySelector('.select-trigger'); if(!trigger)return; const box=trigger.getBoundingClientRect(); const spaceBelow=window.innerHeight-box.bottom; const spaceAbove=box.top; const requiredSpace=190; this.openUp=spaceBelow<requiredSpace && spaceAbove>spaceBelow+80; }
+  select(option: SelectOption): void { if(this.disabled)return; this.value = option.value; this.valueChange.emit(this.value); this.open = false; }
+  @HostListener('document:click', ['$event']) close(event: Event): void { if(this.open && !this.host.nativeElement.contains(event.target as Node)) this.open = false; }
+  @HostListener('window:resize') onResize(): void { if(this.open)this.updatePlacement(); }
+  @HostListener('window:scroll') onScroll(): void { if(this.open)this.updatePlacement(); }
+}
