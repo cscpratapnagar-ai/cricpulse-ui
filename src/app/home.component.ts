@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 
-interface CurrentUser { fullName?: string; email?: string; role?: string; }
+interface CurrentUser { fullName?: string; name?: string; firstName?: string; email?: string; role?: string; }
 
 @Component({
  selector:'app-home', standalone:true, imports:[RouterLink],
@@ -31,7 +31,8 @@ export class HomeComponent implements OnInit {
     try {
       const rawUser = localStorage.getItem('cricketpulse_user');
       const user = rawUser ? JSON.parse(rawUser) as CurrentUser : null;
-      this.displayName = user?.fullName?.trim() || 'there';
+      const fullName = user?.fullName?.trim() || user?.name?.trim() || user?.firstName?.trim();
+      this.displayName = fullName || user?.email?.split('@')[0] || 'there';
     } catch {
       this.displayName = 'there';
     }
