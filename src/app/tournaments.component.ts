@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { DateTimeFieldComponent } from './ui/date-time-field.component';
 import { CpDropdownComponent, CpDropdownOption } from './shared/cp-dropdown.component';
 import { StateViewComponent } from './state-view.component';
 
@@ -12,7 +11,7 @@ interface Tournament{id:string;name:string;format:string;overs:number;location:s
 @Component({
 selector:'app-tournaments',
 standalone:true,
-imports:[CommonModule,FormsModule,RouterLink,DateTimeFieldComponent,CpDropdownComponent,StateViewComponent],
+imports:[CommonModule,FormsModule,RouterLink,CpDropdownComponent,StateViewComponent],
 template:`
 <section class="page">
   <header class="hero">
@@ -24,7 +23,7 @@ template:`
     <div class="hero-actions">
       <button class="ghost command" type="button" (click)="focusSearch()" aria-label="Focus tournament search"><span>⌕</span> Search <kbd>/</kbd></button>
       <button class="ghost" type="button" (click)="load()" [disabled]="loading">↻ Refresh</button>
-      <button class="primary create-action" type="button" (click)="toggleCreate()" [attr.aria-expanded]="showCreate"><span class="create-icon">{{showCreate?'×':'+'}}</span>{{showCreate?'Close setup':'Create tournament'}} <b>{{showCreate?'':'→'}}</b></button>
+      <a class="primary create-action" routerLink="/tournaments/new"><span class="create-icon">+</span>Create tournament <b>→</b></a>
     </div>
   </header>
 
@@ -49,23 +48,6 @@ template:`
     </section>
   }
 
-  @if(showCreate){
-    <section class="card create" aria-labelledby="create-title">
-      <div class="section-head">
-        <div><span class="eyebrow">NEW COMPETITION</span><h2 id="create-title">Configure tournament</h2><p>Set the competition foundation first. Teams, fixtures and scoring can be managed after creation.</p></div>
-        <b class="pill">STEP 01 · BASICS</b>
-      </div>
-      <div class="form">
-        <label class="field wide"><span>Tournament name</span><input [(ngModel)]="draft.name" name="tournamentName" placeholder="e.g. Pratapnagar Premier League"></label>
-        <cp-dropdown label="Format" name="format" [options]="formatOptions" [value]="draft.format" (valueChange)="draft.format = $event || 'T20'"></cp-dropdown>
-        <label class="field"><span>Overs</span><input type="number" min="1" [(ngModel)]="draft.overs" name="overs"></label>
-        <app-date-time-field label="Start date" name="startDate" [includeTime]="false" [(value)]="draft.startDate"></app-date-time-field>
-        <label class="field wide"><span>Location</span><input [(ngModel)]="draft.location" name="location" placeholder="Venue or city"></label>
-      </div>
-      @if(error){<div class="notice" role="alert">{{error}}</div>}
-      <div class="form-footer"><small>Required fields are validated before the competition is created.</small><div class="hero-actions"><button class="text" type="button" (click)="toggleCreate()" [disabled]="saving">Cancel</button><button class="primary" type="button" [disabled]="saving" (click)="create()">{{saving?'Creating…':'Create tournament'}} <b>→</b></button></div></div>
-    </section>
-  }
 
   <section class="card directory">
     <div class="directory-top">
@@ -104,7 +86,7 @@ template:`
     }@else if(tournaments.length){
       <div class="state"><div class="state-icon">⌕</div><h3>No matching tournaments</h3><p>Try changing your search or status filter.</p><button class="text" type="button" (click)="clearFilters()">Clear filters</button></div>
     }@else{
-      <div class="state"><div class="state-icon">🏟️</div><span class="eyebrow">NO COMPETITIONS YET</span><h3>Build your first tournament</h3><p>Create the competition shell, then add teams, schedule fixtures and track the entire journey.</p><button class="primary" type="button" (click)="showCreate=true">Create tournament <b>→</b></button></div>
+      <div class="state"><div class="state-icon">🏟️</div><span class="eyebrow">NO COMPETITIONS YET</span><h3>Build your first tournament</h3><p>Create the competition shell, then add teams, schedule fixtures and track the entire journey.</p><a class="primary state-create" routerLink="/tournaments/new">Create tournament <b>→</b></a></div>
     }
   </section>
 </section>`,
@@ -114,10 +96,8 @@ styles:[`
 export class TournamentsComponent{
 private readonly http=inject(HttpClient);readonly api='http://localhost:8080/api';
 @ViewChild('searchInput') searchInput?:ElementRef<HTMLInputElement>;
-tournaments:Tournament[]=[];loading=true;saving=false;showCreate=false;error='';loadError=false;query='';statusFilter='ALL';sortKey='newest';activeMenu='';
+tournaments:Tournament[]=[];loading=true;loadError=false;query='';statusFilter='ALL';sortKey='newest';activeMenu='';
 readonly skeletonItems=[1,2,3,4,5,6];
-draft={name:'',format:'T20',overs:20,startDate:'',location:''};
-formatOptions:CpDropdownOption[]=[{value:'T20',label:'T20'},{value:'T10',label:'T10'},{value:'ODI',label:'ODI'},{value:'TEST',label:'Test'}];
 statusOptions:CpDropdownOption[]=[{value:'ALL',label:'All statuses'},{value:'UPCOMING',label:'Upcoming'},{value:'ACTIVE',label:'Active'},{value:'COMPLETED',label:'Completed'}];
 sortOptions:CpDropdownOption[]=[{value:'newest',label:'Newest first'},{value:'oldest',label:'Oldest first'},{value:'name',label:'Name A–Z'},{value:'status',label:'Status'}];
 constructor(){this.load();}
@@ -130,7 +110,6 @@ get formatCount(){return new Set(this.tournaments.map(t=>t.format).filter(Boolea
 get workspaceHealth(){if(!this.tournaments.length)return 0;const score=this.tournaments.reduce((sum,t)=>sum+this.progressFor(t),0)/this.tournaments.length;return Math.max(72,Math.min(98,Math.round(score+18)));}
 get healthMessage(){if(this.workspaceHealth>=92)return'Competition workspace is operating at peak readiness';if(this.workspaceHealth>=82)return'Competition workspace is healthy and progressing';return'Competition workspace is ready for the next action';}
 focusSearch(){setTimeout(()=>this.searchInput?.nativeElement.focus());}
-toggleCreate(){this.showCreate=!this.showCreate;this.error='';this.activeMenu='';}
 clearSearch(){this.query='';this.focusSearch();}
 clearFilters(){this.query='';this.statusFilter='ALL';this.sortKey='newest';this.activeMenu='';}
 toggleMenu(id:string){this.activeMenu=this.activeMenu===id?'':id;}
@@ -145,4 +124,4 @@ private statusKey(status:string){const value=(status||'UPCOMING').trim().toUpper
 @HostListener('document:keydown', ['$event'])
 onKeyboardShortcut(event: KeyboardEvent){if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){const target=event.target as HTMLElement|null;if(['INPUT','TEXTAREA','SELECT'].includes(target?.tagName||''))return;event.preventDefault();this.focusSearch();}if(event.key==='Escape')this.closeMenu();}
 load(){this.loading=true;this.loadError=false;this.activeMenu='';this.http.get<Tournament[]>(`${this.api}/tournaments/mine`).subscribe({next:x=>{this.tournaments=x||[];this.loading=false;},error:()=>{this.tournaments=[];this.loadError=true;this.loading=false;}});}
-create(){this.error='';if(!this.draft.name.trim()){this.error='Tournament name is required.';return;}if(!this.draft.overs||this.draft.overs<1){this.error='Overs must be greater than zero.';return;}this.saving=true;this.http.post<Tournament>(`${this.api}/tournaments`,this.draft).subscribe({next:t=>{this.tournaments=[t,...this.tournaments];this.showCreate=false;this.draft={name:'',format:'T20',overs:20,startDate:'',location:''};this.saving=false;},error:e=>{this.error=e?.error?.message||'Unable to create tournament.';this.saving=false;}});}}
+}
