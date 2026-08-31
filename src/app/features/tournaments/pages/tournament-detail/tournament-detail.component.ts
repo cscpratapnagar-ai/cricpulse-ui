@@ -4,7 +4,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 interface Tournament{id:string;name:string;format:string;overs:number;location:string|null;startDate:string|null;status:string;}
 interface Team{id:string;name:string;city:string|null;seed:number|null;ownerId?:string;}
 interface Match{id:string;name:string;status:string;teamAId:string;teamBId:string;teamAName?:string;teamBName?:string;}
