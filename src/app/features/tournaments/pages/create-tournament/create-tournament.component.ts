@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { DateTimeFieldComponent } from './ui/date-time-field.component';
-import { CpDropdownComponent, CpDropdownOption } from './shared/cp-dropdown.component';
+import { DateTimeFieldComponent } from '../../../../ui/date-time-field.component';
+import { CpDropdownComponent, CpDropdownOption } from '../../../../shared/cp-dropdown.component';
 
 interface TournamentResponse { id:string; name:string; format:string; overs:number; location:string|null; startDate:string|null; status:string; }
 
