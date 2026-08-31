@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { StateViewComponent } from './state-view.component';
+import { StateViewComponent } from '../../../../state-view.component';
 import { RouterLink } from '@angular/router';
 
 interface PlayerStat{playerId:string;playerName:string;matches:number;runs:number;highestScore:number;battingAverage:number;strikeRate:number;wickets:number;economy:number;}
