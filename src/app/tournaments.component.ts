@@ -73,7 +73,7 @@ template:`
       </div>
       <div class="filters">
         <label class="search"><span>⌕</span><input #searchInput [(ngModel)]="query" name="search" placeholder="Search tournaments..." (keydown.escape)="clearSearch()">@if(query){<button type="button" (click)="clearSearch()" aria-label="Clear search">×</button>}</label>
-        <app-select-field label="" name="status" [compact]="true" [options]="statusOptions" [(value)]="statusFilter"></app-select-field>
+        <app-select-field label="" name="status" [options]="statusOptions" [(value)]="statusFilter"></app-select-field>
       </div>
     </div>
 
