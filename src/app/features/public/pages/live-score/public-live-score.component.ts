@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { LiveScore, LiveScoreService } from './live-score.service';
+import { LiveScore, LiveScoreService } from '../../../../live-score.service';
 
 interface Match { id:string; name:string; format:string; status:string; teamAName?:string; teamBName?:string; }
 interface CurrentInnings { inningsId:string; matchId?:string; inningsNumber:number; battingTeamId:string; bowlingTeamId?:string; runs:number; wickets:number; legalBalls:number; status:string; strikerId?:string; nonStrikerId?:string; currentBowlerId?:string; }
