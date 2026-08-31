@@ -158,6 +158,8 @@ export class OpeningPlayersComponent {
  get bowlingName(){return this.match?(this.bowlingTeamId===this.match.teamAId?this.match.teamAName:this.match.teamBName)||'Bowling Team':'Bowling Team'}
  get battingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.battingTeamId).map(p=>({value:p.playerId,label:p.name}))}
  get bowlingOptions():SelectOption[]{return this.xi.filter(p=>p.teamId===this.bowlingTeamId).map(p=>({value:p.playerId,label:p.name}))}
+ get selectedCount(){return [this.strikerId,this.nonStrikerId,this.bowlerId].filter(Boolean).length}
+ get selectionProgress(){return (this.selectedCount/3)*100}
  get canStart(){return !!this.matchId&&!!this.strikerId&&!!this.nonStrikerId&&!!this.bowlerId&&this.strikerId!==this.nonStrikerId}
  load(){if(!this.matchId){this.loading=false;this.error='Match id is missing.';return}this.http.get<Match>(this.api+'/matches/'+this.matchId).subscribe({next:m=>{this.match=m;this.loadToss()},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load match.'}})}
  loadToss(){this.http.get<any>(this.api+'/matches/'+this.matchId+'/toss').subscribe({next:t=>{if(!t.recorded){void this.router.navigateByUrl('/matches/'+this.matchId+'/toss');return}const firstBat=t.battingTeamId;const firstBowl=t.bowlingTeamId;this.battingTeamId=this.inningsNumber===1?firstBat:firstBowl;this.bowlingTeamId=this.inningsNumber===1?firstBowl:firstBat;this.loadXiAndExisting()},error:e=>{this.loading=false;this.error=e?.error?.message||'Unable to load toss.'}})}
