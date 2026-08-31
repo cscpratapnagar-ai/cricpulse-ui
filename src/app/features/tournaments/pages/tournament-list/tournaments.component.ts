@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CpDropdownComponent, CpDropdownOption } from './shared/cp-dropdown.component';
-import { StateViewComponent } from './state-view.component';
+import { CpDropdownComponent, CpDropdownOption } from '../../../../shared/cp-dropdown.component';
+import { StateViewComponent } from '../../../../state-view.component';
 
 interface Tournament{id:string;name:string;format:string;overs:number;location:string|null;startDate:string|null;status:string;createdAt:string;}
 
