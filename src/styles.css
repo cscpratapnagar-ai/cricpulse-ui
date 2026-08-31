@@ -7,7 +7,7 @@ color-scheme:dark
 }
 html[data-theme='light']{
 --cp-bg:#f4f7f5;--cp-surface:#ffffff;--cp-surface-raised:#edf3ef;--cp-surface-overlay:#e5eee8;
---cp-text:#12271f;--cp-text-muted:#61776d;--cp-border:rgba(18,39,31,.12);--cp-border-strong:rgba(18,39,31,.2);
+--cp-text:#12271f;--cp-text-muted:#61776d;--cp-border:rgba(18,39,31,.18);--cp-border-strong:rgba(18,39,31,.30);
 --cp-accent:#5b941d;--cp-accent-contrast:#ffffff;--cp-accent-soft:rgba(91,148,29,.12);
 --cp-danger:#d94d57;--cp-info:#287dcc;--cp-shadow-sm:0 10px 30px rgba(20,50,38,.09);
 color-scheme:light
@@ -19,3 +19,6 @@ input,select,textarea{color-scheme:inherit}button,input,select,textarea{font-fam
 
 /* Native and custom dropdown visibility across themes */
 select{background-color:var(--cp-surface)!important;color:var(--cp-text)!important;border-color:var(--cp-border)!important}select option,optgroup{background-color:var(--cp-surface)!important;color:var(--cp-text)!important}html[data-theme='light'] select{background-color:#fff!important;color:#12271f!important;border-color:rgba(18,39,31,.16)!important}html[data-theme='light'] select option{background-color:#fff!important;color:#12271f!important}html[data-theme='dark'] select option{background-color:#0c2119!important;color:#edf8f2!important}
+
+/* Light theme: stronger structural borders for cards, forms and dropdowns */
+html[data-theme='light'] input,html[data-theme='light'] select,html[data-theme='light'] textarea{border-color:var(--cp-border)!important}html[data-theme='light'] .input-wrap{border-color:var(--cp-border)!important}html[data-theme='light'] .form-shell,html[data-theme='light'] .match-card,html[data-theme='light'] .intel-strip,html[data-theme='light'] .advanced,html[data-theme='light'] .team-section{border-color:var(--cp-border)!important}
