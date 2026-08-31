@@ -7,7 +7,7 @@ import { HomeComponent } from './features/public/pages/home/home.component';
 import { authGuard } from './core/auth/auth';
 import { CreateTeamComponent } from './features/teams/pages/create-team/create-team.component';
 import { PlayerOnboardingComponent } from './features/players/pages/onboarding/player-onboarding.component';
-import { ModulePageComponent } from './module-page.component';
+import { ModulePageComponent } from './features/system/pages/module-page/module-page.component';
 import { MatchesComponent } from './features/matches/pages/match-list/matches.component';
 import { MatchDetailComponent } from './features/matches/pages/match-detail/match-detail.component';
 import { LiveCenterComponent } from './features/live/pages/live-center/live-center.component';
@@ -21,7 +21,7 @@ import { TeamDetailComponent } from './features/teams/pages/team-detail/team-det
 import { PlayingXiV2Component } from './features/live/pages/playing-xi/playing-xi.component';
 import { BulkTeamPlayersV2Component } from './features/teams/pages/bulk-players/bulk-team-players.component';
 import { TossComponent } from './features/live/pages/toss/toss.component';
-import { OpeningPlayersComponent } from './opening-players.component';
+import { OpeningPlayersComponent } from './features/live/pages/opening-players/opening-players.component';
 import { MatchResultComponent } from './features/matches/pages/result/match-result.component';
 import { MatchScorecardComponent } from './features/matches/pages/scorecard/match-scorecard.component';
 import { MatchStatisticsComponent } from './features/matches/pages/statistics/match-statistics.component';
@@ -35,14 +35,14 @@ import { TournamentDetailComponent } from './features/tournaments/pages/tourname
 import { TournamentScheduleComponent } from './features/tournaments/pages/schedule/tournament-schedule.component';
 import { TournamentQualificationComponent } from './features/tournaments/pages/qualification/tournament-qualification.component';
 import { TournamentAnalyticsComponent } from './features/tournaments/pages/analytics/tournament-analytics.component';
-import { LeaderboardsComponent } from './leaderboards.component';
-import { AnalyticsComponent } from './analytics.component';
+import { LeaderboardsComponent } from './features/analytics/pages/leaderboards/leaderboards.component';
+import { AnalyticsComponent } from './features/analytics/pages/analytics/analytics.component';
 import { PlayersComponent } from './features/players/pages/player-list/players.component';
-import { SettingsComponent } from './settings.component';
-import { NotificationsComponent } from './notifications.component';
+import { SettingsComponent } from './features/settings/pages/settings/settings.component';
+import { NotificationsComponent } from './features/system/pages/notifications/notifications.component';
 import { AccountProfileComponent } from './features/account/pages/profile/account-profile.component';
-import { NotFoundComponent } from './not-found.component';
-import { StateGalleryComponent } from './state-gallery.component';
+import { NotFoundComponent } from './features/system/pages/not-found/not-found.component';
+import { StateGalleryComponent } from './features/system/pages/ui-states/state-gallery.component';
 const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 export const routes: Routes = [
   { path: '', component: LandingComponent }, { path: 'login', component: LoginComponent }, { path: 'signup', component: SignupComponent }, { path: 'live/:id', component: PublicLiveScoreComponent },
