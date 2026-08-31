@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { DateTimeFieldComponent } from './ui/date-time-field.component';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
+import { DateTimeFieldComponent } from '../../../../ui/date-time-field.component';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 
 interface Team { id: string; name: string; }
 
