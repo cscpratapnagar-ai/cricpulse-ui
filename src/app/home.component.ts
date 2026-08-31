@@ -1,15 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
+import { CurrentUser, CurrentUserService } from './current-user.service';
 
 import { RouterLink } from '@angular/router';
-
-interface CurrentUser { fullName?: string; name?: string; firstName?: string; email?: string; role?: string; }
 
 @Component({
  selector:'app-home', standalone:true, imports:[RouterLink],
  template:`<section class="command-center">
- <div class="experience-grid"></div><div class="cursor-glow" [style.left.px]="cursorX()" [style.top.px]="cursorY()"></div><header class="page-intro" (mousemove)="trackPointer($event)"><div><span class="eyebrow"><i></i> CRICPULSE COMMAND CENTER</span><h1>{{ greeting }}, <em>{{ displayName }}.</em></h1><p>Your cricket workspace is healthy and ready for action.</p></div><div class="intro-actions"><a routerLink="/live" class="ghost"><i></i> Live center</a><a routerLink="/matches/new" class="primary">Create match <b>→</b></a></div></header>
+ <div class="experience-grid"></div><div class="cursor-glow" [style.left.px]="cursorX()" [style.top.px]="cursorY()"></div><header class="page-intro" (mousemove)="trackPointer($event)"><div><span class="eyebrow"><i></i> CRICPULSE COMMAND CENTER</span><h1>{{ greeting }}, <em>{{ currentUser.displayName() }}.</em></h1><p>Your cricket workspace is healthy and ready for action.</p></div><div class="intro-actions"><a routerLink="/live" class="ghost"><i></i> Live center</a><a routerLink="/matches/new" class="primary">Create match <b>→</b></a></div></header>
  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><section class="overview">
   <div class="signal-card"><div class="signal-status"><span><i></i> SYSTEM STATUS</span><b><u></u> All systems operational</b></div><div class="signal-main"><div class="pulse-mark"><span></span><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><strong>CP</strong></div><div><small>REALTIME SCORING ENGINE</small><h2>Ready for the next match</h2><p>Live scoring, match state and realtime sync are standing by.</p></div></div><div class="signal-meta"><div><small>ENGINE</small><b>Ready</b></div><div><small>CONNECTION</small><b class="accent">Realtime</b></div><div><small>LATENCY</small><b>12 ms</b></div></div></div>
   <div class="quick-status"><div class="quick-head"><span>WORKSPACE SNAPSHOT</span><b>Today</b></div><div class="snapshot"><div><strong>04</strong><small>Active matches</small></div><div><strong>128</strong><small>Players tracked</small></div><div><strong>87.4</strong><small>Performance index</small></div></div><div class="micro-chart"><span class="chart-glow"></span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
@@ -35,8 +34,9 @@ export class HomeComponent implements OnInit {
   }
 
   private readonly http = inject(HttpClient);
+  readonly currentUser = inject(CurrentUserService);
 
-  displayName = 'there';
+
   greeting = 'Good evening';
 
   ngOnInit(): void {
@@ -50,8 +50,7 @@ export class HomeComponent implements OnInit {
       catchError(() => of(this.readCachedUser()))
     ).subscribe(user => {
       if (!user) return;
-      localStorage.setItem('cricketpulse_user', JSON.stringify(user));
-      this.displayName = this.resolveDisplayName(user);
+      this.currentUser.set(user);
     });
   }
 
@@ -64,8 +63,4 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private resolveDisplayName(user: CurrentUser): string {
-    const value = user.fullName?.trim() || user.name?.trim() || user.firstName?.trim() || user.email?.split('@')[0];
-    return value || 'there';
-  }
 }
