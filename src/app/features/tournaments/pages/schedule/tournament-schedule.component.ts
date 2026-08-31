@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DateTimeFieldComponent } from './ui/date-time-field.component';
+import { DateTimeFieldComponent } from '../../../../ui/date-time-field.component';
 
 interface Tournament { id:string; name:string; format:string; overs:number; }
 interface Fixture { matchId:string; fixtureNumber:number|null; stage:string; matchName:string; teamAName:string; teamBName:string; status:string; scheduledAt:string|null; }
