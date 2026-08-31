@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 
 interface Player {id:string;name:string;role?:string;teamName?:string;}
 interface Snapshot {playerId:string;name:string;role:string;teamName:string;profilePhotoUrl?:string;matches:number;runs:number;average:number;strikeRate:number;wickets:number;economy:number;fours:number;sixes:number;bestScore?:string;bestBowling?:string;}
