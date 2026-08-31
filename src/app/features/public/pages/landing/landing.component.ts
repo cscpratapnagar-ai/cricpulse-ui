@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AUDIENCES, ECOSYSTEM_NODES, PRODUCT_PILLARS } from './features/landing/data/landing.data';
+import { AUDIENCES, ECOSYSTEM_NODES, PRODUCT_PILLARS } from '../../../landing/data/landing.data';
 
 @Component({
   selector: 'app-landing',
