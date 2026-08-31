@@ -42,7 +42,7 @@ interface TossSaveResponse {
       <a class="back" [routerLink]="['/matches', matchId]">← Back to match</a>
 
       <div class="heading">
-        <div class="eyebrow">MATCH SETUP · TOSS</div>
+        <div class="eyebrow">Match setup · Toss</div>
         <h1>Who won<br><em>the toss?</em></h1>
         <p>{{ match?.name || 'Prepare the match before the first ball.' }}</p>
       </div>
@@ -56,7 +56,7 @@ interface TossSaveResponse {
               <b>01 · Toss result</b>
               <small>{{ saved ? 'Toss already recorded. Selection is locked.' : 'Select the winner and what they chose.' }}</small>
             </div>
-            <span>{{ match?.format || 'MATCH' }}</span>
+            <span>{{ match?.format || 'Match' }}</span>
           </div>
 
           <div class="teams">
@@ -65,7 +65,7 @@ interface TossSaveResponse {
               <strong>{{ match?.teamAName || 'Team A' }}</strong>
               <small>Team A</small>
             </button>
-            <div class="vs">VS</div>
+            <div class="vs">vs</div>
             <button type="button" class="team-card" [class.selected]="winnerTeamId === match?.teamBId" [disabled]="saved" (click)="winnerTeamId = match?.teamBId || ''">
               <span class="radio">{{ winnerTeamId === match?.teamBId ? '✓' : '' }}</span>
               <strong>{{ match?.teamBName || 'Team B' }}</strong>
@@ -76,10 +76,10 @@ interface TossSaveResponse {
           <div class="decision-title">Elected to</div>
           <div class="decisions">
             <button type="button" [class.active]="decision === 'BAT'" [disabled]="saved" (click)="decision = 'BAT'">
-              <span>🏏</span><b>BAT</b><small>Start with the bat</small>
+              <span>🏏</span><b>Bat</b><small>Start with the bat</small>
             </button>
             <button type="button" [class.active]="decision === 'BOWL'" [disabled]="saved" (click)="decision = 'BOWL'">
-              <span>⚾</span><b>BOWL</b><small>Start with the ball</small>
+              <span>⚾</span><b>Bowl</b><small>Start with the ball</small>
             </button>
           </div>
 
