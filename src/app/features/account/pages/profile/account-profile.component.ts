@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CurrentUserService } from './current-user.service';
+import { CurrentUserService } from '../../../../current-user.service';
 
 type Tab='profile'|'account'|'preferences'|'security';
 @Component({selector:'app-account-profile',standalone:true,imports:[CommonModule,FormsModule],template:`<main class="account-page">
