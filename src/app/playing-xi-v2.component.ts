@@ -16,16 +16,16 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
     @if (loadingMatch) {
       <div class="loading-shell"><div class="shimmer mini"></div><div class="shimmer title"></div><div class="shimmer sub"></div><div class="loading-grid"><div class="shimmer card"></div><div class="shimmer card"></div></div></div>
     } @else if (match) {
-      <a class="back-link" [routerLink]="['/matches',match.id]"><span>←</span> MATCH COMMAND CENTER</a>
+      <a class="back-link" [routerLink]="['/matches',match.id]"><span>←</span> Match command center</a>
 
       <header class="hero">
         <div class="hero-top">
-          <div class="eyebrow"><i></i> MATCHDAY SETUP · STEP 01 OF 04</div>
+          <div class="eyebrow"><i></i> Matchday setup · Step 1 of 4</div>
           <div class="status"><span></span>{{match.status}}</div>
         </div>
         <div class="hero-main">
           <div class="hero-copy"><h1>Playing XI</h1><p>Build the matchday squads, assign leadership and lock in the players who take the field.</p></div>
-          <div class="fixture-mini"><span>{{match.format}}</span><b>VS</b><small>11 PLAYERS / SIDE</small></div>
+          <div class="fixture-mini"><span>{{match.format}}</span><b>VS</b><small>11 players per side</small></div>
         </div>
         <div class="teams-line">
           <div><i>{{(match.teamAName||'A').slice(0,1)}}</i><strong [title]="match.teamAName||'Team A'">{{match.teamAName||'Team A'}}</strong></div>
@@ -37,16 +37,16 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
       @if (match.status !== 'SCHEDULED') { <div class="notice"><b>Selection locked</b><span>This match has progressed beyond setup, so Playing XI can no longer be changed.</span></div> }
 
       <section class="progress">
-        <div class="progress-copy"><span>SELECTION PROGRESS</span><b>{{teams[0]?.selected?.length || 0}} + {{teams[1]?.selected?.length || 0}} <small>/ 22 players</small></b></div>
+        <div class="progress-copy"><span>Selection progress</span><b>{{teams[0]?.selected?.length || 0}} + {{teams[1]?.selected?.length || 0}} <small>/ 22 players</small></b></div>
         <div class="progress-track"><i [style.width.%]="((teams[0]?.selected?.length || 0)+(teams[1]?.selected?.length || 0))/22*100"></i></div>
-        <div class="progress-meta"><span>STEP 01</span><span>AUTO-SAVED</span></div>
+        <div class="progress-meta"><span>Step 1</span><span>Auto-saved</span></div>
       </section>
 
       <div class="team-grid">
         @for (team of teams; track team.id; let teamIndex=$index) {
           <section class="team-card">
             <header class="team-head">
-              <div class="team-identity"><div class="team-badge" [class.away-badge]="teamIndex===1">{{teamIndex===0?'A':'B'}}</div><div><span>{{teamIndex===0?'HOME SIDE':'AWAY SIDE'}}</span><h2 [title]="team.name">{{team.name}}</h2></div></div>
+              <div class="team-identity"><div class="team-badge" [class.away-badge]="teamIndex===1">{{teamIndex===0?'A':'B'}}</div><div><span>{{teamIndex===0?'Home side':'Away side'}}</span><h2 [title]="team.name">{{team.name}}</h2></div></div>
               <div class="count"><b>{{team.selected.length}}</b><span>/ 11</span></div>
             </header>
 
@@ -54,11 +54,11 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
             @else if (!team.accessible) {
               <div class="access-denied"><div class="lock">⌁</div><b>Team-managed squad</b><p>You can review this fixture, but this team's lineup is controlled by its team manager.</p></div>
               <div class="roles read-only">
-                <div><small>CAPTAIN</small><strong>{{roleName(team,team.captainId) || 'Not selected'}}</strong></div><div><small>VICE CAPTAIN</small><strong>{{roleName(team,team.viceCaptainId) || 'Not selected'}}</strong></div><div><small>KEEPER</small><strong>{{roleName(team,team.wicketKeeperId) || 'Not selected'}}</strong></div>
+                <div><small>Captain</small><strong>{{roleName(team,team.captainId) || 'Not selected'}}</strong></div><div><small>VICE Captain</small><strong>{{roleName(team,team.viceCaptainId) || 'Not selected'}}</strong></div><div><small>Wicketkeeper</small><strong>{{roleName(team,team.wicketKeeperId) || 'Not selected'}}</strong></div>
               </div>
             } @else {
               <section class="roles-panel">
-                <div class="section-label"><div><span>MATCH LEADERSHIP</span><b>Assign key roles</b></div><button class="save-role" [disabled]="saving || match.status!=='SCHEDULED' || !team.selected.length" (click)="saveRoles(team)">{{saving?'Saving…':'Save roles'}}</button></div>
+                <div class="section-label"><div><span>Match leadership</span><b>Assign key roles</b></div><button class="save-role" [disabled]="saving || match.status!=='SCHEDULED' || !team.selected.length" (click)="saveRoles(team)">{{saving?'Saving…':'Save roles'}}</button></div>
                 <div class="role-grid">
                   <app-select-field label="Captain" name="captain" placeholder="Select captain" [options]="roleOptions(team)" [(value)]="team.captainId" />
                   <app-select-field label="Vice Captain" name="viceCaptain" placeholder="Select vice captain" [options]="roleOptions(team)" [(value)]="team.viceCaptainId" />
@@ -68,7 +68,7 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
 
               <div class="selection-board">
                 <section class="squad-list">
-                  <div class="section-label compact"><div><span>AVAILABLE SQUAD</span><b>{{team.members.length}} registered players</b></div><em>Select up to 11</em></div>
+                  <div class="section-label compact"><div><span>Available squad</span><b>{{team.members.length}} registered players</b></div><em>Select up to 11</em></div>
                   <div class="players-scroll">
                     @for (m of team.members; track m.playerId) {
                       <article class="player-row" [class.selected]="isSelected(team,m.playerId)">
@@ -83,12 +83,12 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
                 </section>
 
                 <section class="xi-list">
-                  <div class="section-label compact"><div><span>CONFIRMED XI</span><b>{{team.selected.length === 11 ? 'Lineup complete' : 'Building lineup'}}</b></div><em>{{team.selected.length}} / 11</em></div>
+                  <div class="section-label compact"><div><span>Confirmed XI</span><b>{{team.selected.length === 11 ? 'Lineup complete' : 'Building lineup'}}</b></div><em>{{team.selected.length}} / 11</em></div>
                   <div class="xi-scroll">
                     @for (p of team.selected; track p.playerId; let i=$index) {
                       <article class="xi-row">
                         <div class="order">{{i+1 | number:'2.0'}}</div>
-                        <div class="player-copy"><b [title]="p.name">{{p.name}}</b><div class="tags">@if(p.captain){<span>C</span>} @if(p.viceCaptain){<span>VC</span>} @if(p.wicketKeeper){<span>WK</span>} @if(!p.captain&&!p.viceCaptain&&!p.wicketKeeper){<small>PLAYER</small>}</div></div>
+                        <div class="player-copy"><b [title]="p.name">{{p.name}}</b><div class="tags">@if(p.captain){<span>C</span>} @if(p.viceCaptain){<span>VC</span>} @if(p.wicketKeeper){<span>WK</span>} @if(!p.captain&&!p.viceCaptain&&!p.wicketKeeper){<small>Player</small>}</div></div>
                         <button [disabled]="match.status!=='SCHEDULED'" (click)="remove(team,p.playerId)" title="Remove player">×</button>
                       </article>
                     } @empty { <div class="xi-empty"><div>XI</div><b>Your Playing XI is empty</b><span>Select players from the squad to build the lineup.</span></div> }
@@ -101,7 +101,7 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
       </div>
 
       <div class="sticky-bar">
-        <div class="sticky-state"><i></i><div><span>CHANGES SAVE INSTANTLY</span><b>Player selections are synced to the match</b></div></div>
+        <div class="sticky-state"><i></i><div><span>Changes save instantly</span><b>Player selections are synced to the match</b></div></div>
         <a [routerLink]="['/matches',match.id,'toss']" class="continue" [class.disabled]="!isSelectionComplete()" [attr.aria-disabled]="!isSelectionComplete()">Continue to Toss <b>→</b></a>
       </div>
 
@@ -135,9 +135,9 @@ export class PlayingXiV2Component {
   loadTeam(t:TeamState,matchId:string){this.http.get<Member[]>(`${this.api}/matches/${matchId}/teams/${t.id}/members`).subscribe({next:members=>{t.members=members;t.accessible=true;this.loadXi(t,matchId);},error:e=>{t.loading=false;t.accessible=false;this.loadXi(t,matchId);if(e.status!==403)this.showToast(e?.error?.message||`Unable to load ${t.name} squad`);}})}
   loadXi(t:TeamState,matchId:string){this.http.get<XIPlayer[]>(`${this.api}/matches/${matchId}/playing-xi`).subscribe({next:xi=>{t.selected=xi.filter(x=>x.teamId===t.id);t.captainId=t.selected.find(x=>x.captain)?.playerId||null;t.viceCaptainId=t.selected.find(x=>x.viceCaptain)?.playerId||null;t.wicketKeeperId=t.selected.find(x=>x.wicketKeeper)?.playerId||null;this.applyTeamRoleDefaults(t);t.loading=false;},error:e=>this.showToast(e?.error?.message||'Unable to load Playing XI')})}
   applyTeamRoleDefaults(t:TeamState){if(!t.selected.length)return;const selectedIds=new Set(t.selected.map(p=>p.playerId));if(!t.captainId){const m=t.members.find(x=>selectedIds.has(x.playerId)&&this.isCaptainRole(x.role));if(m)t.captainId=m.playerId;}if(!t.viceCaptainId){const m=t.members.find(x=>selectedIds.has(x.playerId)&&this.isViceCaptainRole(x.role));if(m)t.viceCaptainId=m.playerId;}if(!t.wicketKeeperId){const m=t.members.find(x=>selectedIds.has(x.playerId)&&this.isWicketKeeperRole(x.role));if(m)t.wicketKeeperId=m.playerId;}}
-  isCaptainRole(role:string){return ['CAPTAIN','TEAM_CAPTAIN'].includes((role||'').trim().toUpperCase())}
-  isViceCaptainRole(role:string){return ['VICE_CAPTAIN','VICE-CAPTAIN','TEAM_VICE_CAPTAIN'].includes((role||'').trim().toUpperCase())}
-  isWicketKeeperRole(role:string){return ['WICKET_KEEPER','WICKET-KEEPER','KEEPER','WK'].includes((role||'').trim().toUpperCase())}
+  isCaptainRole(role:string){return ['Captain','TEAM_Captain'].includes((role||'').trim().toUpperCase())}
+  isViceCaptainRole(role:string){return ['VICE_Captain','VICE-Captain','TEAM_VICE_Captain'].includes((role||'').trim().toUpperCase())}
+  isWicketKeeperRole(role:string){return ['WICKET_Wicketkeeper','WICKET-Wicketkeeper','Wicketkeeper','WK'].includes((role||'').trim().toUpperCase())}
   get canSave(){return this.teams.filter(t=>t.accessible).every(t=>t.selected.length<=11)}
   roleOptions(t:TeamState):SelectOption[]{return t.selected.map(p=>({value:p.playerId,label:p.name}))}
   isSelected(t:TeamState,id:string){return t.selected.some(x=>x.playerId===id)}
