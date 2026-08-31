@@ -9,20 +9,146 @@ interface XIPlayer { teamId:string; playerId:string; name:string; captain:boolea
 interface ExistingInnings { inningsId:string; inningsNumber:number; battingTeamId:string; bowlingTeamId?:string; runs:number; wickets:number; legalBalls:number; status:string; strikerId?:string|null; nonStrikerId?:string|null; currentBowlerId?:string|null; }
 interface StartResponse { id:string; matchId:string; inningsNumber:number; battingTeamId:string; bowlingTeamId:string; status:string; }
 
-@Component({selector:'app-opening-players',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],template:`
-<section class="page"><a class="back" [routerLink]="['/matches',matchId,inningsNumber===1?'toss':'live']">← Back</a>
-@if(loading){<div class="card loading">Loading opening players…</div>}@else if(match){
-<header class="hero"><div><span>MATCH SETUP · OPENING PLAYERS</span><h1>{{match.name}}</h1><p>Innings {{inningsNumber}} · {{battingName}} will bat · {{bowlingName}} will bowl.</p></div><b>{{match.format||'MATCH'}}</b></header>
-@if(error){<div class="error">{{error}}</div>}
-@if(existingInnings && existingInnings.status==='LIVE'){
-<section class="card resume-card"><div class="resume-icon">▶</div><div class="resume-copy"><span>INNINGS ALREADY STARTED</span><h2>Resume this innings</h2><p>{{battingName}} · {{existingInnings.runs}}/{{existingInnings.wickets}} · {{overs(existingInnings.legalBalls)}} overs</p><small>Status: {{existingInnings.status}}</small></div><button class="resume-button" [disabled]="resuming" (click)="resumeInnings()">{{resuming?'Opening…':'Resume Innings'}} <b>→</b></button></section>
-<section class="card setup"><div class="section-head"><div><span>EXISTING SESSION</span><h2>Continue where you left off</h2><p>Saved striker, non-striker, bowler, partnership and score will be restored.</p></div></div><div class="resume-meta"><div><span>SCORE</span><strong>{{existingInnings.runs}}/{{existingInnings.wickets}}</strong></div><div><span>OVERS</span><strong>{{overs(existingInnings.legalBalls)}}</strong></div><div><span>INNINGS</span><strong>#{{existingInnings.inningsNumber}}</strong></div></div><div class="actions"><a [routerLink]="['/matches',matchId,'toss']">Back</a><button [disabled]="resuming" (click)="resumeInnings()">Resume Live Scoring <b>→</b></button></div></section>
-}@else if(!error){
-<section class="card setup"><div class="section-head"><div><span>0{{inningsNumber}} · {{inningsNumber===1?'FIRST':'SECOND'}} INNINGS</span><h2>Choose the opening players</h2><p>Two batters and one opening bowler are required before scoring starts.</p></div></div><div class="fields"><app-select-field label="Striker" name="striker" placeholder="Select striker" [options]="battingOptions" [(value)]="strikerId"/><app-select-field label="Non-Striker" name="nonStriker" placeholder="Select non-striker" [options]="battingOptions" [(value)]="nonStrikerId"/><app-select-field label="Opening Bowler" name="bowler" placeholder="Select opening bowler" [options]="bowlingOptions" [(value)]="bowlerId"/></div>
-@if(strikerId&&strikerId===nonStrikerId){<div class="error">Striker and non-striker must be different players.</div>}<div class="actions"><a [routerLink]="['/matches',matchId,'toss']">Back</a><button [disabled]="!canStart||starting" (click)="startInnings()">{{starting?'Starting…':'Start Innings'}} <b>→</b></button></div></section>
-}
-}
-</section>`,styles:[`:host{display:block}.page{max-width:1120px;padding:42px 4vw 100px;color:#edf8f2}.back{display:inline-block;color:#91aa9d;text-decoration:none;font-size:12px;margin-bottom:42px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:28px}.hero span,.section-head span,.resume-copy>span{color:#b8f45c;font-size:10px;font-weight:850;letter-spacing:2px}.hero h1{margin:14px 0 8px;font-size:clamp(42px,6vw,68px);letter-spacing:-4px;line-height:.95}.hero p,.section-head p,.resume-copy p{color:#91aa9d;font-size:12px}.hero>b{color:#b8f45c;font-size:10px}.card{border:1px solid #ffffff18;border-radius:22px;background:#0c2119d9;box-shadow:0 20px 55px #0004}.setup{padding:28px}.section-head h2{margin:8px 0;font-size:24px}.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}.actions{display:flex;justify-content:flex-end;align-items:center;gap:20px;margin-top:28px}.actions a{color:#91aa9d;text-decoration:none;font-size:12px}.actions button,.resume-button{padding:14px 20px;border:0;border-radius:10px;background:#b8f45c;color:#10251e;font-weight:850;cursor:pointer}.actions button:disabled,.resume-button:disabled{opacity:.45;cursor:not-allowed}.actions button b,.resume-button b{margin-left:18px}.error{margin-top:16px;padding:12px 14px;border:1px solid #ff6b6030;border-radius:10px;background:#ff6b6010;color:#ffaaa4;font-size:12px}.loading{padding:35px;color:#91aa9d}.resume-card{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:22px 24px;margin-bottom:18px;border-color:#b8f45c35;background:linear-gradient(110deg,#b8f45c0d,#0c2119d9)}.resume-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#b8f45c;color:#10251e;font-weight:950}.resume-copy h2{margin:5px 0 4px;font-size:22px}.resume-copy p{margin:0 0 4px}.resume-copy small{color:#789386;font-size:10px}.resume-button{white-space:nowrap}.resume-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:25px}.resume-meta>div{padding:16px;border:1px solid #ffffff12;border-radius:14px;background:#ffffff04}.resume-meta span{display:block;color:#789386;font-size:8px;letter-spacing:1.4px;font-weight:900}.resume-meta strong{display:block;margin-top:6px;font-size:22px}.resume-meta>div:first-child strong{color:#b8f45c}@media(max-width:760px){.page{padding:30px 20px 90px}.hero{display:block}.fields{grid-template-columns:1fr}.resume-card{grid-template-columns:auto 1fr}.resume-button{grid-column:1/-1;width:100%}.resume-meta{grid-template-columns:1fr}.actions{justify-content:space-between}}`]
+@Component({
+  selector:'app-opening-players',
+  standalone:true,
+  imports:[CommonModule,RouterLink,SelectFieldComponent],
+  template:`
+<section class="opening-page">
+  <a class="back-link" [routerLink]="['/matches',matchId,inningsNumber===1?'toss':'live']">
+    <span aria-hidden="true">←</span> Match command center
+  </a>
+
+  @if(loading){
+    <section class="loading-shell">
+      <div class="loading-mark"></div>
+      <div><strong>Preparing the innings</strong><span>Loading match and Playing XI details…</span></div>
+    </section>
+  } @else if(match) {
+    <section class="hero-card">
+      <div class="hero-copy">
+        <div class="eyebrow"><i></i> Matchday setup · Step 4 of 4</div>
+        <h1>Opening players</h1>
+        <p>Choose the two opening batters and the first bowler before live scoring begins.</p>
+      </div>
+      <div class="hero-status">
+        <span class="status-dot"></span>{{ match.status | titlecase }}
+      </div>
+
+      <div class="fixture-strip">
+        <div class="fixture-team home">
+          <div class="team-mark">A</div>
+          <div><small>Batting first</small><strong>{{battingName}}</strong></div>
+        </div>
+        <div class="fixture-middle">
+          <b>{{match.format || 'Match'}}</b>
+          <span>vs</span>
+          <small>Innings {{inningsNumber}}</small>
+        </div>
+        <div class="fixture-team away">
+          <div><small>Opening bowling</small><strong>{{bowlingName}}</strong></div>
+          <div class="team-mark alt">B</div>
+        </div>
+      </div>
+    </section>
+
+    @if(error){
+      <div class="error-state">
+        <span>!</span>
+        <div><strong>Something needs attention</strong><p>{{error}}</p></div>
+      </div>
+    }
+
+    @if(existingInnings && existingInnings.status==='LIVE'){
+      <section class="resume-panel">
+        <div class="resume-main">
+          <div class="resume-icon">▶</div>
+          <div>
+            <div class="section-label">Live innings detected</div>
+            <h2>Resume where you left off</h2>
+            <p>{{battingName}} are currently {{existingInnings.runs}}/{{existingInnings.wickets}} after {{overs(existingInnings.legalBalls)}} overs.</p>
+          </div>
+        </div>
+        <div class="resume-stats">
+          <div><span>Score</span><strong>{{existingInnings.runs}}/{{existingInnings.wickets}}</strong></div>
+          <div><span>Overs</span><strong>{{overs(existingInnings.legalBalls)}}</strong></div>
+          <div><span>Innings</span><strong>{{existingInnings.inningsNumber}}</strong></div>
+        </div>
+        <button class="primary-action" [disabled]="resuming" (click)="resumeInnings()">
+          {{resuming?'Opening…':'Resume innings'}} <b>→</b>
+        </button>
+      </section>
+    } @else if(!error) {
+      <section class="selection-progress">
+        <div class="progress-leading">
+          <div class="progress-step">04</div>
+          <div><span>Final setup</span><strong>Select all three roles</strong></div>
+        </div>
+        <div class="progress-track"><i [style.width.%]="selectionProgress"></i></div>
+        <div class="progress-count">{{selectedCount}} of 3 selected</div>
+      </section>
+
+      <section class="selection-workspace">
+        <div class="workspace-head">
+          <div>
+            <div class="section-label">Innings {{inningsNumber}}</div>
+            <h2>Set the opening combination</h2>
+            <p>Select two different batters from {{battingName}} and one bowler from {{bowlingName}}.</p>
+          </div>
+          <div class="autosave"><i></i> Ready to start</div>
+        </div>
+
+        <div class="role-grid">
+          <article class="role-card" [class.complete]="strikerId">
+            <div class="role-number">01</div>
+            <div class="role-head"><div class="role-icon">S</div><div><span>Opening batter</span><h3>Striker</h3></div></div>
+            <p>Faces the first delivery of the innings.</p>
+            <app-select-field label="Select striker" name="striker" placeholder="Choose a player" [options]="battingOptions" [(value)]="strikerId"/>
+          </article>
+
+          <article class="role-card" [class.complete]="nonStrikerId" [class.invalid]="strikerId&&strikerId===nonStrikerId">
+            <div class="role-number">02</div>
+            <div class="role-head"><div class="role-icon">NS</div><div><span>Opening batter</span><h3>Non-striker</h3></div></div>
+            <p>Starts at the opposite end of the pitch.</p>
+            <app-select-field label="Select non-striker" name="nonStriker" placeholder="Choose a different player" [options]="battingOptions" [(value)]="nonStrikerId"/>
+          </article>
+
+          <article class="role-card bowler" [class.complete]="bowlerId">
+            <div class="role-number">03</div>
+            <div class="role-head"><div class="role-icon">B</div><div><span>Opening bowler</span><h3>First over</h3></div></div>
+            <p>Delivers the first ball for {{bowlingName}}.</p>
+            <app-select-field label="Select bowler" name="bowler" placeholder="Choose a player" [options]="bowlingOptions" [(value)]="bowlerId"/>
+          </article>
+        </div>
+
+        @if(strikerId&&strikerId===nonStrikerId){
+          <div class="inline-warning"><span>!</span> Striker and non-striker must be different players.</div>
+        }
+
+        <div class="action-bar">
+          <a [routerLink]="['/matches',matchId,'toss']">← Back to toss</a>
+          <div class="action-copy"><span>All selections are required</span><strong>{{selectedCount}} / 3 complete</strong></div>
+          <button class="primary-action" [disabled]="!canStart||starting" (click)="startInnings()">
+            {{starting?'Starting innings…':'Start live scoring'}} <b>→</b>
+          </button>
+        </div>
+      </section>
+    }
+  }
+</section>`,
+  styles:[`
+:host{display:block}.opening-page{max-width:1180px;margin:0 auto;padding:28px 4vw 100px;color:var(--cp-text)}
+.back-link{display:inline-flex;align-items:center;gap:9px;margin-bottom:22px;color:var(--cp-text-muted);text-decoration:none;transition:color .2s ease,transform .2s ease}.back-link:hover{color:var(--cp-text);transform:translateX(-2px)}
+.hero-card{position:relative;overflow:hidden;padding:30px;border:1px solid var(--cp-border);border-radius:24px;background:linear-gradient(135deg,color-mix(in srgb,var(--cp-accent) 6%,var(--cp-surface)),var(--cp-surface));box-shadow:var(--cp-shadow-sm)}.hero-card:after{content:"";position:absolute;width:380px;height:380px;right:-180px;top:-250px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--cp-accent) 13%,transparent),transparent 68%);pointer-events:none}.hero-copy{position:relative;z-index:1;max-width:690px}.eyebrow,.section-label{display:flex;align-items:center;gap:8px;color:var(--cp-accent)}.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--cp-accent);box-shadow:0 0 12px color-mix(in srgb,var(--cp-accent) 60%,transparent)}.hero-copy h1{margin:12px 0 7px;font-size:clamp(34px,5vw,56px);font-weight:850}.hero-copy p{margin:0;color:var(--cp-text-muted);max-width:620px}.hero-status{position:absolute;right:28px;top:28px;z-index:2;display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border:1px solid var(--cp-border);border-radius:999px;background:color-mix(in srgb,var(--cp-surface) 85%,transparent);font-size:11px;font-weight:800;color:var(--cp-text-muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--cp-accent)}
+.fixture-strip{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:22px;margin-top:28px;padding:17px 20px;border:1px solid var(--cp-border);border-radius:17px;background:color-mix(in srgb,var(--cp-bg) 24%,transparent)}.fixture-team{display:flex;align-items:center;gap:12px;min-width:0}.fixture-team.away{justify-content:flex-end;text-align:right}.team-mark{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--cp-accent) 34%,var(--cp-border));border-radius:12px;background:var(--cp-accent-soft);color:var(--cp-accent);font-weight:900}.team-mark.alt{color:var(--cp-info);border-color:color-mix(in srgb,var(--cp-info) 32%,var(--cp-border));background:color-mix(in srgb,var(--cp-info) 9%,transparent)}.fixture-team small{display:block;margin-bottom:4px;color:var(--cp-text-muted);font-size:10px;font-weight:700}.fixture-team strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.fixture-middle{text-align:center}.fixture-middle b{display:block;color:var(--cp-accent);font-size:12px}.fixture-middle span{display:block;margin:4px 0;font-size:15px;font-weight:850}.fixture-middle small{color:var(--cp-text-muted);font-size:10px}
+.selection-progress{display:grid;grid-template-columns:auto minmax(180px,1fr) auto;align-items:center;gap:24px;margin:18px 0;padding:17px 22px;border:1px solid var(--cp-border);border-radius:18px;background:var(--cp-surface);box-shadow:var(--cp-shadow-sm)}.progress-leading{display:flex;align-items:center;gap:12px}.progress-step{width:42px;height:42px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--cp-accent) 28%,var(--cp-border));border-radius:12px;background:var(--cp-accent-soft);color:var(--cp-accent);font-size:11px;font-weight:900}.progress-leading span{display:block;margin-bottom:3px;color:var(--cp-text-muted);font-size:11px;font-weight:700}.progress-leading strong{font-size:14px}.progress-track{height:7px;overflow:hidden;border-radius:99px;background:color-mix(in srgb,var(--cp-text) 8%,transparent)}.progress-track i{display:block;height:100%;min-width:3px;border-radius:inherit;background:var(--cp-accent);box-shadow:0 0 14px color-mix(in srgb,var(--cp-accent) 55%,transparent);transition:width .35s ease}.progress-count{color:var(--cp-text-muted);font-size:12px;font-weight:750}
+.selection-workspace{padding:26px;border:1px solid var(--cp-border);border-radius:24px;background:var(--cp-surface);box-shadow:var(--cp-shadow-sm)}.workspace-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid var(--cp-border)}.workspace-head h2{margin:7px 0 6px;font-size:26px;letter-spacing:var(--cp-tracking-tight)}.workspace-head p{margin:0;color:var(--cp-text-muted);font-size:14px;line-height:1.55}.autosave{display:inline-flex;align-items:center;gap:7px;padding:9px 11px;border:1px solid var(--cp-border);border-radius:10px;background:var(--cp-accent-soft);color:var(--cp-accent);font-size:11px;font-weight:800;white-space:nowrap}.autosave i{width:6px;height:6px;border-radius:50%;background:var(--cp-accent)}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.role-card{position:relative;padding:21px;border:1px solid var(--cp-border);border-radius:18px;background:linear-gradient(180deg,color-mix(in srgb,var(--cp-surface-raised) 48%,var(--cp-surface)),var(--cp-surface));transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease}.role-card:hover{transform:translateY(-3px);border-color:var(--cp-border-strong);box-shadow:0 14px 30px color-mix(in srgb,#000 8%,transparent)}.role-card.complete{border-color:color-mix(in srgb,var(--cp-accent) 42%,var(--cp-border));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--cp-accent) 10%,transparent)}.role-card.invalid{border-color:color-mix(in srgb,var(--cp-danger) 55%,var(--cp-border))}.role-number{position:absolute;right:18px;top:17px;color:var(--cp-text-muted);font-size:11px;font-weight:850}.role-head{display:flex;align-items:center;gap:11px}.role-icon{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--cp-border);border-radius:13px;background:var(--cp-surface-overlay);color:var(--cp-accent);font-size:12px;font-weight:900}.bowler .role-icon{color:var(--cp-info)}.role-head span{display:block;margin-bottom:3px;color:var(--cp-text-muted);font-size:10px;font-weight:750}.role-head h3{margin:0;font-size:17px}.role-card>p{min-height:38px;margin:16px 0;color:var(--cp-text-muted);font-size:12px;line-height:1.5}.inline-warning{display:flex;align-items:center;gap:9px;margin-top:16px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--cp-danger) 38%,var(--cp-border));border-radius:12px;background:color-mix(in srgb,var(--cp-danger) 8%,transparent);color:var(--cp-danger);font-size:12px;font-weight:700}.inline-warning span{display:grid;place-items:center;width:19px;height:19px;border-radius:50%;background:var(--cp-danger);color:#fff;font-size:11px;font-weight:900}
+.action-bar{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:24px;margin-top:24px;padding-top:22px;border-top:1px solid var(--cp-border)}.action-bar>a{color:var(--cp-text-muted);text-decoration:none;font-size:13px;font-weight:750}.action-copy{text-align:right}.action-copy span{display:block;color:var(--cp-text-muted);font-size:10px}.action-copy strong{display:block;margin-top:3px;font-size:13px}.primary-action{display:inline-flex;align-items:center;justify-content:center;gap:18px;padding:14px 18px;border:1px solid transparent;border-radius:12px;background:var(--cp-accent);color:var(--cp-accent-contrast);font-size:13px;font-weight:850;cursor:pointer;box-shadow:0 10px 24px color-mix(in srgb,var(--cp-accent) 18%,transparent);transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease}.primary-action:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 15px 30px color-mix(in srgb,var(--cp-accent) 25%,transparent)}.primary-action:disabled{opacity:.48;cursor:not-allowed}
+.resume-panel{display:grid;grid-template-columns:minmax(300px,1fr) auto auto;align-items:center;gap:24px;margin-top:18px;padding:24px;border:1px solid color-mix(in srgb,var(--cp-accent) 28%,var(--cp-border));border-radius:22px;background:linear-gradient(135deg,var(--cp-accent-soft),var(--cp-surface));box-shadow:var(--cp-shadow-sm)}.resume-main{display:flex;align-items:center;gap:14px}.resume-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:var(--cp-accent);color:var(--cp-accent-contrast);font-size:14px}.resume-main h2{margin:5px 0;font-size:22px}.resume-main p{margin:0;color:var(--cp-text-muted);font-size:13px}.resume-stats{display:flex;gap:20px}.resume-stats>div{min-width:64px}.resume-stats span{display:block;color:var(--cp-text-muted);font-size:10px}.resume-stats strong{display:block;margin-top:5px;font-size:17px}.error-state{display:flex;align-items:flex-start;gap:11px;margin-top:18px;padding:15px 17px;border:1px solid color-mix(in srgb,var(--cp-danger) 40%,var(--cp-border));border-radius:14px;background:color-mix(in srgb,var(--cp-danger) 7%,var(--cp-surface));color:var(--cp-danger)}.error-state>span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--cp-danger);color:#fff;font-weight:900}.error-state strong{font-size:13px}.error-state p{margin:4px 0 0;color:var(--cp-text-muted);font-size:12px}.loading-shell{display:flex;align-items:center;gap:14px;padding:26px;border:1px solid var(--cp-border);border-radius:18px;background:var(--cp-surface);box-shadow:var(--cp-shadow-sm)}.loading-mark{width:38px;height:38px;border:3px solid var(--cp-border);border-top-color:var(--cp-accent);border-radius:50%;animation:spin .85s linear infinite}.loading-shell strong,.loading-shell span{display:block}.loading-shell span{margin-top:4px;color:var(--cp-text-muted);font-size:12px}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:900px){.role-grid{grid-template-columns:1fr}.role-card>p{min-height:0}.resume-panel{grid-template-columns:1fr}.resume-stats{justify-content:flex-start}.hero-status{position:static;margin-top:18px;width:max-content}.fixture-strip{grid-template-columns:1fr}.fixture-middle{display:flex;align-items:center;justify-content:center;gap:10px}.fixture-middle span{margin:0}.fixture-team.away{justify-content:flex-start;text-align:left;flex-direction:row-reverse}.action-bar{grid-template-columns:1fr auto}.action-copy{display:none}}
+@media(max-width:620px){.opening-page{padding:22px 16px 80px}.hero-card{padding:22px 18px;border-radius:20px}.fixture-strip{padding:15px}.selection-progress{grid-template-columns:1fr;gap:13px}.progress-count{text-align:left}.selection-workspace{padding:20px 16px;border-radius:20px}.workspace-head{display:block}.autosave{margin-top:15px}.action-bar{grid-template-columns:1fr}.action-bar .primary-action{width:100%}.resume-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.resume-main{align-items:flex-start}.back-link{margin-bottom:18px}}
+`]
 })
 export class OpeningPlayersComponent {
  private readonly http=inject(HttpClient);private readonly route=inject(ActivatedRoute);private readonly router=inject(Router);private readonly api='http://localhost:8080/api';
