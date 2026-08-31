@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 
 interface Match { id:string; name:string; format:string; status:string; teamAId:string; teamBId:string; teamAName?:string; teamBName?:string; }
 interface Member { teamId:string; playerId:string; userId:string; fullName:string; email:string; phone?:string; role:string; }
