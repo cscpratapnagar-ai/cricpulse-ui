@@ -12,7 +12,7 @@ interface Team { id: string; name: string; }
   imports: [FormsModule, RouterLink, SelectFieldComponent, DateTimeFieldComponent],
   template: `<section class="create-page">
     <div class="ambient a1"></div><div class="ambient a2"></div>
-    <a class="back" routerLink="/matches"><span>←</span> Match workspace</g/a>
+    <a class="back" routerLink="/matches"><span>←</span> Match workspace</a>
     <header class="hero"><div><div class="eyebrow"><i></i> New match setup</div><h1>Build the next<br><em>matchday.</em></h1><p>Set the essentials now. Lineups, toss and live scoring follow in a guided workflow.</p></div><div class="hero-orbit"><span>01</span><small>Setup<br>of 3</small></div></header>
     <form (ngSubmit)="submit()" #matchForm="ngForm">
       <div class="form-shell">
