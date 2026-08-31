@@ -26,7 +26,7 @@ type Filter = 'ALL' | 'SCHEDULED' | 'LIVE' | 'COMPLETED';
 
       <header class="hero">
         <div class="hero-copy">
-          <div class="eyebrow"><span></span> Match operations</g/div>
+          <div class="eyebrow"><span></span> Match operations</div>
           <h1>Your <em>matchday</em><br>command center.</h1>
           <p>Monitor every fixture, jump into live action, and keep your cricket workspace moving.</p>
         </div>
