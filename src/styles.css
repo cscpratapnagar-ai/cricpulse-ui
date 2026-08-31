@@ -92,3 +92,56 @@ html[data-theme='light'] .toolbar{background:var(--cp-surface-2)!important}
 @media (prefers-reduced-motion:reduce){
   html.theme-transition *,html.theme-transition *::before,html.theme-transition *::after{transition:none!important}
 }
+
+
+/* ==========================================================================
+   CRICPULSE THEME ARCHITECTURE
+   Layering: primitives -> semantic tokens -> component contracts.
+   Components should consume semantic/component tokens only.
+   ========================================================================== */
+:root{
+  /* primitives */
+  --cp-green-50:#f4fee8;--cp-green-100:#e5fbc7;--cp-green-300:#b8f45c;--cp-green-600:#5b941d;
+  --cp-ink-950:#07130f;--cp-ink-900:#0c2119;--cp-ink-800:#102a21;
+  --cp-white:#fff;--cp-black:#000;
+  /* semantic status */
+  --cp-success:#63d57a;--cp-warning:#e7b95a;--cp-danger-soft:color-mix(in srgb,var(--cp-danger) 12%,transparent);
+  /* interaction */
+  --cp-focus-ring:0 0 0 3px color-mix(in srgb,var(--cp-accent) 26%,transparent);
+  --cp-hover:color-mix(in srgb,var(--cp-text) 4%,transparent);
+  --cp-disabled-opacity:.48;
+  /* component contracts */
+  --cp-control-bg:var(--cp-surface);
+  --cp-control-hover:var(--cp-surface-raised);
+  --cp-control-border:var(--cp-border);
+  --cp-menu-bg:var(--cp-surface);
+  --cp-menu-shadow:0 18px 42px rgba(0,0,0,.18);
+  --cp-card-bg:var(--cp-surface);
+  --cp-card-border:var(--cp-border);
+  --cp-overlay-bg:var(--cp-backdrop);
+  --cp-radius-sm:8px;--cp-radius-md:12px;--cp-radius-lg:18px;
+}
+html[data-theme='light']{
+  --cp-hover:color-mix(in srgb,var(--cp-text) 5%,transparent);
+  --cp-menu-shadow:0 18px 42px rgba(20,50,38,.14);
+}
+html[data-theme='dark']{
+  --cp-hover:color-mix(in srgb,var(--cp-text) 6%,transparent);
+  --cp-menu-shadow:0 18px 42px rgba(0,0,0,.42);
+}
+/* Accessibility contracts */
+:focus-visible{outline:2px solid var(--cp-accent);outline-offset:2px;box-shadow:var(--cp-focus-ring)}
+html[data-contrast='high']{--cp-border:var(--cp-border-strong);--cp-text-muted:color-mix(in srgb,var(--cp-text) 70%,var(--cp-bg))}
+html[data-density='compact']{--cp-density-space:.86}
+html:not([data-density='compact']){--cp-density-space:1}
+/* Theme-safe surfaces for common component families */
+.card,.panel,.settings-shell,.workspace,.workspace-menu,.command-palette,.role-menu,.menu{
+  border-color:var(--cp-card-border);
+}
+.workspace-menu,.command-palette,.role-menu,.menu{box-shadow:var(--cp-menu-shadow)}
+input,textarea,select,.role-trigger,.filter{
+  background-color:var(--cp-control-bg);
+  border-color:var(--cp-control-border);
+  color:var(--cp-text);
+}
+button:disabled{opacity:var(--cp-disabled-opacity);cursor:not-allowed}
