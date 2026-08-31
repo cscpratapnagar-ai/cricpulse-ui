@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
-import { LiveScore } from './live-score.service';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
+import { LiveScore } from '../../../../live-score.service';
 
 interface Match { id:string; name:string; status:string; format?:string; teamAId:string; teamBId:string; teamAName?:string; teamBName?:string; }
 interface XIPlayer { teamId:string; playerId:string; name:string; captain:boolean; viceCaptain:boolean; wicketKeeper:boolean; }
