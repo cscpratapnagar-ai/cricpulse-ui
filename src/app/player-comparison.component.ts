@@ -24,7 +24,7 @@ export class PlayerComparisonComponent implements OnInit{
  get rightOptions():SelectOption[]{return this.players.filter(p=>p.id!==this.leftId).map(p=>({value:p.id,label:p.name}));}
  selectLeft(id:string){this.leftId=id;this.compare();}
  selectRight(id:string){this.rightId=id;this.compare();}
- ngOnInit(){this.http.get<any[]>(this.api+'/players/statistics').subscribe(r=>this.players=(r||[]).map(x=>({id:x.playerId||x.id,name:x.name,role:x.role,teamName:x.teamName})));}
+ ngOnInit(){this.http.get<any[]>(this.api+'/players/statistics').subscribe(r=>this.players=(r||[]).map(x=>({id:x.playerId||x.id,name:x.playerName||x.name||'Unknown player',role:x.role,teamName:x.teamName})).filter(p=>!!p.id&&p.name!=='Unknown player'));}
  compare(){if(!this.leftId||!this.rightId||this.leftId===this.rightId){this.comparison=null;return;}this.loading=true;this.http.get<Comparison>(this.api+`/players/compare?left=${this.leftId}&right=${this.rightId}`).subscribe({next:r=>{this.comparison=r;this.loading=false},error:()=>this.loading=false});}
  initial(n:string){return n.trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();}
  get metrics(){if(!this.comparison)return[];const a=this.comparison.left,b=this.comparison.right;return[{label:'MATCHES',left:a.matches,right:b.matches},{label:'RUNS',left:a.runs,right:b.runs},{label:'AVERAGE',left:a.average,right:b.average},{label:'STRIKE RATE',left:a.strikeRate,right:b.strikeRate},{label:'WICKETS',left:a.wickets,right:b.wickets},{label:'ECONOMY',left:a.economy,right:b.economy}];}
