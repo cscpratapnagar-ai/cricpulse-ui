@@ -102,7 +102,7 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
 
       <div class="sticky-bar">
         <div class="sticky-state"><i></i><div><span>CHANGES SAVE INSTANTLY</span><b>Player selections are synced to the match</b></div></div>
-        <a [routerLink]="['/matches',match.id,'toss']" class="continue" [class.disabled]="teams.some(t=>t.selected.length!==11)" [attr.aria-disabled]="teams.some(t=>t.selected.length!==11)">Continue to Toss <b>→</b></a>
+        <a [routerLink]="['/matches',match.id,'toss']" class="continue" [class.disabled]="!isSelectionComplete()" [attr.aria-disabled]="!isSelectionComplete()">Continue to Toss <b>→</b></a>
       </div>
 
       @if(toast){<div class="toast"><i>✓</i>{{toast}}</div>}
@@ -146,4 +146,9 @@ export class PlayingXiV2Component {
   saveRoles(t:TeamState){if(!t.selected.length)return;this.saving=true;const roles=t.selected.map(p=>this.http.post(`${this.api}/matches/${this.match!.id}/playing-xi`,{teamId:t.id,playerId:p.playerId,captain:p.playerId===t.captainId,viceCaptain:p.playerId===t.viceCaptainId,wicketKeeper:p.playerId===t.wicketKeeperId}));let done=0;let failed=false;roles.forEach(r=>r.subscribe({next:()=>{done++;if(done===roles.length&&!failed){this.saving=false;this.loadXi(t,this.match!.id);this.showToast('Match roles saved');}},error:e=>{failed=true;this.saving=false;this.showToast(e?.error?.message||'Unable to save match roles');}}));}
   roleName(t:TeamState,id:string|null){return t.selected.find(x=>x.playerId===id)?.name||''}
   initials(n:string){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
+
+  isSelectionComplete(): boolean {
+    return this.teams.length === 2 && this.teams.every(team => team.selected.length === 11);
+  }
+
 }
