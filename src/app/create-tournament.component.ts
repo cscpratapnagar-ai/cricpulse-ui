@@ -21,7 +21,7 @@ type Step = 1|2|3;
   <header class="hero">
     <div>
       <div class="eyebrow-row"><i></i><span class="eyebrow">COMPETITION SETUP</span><span class="draft-badge">DRAFT</span></div>
-      <h1>Create a tournament<span>.</span></h1>
+      <h1>Create tournament<span>.</span></h1>
       <p>Build the competition foundation with a guided setup. You can manage teams, fixtures and live operations after creation.</p>
     </div>
     <div class="hero-actions">
