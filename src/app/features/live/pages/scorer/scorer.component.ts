@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, of, startWith } from 'rxjs';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
-import { LiveScore, LiveScoreService } from './live-score.service';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
+import { LiveScore, LiveScoreService } from '../../../../live-score.service';
 
 interface Match { id: string; name: string; format: string; status: string; teamAId: string; teamBId: string; teamAName?: string; teamBName?: string; }
 interface Player { id: string; name: string; role: string; battingStyle: string; bowlingStyle: string; }
