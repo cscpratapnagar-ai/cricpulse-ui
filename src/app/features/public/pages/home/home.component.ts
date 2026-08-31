@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
-import { CurrentUser, CurrentUserService } from './current-user.service';
+import { CurrentUser, CurrentUserService } from '../../../../current-user.service';
 
 import { RouterLink } from '@angular/router';
 
