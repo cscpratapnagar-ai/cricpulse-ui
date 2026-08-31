@@ -27,6 +27,11 @@ export class HomeComponent {
       return user?.name?.trim() || user?.fullName?.trim() || 'there';
     } catch { return 'there'; }
   });
+  private readCurrentUser(): { fullName?: string; name?: string } {
+    try { return JSON.parse(localStorage.getItem('cricketpulse_user') || '{}'); }
+    catch { return {}; }
+  }
+
   readonly greeting = computed(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
