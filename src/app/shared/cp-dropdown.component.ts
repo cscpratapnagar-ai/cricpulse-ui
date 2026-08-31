@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 export interface CpDropdownOption<T = string> {
   value: T;
@@ -12,21 +12,35 @@ export interface CpDropdownOption<T = string> {
   standalone: true,
   template: `
     <div class="field" [class.disabled]="disabled">
-      @if (label) { <label [for]="id">{{ label }} @if (required) { <span>*</span> }</label> }
-      <div class="control">
-        <select [id]="id" [name]="name || id" [disabled]="disabled" [required]="required" [value]="stringValue" (change)="onChange($event)">
-          @if (placeholder) { <option value="" disabled [selected]="!hasValue">{{ placeholder }}</option> }
-          @for (option of options; track option.value) {
-            <option [value]="serialize(option.value)" [disabled]="option.disabled">{{ option.label }}{{ option.hint ? ' · ' + option.hint : '' }}</option>
-          }
-        </select>
-        <span class="chevron">⌄</span>
+      @if (label) { <label>{{ label }} @if (required) { <span>*</span> }</label> }
+      <div class="dropdown">
+        <button type="button" class="trigger" [class.open]="open" [disabled]="disabled"
+          [attr.aria-expanded]="open" aria-haspopup="listbox" (click)="toggle()">
+          <span>{{ selectedLabel }}</span><i aria-hidden="true">⌄</i>
+        </button>
+        @if (open) {
+          <div class="menu" role="listbox">
+            @for (option of options; track option.value) {
+              <button type="button" role="option" [disabled]="option.disabled"
+                [class.selected]="isSelected(option)" [attr.aria-selected]="isSelected(option)"
+                (click)="select(option)">
+                <span>{{ option.label }}@if (option.hint) { <small> · {{ option.hint }}</small> }</span>
+                @if (isSelected(option)) { <b>✓</b> }
+              </button>
+            }
+          </div>
+        }
       </div>
-      @if (hint) { <small>{{ hint }}</small> }
+      @if (hint) { <small class="hint">{{ hint }}</small> }
     </div>
   `,
   styles: [`
-    :host{display:block}.field{display:grid;gap:8px}.field label{color:#b9ccc2;font-size:12px;font-weight:750}.field label span{color:#b8f45c}.control{position:relative}.control select{appearance:none;box-sizing:border-box;width:100%;min-height:46px;padding:12px 42px 12px 13px;border:1px solid #ffffff1c;border-radius:10px;background:#142c22;color:#fff;font:inherit;outline:none;cursor:pointer}.control select:focus{border-color:#b8f45c;box-shadow:0 0 0 3px #b8f45c18}.control select option{background:#10251e;color:#fff}.chevron{pointer-events:none;position:absolute;right:14px;top:50%;transform:translateY(-56%);color:#b8f45c;font-size:19px;font-weight:800}.field small{color:#789386;font-size:10px}.disabled{opacity:.55}.disabled select{cursor:not-allowed}
+    :host{display:block}.field{display:grid;gap:8px}.field label{color:var(--cp-text-muted);font-size:8px;font-weight:850;letter-spacing:.7px;text-transform:uppercase}.field label span{color:var(--cp-accent)}
+    .dropdown{position:relative}.trigger,.menu button{font:750 10px inherit}.trigger{display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;min-height:43px;padding:0 12px;border:1px solid var(--cp-border);border-radius:10px;background:var(--cp-surface);color:var(--cp-text);text-align:left;cursor:pointer;transition:border-color .18s,box-shadow .18s,background .18s}
+    .trigger:hover,.trigger.open{border-color:color-mix(in srgb,var(--cp-accent) 55%,var(--cp-border));box-shadow:0 0 0 3px var(--cp-accent-soft)}.trigger i{font-style:normal;color:var(--cp-muted,var(--cp-text-muted));font-size:14px;font-weight:850;transition:transform .18s,color .18s}.trigger.open i{transform:rotate(180deg);color:var(--cp-accent)}
+    .menu{position:absolute;top:calc(100% + 6px);right:0;left:0;z-index:100;display:grid;min-width:170px;padding:5px;border:1px solid color-mix(in srgb,var(--cp-accent) 24%,var(--cp-border));border-radius:11px;background:var(--cp-surface);box-shadow:0 18px 42px color-mix(in srgb,#000 28%,transparent);animation:cp-dropdown-in .16s ease both}
+    .menu button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:10px 11px;border:0;border-radius:7px;background:transparent;color:var(--cp-text);text-align:left;cursor:pointer;transition:background .14s,color .14s}.menu button:hover,.menu button.selected{background:var(--cp-accent-soft);color:var(--cp-accent)}.menu button:disabled{opacity:.45;cursor:not-allowed}.menu button b{font-size:10px;color:var(--cp-accent)}.menu button small{font-size:8px;opacity:.75}.hint{color:var(--cp-text-muted);font-size:8px}.disabled{opacity:.55}.disabled .trigger{cursor:not-allowed}
+    @keyframes cp-dropdown-in{from{opacity:0;transform:translateY(4px) scale(.985)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.trigger,.trigger i,.menu,.menu button{animation:none!important;transition:none!important}}
   `]
 })
 export class CpDropdownComponent<T = string> {
@@ -40,15 +54,31 @@ export class CpDropdownComponent<T = string> {
   @Input() options: CpDropdownOption<T>[] = [];
   @Input() value: T | null = null;
   @Output() valueChange = new EventEmitter<T | null>();
+  open = false;
+
+  constructor(private readonly host: ElementRef<HTMLElement>) {}
 
   get hasValue(): boolean { return this.value !== null && this.value !== undefined && String(this.value) !== ''; }
-  get stringValue(): string { return this.hasValue ? String(this.value) : ''; }
-
-  serialize(value: T): string { return String(value); }
-
-  onChange(event: Event): void {
-    const raw = (event.target as HTMLSelectElement).value;
-    const option = this.options.find(item => String(item.value) === raw);
-    this.valueChange.emit(option ? option.value : null);
+  get selectedLabel(): string {
+    const selected = this.options.find(option => this.isSelected(option));
+    return selected?.label || this.placeholder;
   }
+
+  toggle(): void { if (!this.disabled) this.open = !this.open; }
+  select(option: CpDropdownOption<T>): void {
+    if (option.disabled) return;
+    this.valueChange.emit(option.value);
+    this.open = false;
+  }
+  isSelected(option: CpDropdownOption<T>): boolean {
+    return this.hasValue && String(option.value) === String(this.value);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.open && !this.host.nativeElement.contains(event.target as Node)) this.open = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void { this.open = false; }
 }
