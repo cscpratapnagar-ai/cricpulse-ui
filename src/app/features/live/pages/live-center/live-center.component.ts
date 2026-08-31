@@ -4,8 +4,8 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, startWith } from 'rxjs';
-import { SelectFieldComponent, SelectOption } from './ui/select-field.component';
-import { LiveScore, LiveScoreService } from './live-score.service';
+import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
+import { LiveScore, LiveScoreService } from '../../../../live-score.service';
 
 interface Match {
   id: string;
