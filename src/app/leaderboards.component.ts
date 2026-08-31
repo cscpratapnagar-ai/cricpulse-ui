@@ -106,7 +106,15 @@ export class LeaderboardsComponent {
   setBoard(key:Board){this.active=key;}
   get activeLabel(){return this.tabs.find(t=>t.key===this.active)?.label||'Leaderboard';}
   get unit(){return this.active==='runs'?'RUNS':this.active==='wickets'?'WKTS':this.active==='economy'?'ECON':'RATE';}
-  value(p:PlayerStatistics,key:Board=this.active):number{return Number(p[key]||0);}
+  value(p:PlayerStatistics,key:Board=this.active):number{
+    switch(key){
+      case 'runs': return Number(p.runs||0);
+      case 'average': return Number(p.battingAverage||0);
+      case 'strikeRate': return Number(p.strikeRate||0);
+      case 'wickets': return Number(p.wickets||0);
+      case 'economy': return Number(p.economy||0);
+    }
+  }
   get ranked(){const items=[...this.players];return items.sort((a,b)=>this.active==='economy'?this.economyValue(a)-this.economyValue(b):this.value(b)-this.value(a));}
   get topThree(){return this.ranked.slice(0,3);}
   economyValue(p:PlayerStatistics){return p.wickets>0?Number(p.economy||0):Number.MAX_SAFE_INTEGER;}
