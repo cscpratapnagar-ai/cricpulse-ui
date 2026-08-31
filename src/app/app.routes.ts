@@ -4,7 +4,7 @@ import { LoginComponent } from './login.component';
 import { SignupComponent } from './signup.component';
 import { DashboardComponent } from './dashboard.component';
 import { HomeComponent } from './home.component';
-import { authGuard } from './auth';
+import { authGuard } from './core/auth/auth';
 import { CreateTeamComponent } from './create-team.component';
 import { PlayerOnboardingComponent } from './player-onboarding.component';
 import { ModulePageComponent } from './module-page.component';
