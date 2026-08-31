@@ -22,3 +22,25 @@ select{background-color:var(--cp-surface)!important;color:var(--cp-text)!importa
 
 /* Light theme: stronger structural borders for cards, forms and dropdowns */
 html[data-theme='light'] input,html[data-theme='light'] select,html[data-theme='light'] textarea{border-color:var(--cp-border)!important}html[data-theme='light'] .input-wrap{border-color:var(--cp-border)!important}html[data-theme='light'] .form-shell,html[data-theme='light'] .match-card,html[data-theme='light'] .intel-strip,html[data-theme='light'] .advanced,html[data-theme='light'] .team-section{border-color:var(--cp-border)!important}
+
+
+/* Global typography contract — consistent hierarchy across every workspace */
+:root{
+  --cp-type-page:clamp(28px,3vw,42px);
+  --cp-type-section:22px;
+  --cp-type-body:14px;
+  --cp-type-meta:12px;
+  --cp-type-micro:11px;
+  --cp-tracking-tight:-.025em;
+  --cp-tracking-label:.02em;
+}
+/* Navigation / breadcrumbs */
+.back,.back-link{font-size:13px!important;font-weight:750!important;letter-spacing:.01em!important;line-height:1.35}
+/* Context labels are readable UI text, not decorative spaced-out caps */
+.eyebrow,.section-label{font-size:12px!important;font-weight:800!important;letter-spacing:var(--cp-tracking-label)!important;line-height:1.35}
+/* Main page titles share one hierarchy */
+.page-head h1,.page-intro h1,.hero h1,.match-hero h1{letter-spacing:var(--cp-tracking-tight);line-height:1.08}
+/* Supporting copy and metadata remain readable in both themes */
+.page-head>div>p,.page-intro p,.hero p,.match-hero p,.subtitle,.section-copy{font-size:var(--cp-type-body)!important;line-height:1.55}
+/* Avoid unreadable micro typography in operational screens */
+@media(min-width:701px){.table-labels,.fixture-mini small,.progress-copy small,.save-status,.head-count span,.tags span{letter-spacing:.01em!important}}
