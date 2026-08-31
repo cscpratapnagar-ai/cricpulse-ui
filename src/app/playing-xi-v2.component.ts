@@ -192,4 +192,8 @@ export class PlayingXiV2Component {
     return this.teams.length === 2 && this.teams.every(team => team.selected.length === 11);
   }
 
-}\n  statusLabel(status:string){ return status.toLowerCase().split('_').map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(' '); }\n
+  statusLabel(status: string) {
+    return status.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }
+
+}
