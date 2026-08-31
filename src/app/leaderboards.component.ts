@@ -115,13 +115,32 @@ export class LeaderboardsComponent {
       case 'economy': return Number(p.economy||0);
     }
   }
-  get ranked(){const items=[...this.players];return items.sort((a,b)=>this.active==='economy'?this.economyValue(a)-this.economyValue(b):this.value(b)-this.value(a));}
+  get ranked(){
+    const items=this.active==='economy'
+      ?this.players.filter(p=>p.wickets>0 && Number.isFinite(Number(p.economy)))
+      :[...this.players];
+    return items.sort((a,b)=>this.active==='economy'?this.economyValue(a)-this.economyValue(b):this.value(b)-this.value(a));
+  }
   get topThree(){return this.ranked.slice(0,3);}
-  economyValue(p:PlayerStatistics){return p.wickets>0?Number(p.economy||0):Number.MAX_SAFE_INTEGER;}
-  progress(p:PlayerStatistics){const values=this.ranked.map(x=>this.active==='economy'?this.economyValue(x):this.value(x)).filter(Number.isFinite);const max=this.active==='economy'?Math.max(...values.filter(v=>v<Number.MAX_SAFE_INTEGER),1):Math.max(...values,1);if(this.active==='economy'){return p.wickets>0?Math.max(6,100-(this.economyValue(p)/max)*72):6;}return Math.max(6,(this.value(p)/max)*100);}
+  economyValue(p:PlayerStatistics){return Number(p.economy||0);}
+  progress(p:PlayerStatistics){
+    const values=this.ranked.map(x=>this.active==='economy'?this.economyValue(x):this.value(x)).filter(Number.isFinite);
+    if(!values.length)return 0;
+    if(this.active==='economy'){
+      const max=Math.max(...values,1);
+      return Math.max(8,100-(this.economyValue(p)/max)*72);
+    }
+    const max=Math.max(...values,1);
+    return Math.max(6,(this.value(p)/max)*100);
+  }
   display(p:PlayerStatistics){const v=this.active==='economy'?this.economyValue(p):this.value(p);return this.active==='runs'||this.active==='wickets'?String(Math.round(v)):this.format(v);}
   secondary(p:PlayerStatistics){if(this.active==='runs')return p.wickets+' wickets';if(this.active==='wickets')return p.runs+' runs';return p.runs+' runs · '+p.wickets+' wickets';}
-  topBy(key:Board){return [...this.players].sort((a,b)=>key==='economy'?this.economyValue(a)-this.economyValue(b):this.value(b,key)-this.value(a,key))[0];}
+  topBy(key:Board){
+    const items=key==='economy'
+      ?this.players.filter(p=>p.wickets>0 && Number.isFinite(Number(p.economy)))
+      :[...this.players];
+    return items.sort((a,b)=>key==='economy'?this.economyValue(a)-this.economyValue(b):this.value(b,key)-this.value(a,key))[0];
+  }
   initial(name:string){return (name||'?').trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();}
   format(v:number|undefined){return Number(v||0).toFixed(2);}
 }
