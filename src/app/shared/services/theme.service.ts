@@ -2,35 +2,56 @@ import { DOCUMENT } from '@angular/common';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 export type AppTheme = 'light' | 'dark';
+export type ThemePreference = AppTheme | 'system';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly storageKey = 'cricpulse-theme';
+  private readonly media = typeof window !== 'undefined'
+    ? window.matchMedia('(prefers-color-scheme: dark)')
+    : null;
 
-  readonly theme = signal<AppTheme>(this.readInitialTheme());
+  readonly preference = signal<ThemePreference>(this.readInitialPreference());
+  readonly theme = signal<AppTheme>(this.resolve(this.preference()));
   readonly isDark = computed(() => this.theme() === 'dark');
+  readonly isSystem = computed(() => this.preference() === 'system');
 
   constructor() {
     this.apply(this.theme(), false);
+    this.media?.addEventListener?.('change', this.handleSystemChange);
   }
 
   toggle(): void {
     this.setTheme(this.isDark() ? 'light' : 'dark');
   }
 
-  setTheme(theme: AppTheme): void {
-    this.theme.set(theme);
-    try { localStorage.setItem(this.storageKey, theme); } catch {}
-    this.apply(theme, true);
+  setTheme(preference: ThemePreference): void {
+    this.preference.set(preference);
+    const resolved = this.resolve(preference);
+    this.theme.set(resolved);
+    try { localStorage.setItem(this.storageKey, preference); } catch {}
+    this.apply(resolved, true);
   }
 
-  private readInitialTheme(): AppTheme {
+  private readonly handleSystemChange = (): void => {
+    if (this.preference() !== 'system') return;
+    const resolved = this.resolve('system');
+    this.theme.set(resolved);
+    this.apply(resolved, true);
+  };
+
+  private readInitialPreference(): ThemePreference {
     try {
-      const saved = localStorage.getItem(this.storageKey) as AppTheme | null;
-      if (saved === 'light' || saved === 'dark') return saved;
+      const saved = localStorage.getItem(this.storageKey) as ThemePreference | null;
+      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
     } catch {}
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    return 'system';
+  }
+
+  private resolve(preference: ThemePreference): AppTheme {
+    if (preference !== 'system') return preference;
+    return this.media?.matches ? 'dark' : 'light';
   }
 
   private apply(theme: AppTheme, animate: boolean): void {
@@ -41,14 +62,14 @@ export class ThemeService {
 
     root.dataset['theme'] = theme;
     root.style.colorScheme = theme;
-    root.classList.toggle('theme-light', theme === 'light');
-    root.classList.toggle('theme-dark', theme === 'dark');
-    body.classList.toggle('theme-light', theme === 'light');
-    body.classList.toggle('theme-dark', theme === 'dark');
+    root.classList.remove('theme-light', 'theme-dark');
+    root.classList.add('theme-' + theme);
+    body.classList.remove('theme-light', 'theme-dark');
+    body.classList.add('theme-' + theme);
 
-    // Remove the transition marker after the paint so page-specific CSS can animate once.
-    if (animate) {
-      window.setTimeout(() => root.classList.remove('theme-transition'), 240);
-    }
+    const meta = this.document.querySelector('meta[name="theme-color"]');
+    meta?.setAttribute('content', theme === 'dark' ? '#07130f' : '#f4f7f5');
+
+    if (animate) window.setTimeout(() => root.classList.remove('theme-transition'), 240);
   }
 }
