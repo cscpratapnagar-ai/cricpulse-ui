@@ -59,3 +59,27 @@ Refactor the Angular application without changing public URLs, user flows, API c
 8. System pages
 9. Duplicate cleanup
 10. Final route, import and build verification
+
+
+## Migration status
+
+### Completed in current branch
+- Core authentication, loading, and current-user infrastructure moved to canonical `core/` locations.
+- Theme ownership moved to `core/services`.
+- Reusable state, dropdown, calendar, date-time, select, and primitive UI moved under `shared/components/`.
+- Route entry points migrated into domain-owned `features/` folders.
+- Dashboard shell moved to `layout/dashboard/`.
+- Realtime score infrastructure moved to `core/services/`.
+- Scoring models and data-access services moved into the scoring feature.
+- `app.routes.ts` now consumes canonical feature entry points.
+- Legacy root entry files for migrated code are compatibility re-export shims, leaving one canonical implementation.
+
+### Verification completed
+- Every relative import in `app.routes.ts` resolves to a tracked source file.
+- All migrated route entry points have canonical feature or layout locations.
+- Public route URLs and route declarations were preserved during migration.
+
+### Remaining hardening
+- Run the Angular production build in CI/local workspace after the structural batch.
+- Audit unused legacy V1/V2 screens that are not route entry points before deletion.
+- Convert compatibility shims to temporary deprecation boundaries and remove them only after repository-wide import migration.
