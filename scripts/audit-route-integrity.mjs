@@ -15,12 +15,9 @@ if (!source.includes('canActivate: [authGuard]')) {
   failures.push('protected dashboard route guard was not found');
 }
 
-const childBlock =
-  source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
+const childBlock = source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
 const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
-const duplicates = childPaths.filter(
-  (path, index) => childPaths.indexOf(path) !== index,
-);
+const duplicates = childPaths.filter((path, index) => childPaths.indexOf(path) !== index);
 
 if (duplicates.length > 0) {
   failures.push(`duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`);

@@ -26,8 +26,9 @@ for (const spec of specs) {
   const testCount = (source.match(/\bit\s*\(/g) ?? []).length;
   const expectCount = (source.match(/\bexpect\s*\(/g) ?? []).length;
   const trivialExistence =
-    /describe\([^]*?\{\s*it\([^]*?expect\([^)]*(?:Component|component)\)\.toBeTruthy\(\)[^]*?\}\s*\);?\s*\}/m.test(source) &&
-    testCount === 1;
+    /describe\([^]*?\{\s*it\([^]*?expect\([^)]*(?:Component|component)\)\.toBeTruthy\(\)[^]*?\}\s*\);?\s*\}/m.test(
+      source,
+    ) && testCount === 1;
 
   if (testCount < 1) failures.push(`${spec} has no executable test`);
   if (expectCount < 1) failures.push(`${spec} has no assertion`);

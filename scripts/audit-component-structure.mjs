@@ -24,9 +24,7 @@ async function walk(directory) {
 function isCanonicalComponent(file) {
   const path = relative(appRoot, file).replaceAll('\\\\', '/');
 
-  return [...auditedRoots].some(
-    (root) => path === root || path.startsWith(`${root}/`),
-  );
+  return [...auditedRoots].some((root) => path === root || path.startsWith(`${root}/`));
 }
 
 const files = await walk(appRoot);
@@ -64,6 +62,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(
-  `Canonical component structure audit passed for ${components.length} components.`,
-);
+console.log(`Canonical component structure audit passed for ${components.length} components.`);

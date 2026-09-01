@@ -40,7 +40,9 @@ for (const shim of rootTs) {
   }
 
   if (consumers.length > 0) {
-    failures.push(`${name}.ts still has ${consumers.length} non-root consumer(s): ${consumers.join(', ')}`);
+    failures.push(
+      `${name}.ts still has ${consumers.length} non-root consumer(s): ${consumers.join(', ')}`,
+    );
   }
 }
 
@@ -50,4 +52,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Legacy shim migration audit passed: ${rootTs.length} root compatibility files have no source consumers.`);
+console.log(
+  `Legacy shim migration audit passed: ${rootTs.length} root compatibility files have no source consumers.`,
+);
