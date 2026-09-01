@@ -4,7 +4,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 interface ExistingInnings { id?:string; inningsId?:string; matchId:string; inningsNumber:number; battingTeamId:string; bowlingTeamId?:string; runs:number; wickets:number; legalBalls:number; status:string; }
 interface MatchState { id:string; status:string; }
-@Component({selector:'app-live-match-entry',standalone:true,imports:[CommonModule],templateUrl: './live-match-entry.component.html',styleUrl: './live-match-entry.component.scss']})
+@Component({selector:'app-live-match-entry',standalone:true,imports:[CommonModule],templateUrl: './live-match-entry.component.html',styleUrl: './live-match-entry.component.scss'})
 export class LiveMatchEntryComponent{
  private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); private readonly router=inject(Router); private readonly api='http://localhost:8080/api'; readonly matchId=this.route.snapshot.paramMap.get('id')||''; loading=true; error=''; innings:ExistingInnings|null=null; completed=false;
  constructor(){this.check()}
