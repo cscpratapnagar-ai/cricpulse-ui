@@ -31,9 +31,7 @@ if (emptyHomeCount !== 1) {
   failures.push(`expected one dashboard home route, found ${emptyHomeCount}`);
 }
 
-const wildcardIndex = source.lastIndexOf("{ path: '**'");
-const routesEndIndex = source.lastIndexOf('];');
-if (wildcardIndex === -1 || wildcardIndex > routesEndIndex) {
+if (!source.trim().endsWith("{ path: '**', component: NotFoundComponent },\n];")) {
   failures.push('wildcard fallback route must be the final route');
 }
 
