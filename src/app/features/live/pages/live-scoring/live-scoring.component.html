@@ -197,11 +197,9 @@
                 <label>BOWLER CONTROL</label>
                 <p>
                   {{
-                    needsBowlerChange
-                      ? 'Select a bowler before scoring can continue.'
-                      : canChangeBowler
-                        ? 'Choose or correct the active bowler for this over.'
-                        : 'Active bowler is locked until the next over.'
+                    canChangeBowler
+                      ? 'Choose bowler before this over begins.'
+                      : 'Bowler locked until the next over.'
                   }}
                 </p>
               </div>
@@ -212,32 +210,16 @@
                 [(value)]="selectedBowlerId"
                 [disabled]="!canChangeBowler"
               />
-              @if (canChangeBowler && !bowlerOptions.length) {
-                <small class="bowler-warning">No eligible bowler found in the selected playing XI.</small>
-              }
             </div>
-            <div class="scorepad" [class.blocked]="!canDeliver">
-              <div class="scorepad-head">
-                <label>BAT RUNS</label>
-                @if (!canDeliver) {
-                  <small>{{ scoringLockReason }}</small>
-                }
-              </div>
+            <div class="scorepad">
+              <label>BAT RUNS</label>
               <div class="run-grid">
                 @for (run of runs; track run) {
-                  <button
-                    type="button"
-                    [attr.data-run]="run"
-                    [attr.aria-label]="'Add ' + run + ' runs'"
-                    [disabled]="!canDeliver"
-                    (click)="recordRuns(run)"
-                  >
-                    <span class="run-value">{{ run }}</span>
-                  </button>
+                  <button [disabled]="!canDeliver" (click)="recordRuns(run)">{{ run }}</button>
                 }
               </div>
             </div>
-            <div class="action-zone" [class.blocked]="!canDeliver">
+            <div class="action-zone">
               <label>EVENTS</label>
               <div>
                 <button [disabled]="!canDeliver" (click)="openExtra('WIDE')">
