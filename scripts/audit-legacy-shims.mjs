@@ -46,9 +46,7 @@ const sourceFiles = files.filter((file) => file.endsWith('.ts'));
 const rootShims = files.filter((file) => {
   const fileRelative = relative(appRoot, file);
   return (
-    !fileRelative.includes('/') &&
-    fileRelative.endsWith('.ts') &&
-    !fileRelative.startsWith('app.')
+    !fileRelative.includes('/') && fileRelative.endsWith('.ts') && !fileRelative.startsWith('app.')
   );
 });
 
