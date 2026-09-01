@@ -57,7 +57,7 @@ const dashboardChildren: Routes = [
   { path: 'matches/:id/statistics', component: MatchStatisticsComponent },
   { path: 'matches/:id/live', component: LiveMatchEntryComponent },
   { path: 'matches/:id/scorer', component: ScorerComponent },
-  { path: 'matches/:id/overview', component: MatchDetailComponent },
+  { path: 'matches/:id/overview', redirectTo: 'matches/:id', pathMatch: 'full' },
   { path: 'matches/:id', component: MatchDetailComponent },
   { path: 'teams', component: TeamsComponent },
   { path: 'teams/new', component: CreateTeamComponent },
@@ -97,14 +97,9 @@ export const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'live/:id', component: PublicLiveScoreComponent },
   { path: 'dashboard', ...dashboardRoute() },
-  {
-    path: 'live-scoring/:id',
-    ...dashboardRoute([{ path: '', component: LiveScoringV2Component }]),
-  },
-  {
-    path: 'scoring/:id',
-    ...dashboardRoute([{ path: '', component: LiveScoringV2Component }]),
-  },
+  // Legacy scoring URLs remain as compatibility redirects; all new navigation uses the canonical match lifecycle route.
+  { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
+  { path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   ...dashboardChildren
     .filter((route) => route.path)
     .map((route) => ({
