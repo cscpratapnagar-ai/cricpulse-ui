@@ -6,6 +6,9 @@
     "build": "ng build",
     "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\"",
     "format:check": "npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\"",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "legacy:audit": "node scripts/audit-legacy-shims.mjs",
+    "quality": "npm run format:check && npm run typecheck && npm run legacy:audit",
     "lint:format": "npm run format:check"
   },
   "dependencies": {
