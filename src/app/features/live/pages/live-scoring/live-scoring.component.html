@@ -59,6 +59,14 @@
           }
         </section>
       } @else {
+        <section class="match-intelligence">
+          <div><label>CRR</label><b>{{ currentRunRate.toFixed(2) }}</b><span>Current run rate</span></div>
+          @if (score.targetRuns) {
+            <div><label>REQUIRED</label><b>{{ requiredRuns }}</b><span>Runs to win</span></div>
+            <div><label>RRR</label><b>{{ requiredRunRate.toFixed(2) }}</b><span>Required run rate</span></div>
+          }
+          <div><label>PARTNERSHIP</label><b>{{ score.partnership?.runs || 0 }}</b><span>Current stand</span></div>
+        </section>
         <div class="control-grid">
           <section class="scoring-deck">
             <div class="deck-head">
@@ -66,7 +74,7 @@
                 <label>DELIVERY INPUT</label>
                 <h2>Score the next ball</h2>
               </div>
-              <span><i></i> AUTOSAVED</span>
+              <span [class.saving]="syncState === 'SAVING'" [class.error]="syncState === 'ERROR'"><i></i> {{ syncLabel }}</span>
             </div>
             <div class="field-strip">
               <div class="player-card striker">
@@ -105,6 +113,16 @@
               </div>
               <span>Scoring rhythm updates delivery by delivery</span>
             </section>
+            <div class="scoring-guidance" [class.warning]="!canDeliver" [class.error]="syncState === 'ERROR'">
+              <span class="guidance-icon">{{ syncState === 'ERROR' ? '!' : canDeliver ? '✓' : '→' }}</span>
+              <div>
+                <b>{{ syncState === 'ERROR' ? 'Action needs attention' : canDeliver ? 'Ready to score' : 'Next step required' }}</b>
+                <small>{{ message || validationHint }}</small>
+              </div>
+              @if (lastAction && syncState === 'SYNCED') {
+                <em>{{ lastAction }}</em>
+              }
+            </div>
             <div class="bowler-control" [class.locked]="!canChangeBowler">
               <div>
                 <label>BOWLER CONTROL</label>
