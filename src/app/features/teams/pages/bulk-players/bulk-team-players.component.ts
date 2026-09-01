@@ -11,7 +11,7 @@ interface Result { created:any[]; skipped:any[]; createdCount:number; skippedCou
 @Component({
  selector:'app-bulk-team-players-v2',standalone:true,imports:[CommonModule,FormsModule,RouterLink],
  templateUrl: './bulk-team-players.component.html',
- styleUrl: './bulk-team-players.component.scss']
+ styleUrl: './bulk-team-players.component.scss'
 })
 export class BulkTeamPlayersV2Component{
  private http=inject(HttpClient);private route=inject(ActivatedRoute);private api='http://localhost:8080/api';
