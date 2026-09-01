@@ -2,15 +2,27 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
+      - ui
+      - 'feature/**'
+      - 'refactor/**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 permissions:
   contents: read
 
+concurrency:
+  group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Angular production build
     runs-on: ubuntu-latest
 
     steps:
@@ -26,5 +38,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Angular application
-        run: npm run build
+      - name: Verify TypeScript and Angular build
+        run: npm run build -- --configuration production
