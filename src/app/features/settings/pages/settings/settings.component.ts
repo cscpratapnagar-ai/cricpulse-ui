@@ -5,7 +5,7 @@ import { ThemeService, ThemePreference } from '../../../../shared/services/theme
 type Section='appearance'|'workspace'|'notifications'|'accessibility'|'security'|'data';
 interface Toggle{id:string;label:string;description:string;enabled:boolean;icon:string}
 
-@Component({selector:'app-settings',standalone:true,imports:[CommonModule],templateUrl: './settings.component.html',styleUrl: './settings.component.scss']} )
+@Component({selector:'app-settings',standalone:true,imports:[CommonModule],templateUrl: './settings.component.html',styleUrl: './settings.component.scss'} )
 export class SettingsComponent{
  readonly theme=inject(ThemeService);readonly active=signal<Section>('appearance');readonly search=signal('');readonly dirty=signal(false);readonly density=signal<'comfortable'|'compact'>((localStorage.getItem('cricpulse-density') as 'comfortable'|'compact')||'comfortable');
  readonly themes=[
