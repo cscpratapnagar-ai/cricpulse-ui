@@ -1,0 +1,189 @@
+
+    <section class="live-page">
+      <div class="page-heading">
+        <div>
+          <div class="eyebrow">LIVE CENTER</div>
+          <h1>Live scoring</h1>
+          <p>Choose a match, pick the batting side, and score every delivery with the same premium control flow we use across the app.</p>
+        </div>
+        <a class="primary" routerLink="/matches">Back to matches</a>
+      </div>
+
+      @if (loadingMatch) {
+        <div class="hero skeleton">
+          <div class="line line-sm"></div>
+          <div class="line line-lg"></div>
+          <div class="line line-md"></div>
+        </div>
+      } @else if (!activeMatch) {
+        <section class="picker">
+          <div class="panel-head">
+            <div>
+              <span class="panel-label">Choose a match</span>
+              <h2>Pick the fixture you want to score</h2>
+            </div>
+          </div>
+
+          <div class="match-grid">
+            @for (match of matches; track match.id) {
+              <a class="match-card" [routerLink]="['/matches', match.id, 'live']">
+                <span class="status">{{ match.status }}</span>
+                <strong>{{ match.name }}</strong>
+                <small>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</small>
+              </a>
+            }
+          </div>
+        </section>
+      } @else {
+        <section class="hero">
+          <div>
+            <div class="eyebrow">MATCH CONTROL</div>
+            <h1>{{ activeMatch.name }}</h1>
+            <p>{{ activeMatch.teamAName || 'Team A' }} vs {{ activeMatch.teamBName || 'Team B' }} · {{ activeMatch.format }} · {{ displayDate(activeMatch.scheduledAt) }}</p>
+            <div class="hero-meta">
+              <span class="chip live">{{ activeMatch.status }}</span>
+              <span class="chip ghost">{{ activeMatch.format }}</span>
+              <span class="chip ghost">{{ displayDate(activeMatch.scheduledAt) }}</span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <a class="secondary" [routerLink]="['/matches', activeMatch.id]">View match detail</a>
+            <a class="secondary" routerLink="/matches">Choose another match</a>
+          </div>
+        </section>
+
+        <section class="grid">
+          <article class="panel panel-wide">
+            <div class="panel-head">
+              <div>
+                <span class="panel-label">Start innings</span>
+                <h2>Open the first batting phase</h2>
+              </div>
+            </div>
+
+            <div class="setup-grid">
+              <app-select-field
+                label="Innings"
+                placeholder="Select innings"
+                [options]="inningsOptions"
+                [(value)]="inningsNumberValue" />
+
+              <app-select-field
+                label="Batting team"
+                placeholder="Select batting side"
+                [options]="teamOptions"
+                [value]="battingTeamId"
+                (valueChange)="onBattingTeamChange($event)" />
+
+              <div class="start-box">
+                <div>
+                  <b>Current setup</b>
+                  <small>{{ battingTeamName }} is set to bat first</small>
+                </div>
+                <button class="primary" (click)="startInnings()" [disabled]="starting">{{ starting ? 'Starting innings...' : 'Start innings' }}</button>
+              </div>
+            </div>
+
+            @if (error) {
+              <p class="error">{{ error }}</p>
+            }
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="panel-label">Live scoreboard</span>
+                <h2>Current score</h2>
+              </div>
+            </div>
+
+            @if (score$ | async; as score) {
+              @if (score) {
+                <div class="scoreboard">
+                  <div class="runs">{{ score.runs }}<small>/{{ score.wickets }}</small></div>
+                  <div class="score-meta">
+                    <span>{{ overs(score.legalBalls) }} OVERS</span>
+                    <span>INNINGS {{ score.inningsNumber }}</span>
+                    <span class="synced">● SYNCED</span>
+                  </div>
+                </div>
+              } @else {
+                <p class="waiting">Start an innings to connect the live scoreboard.</p>
+              }
+            }
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="panel-label">Players</span>
+                <h2>Scoring inputs</h2>
+              </div>
+            </div>
+
+            <div class="inputs">
+              <app-select-field
+                label="Striker"
+                placeholder="Select striker"
+                [options]="battingPlayerOptions"
+                [(value)]="strikerId" />
+
+              <app-select-field
+                label="Non-striker"
+                placeholder="Select non-striker"
+                [options]="battingPlayerOptions"
+                [(value)]="nonStrikerId" />
+
+              <app-select-field
+                label="Bowler"
+                placeholder="Select bowler"
+                [options]="bowlingPlayerOptions"
+                [(value)]="bowlerId" />
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <span class="panel-label">Delivery console</span>
+                <h2>Ball-by-ball scoring</h2>
+              </div>
+            </div>
+
+            <div class="button-row">
+              @for (run of runs; track run) {
+                <button class="action" (click)="record(run)">{{ run }}</button>
+              }
+            </div>
+            <div class="button-row">
+              <button class="action" (click)="recordExtra('WIDE')">Wide</button>
+              <button class="action" (click)="recordExtra('NO_BALL')">No ball</button>
+              <button class="action" (click)="recordExtra('BYE')">Bye</button>
+              <button class="action" (click)="recordExtra('LEG_BYE')">Leg bye</button>
+              <button class="action danger" (click)="recordWicket()">Wicket</button>
+              <button class="action ghost" (click)="undo()">Undo</button>
+            </div>
+
+            @if (message) {
+              <p class="message">{{ message }}</p>
+            }
+          </article>
+
+          <article class="panel panel-wide">
+            <div class="panel-head">
+              <div>
+                <span class="panel-label">Timeline</span>
+                <h2>What comes next</h2>
+              </div>
+            </div>
+
+            <div class="timeline">
+              <div><b>01</b><span>Set the striker, non-striker, and bowler using dropdowns</span></div>
+              <div><b>02</b><span>Record each delivery and keep the score sync live</span></div>
+              <div><b>03</b><span>Expand into commentary, wickets, and over summaries</span></div>
+            </div>
+          </article>
+        </section>
+      }
+    </section>
+  
