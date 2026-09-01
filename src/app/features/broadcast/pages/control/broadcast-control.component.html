@@ -18,4 +18,16 @@
       </article>
     }
   </section>
+  <section class="event-section">
+    <div class="event-head"><div><label>EVENT GRAPHICS</label><h2>Instant broadcast moments</h2></div><p>Open these URLs as dedicated OBS scenes for quick production switching.</p></div>
+    <div class="event-grid">
+      @for (event of events; track event.kind) {
+        <button type="button" class="event-trigger" [class]="event.kind.toLowerCase()" (click)="openEvent(event.kind)">
+          <span>{{ event.icon }}</span>
+          <b>{{ event.title }}</b>
+          <small>Open graphic ↗</small>
+        </button>
+      }
+    </div>
+  </section>
 </main>
