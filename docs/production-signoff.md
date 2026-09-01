@@ -23,7 +23,7 @@
 
 These checks require an executable browser/device/backend environment and must not be fabricated from a green compile:
 
-- [ ] Execute the Angular unit-test suite in a configured test runner
+- [ ] Configure and execute the Angular unit-test runner (current project configuration has no test target)
 - [ ] End-to-end regression for login and protected routes
 - [ ] CRUD workflow regression against a running backend
 - [ ] Live-scoring edge-case regression against realtime infrastructure
