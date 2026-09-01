@@ -153,12 +153,12 @@
             <div class="action-zone">
               <label>EVENTS</label>
               <div>
-                <button [disabled]="!canDeliver" (click)="recordExtra('WIDE')">
+                <button [disabled]="!canDeliver" (click)="openExtra('WIDE')">
                   WD <small>+1</small></button
-                ><button [disabled]="!canDeliver" (click)="recordExtra('NO_BALL')">
+                ><button [disabled]="!canDeliver" (click)="openExtra('NO_BALL')">
                   NB <small>+1</small></button
-                ><button [disabled]="!canDeliver" (click)="recordExtra('BYE')">BYE</button
-                ><button [disabled]="!canDeliver" (click)="recordExtra('LEG_BYE')">LB</button
+                ><button [disabled]="!canDeliver" (click)="openExtra('BYE')">BYE</button
+                ><button [disabled]="!canDeliver" (click)="openExtra('LEG_BYE')">LB</button
                 ><button
                   class="wicket"
                   [disabled]="!canDeliver || score.wickets >= 10"
@@ -168,6 +168,39 @@
                 ><button class="undo" [disabled]="busy" (click)="undo()">↶ UNDO</button>
               </div>
             </div>
+            @if (extraOpen) {
+              <section class="extra-drawer">
+                <div class="drawer-head">
+                  <div>
+                    <label>EXTRA DELIVERY</label>
+                    <h3>{{ selectedExtraType.replace('_', ' ') }}</h3>
+                  </div>
+                  <button (click)="extraOpen = false">×</button>
+                </div>
+                <div class="extra-choice-grid">
+                  <div>
+                    <label>EXTRA RUNS</label>
+                    <div class="mini-run-grid">
+                      @for (run of [1, 2, 3, 4, 5, 6, 7]; track run) {
+                        <button [class.active]="extraRuns === run" (click)="extraRuns = run">{{ run }}</button>
+                      }
+                    </div>
+                  </div>
+                  @if (selectedExtraType === 'NO_BALL') {
+                    <div>
+                      <label>BAT RUNS ON NO BALL</label>
+                      <div class="mini-run-grid">
+                        @for (run of [0, 1, 2, 3, 4, 5, 6]; track run) {
+                          <button [class.active]="extraBatRuns === run" (click)="extraBatRuns = run">{{ run }}</button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+                <div class="extra-summary">{{ extraSummary }}</div>
+                <button class="confirm" [disabled]="!canConfirmExtra" (click)="recordExtra()">Record extra →</button>
+              </section>
+            }
             @if (wicketOpen) {
               <section class="wicket-drawer">
                 <div class="drawer-head">
