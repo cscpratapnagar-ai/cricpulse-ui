@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   selector: 'cp-calendar',
   standalone: true,
   templateUrl: './cp-calendar.component.html',
-  styleUrl: './cp-calendar.component.scss']
+  styleUrl: './cp-calendar.component.scss'
 })
 export class CpCalendarComponent {
   @Input() id = `cp-calendar-${Math.random().toString(36).slice(2, 8)}`;
