@@ -69,6 +69,8 @@ export class LiveScoringV2Component {
   wicketType = '';
   newBatterId = '';
   dismissedPlayerId = '';
+  wicketRuns = 0;
+  wicketLegalDelivery = true;
   constructor() {
     this.load();
   }
@@ -197,8 +199,17 @@ export class LiveScoringV2Component {
       .filter(Boolean)
       .map((id) => ({ value: id!, label: this.playerName(id) }));
   }
+  get wicketValidationHint() {
+    if (!this.wicketType) return 'Choose how the wicket fell.';
+    if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId)
+      return 'Choose which batter was dismissed.';
+    if (this.wicketRuns < 0 || this.wicketRuns > 6) return 'Select a valid number of completed runs.';
+    if (this.score && this.score.wickets < 9 && !this.newBatterId)
+      return 'Select the incoming batter.';
+    return 'Wicket details are ready to record.';
+  }
   get canConfirmWicket() {
-    if (this.busy || !this.wicketType) return false;
+    if (this.busy || !this.wicketType || this.wicketRuns < 0 || this.wicketRuns > 6) return false;
     if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId) return false;
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
@@ -393,17 +404,19 @@ export class LiveScoringV2Component {
       this.wicketType = '';
       this.newBatterId = '';
       this.dismissedPlayerId = this.score?.strikerId || '';
+      this.wicketRuns = 0;
+      this.wicketLegalDelivery = true;
     }
   }
   confirmWicket() {
     if (!this.canConfirmWicket || !this.score) return;
     const ten = this.score.wickets === 9;
     this.postDelivery({
-      batRuns: 0,
+      batRuns: this.wicketRuns,
       extraRuns: 0,
       extraType: null,
       wicketType: this.wicketType,
-      legalDelivery: true,
+      legalDelivery: this.wicketLegalDelivery,
       dismissedPlayerId:
         this.wicketType === 'RUN_OUT' ? this.dismissedPlayerId : this.score.strikerId,
       newBatterId: ten ? null : this.newBatterId,
