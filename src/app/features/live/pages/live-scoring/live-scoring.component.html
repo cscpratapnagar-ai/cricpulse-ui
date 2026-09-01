@@ -197,9 +197,11 @@
                 <label>BOWLER CONTROL</label>
                 <p>
                   {{
-                    canChangeBowler
-                      ? 'Choose bowler before this over begins.'
-                      : 'Bowler locked until the next over.'
+                    needsBowlerChange
+                      ? 'Select a bowler before scoring can continue.'
+                      : canChangeBowler
+                        ? 'Choose or correct the active bowler for this over.'
+                        : 'Active bowler is locked until the next over.'
                   }}
                 </p>
               </div>
@@ -211,7 +213,7 @@
                 [disabled]="!canChangeBowler"
               />
             </div>
-            <div class="scorepad">
+            <div class="scorepad" [class.blocked]="!canDeliver">
               <label>BAT RUNS</label>
               <div class="run-grid">
                 @for (run of runs; track run) {
@@ -219,7 +221,7 @@
                 }
               </div>
             </div>
-            <div class="action-zone">
+            <div class="action-zone" [class.blocked]="!canDeliver">
               <label>EVENTS</label>
               <div>
                 <button [disabled]="!canDeliver" (click)="openExtra('WIDE')">
