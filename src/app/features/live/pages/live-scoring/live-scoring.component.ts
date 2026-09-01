@@ -61,6 +61,8 @@ export class LiveScoringV2Component implements OnDestroy {
   loading = true;
   busy = false;
   message = '';
+  deliveryFeedback: { type: 'run' | 'four' | 'six' | 'wicket' | 'extra'; label: string; detail: string } | null = null;
+  private feedbackTimer?: ReturnType<typeof setTimeout>;
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'ERROR' = 'SYNCED';
   wicketOpen = false;
@@ -494,6 +496,23 @@ export class LiveScoringV2Component implements OnDestroy {
     this.message = '';
     if (this.syncState === 'ERROR') this.syncState = 'SYNCED';
   }
+  private showDeliveryFeedback(body: any) {
+    let feedback: { type: 'run' | 'four' | 'six' | 'wicket' | 'extra'; label: string; detail: string };
+    if (body.wicketType) {
+      feedback = { type: 'wicket', label: 'WICKET', detail: body.wicketType.replace('_', ' ') };
+    } else if (body.extraType) {
+      feedback = { type: 'extra', label: body.extraType === 'WIDE' ? 'WIDE' : body.extraType === 'NO_BALL' ? 'NO BALL' : body.extraType.replace('_', ' '), detail: `+${(body.extraRuns || 0) + (body.batRuns || 0)} RUNS` };
+    } else if (body.batRuns === 6) {
+      feedback = { type: 'six', label: 'SIX', detail: 'Maximum impact' };
+    } else if (body.batRuns === 4) {
+      feedback = { type: 'four', label: 'FOUR', detail: 'Boundary scored' };
+    } else {
+      feedback = { type: 'run', label: `${body.batRuns || 0} RUN${body.batRuns === 1 ? '' : 'S'}`, detail: 'Delivery recorded' };
+    }
+    this.deliveryFeedback = feedback;
+    if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
+    this.feedbackTimer = setTimeout(() => (this.deliveryFeedback = null), 1200);
+  }
   private postDelivery(body: any, isRetry = false) {
     if (!this.score || !this.inningsId || !this.canDeliver) return;
     this.lastDeliveryPayload = { ...body };
@@ -515,6 +534,7 @@ export class LiveScoringV2Component implements OnDestroy {
         next: (s) => {
           if (s && s.inningsId) {
             this.applyScore(s);
+            this.showDeliveryFeedback(body);
             this.busy = false;
             this.syncState = 'SYNCED';
             this.message = '';
