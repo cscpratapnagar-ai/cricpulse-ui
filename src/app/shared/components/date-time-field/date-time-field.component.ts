@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 interface CalendarDay { date: Date; number: number; currentMonth: boolean; selected: boolean; today: boolean; }
-@Component({selector:'app-date-time-field',standalone:true,templateUrl: './date-time-field.component.html',styleUrl: './date-time-field.component.scss']})
+@Component({selector:'app-date-time-field',standalone:true,templateUrl: './date-time-field.component.html',styleUrl: './date-time-field.component.scss'})
 export class DateTimeFieldComponent implements OnChanges {
   @Input() label=''; @Input() name=''; @Input() value=''; @Input() includeTime=true; @Output() valueChange=new EventEmitter<string>(); open=false; openUp=false; alignRight=false; viewDate=new Date(); selectedDate:Date|null=null; hour='12'; minute='00'; period='PM'; weekdays=['Su','Mo','Tu','We','Th','Fr','Sa']; hours=Array.from({length:12},(_,i)=>String(i+1)); minutes=['00','15','30','45'];
   constructor(private host:ElementRef<HTMLElement>){this.syncFromValue();}
