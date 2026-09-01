@@ -18,9 +18,7 @@ describe('loadingInterceptor', () => {
     TestBed.runInInjectionContext(() => {
       const request = new HttpRequest('GET', '/api/matches');
 
-      loadingInterceptor(request, () =>
-        of(new HttpResponse({ status: 200 })),
-      ).subscribe();
+      loadingInterceptor(request, () => of(new HttpResponse({ status: 200 }))).subscribe();
 
       expect(loading.start).toHaveBeenCalledTimes(1);
       expect(loading.stop).toHaveBeenCalledTimes(1);
