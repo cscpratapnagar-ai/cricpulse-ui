@@ -1,0 +1,16 @@
+<main class="overlay">
+  @if (score$ | async; as score) {
+    <section class="score-strip">
+      <div class="brand">CRICPULSE <span>LIVE</span></div>
+      <div class="teams">{{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}</div>
+      <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+      <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
+      <div class="balls">
+        @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
+          <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">{{ token(ball) }}</span>
+        }
+      </div>
+      <div class="live"><b></b> LIVE</div>
+    </section>
+  }
+</main>
