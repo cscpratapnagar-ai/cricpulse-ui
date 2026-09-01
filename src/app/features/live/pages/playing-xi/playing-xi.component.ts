@@ -12,7 +12,7 @@ interface TeamState { id:string; name:string; members:Member[]; selected:XIPlaye
 @Component({
   selector:'app-playing-xi-v2', standalone:true, imports:[CommonModule,RouterLink,SelectFieldComponent],
   templateUrl: './playing-xi.component.html',
-  styleUrl: './playing-xi.component.scss']
+  styleUrl: './playing-xi.component.scss'
 })
 export class PlayingXiV2Component {
   private http=inject(HttpClient); private route=inject(ActivatedRoute); private api='http://localhost:8080/api';
