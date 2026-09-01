@@ -1,0 +1,34 @@
+
+    <div class="app-root">
+      <router-outlet />
+
+      @if (loading.isLoading()) {
+        <div class="loader-overlay" role="status" aria-live="polite" aria-label="Loading CricketPulse">
+          <div class="loader-card">
+            <div class="brand-row">
+              <span class="brand-mark">◉</span>
+              <div>
+                <b>CricketPulse</b>
+                <small>Syncing matchday workspace</small>
+              </div>
+            </div>
+
+            <div class="pitch-loader">
+              <span class="stump left"></span>
+              <span class="stump center"></span>
+              <span class="stump right"></span>
+              <span class="ball"></span>
+              <span class="trail"></span>
+            </div>
+
+            <div class="copy">
+              <strong>Loading live cricket view</strong>
+              <p>Preparing teams, scores, and the next move.</p>
+            </div>
+
+            <div class="pulse-dots"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      }
+    </div>
+  
