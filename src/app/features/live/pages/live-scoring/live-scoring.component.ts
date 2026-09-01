@@ -62,6 +62,10 @@ export class LiveScoringV2Component {
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'ERROR' = 'SYNCED';
   wicketOpen = false;
+  extraOpen = false;
+  selectedExtraType = '';
+  extraRuns = 1;
+  extraBatRuns = 0;
   wicketType = '';
   newBatterId = '';
   dismissedPlayerId = '';
@@ -109,6 +113,22 @@ export class LiveScoringV2Component {
       !this.busy &&
       (this.score.wickets ?? 0) < 10
     );
+  }
+  get extraSummary() {
+    if (!this.selectedExtraType) return 'Choose an extra type.';
+    const label = this.selectedExtraType.replace('_', ' ');
+    const total =
+      this.selectedExtraType === 'NO_BALL'
+        ? 1 + this.extraBatRuns + this.extraRuns - 1
+        : this.extraRuns;
+    return `${label}: ${total} total run${total === 1 ? '' : 's'}`;
+  }
+  get canConfirmExtra() {
+    if (!this.canDeliver || !this.selectedExtraType) return false;
+    if (!Number.isInteger(this.extraRuns) || this.extraRuns < 1 || this.extraRuns > 7) return false;
+    if (this.selectedExtraType === 'NO_BALL' && (this.extraBatRuns < 0 || this.extraBatRuns > 6))
+      return false;
+    return true;
   }
   get validationHint() {
     if (!this.score) return 'Loading match state…';
@@ -348,14 +368,24 @@ export class LiveScoringV2Component {
       legalDelivery: true,
     });
   }
-  recordExtra(type: string) {
+  openExtra(type: string) {
+    if (!this.canDeliver) return;
+    this.extraOpen = true;
+    this.selectedExtraType = type;
+    this.extraRuns = 1;
+    this.extraBatRuns = 0;
+  }
+  recordExtra() {
+    if (!this.canConfirmExtra) return;
+    const isNoBall = this.selectedExtraType === 'NO_BALL';
     this.postDelivery({
-      batRuns: 0,
-      extraRuns: 1,
-      extraType: type,
+      batRuns: isNoBall ? this.extraBatRuns : 0,
+      extraRuns: this.extraRuns,
+      extraType: this.selectedExtraType,
       wicketType: null,
-      legalDelivery: type !== 'WIDE' && type !== 'NO_BALL',
+      legalDelivery: this.selectedExtraType !== 'WIDE' && this.selectedExtraType !== 'NO_BALL',
     });
+    this.extraOpen = false;
   }
   openWicket() {
     if (this.canDeliver) {
