@@ -18,5 +18,4 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify all source and config formatting
         run: |
-          npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css}" "*.json" "angular.json" ".devcontainer/**/*.json"
-          npx --yes prettier@3.5.3 --check "src/**/*.{ts,html,scss,css}" "*.json" "angular.json" ".devcontainer/**/*.json"
+          npm run format:check
