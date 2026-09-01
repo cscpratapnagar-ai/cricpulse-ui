@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 type Filter='all'|'match'|'team'|'player'|'system';
 interface Notice{id:number;type:Exclude<Filter,'all'>;title:string;message:string;time:string;read:boolean;icon:string;action?:string}
-@Component({selector:'app-notifications',standalone:true,imports:[CommonModule,RouterLink],templateUrl: './notifications.component.html',styleUrl: './notifications.component.scss']} )
+@Component({selector:'app-notifications',standalone:true,imports:[CommonModule,RouterLink],templateUrl: './notifications.component.html',styleUrl: './notifications.component.scss'} )
 export class NotificationsComponent{
  readonly active=signal<Filter>('all');readonly unreadOnly=signal(false);readonly newest=signal(true);
  readonly filters:{key:Filter;label:string}[]=[{key:'all',label:'All activity'},{key:'match',label:'Matches'},{key:'team',label:'Teams'},{key:'player',label:'Players'},{key:'system',label:'System'}];
