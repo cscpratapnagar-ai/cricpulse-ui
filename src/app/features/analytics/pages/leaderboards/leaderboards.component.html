@@ -1,0 +1,66 @@
+
+<section class="leaderboards-page">
+  <header class="hero">
+    <div>
+      <span class="eyebrow">PERFORMANCE INTELLIGENCE</span>
+      <h1>Player <em>leaderboards</em></h1>
+      <p>Live career rankings built from recorded match performance.</p>
+    </div>
+    <div class="hero-orbit"><span>LIVE</span><strong>{{players.length}}</strong><small>RANKED PLAYERS</small></div>
+  </header>
+
+  @if(loading){
+    <section class="state"><div class="loader"></div><div><span class="eyebrow">CALCULATING</span><h2>Building the rankings</h2><p>Reading verified career performance data.</p></div></section>
+  } @else if(players.length) {
+    <nav class="board-tabs" role="tablist" aria-label="Leaderboard categories">
+      @for(tab of tabs;track tab.key){
+        <button type="button" [class.active]="active===tab.key" (click)="setBoard(tab.key)" role="tab" [attr.aria-selected]="active===tab.key">
+          <span>{{tab.icon}}</span>{{tab.label}}
+        </button>
+      }
+    </nav>
+
+    <section class="spotlight">
+      @for(player of topThree;track player.playerId;let i=$index){
+        <article class="podium-card" [class.first]="i===0">
+          <div class="rank-mark"><span>#{{i+1}}</span></div>
+          <div class="player-avatar">{{initial(player.playerName)}}</div>
+          <div class="podium-copy">
+            <span>{{i===0?'CURRENT LEADER':i===1?'SECOND PLACE':'THIRD PLACE'}}</span>
+            <a [routerLink]="['/players',player.playerId]">{{player.playerName}}</a>
+            <p>{{player.matches}} matches recorded</p>
+          </div>
+          <strong>{{display(player)}}<small>{{unit}}</small></strong>
+          @if(i===0){<div class="leader-glow"></div>}
+        </article>
+      }
+    </section>
+
+    <section class="ranking-card">
+      <header class="section-head">
+        <div><span class="eyebrow">FULL RANKING</span><h2>{{activeLabel}}</h2></div>
+        <span class="data-note">Career totals & rates</span>
+      </header>
+      <div class="ranking-list">
+        @for(player of ranked;track player.playerId;let i=$index){
+          <a class="ranking-row" [routerLink]="['/players',player.playerId]" [style.animation-delay.ms]="i*28">
+            <div class="position" [class.top]="i<3">{{i+1}}</div>
+            <div class="row-avatar">{{initial(player.playerName)}}</div>
+            <div class="player"><strong>{{player.playerName}}</strong><span>{{player.matches}} matches · {{secondary(player)}}</span></div>
+            <div class="bar-track"><i [style.width.%]="progress(player)"></i></div>
+            <div class="value"><strong>{{display(player)}}</strong><span>{{unit || 'CAREER'}}</span></div>
+            <span class="arrow">→</span>
+          </a>
+        }
+      </div>
+    </section>
+
+    <section class="insight-grid">
+      <article><span class="insight-icon">◉</span><div><small>BATTER TO WATCH</small><strong>{{topBy('runs')?.playerName || '—'}}</strong><p>{{topBy('runs')?.runs || 0}} career runs</p></div></article>
+      <article><span class="insight-icon">◈</span><div><small>STRIKE LEADER</small><strong>{{topBy('strikeRate')?.playerName || '—'}}</strong><p>{{format(topBy('strikeRate')?.strikeRate)}} strike rate</p></div></article>
+      <article><span class="insight-icon">✦</span><div><small>BOWLING LEADER</small><strong>{{topBy('wickets')?.playerName || '—'}}</strong><p>{{topBy('wickets')?.wickets || 0}} wickets taken</p></div></article>
+    </section>
+  } @else {
+    <section class="state"><div class="empty-icon">↗</div><div><span class="eyebrow">NO RANKINGS YET</span><h2>Performance data will appear here</h2><p>Complete matches with player contributions to build the leaderboard.</p></div></section>
+  }
+</section>
