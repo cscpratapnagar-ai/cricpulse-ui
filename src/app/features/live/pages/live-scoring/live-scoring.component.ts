@@ -404,15 +404,20 @@ export class LiveScoringV2Component implements OnDestroy {
     }
     const nextFingerprint = JSON.stringify({
       inningsId: s.inningsId,
-      eventVersion: (s as any).eventVersion,
+      eventVersion: s.eventVersion,
       runs: s.runs,
       wickets: s.wickets,
       legalBalls: s.legalBalls,
       status: s.status,
+      strikerId: s.strikerId,
+      nonStrikerId: s.nonStrikerId,
+      currentBowlerId: s.currentBowlerId,
+      latestDeliveryId: s.recentBalls?.[0]?.deliveryId,
     });
     if (nextFingerprint === this.scoreFingerprint) return;
     this.scoreFingerprint = nextFingerprint;
     this.applyScore(s);
+    this.lastSyncedAt = new Date();
   }
 
   private applyScore(s: LiveScore) {
