@@ -1639,3 +1639,17 @@ footer i {
   .ball-chip { transition:none; }
   .ball-chip:hover { transform:none; }
 }
+
+/* WebSocket authority feedback */
+.sync-banner:has(.sync-dot) {
+  transition: border-color 180ms ease, background 180ms ease;
+}
+.sync-banner .sync-dot {
+  animation: socketLive 2.4s ease-in-out infinite;
+}
+@keyframes socketLive {
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--cp-accent) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sync-banner .sync-dot { animation: none; }
+}
