@@ -15,9 +15,14 @@ if (!source.includes('canActivate: [authGuard]')) {
   failures.push('protected dashboard route guard was not found');
 }
 
-const childBlock = source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
-const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
-const duplicates = childPaths.filter((path, index) => childPaths.indexOf(path) !== index);
+const childBlock =
+  source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
+const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map(
+  (match) => match[1],
+);
+const duplicates = childPaths.filter(
+  (path, index) => childPaths.indexOf(path) !== index,
+);
 
 if (duplicates.length > 0) {
   failures.push(
@@ -40,7 +45,9 @@ const derivedCompatibilityRoutes =
   source.includes("...dashboardRoute([{ ...route, path: '' }])");
 
 if (!derivedCompatibilityRoutes) {
-  failures.push('top-level compatibility routes are not derived from canonical inventory');
+  failures.push(
+    'top-level compatibility routes are not derived from canonical inventory',
+  );
 }
 
 const lifecycleRequirements = [
@@ -48,11 +55,17 @@ const lifecycleRequirements = [
   ['matches/:id/toss', 'canonical Toss route'],
   ['matches/:id/opening-players', 'canonical Opening Players route'],
   ['matches/:id/live-scoring', 'canonical Live Scoring route'],
-  ["canActivate: [canAccessMatchToss]", 'Toss lifecycle guard'],
-  ["canActivate: [canAccessMatchOpening]", 'Opening Players lifecycle guard'],
-  ["canActivate: [canAccessLiveScoring]", 'Live Scoring lifecycle guard'],
-  ["path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy live-scoring redirect'],
-  ["path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy scoring redirect'],
+  ['canActivate: [canAccessMatchToss]', 'Toss lifecycle guard'],
+  ['canActivate: [canAccessMatchOpening]', 'Opening Players lifecycle guard'],
+  ['canActivate: [canAccessLiveScoring]', 'Live Scoring lifecycle guard'],
+  [
+    "path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring'",
+    'legacy live-scoring redirect',
+  ],
+  [
+    "path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring'",
+    'legacy scoring redirect',
+  ],
 ];
 
 for (const [needle, label] of lifecycleRequirements) {
@@ -65,4 +78,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Route integrity audit passed for ${childPaths.length} canonical dashboard paths.`);
+console.log(
+  `Route integrity audit passed for ${childPaths.length} canonical dashboard paths.`,
+);
