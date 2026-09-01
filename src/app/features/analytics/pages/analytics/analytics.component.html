@@ -1,0 +1,50 @@
+
+<section class="analytics-page">
+  <header class="hero">
+    <div class="hero-copy"><span class="eyebrow">CRICPULSE INTELLIGENCE</span><h1>Performance <em>analytics</em></h1><p>Understand trends, identify leaders and turn match records into actionable insights.</p></div>
+    <div class="hero-signal"><span class="pulse"></span><small>DATA STATUS</small><strong>{{loading?'SYNCING':'LIVE'}}</strong><i>{{players.length}}</i><em>PLAYERS ANALYSED</em></div>
+  </header>
+
+  @if(loading){<div class="loading"><span></span><div><b>Preparing intelligence</b><small>Analysing recorded performance data…</small></div></div>}
+  @else if(players.length){
+    <section class="kpis">
+      <article><span class="k-icon">◉</span><small>PLAYERS TRACKED</small><strong>{{players.length}}</strong><p>Across recorded career data</p></article>
+      <article><span class="k-icon">↗</span><small>TOTAL RUNS</small><strong>{{totalRuns}}</strong><p>{{format(avgRuns)}} average per player</p></article>
+      <article><span class="k-icon">✦</span><small>TOTAL WICKETS</small><strong>{{totalWickets}}</strong><p>{{format(avgWickets)}} average per player</p></article>
+      <article><span class="k-icon">◎</span><small>TOP STRIKE RATE</small><strong>{{format(topStrike?.strikeRate)}}</strong><p>{{topStrike?.playerName||'—'}}</p></article>
+    </section>
+
+    <section class="main-grid">
+      <article class="performance-card">
+        <header class="performance-head"><div><span class="eyebrow">RANKING INTELLIGENCE</span><h2>Performance distribution</h2></div></header>
+        <nav class="metric-tabs" aria-label="Performance metric">
+          @for(m of metrics;track m.key){<button type="button" [class.active]="metric===m.key" (click)="metric=m.key">{{m.label}}</button>}
+        </nav>
+        <div class="chart">
+          @for(p of ranked.slice(0,8);track p.playerId;let i=$index){
+            <a class="bar-row" [routerLink]="['/players',p.playerId]"><span class="rank">{{i+1}}</span><div class="identity"><b>{{initial(p.playerName)}}</b><strong>{{p.playerName}}</strong></div><div class="track"><i [style.width.%]="barWidth(p)"></i></div><strong class="value">{{metricValue(p)}}</strong></a>
+          }
+        </div>
+      </article>
+
+      <aside class="insight-panel">
+        <header><span class="eyebrow">SMART INSIGHTS</span><h2>What the data says</h2></header>
+        <article class="insight accent"><span>↗</span><div><small>RUNS LEADER</small><strong>{{runsLeader?.playerName||'—'}}</strong><p>{{runsLeader?.runs||0}} runs · {{runsLeader?.matches||0}} matches</p></div></article>
+        <article class="insight"><span>✦</span><div><small>WICKET LEADER</small><strong>{{wicketLeader?.playerName||'—'}}</strong><p>{{wicketLeader?.wickets||0}} wickets · {{format(wicketLeader?.economy)}} economy</p></div></article>
+        <article class="insight"><span>◎</span><div><small>BEST AVERAGE</small><strong>{{averageLeader?.playerName||'—'}}</strong><p>{{format(averageLeader?.battingAverage)}} career average</p></div></article>
+      </aside>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="consistency">
+        <header><span class="eyebrow">BENCHMARK</span><h2>Career efficiency</h2></header>
+        <div class="efficiency">
+          <div><span>BATTERS</span><strong>{{batters}}</strong><small>Players with recorded runs</small></div>
+          <div><span>BOWLERS</span><strong>{{bowlers}}</strong><small>Players with recorded wickets</small></div>
+          <div><span>ALL-ROUND</span><strong>{{allRounders}}</strong><small>Contributing in both areas</small></div>
+        </div>
+      </article>
+      <article class="action-card"><span class="eyebrow">NEXT STEP</span><h2>Compare players head-to-head</h2><p>Use deeper side-by-side metrics to understand strengths beyond the leaderboard.</p><a routerLink="/players/compare">Open comparison <span>→</span></a></article>
+    </section>
+  } @else {<section class="empty"><span>✦</span><h2>No analytics available yet</h2><p>Complete matches with player performance data to unlock intelligence.</p></section>}
+</section>
