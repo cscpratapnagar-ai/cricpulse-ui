@@ -234,6 +234,20 @@
                     />
                   }
                 </div>
+                <div class="wicket-context">
+                  <div>
+                    <label>RUNS COMPLETED</label>
+                    <div class="mini-run-grid">
+                      @for (run of [0, 1, 2, 3, 4, 5, 6]; track run) {
+                        <button [class.active]="wicketRuns === run" (click)="wicketRuns = run">{{ run }}</button>
+                      }
+                    </div>
+                  </div>
+                  <div class="wicket-rule">
+                    <b>{{ wicketType === 'RUN_OUT' ? 'Run-out context' : 'Delivery context' }}</b>
+                    <small>{{ wicketValidationHint }}</small>
+                  </div>
+                </div>
                 <button class="confirm" [disabled]="!canConfirmWicket" (click)="confirmWicket()">
                   Confirm wicket →
                 </button>
