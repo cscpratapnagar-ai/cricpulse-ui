@@ -212,6 +212,9 @@
                 [(value)]="selectedBowlerId"
                 [disabled]="!canChangeBowler"
               />
+              @if (canChangeBowler && !bowlerOptions.length) {
+                <small class="bowler-warning">No eligible bowler found in the selected playing XI.</small>
+              }
             </div>
             <div class="scorepad" [class.blocked]="!canDeliver">
               <label>BAT RUNS</label>
