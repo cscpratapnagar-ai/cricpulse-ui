@@ -1589,3 +1589,53 @@ footer i {
 @media (prefers-reduced-motion: reduce) {
   .reconcile-notice { animation: none; }
 }
+
+/* Delivery audit timeline */
+.delivery-audit {
+  margin-top: 16px;
+  padding: 15px;
+  border: 1px solid var(--cp-border);
+  border-radius: 18px;
+  background: var(--cp-surface);
+}
+.audit-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.audit-head label,
+.audit-head small { display:block; }
+.audit-head small { margin-top:3px; color:var(--cp-text-muted); font-size:11px; }
+.audit-head button {
+  border:0; background:transparent; color:var(--cp-accent); font-size:11px; font-weight:850; cursor:pointer;
+}
+.ball-timeline {
+  display:flex; gap:8px; overflow:hidden; max-height:54px; margin-top:13px;
+}
+.ball-timeline.expanded { flex-wrap:wrap; max-height:300px; overflow:auto; padding-right:3px; }
+.ball-chip {
+  min-width:46px; height:50px; padding:5px 7px; border:1px solid var(--cp-border); border-radius:12px;
+  background:var(--cp-surface-hover); color:var(--cp-text); cursor:pointer;
+  transition:transform 140ms ease, border-color 140ms ease;
+}
+.ball-chip:hover { transform:translateY(-2px); border-color:var(--cp-accent); }
+.ball-chip span,.ball-chip b { display:block; }
+.ball-chip span { color:var(--cp-text-muted); font-size:8px; }
+.ball-chip b { margin-top:4px; font-size:13px; }
+.ball-chip.wicket { border-color:var(--cp-danger,#ef6a62); }
+.ball-chip.wicket b { color:var(--cp-danger,#ef6a62); }
+.ball-chip.boundary { border-color:var(--cp-accent); }
+.ball-chip.extra { border-style:dashed; }
+.delivery-inspector {
+  display:flex; align-items:center; gap:12px; margin-top:12px; padding:11px 12px;
+  border-radius:12px; background:var(--cp-surface-hover); animation:reconcileIn 180ms ease-out both;
+}
+.delivery-inspector > div { min-width:0; flex:1; }
+.delivery-inspector h4 { margin:4px 0; font-size:13px; }
+.delivery-inspector small { color:var(--cp-text-muted); font-size:10px; }
+.delivery-inspector > button { width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:var(--cp-text-muted); font-size:18px; cursor:pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .ball-chip { transition:none; }
+  .ball-chip:hover { transform:none; }
+}
