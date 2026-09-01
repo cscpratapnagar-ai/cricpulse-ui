@@ -1,5 +1,21 @@
 <main class="overlay" [class.card-mode]="!isStrip">
   @if (score$ | async; as score) {
+    @if (isEvent) {
+      <section class="event-graphic" [class]="eventKind.toLowerCase()">
+        <div class="event-ring"></div>
+        <div class="event-content">
+          <label>CRICPULSE LIVE</label>
+          <h1>{{ eventLabel(score) }}</h1>
+          <p>{{ eventDetail(score) }}</p>
+          @if (eventKind === 'FOUR') { <div class="event-mark">4</div> }
+          @if (eventKind === 'SIX') { <div class="event-mark">6</div> }
+          @if (eventKind === 'WICKET') { <div class="event-mark">W</div> }
+          @if (eventKind === 'OVER_COMPLETE') { <div class="event-mark">OV</div> }
+          @if (eventKind === 'MILESTONE') { <div class="event-mark">★</div> }
+          @if (eventKind === 'RESULT') { <div class="event-mark">✓</div> }
+        </div>
+      </section>
+    }
     @if (isStrip) {
       <section class="score-strip">
         <div class="brand">CRICPULSE <span>LIVE</span></div>
