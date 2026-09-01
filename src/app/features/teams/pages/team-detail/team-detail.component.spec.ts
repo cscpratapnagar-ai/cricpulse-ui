@@ -15,10 +15,7 @@ describe('TeamDetailComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TeamDetailComponent],
-      providers: [
-        provideHttpClient(),
-        { provide: ActivatedRoute, useValue: route },
-      ],
+      providers: [provideHttpClient(), { provide: ActivatedRoute, useValue: route }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TeamDetailComponent);
