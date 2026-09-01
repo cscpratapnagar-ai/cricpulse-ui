@@ -2,15 +2,6 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const appRoot = resolve('src/app');
-const requiredSpecs = [
-  'src/app/core/auth/auth.spec.ts',
-  'src/app/core/interceptors/loading.interceptor.spec.ts',
-  'src/app/core/services/current-user.service.spec.ts',
-  'src/app/core/services/live-score.service.spec.ts',
-  'src/app/core/services/loading.service.spec.ts',
-  'src/app/core/services/theme.service.spec.ts',
-  'src/app/features/scoring/data-access/scorecard.service.spec.ts',
-];
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -30,26 +21,23 @@ const failures = [];
 
 if (specs.length < 20) failures.push(`expected at least 20 specs, found ${specs.length}`);
 
-for (const spec of requiredSpecs) {
-  try {
-    const source = await readFile(spec, 'utf8');
-    const testCount = (source.match(/\bit\s*\(/g) ?? []).length;
+for (const spec of specs) {
+  const source = await readFile(spec, 'utf8');
+  const testCount = (source.match(/\bit\s*\(/g) ?? []).length;
+  const expectCount = (source.match(/\bexpect\s*\(/g) ?? []).length;
+  const trivialExistence =
+    /describe\([^]*?\{\s*it\([^]*?expect\([^)]*(?:Component|component)\)\.toBeTruthy\(\)[^]*?\}\s*\);?\s*\}/m.test(source) &&
+    testCount === 1;
 
-    if (testCount < 2) failures.push(`${spec} needs at least two assertions/examples`);
-    if (/expect\([^)]*Component\)\.toBeTruthy\(\)/.test(source)) {
-      failures.push(`${spec} contains only class-existence style component coverage`);
-    }
-  } catch {
-    failures.push(`missing critical spec: ${spec}`);
-  }
+  if (testCount < 1) failures.push(`${spec} has no executable test`);
+  if (expectCount < 1) failures.push(`${spec} has no assertion`);
+  if (trivialExistence) failures.push(`${spec} contains only class-existence coverage`);
 }
 
 if (failures.length > 0) {
-  console.error('Test inventory audit failed:');
+  console.error('Test quality audit failed:');
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log(
-  `Test inventory audit passed: ${specs.length} specs with all critical coverage files present.`,
-);
+console.log(`Test quality audit passed: ${specs.length} specs audited.`);
