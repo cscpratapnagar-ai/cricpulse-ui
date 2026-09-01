@@ -3,7 +3,10 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "format:check": "npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\"",
+    "lint:format": "npm run format:check"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",

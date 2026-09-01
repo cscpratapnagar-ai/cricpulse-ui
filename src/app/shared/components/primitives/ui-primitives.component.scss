@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+.cp-stat-card {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--cp-border);
+  border-radius: 18px;
+  background: var(--cp-surface);
+  box-shadow: var(--cp-shadow-sm);
+  transition: 0.2s;
+}
+.cp-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--cp-accent);
+}
+.cp-stat-card > span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+  font-size: 19px;
+}
+.cp-stat-card div {
+  display: grid;
+  gap: 3px;
+}
+.cp-stat-card small,
+.cp-stat-card p {
+  margin: 0;
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.cp-stat-card strong {
+  font-size: 22px;
+}

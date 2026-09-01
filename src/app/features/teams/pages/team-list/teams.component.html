@@ -1,0 +1,55 @@
+<section class="teams-page">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Team management</div>
+      <h1>My Teams</h1>
+      <p>Manage every team you own from one place.</p>
+    </div>
+    <button class="primary" routerLink="/dashboard/teams/new">+ Create Team</button>
+  </div>
+  @if (loading) {
+    <app-state-view state="loading" loadingLabel="Loading your teams..."></app-state-view>
+  } @else if (error) {
+    <app-state-view
+      state="error"
+      title="Unable to load teams"
+      message="We couldn't retrieve your teams. Check the connection and try again."
+      (retry)="loadTeams()"
+    ></app-state-view>
+  } @else if (teams.length) {
+    <div class="team-grid">
+      @for (t of teams; track t.id; let i = $index) {
+        <article class="team-card" [style.--i]="i" [class.active]="t.id === activeTeamId">
+          <div class="team-top">
+            <div class="team-logo">{{ t.name.charAt(0).toUpperCase() }}</div>
+            <span class="badge">{{ t.id === activeTeamId ? 'ACTIVE' : 'OWNER' }}</span>
+          </div>
+          <h2>{{ t.name }}</h2>
+          <p>◉ {{ t.city || 'Location not set' }}</p>
+          <div class="team-actions">
+            <button type="button" class="open" (click)="openTeam(t)">Open Team →</button
+            ><span>Created by you</span>
+          </div>
+        </article>
+      }
+    </div>
+    @if (activeTeam) {
+      <section class="active-preview">
+        <div>
+          <div class="eyebrow">ACTIVE WORKSPACE</div>
+          <h2>{{ activeTeam.name }}</h2>
+          <p>◉ {{ activeTeam.city || 'Location not set' }} · Created by you</p>
+        </div>
+        <button type="button" class="primary" (click)="openTeam(activeTeam)">Manage Team →</button>
+      </section>
+    }
+  } @else {
+    <app-state-view
+      state="empty"
+      title="No teams yet"
+      message="Create your first team to start building your squad."
+      actionLabel="Create Team"
+      (action)="createTeam()"
+    ></app-state-view>
+  }
+</section>

@@ -1,0 +1,406 @@
+<section class="team-page">
+  @if (loading) {
+    <app-state-view state="loading" loadingLabel="Loading team command center..."></app-state-view>
+  } @else if (loadError) {
+    <app-state-view
+      state="error"
+      title="Unable to load this team"
+      message="The team workspace could not be retrieved. Please try again."
+      (retry)="reload()"
+    ></app-state-view>
+  } @else if (team) {
+    <header class="hero">
+      <button class="back-btn" type="button" (click)="history.back()" aria-label="Go back">
+        ←
+      </button>
+      <div class="team-mark">{{ team.name.charAt(0).toUpperCase() }}</div>
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> TEAM COMMAND CENTER</div>
+        <h1>{{ team.name }}</h1>
+        <p>{{ team.city || 'Location not set' }} <b>·</b> {{ access?.role || 'MEMBER' }} ACCESS</p>
+      </div>
+      <div class="hero-actions">
+        @if (access?.canManage) {
+          <a class="secondary" [routerLink]="['/teams', team.id, 'players', 'bulk']"
+            >Bulk add players</a
+          >
+        }
+        <button
+          class="primary"
+          type="button"
+          (click)="setTab('squad'); showAdd = true"
+          [disabled]="!access?.canManage"
+        >
+          Add player <span>+</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="metrics" aria-label="Team summary">
+      <article>
+        <span class="metric-icon">♟</span>
+        <div>
+          <strong>{{ members.length }}</strong
+          ><small>Total squad</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon">★</span>
+        <div>
+          <strong>{{ count('CAPTAIN') + count('VICE_CAPTAIN') }}</strong
+          ><small>Leadership</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon">◈</span>
+        <div>
+          <strong>{{ count('MANAGER') }}</strong
+          ><small>Management</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon">✓</span>
+        <div>
+          <strong>{{ activePlayers }}</strong
+          ><small>Playing members</small>
+        </div>
+      </article>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Team sections">
+      <button
+        [class.active]="tab === 'overview'"
+        (click)="setTab('overview')"
+        role="tab"
+        [attr.aria-selected]="tab === 'overview'"
+      >
+        Overview
+      </button>
+      <button
+        [class.active]="tab === 'squad'"
+        (click)="setTab('squad')"
+        role="tab"
+        [attr.aria-selected]="tab === 'squad'"
+      >
+        Squad <span>{{ members.length }}</span>
+      </button>
+      @if (access?.canManage) {
+        <button
+          [class.active]="tab === 'management'"
+          (click)="setTab('management')"
+          role="tab"
+          [attr.aria-selected]="tab === 'management'"
+        >
+          Management
+        </button>
+      }
+    </nav>
+
+    @if (tab === 'overview') {
+      <section class="overview-grid">
+        <article class="panel squad-health">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow"><span></span> SQUAD HEALTH</div>
+              <h2>Team composition</h2>
+            </div>
+            <span class="live-dot">READY</span>
+          </div>
+          <div class="composition">
+            <div
+              class="ring"
+              role="img"
+              [attr.aria-label]="'Squad health ' + squadHealth + ' percent ready'"
+            >
+              <svg viewBox="0 0 128 128" aria-hidden="true">
+                <circle class="ring-track" cx="64" cy="64" r="54"></circle>
+                <circle
+                  class="ring-progress"
+                  cx="64"
+                  cy="64"
+                  r="54"
+                  [attr.stroke-dasharray]="339.292"
+                  [attr.stroke-dashoffset]="339.292 - (339.292 * squadHealth) / 100"
+                ></circle>
+              </svg>
+              <div class="ring-value">
+                <strong>{{ squadHealth }}%</strong><small>READY</small>
+              </div>
+            </div>
+            <div class="roles">
+              @for (item of roleSummary; track item.label) {
+                <div>
+                  <span><i [style.width.%]="item.percent"></i></span><b>{{ item.count }}</b
+                  ><small>{{ item.label }}</small>
+                </div>
+              }
+            </div>
+          </div>
+        </article>
+        <article class="panel identity-panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow"><span></span> TEAM PROFILE</div>
+              <h2>Workspace details</h2>
+            </div>
+          </div>
+          <div class="detail-list">
+            <div>
+              <span>Team ID</span><strong>{{ team.id }}</strong>
+            </div>
+            <div>
+              <span>Location</span><strong>{{ team.city || 'Not set' }}</strong>
+            </div>
+            <div>
+              <span>Your access</span
+              ><strong class="role-badge">{{ access?.role || 'MEMBER' }}</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+      <section class="panel roster-preview">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow"><span></span> ROSTER</div>
+            <h2>Squad preview</h2>
+          </div>
+          <button type="button" class="text-btn" (click)="setTab('squad')">
+            View full squad →
+          </button>
+        </div>
+        <div class="preview-grid">
+          @for (m of members.slice(0, 6); track m.playerId) {
+            <article>
+              <div class="avatar">{{ m.fullName.charAt(0).toUpperCase() }}</div>
+              <strong>{{ m.fullName }}</strong
+              ><small>{{ m.role.replace('_', ' ') }}</small>
+            </article>
+          }
+          @if (!members.length) {
+            <div class="inline-empty">Your roster is ready for its first player.</div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (tab === 'squad') {
+      <section class="panel squad-panel">
+        <div class="panel-head squad-toolbar">
+          <div>
+            <div class="eyebrow"><span></span> ROSTER DIRECTORY</div>
+            <h2>Team members</h2>
+          </div>
+          <div class="toolbar-controls">
+            <input [(ngModel)]="query" placeholder="Search squad..." aria-label="Search squad" />
+            <div class="dropdown-wrap">
+              <button
+                type="button"
+                class="dropdown-trigger"
+                [class.open]="roleFilterOpen"
+                (click)="toggleRoleFilter()"
+                [attr.aria-expanded]="roleFilterOpen"
+                aria-haspopup="menu"
+              >
+                <span>{{ roleFilterLabel }}</span
+                ><b class="chevron"></b>
+              </button>
+              @if (roleFilterOpen) {
+                <div class="dropdown-menu" role="menu">
+                  @for (option of roleFilterOptions; track option.value) {
+                    <button
+                      type="button"
+                      [class.selected]="roleFilter === option.value"
+                      (click)="setRoleFilter(option.value)"
+                    >
+                      <span>{{ option.icon }}</span
+                      >{{ option.label }}
+                      @if (roleFilter === option.value) {
+                        <b>✓</b>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        @if (showAdd && access?.canManage) {
+          <div class="add-drawer">
+            <div>
+              <div class="eyebrow"><span></span> ADD MEMBER</div>
+              <strong>Add an existing player</strong>
+            </div>
+            <input [(ngModel)]="email" placeholder="Registered player email" type="email" />
+            <div class="dropdown-wrap add-role-dropdown">
+              <button
+                type="button"
+                class="dropdown-trigger"
+                [class.open]="addRoleOpen"
+                (click)="toggleAddRole()"
+                [attr.aria-expanded]="addRoleOpen"
+                aria-haspopup="menu"
+              >
+                <span>{{ addRoleLabel }}</span
+                ><b class="chevron"></b>
+              </button>
+              @if (addRoleOpen) {
+                <div class="dropdown-menu" role="menu">
+                  @for (option of addRoleOptions; track option.value) {
+                    <button
+                      type="button"
+                      [class.selected]="role === option.value"
+                      (click)="setAddRole(option.value)"
+                    >
+                      <span>{{ option.icon }}</span
+                      >{{ option.label }}
+                      @if (role === option.value) {
+                        <b>✓</b>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <button
+              type="button"
+              class="primary"
+              (click)="addMember()"
+              [disabled]="saving || !email.trim()"
+            >
+              {{ saving ? 'Adding…' : 'Add player' }}
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="showAdd = false"
+              aria-label="Close add player panel"
+            >
+              ×
+            </button>
+          </div>
+        }
+        <div class="member-list">
+          @for (m of filteredMembers; track m.playerId) {
+            <article class="member-row" [class.dropdown-active]="memberRoleOpen === m.playerId">
+              <div class="avatar">{{ m.fullName.charAt(0).toUpperCase() }}</div>
+              <div class="identity">
+                <strong>{{ m.fullName }}</strong
+                ><small>{{ m.email }}</small>
+              </div>
+              <span
+                class="member-role"
+                [class.lead]="m.role === 'CAPTAIN' || m.role === 'VICE_CAPTAIN'"
+                >{{ m.role.replace('_', ' ') }}</span
+              >
+              @if (access?.canManage) {
+                <div class="member-actions">
+                  <div class="dropdown-wrap member-select">
+                    <button
+                      type="button"
+                      class="dropdown-trigger"
+                      [class.open]="memberRoleOpen === m.playerId"
+                      [disabled]="m.role === 'OWNER' || saving"
+                      (click)="toggleMemberRole(m.playerId)"
+                      [attr.aria-expanded]="memberRoleOpen === m.playerId"
+                      [attr.aria-label]="'Change role for ' + m.fullName"
+                      aria-haspopup="menu"
+                    >
+                      <span>{{ roleLabel(m.role) }}</span
+                      ><b class="chevron"></b>
+                    </button>
+                    @if (memberRoleOpen === m.playerId) {
+                      <div class="dropdown-menu member-role-menu" role="menu">
+                        @for (option of memberRoleOptions; track option.value) {
+                          <button
+                            type="button"
+                            [class.selected]="m.role === option.value"
+                            (click)="selectMemberRole(m, option.value)"
+                          >
+                            <span>{{ option.icon }}</span
+                            >{{ option.label }}
+                            @if (m.role === option.value) {
+                              <b>✓</b>
+                            }
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="remove"
+                    [disabled]="m.role === 'OWNER' || saving"
+                    (click)="requestRemove(m)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              }
+            </article>
+          } @empty {
+            <app-state-view
+              state="empty"
+              title="No squad members found"
+              message="Try another search or add a player to build your roster."
+              [actionLabel]="access?.canManage ? 'Add player' : undefined"
+              (action)="showAdd = true"
+            ></app-state-view>
+          }
+        </div>
+      </section>
+    }
+
+    @if (tab === 'management' && access?.canManage) {
+      <section class="management-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow"><span></span> ACCESS CONTROL</div>
+              <h2>Role governance</h2>
+            </div>
+          </div>
+          <p class="muted">
+            Owners retain protected access. Managers can maintain the roster. Leadership roles can
+            be assigned directly from the squad directory.
+          </p>
+          <div class="governance">
+            <div><b>OWNER</b><span>Protected team authority</span></div>
+            <div><b>MANAGER</b><span>Squad administration</span></div>
+            <div><b>CAPTAIN</b><span>On-field leadership</span></div>
+          </div>
+        </article>
+        <article class="panel danger-zone">
+          <div class="eyebrow"><span></span> SAFETY</div>
+          <h2>Roster changes are live</h2>
+          <p>Role updates and removals immediately update the team workspace.</p>
+          <button type="button" class="text-btn" (click)="setTab('squad')">Manage squad →</button>
+        </article>
+      </section>
+    }
+
+    @if (confirmMember) {
+      <div class="modal-backdrop" (click)="confirmMember = null">
+        <section class="confirm-card" (click)="$event.stopPropagation()">
+          <div class="confirm-icon">!</div>
+          <div>
+            <div class="eyebrow"><span></span> CONFIRM CHANGE</div>
+            <h2>Remove {{ confirmMember.fullName }}?</h2>
+            <p>This player will lose access to this team roster. You can add them again later.</p>
+          </div>
+          <div class="confirm-actions">
+            <button type="button" class="ghost" (click)="confirmMember = null">Cancel</button
+            ><button type="button" class="danger" [disabled]="saving" (click)="removeConfirmed()">
+              {{ saving ? 'Removing…' : 'Remove player' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    }
+    @if (toast) {
+      <div class="toast" [class.error]="toastType === 'error'">
+        <span>{{ toastType === 'error' ? '!' : '✓' }}</span
+        >{{ toast }}
+      </div>
+    }
+  }
+</section>

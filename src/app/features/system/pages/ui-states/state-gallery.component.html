@@ -1,0 +1,34 @@
+<main class="gallery">
+  <header>
+    <span>DESIGN SYSTEM / UX STATES</span>
+    <h1>Every state deserves<br /><em>a premium experience.</em></h1>
+    <p>
+      Reusable loading, empty, error and offline patterns for consistent production UX across
+      CricPulse.
+    </p>
+  </header>
+  <section>
+    <div class="label">LOADING</div>
+    <app-state-view state="loading" loadingLabel="Loading live match data..." />
+    <div class="label">EMPTY</div>
+    <app-state-view
+      state="empty"
+      title="No matches scheduled"
+      message="Create a match or adjust your filters to see upcoming fixtures."
+      actionLabel="Create match"
+      (action)="notice = 'Create action triggered'"
+    />
+    <div class="label">ERROR</div>
+    <app-state-view
+      state="error"
+      title="Match data unavailable"
+      message="The server returned an unexpected response. Your data remains safe."
+      (retry)="notice = 'Retry requested'"
+    />
+    <div class="label">OFFLINE</div>
+    <app-state-view state="offline" (retry)="notice = 'Connection check requested'" />
+  </section>
+  @if (notice) {
+    <div class="toast">✓ {{ notice }}</div>
+  }
+</main>

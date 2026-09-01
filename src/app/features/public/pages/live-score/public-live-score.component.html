@@ -1,0 +1,60 @@
+<main class="public-live">
+  <header class="header">
+    <a class="brand" routerLink="/">CRICPULSE <span>LIVE</span></a>
+    <div class="status"><i></i> LIVE SCORE</div>
+  </header>
+  <section class="hero">
+    <div class="eyebrow">LIVE MATCH CENTRE</div>
+    <h1>{{ match?.name || 'Live Cricket Match' }}</h1>
+    <p>
+      {{ match?.teamAName || 'Team A' }} <b>vs</b> {{ match?.teamBName || 'Team B' }} ·
+      {{ match?.format || 'CRICKET' }}
+    </p>
+  </section>
+  @if (score$ | async; as score) {
+    <section class="score-card">
+      <div class="team">
+        {{ match?.teamAName || 'Batting Team' }} <small>INNINGS {{ score.inningsNumber }}</small>
+      </div>
+      <div class="score">
+        {{ score.runs }}<em>/{{ score.wickets }}</em>
+      </div>
+      <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
+      <div class="live-line"><i></i> SCORE UPDATES IN REAL TIME</div>
+    </section>
+    <section class="info-grid">
+      <article>
+        <span>LEGAL BALLS</span><strong>{{ score.legalBalls }}</strong>
+      </article>
+      <article>
+        <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
+      </article>
+      <article>
+        <span>STATUS</span><strong>{{ score.status || 'LIVE' }}</strong>
+      </article>
+    </section>
+    @if (score.partnership) {
+      <section class="info-grid partnership-grid">
+        <article>
+          <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
+        </article>
+        <article>
+          <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
+        </article>
+        <article>
+          <span>WICKETS</span><strong>{{ score.wickets }}</strong>
+        </article>
+      </section>
+    }
+  } @else {
+    <section class="score-card loading">
+      <div>
+        <span>Loading saved live score…</span><small>Waiting for the current innings</small>
+      </div>
+    </section>
+  }
+  <footer>
+    <span>Powered by <b>CricPulse</b></span
+    ><a [routerLink]="['/matches', matchId, 'scorer']">Scorer Login →</a>
+  </footer>
+</main>

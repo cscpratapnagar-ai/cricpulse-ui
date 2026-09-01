@@ -1,0 +1,141 @@
+:host {
+  display: block;
+}
+.field {
+  display: grid;
+  gap: 8px;
+}
+.field label {
+  color: var(--cp-text-muted);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+.field label span {
+  color: var(--cp-accent);
+}
+.dropdown {
+  position: relative;
+}
+.trigger,
+.menu button {
+  font: 750 10px inherit;
+}
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  min-height: 43px;
+  padding: 0 12px;
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background 0.18s;
+}
+.trigger:hover,
+.trigger.open {
+  border-color: color-mix(in srgb, var(--cp-accent) 55%, var(--cp-border));
+  box-shadow: 0 0 0 3px var(--cp-accent-soft);
+}
+.chevron {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-right: 1.8px solid var(--cp-text-muted);
+  border-bottom: 1.8px solid var(--cp-text-muted);
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+.trigger.open .chevron {
+  transform: rotate(225deg) translate(-1px, -1px);
+  border-color: var(--cp-accent);
+}
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 100;
+  display: grid;
+  min-width: 170px;
+  padding: 5px;
+  border: 1px solid color-mix(in srgb, var(--cp-accent) 24%, var(--cp-border));
+  border-radius: 11px;
+  background: var(--cp-surface);
+  box-shadow: 0 18px 42px color-mix(in srgb, #000 28%, transparent);
+  animation: cp-dropdown-in 0.16s ease both;
+}
+.menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--cp-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.14s,
+    color 0.14s;
+}
+.menu button:hover,
+.menu button.selected {
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+}
+.menu button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.menu button b {
+  font-size: 10px;
+  color: var(--cp-accent);
+}
+.menu button small {
+  font-size: 8px;
+  opacity: 0.75;
+}
+.hint {
+  color: var(--cp-text-muted);
+  font-size: 8px;
+}
+.disabled {
+  opacity: 0.55;
+}
+.disabled .trigger {
+  cursor: not-allowed;
+}
+@keyframes cp-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .trigger i,
+  .menu,
+  .menu button {
+    animation: none !important;
+    transition: none !important;
+  }
+}

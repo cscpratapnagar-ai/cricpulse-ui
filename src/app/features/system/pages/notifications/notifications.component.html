@@ -1,0 +1,105 @@
+<section class="notifications-page">
+  <header class="hero">
+    <div>
+      <span class="eyebrow">ACTIVITY CENTER</span>
+      <h1>Stay ahead of <em>every moment.</em></h1>
+      <p>Match events, team activity and important workspace updates in one focused timeline.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="outline" (click)="markAllRead()" [disabled]="unread() === 0">
+        Mark all as read</button
+      ><button class="primary" (click)="clearRead()">Clear read</button>
+    </div>
+  </header>
+  <section class="summary">
+    <div>
+      <span class="summary-icon">◉</span>
+      <div>
+        <strong>{{ unread() }}</strong
+        ><small>Unread updates</small>
+      </div>
+    </div>
+    <div>
+      <span class="summary-icon">●</span>
+      <div>
+        <strong>{{ today() }}</strong
+        ><small>Today</small>
+      </div>
+    </div>
+    <div>
+      <span class="summary-icon">↗</span>
+      <div><strong>Live</strong><small>Activity status</small></div>
+    </div>
+    <p><i></i> Your activity feed is up to date</p>
+  </section>
+  <div class="toolbar">
+    <nav class="notification-tabs" role="tablist" aria-label="Notification categories">
+      @for (f of filters; track f.key) {
+        <button
+          type="button"
+          [class.active]="active() === f.key"
+          (click)="active.set(f.key)"
+          role="tab"
+          [attr.aria-selected]="active() === f.key"
+        >
+          {{ f.label }}<span>{{ count(f.key) }}</span>
+        </button>
+      }
+    </nav>
+    <div class="view-controls">
+      <label
+        ><input type="checkbox" [checked]="unreadOnly()" (change)="unreadOnly.set(!unreadOnly())" />
+        Unread only</label
+      ><button (click)="toggleOrder()" title="Toggle order">⇅</button>
+    </div>
+  </div>
+  <div class="feed">
+    @if (filtered().length) {
+      @for (n of filtered(); track n.id) {
+        <article class="notice" [class.unread]="!n.read">
+          <div class="notice-icon" [attr.data-type]="n.type">{{ n.icon }}</div>
+          <div class="notice-body">
+            <div class="notice-title">
+              <h3>{{ n.title }}</h3>
+              @if (!n.read) {
+                <span>NEW</span>
+              }
+            </div>
+            <p>{{ n.message }}</p>
+            <div class="notice-meta">
+              <time>{{ n.time }}</time
+              ><b>{{ typeLabel(n.type) }}</b>
+            </div>
+          </div>
+          <div class="notice-actions">
+            <button (click)="toggleRead(n)" [title]="n.read ? 'Mark unread' : 'Mark read'">
+              {{ n.read ? '◌' : '✓' }}
+            </button>
+            @if (n.action) {
+              <a [routerLink]="n.action">View <span>→</span></a>
+            }
+          </div>
+        </article>
+      }
+    } @else {
+      <div class="empty">
+        <span>✓</span>
+        <h2>You're all caught up</h2>
+        <p>No notifications match your current filters.</p>
+        <button (click)="resetFilters()">Show all activity</button>
+      </div>
+    }
+  </div>
+  <section class="info">
+    <span>⌁</span>
+    <div>
+      <strong>Notification delivery</strong>
+      <p>
+        This activity center currently provides the product UI layer. Real-time push delivery, email
+        preferences and persisted read state will connect when the notification backend is
+        implemented.
+      </p>
+    </div>
+    <b>BACKEND LATER</b>
+  </section>
+</section>

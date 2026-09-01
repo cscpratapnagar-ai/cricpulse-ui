@@ -1,89 +1,36 @@
 import { Component, inject } from '@angular/core';
-import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoadingService } from './loading.service';
+import { LoadingService } from './core/services/loading.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `
-    <div class="app-root">
-      <router-outlet />
-
-      @if (loading.isLoading()) {
-        <div class="loader-overlay" role="status" aria-live="polite" aria-label="Loading CricketPulse">
-          <div class="loader-card">
-            <div class="brand-row">
-              <span class="brand-mark">◉</span>
-              <div>
-                <b>CricketPulse</b>
-                <small>Syncing matchday workspace</small>
-              </div>
-            </div>
-
-            <div class="pitch-loader">
-              <span class="stump left"></span>
-              <span class="stump center"></span>
-              <span class="stump right"></span>
-              <span class="ball"></span>
-              <span class="trail"></span>
-            </div>
-
-            <div class="copy">
-              <strong>Loading live cricket view</strong>
-              <p>Preparing teams, scores, and the next move.</p>
-            </div>
-
-            <div class="pulse-dots"><i></i><i></i><i></i></div>
-          </div>
-        </div>
-      }
-    </div>
-  `,
-  styles: [`
-    :host{display:block;min-height:100vh}
-    .app-root{min-height:100vh}
-    .loader-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:var(--cp-overlay);backdrop-filter:blur(10px)}
-    .loader-card{position:relative;width:min(520px,calc(100vw - 32px));padding:28px 26px 24px;border:1px solid var(--cp-border);border-radius:26px;background:var(--cp-surface);box-shadow:var(--cp-menu-shadow);overflow:hidden}
-    .loader-card:before{content:'';position:absolute;inset:-40% -10% auto;height:220px;background:radial-gradient(circle at center,rgba(184,244,92,.18),transparent 65%);animation:glow 3.4s ease-in-out infinite}
-    .brand-row,.copy,.pulse-dots,.pitch-loader{position:relative;z-index:1}
-    .brand-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-    .brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--cp-accent);color:var(--cp-accent-contrast);font-size:18px;font-weight:900;box-shadow:0 0 0 6px rgba(184,244,92,.09)}
-    .brand-row b{display:block;font-size:14px;letter-spacing:.4px}
-    .brand-row small{display:block;margin-top:2px;color:var(--cp-text-muted);font-size:11px}
-    .pitch-loader{position:relative;height:132px;margin:6px 0 18px;border-radius:22px;border:1px solid var(--cp-border);background:var(--cp-surface-raised)}
-    .pitch-loader:before{content:'';position:absolute;left:18px;right:18px;top:50%;height:2px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--cp-accent) 34%,transparent),var(--cp-accent),color-mix(in srgb,var(--cp-accent) 34%,transparent),transparent);box-shadow:0 0 26px rgba(184,244,92,.28)}
-    .stump{position:absolute;bottom:28px;width:8px;height:52px;border-radius:999px;background:linear-gradient(180deg,color-mix(in srgb,var(--cp-accent) 72%,white),var(--cp-accent) 60%,color-mix(in srgb,var(--cp-accent) 55%,black))}
-    .stump:before{content:'';position:absolute;left:50%;top:-7px;width:14px;height:4px;transform:translateX(-50%);border-radius:999px;background:color-mix(in srgb,var(--cp-accent) 72%,white)}
-    .stump.left{left:26px}
-    .stump.center{left:50%;transform:translateX(-50%)}
-    .stump.right{right:26px}
-    .ball{position:absolute;top:50%;left:22px;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,color-mix(in srgb,var(--cp-accent) 55%,white),var(--cp-accent) 48%,color-mix(in srgb,var(--cp-accent) 55%,black) 100%);box-shadow:0 0 0 6px rgba(184,244,92,.1),0 0 24px rgba(184,244,92,.45);transform:translateY(-50%);animation:ball-roll 1.45s cubic-bezier(.65,0,.35,1) infinite alternate}
-    .trail{position:absolute;top:50%;left:52px;width:calc(100% - 104px);height:2px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,rgba(184,244,92,.45),transparent);mask:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);animation:trail 1.45s ease-in-out infinite}
-    .copy strong{display:block;font-size:18px;letter-spacing:-.2px}
-    .copy p{margin:8px 0 0;color:#91aa9d;font-size:13px;line-height:1.5}
-    .pulse-dots{display:flex;gap:8px;margin-top:18px}
-    .pulse-dots i{width:9px;height:9px;border-radius:999px;background:var(--cp-accent);opacity:.35;animation:pulse 1s ease-in-out infinite}
-    .pulse-dots i:nth-child(2){animation-delay:.15s}
-    .pulse-dots i:nth-child(3){animation-delay:.3s}
-    @keyframes ball-roll{0%{transform:translateY(-50%) translateX(0) scale(.95)}50%{transform:translateY(-50%) translateX(calc(100% - 56px)) scale(1.06)}100%{transform:translateY(-50%) translateX(calc(100% - 24px)) scale(.95)}}
-    @keyframes trail{0%,100%{opacity:.25}50%{opacity:1}}
-    @keyframes pulse{0%,80%,100%{transform:translateY(0);opacity:.25}40%{transform:translateY(-6px);opacity:1}}
-    @keyframes glow{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(12px);opacity:.8}}
-    @media(max-width:640px){.loader-card{padding:22px}.pitch-loader{height:118px}.copy strong{font-size:16px}}
-  `]
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   readonly loading = inject(LoadingService);
   private readonly router = inject(Router);
 
   constructor() {
-    this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.loading.start();
       }
-      if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
+      if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
         this.loading.stop();
       }
     });
