@@ -393,16 +393,27 @@ label {
 }
 .run-grid button:disabled,
 .action-zone button:disabled {
-  opacity: 0.62;
-  color: var(--cp-text-muted);
+  opacity: 0.88;
+  color: var(--cp-text);
   cursor: not-allowed;
+}
+.run-grid button:disabled {
+  -webkit-text-fill-color: var(--cp-text);
 }
 .scorepad.blocked .run-grid button,
 .action-zone.blocked button {
   background: color-mix(in srgb, var(--cp-surface-hover) 82%, transparent);
 }
 .scorepad.blocked .run-grid button {
-  color: color-mix(in srgb, var(--cp-text-muted) 88%, var(--cp-text));
+  color: var(--cp-text);
+  -webkit-text-fill-color: var(--cp-text);
+}
+.bowler-warning {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  color: #ffb36b;
+  font-size: 11px;
+  font-weight: 700;
 }
 .action-zone > div {
   display: grid;
