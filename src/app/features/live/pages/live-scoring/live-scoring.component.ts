@@ -89,6 +89,9 @@ export class LiveScoringV2Component implements OnDestroy {
   undoConfirmOpen = false;
   private lastDeliveryPayload: any = null;
   constructor() {
+    window.addEventListener('online', this.onlineHandler);
+    window.addEventListener('offline', this.offlineHandler);
+    this.connectionState = navigator.onLine ? 'ONLINE' : 'OFFLINE';
     this.liveSocket.state$.subscribe((state) => {
       this.socketState = state;
       if (state === 'CONNECTED') this.connectionState = 'ONLINE';
@@ -371,6 +374,13 @@ export class LiveScoringV2Component implements OnDestroy {
       this.reconcileScore(score, true);
     });
   }
+  private handleReconnect() {
+    this.connectionState = 'RECONNECTING';
+    if (this.inningsId) {
+      this.loadScoreById(this.inningsId, true);
+      this.connectLiveSocket(this.inningsId);
+    }
+  }
   private loadScoreById(id: string, silent = false) {
     if (!id) {
       this.loading = false;
@@ -382,7 +392,7 @@ export class LiveScoringV2Component implements OnDestroy {
       next: (s) => {
         this.reconcileScore(s, silent);
         if (!this.refreshTimer && this.score?.status === 'LIVE') {
-          this.refreshTimer = setInterval(() => this.loadScore(true), 15000);
+          this.refreshTimer = setInterval(() => this.loadScoreById(this.inningsId, true), 15000);
         }
         this.loading = false;
       },
