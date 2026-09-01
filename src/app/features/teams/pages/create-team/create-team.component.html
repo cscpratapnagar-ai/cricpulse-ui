@@ -1,0 +1,71 @@
+
+  <main class="create-page">
+    <section class="shell">
+      <header class="page-head">
+        <div>
+          <a class="back-link" routerLink="/teams"><span>←</span> Teams</a>
+          <div class="eyebrow"><i></i> TEAM WORKSPACE</div>
+          <h1>Create a <em>team.</em></h1>
+          <p>Set up your team identity now. Add your squad, assign roles and manage everything from one place.</p>
+        </div>
+        <div class="step-chip" aria-label="Step 1 of 2"><span>01</span><i></i><b>02</b><small>Team setup</small></div>
+      </header>
+
+      <div class="layout">
+        <form class="create-card" (ngSubmit)="submit()" #teamForm="ngForm" novalidate>
+          <div class="card-head">
+            <div class="icon-box">✦</div>
+            <div><h2>Team identity</h2><p>Start with the essentials. You can refine details later.</p></div>
+          </div>
+
+          <div class="field">
+            <label for="team-name">Team name <b>Required</b></label>
+            <div class="input-wrap" [class.invalid]="nameTouched && name.trim().length===0" [class.valid]="name.trim().length>=3">
+              <input id="team-name" name="name" [(ngModel)]="name" (blur)="nameTouched=true" (input)="error=''" maxlength="60" autocomplete="organization" placeholder="e.g. Riverside Warriors" required>
+              @if(name.trim().length>=3){<span class="field-status">✓</span>}
+            </div>
+            <div class="field-meta"><span>@if(nameTouched && name.trim().length===0){Team name is required.}@else if(name.trim().length>0 && name.trim().length<3){Use at least 3 characters.}@else{Choose a name your squad will recognise.}</span><b>{{name.trim().length}}/60</b></div>
+          </div>
+
+          <div class="field">
+            <label for="team-city">City or region <span>Optional</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">⌖</span>
+              <input id="team-city" name="city" [(ngModel)]="city" (input)="error=''" maxlength="80" autocomplete="address-level2" placeholder="e.g. Mumbai, Maharashtra">
+            </div>
+            <div class="field-meta"><span>This helps identify your team in your workspace.</span><b>{{city.trim().length}}/80</b></div>
+          </div>
+
+          @if(error){<div class="alert error-alert" role="alert"><span>!</span><div><strong>Unable to create team</strong><p>{{error}}</p></div></div>}
+
+          <div class="form-actions">
+            <a routerLink="/teams" class="cancel">Cancel</a>
+            <button type="submit" class="primary" [disabled]="loading || !canSubmit">
+              @if(loading){<span class="spinner"></span> Creating team...}
+              @else{Create team <span>→</span>}
+            </button>
+          </div>
+          <p class="security-note">✦ You will automatically become this team's owner. Ownership is verified securely by the server.</p>
+        </form>
+
+        <aside class="preview-card">
+          <div class="preview-top"><span>LIVE PREVIEW</span><i></i><small>Updates as you type</small></div>
+          <div class="team-preview">
+            <div class="team-mark">{{initials}}</div>
+            <div class="team-copy">
+              <h3>{{displayName}}</h3>
+              <p><span>⌖</span> {{displayCity}}</p>
+            </div>
+          </div>
+          <div class="preview-divider"></div>
+          <div class="next-section">
+            <span>WHAT'S NEXT</span>
+            <div><b>01</b><p><strong>Create your team</strong><small>Set your team identity</small></p><i>✓</i></div>
+            <div><b>02</b><p><strong>Build your squad</strong><small>Invite or add players</small></p></div>
+            <div><b>03</b><p><strong>Start playing</strong><small>Create matches and score live</small></p></div>
+          </div>
+          <div class="preview-footer">You can change team details later from Team Management.</div>
+        </aside>
+      </div>
+    </section>
+  </main>
