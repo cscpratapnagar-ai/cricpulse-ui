@@ -217,10 +217,23 @@
               }
             </div>
             <div class="scorepad" [class.blocked]="!canDeliver">
-              <label>BAT RUNS</label>
+              <div class="scorepad-head">
+                <label>BAT RUNS</label>
+                @if (!canDeliver) {
+                  <small>{{ scoringLockReason }}</small>
+                }
+              </div>
               <div class="run-grid">
                 @for (run of runs; track run) {
-                  <button [disabled]="!canDeliver" (click)="recordRuns(run)">{{ run }}</button>
+                  <button
+                    type="button"
+                    [attr.data-run]="run"
+                    [attr.aria-label]="'Add ' + run + ' runs'"
+                    [disabled]="!canDeliver"
+                    (click)="recordRuns(run)"
+                  >
+                    <span class="run-value">{{ run }}</span>
+                  </button>
                 }
               </div>
             </div>
