@@ -15,11 +15,7 @@ describe('ThemeService', () => {
 
   afterEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove(
-      'theme-light',
-      'theme-dark',
-      'theme-transition'
-    );
+    document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-transition');
     document.body.classList.remove('theme-light', 'theme-dark');
   });
 
