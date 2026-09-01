@@ -357,31 +357,12 @@ label {
 .action-zone > label {
   margin: 18px 0 10px;
 }
-.scorepad-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 18px 0 10px;
-}
-.scorepad-head label {
-  margin: 0;
-}
-.scorepad-head small {
-  color: #ffb36b;
-  font-size: 11px;
-  font-weight: 750;
-  text-align: right;
-}
 .run-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 9px;
 }
 .run-grid button {
-  position: relative;
-  display: grid !important;
-  place-items: center !important;
   height: 62px;
   border: 1px solid color-mix(in srgb, var(--cp-accent) 18%, var(--cp-border));
   border-radius: 15px;
@@ -400,36 +381,6 @@ label {
     border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
-.run-grid button .run-value {
-  position: relative;
-  z-index: 2;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: #edf8f2 !important;
-  -webkit-text-fill-color: #edf8f2 !important;
-  font-size: 20px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-}
-/* Fallback paint layer: guarantees the numeric action remains visible even when
-   browser/theme disabled-button rendering interferes with text descendants. */
-.run-grid button::after {
-  content: attr(data-run);
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: grid !important;
-  place-items: center !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  color: #edf8f2 !important;
-  -webkit-text-fill-color: #edf8f2 !important;
-  font-size: 20px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  pointer-events: none;
-}
 .run-grid button:hover:not(:disabled) {
   background: var(--cp-accent);
   color: var(--cp-accent-contrast, #102018);
@@ -440,32 +391,10 @@ label {
 .run-grid button:active:not(:disabled) {
   transform: translateY(0) scale(0.97);
 }
-/* Disabled controls must remain fully legible. The global disabled contract is
-   intentionally overridden here because a scorer needs to see every action. */
 .run-grid button:disabled,
 .action-zone button:disabled {
-  opacity: 1 !important;
-  color: #edf8f2 !important;
-  -webkit-text-fill-color: #edf8f2 !important;
+  opacity: 0.38;
   cursor: not-allowed;
-}
-.scorepad.blocked .run-grid button,
-.action-zone.blocked button {
-  opacity: 1 !important;
-  background: #102a21 !important;
-  border-color: rgba(184, 244, 92, 0.26) !important;
-  color: #edf8f2 !important;
-  -webkit-text-fill-color: #edf8f2 !important;
-}
-.run-grid button:disabled {
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
-}
-.bowler-warning {
-  grid-column: 1 / -1;
-  margin-top: 4px;
-  color: #ffb36b;
-  font-size: 11px;
-  font-weight: 700;
 }
 .action-zone > div {
   display: grid;
