@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-module-page', standalone: true,
   templateUrl: './module-page.component.html',
-  styleUrl: './module-page.component.scss']
+  styleUrl: './module-page.component.scss'
 })
 export class ModulePageComponent {
   private readonly route = inject(ActivatedRoute);
