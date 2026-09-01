@@ -7,6 +7,8 @@ import { API_ORIGIN } from '../../../../core/config/api.config';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 
 interface CurrentInnings { inningsId: string; }
+type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership';
+
 interface Match { id: string; name: string; teamAName?: string; teamBName?: string; }
 
 @Component({
@@ -21,6 +23,7 @@ export class BroadcastOverlayComponent {
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
+  readonly mode: OverlayMode = (this.route.snapshot.queryParamMap.get('mode') as OverlayMode) || 'strip';
   match: Match | null = null;
   score$ = of<LiveScore | null>(null);
 
@@ -34,6 +37,10 @@ export class BroadcastOverlayComponent {
     });
   }
   overs(balls: number) { return `${Math.floor(balls / 6)}.${balls % 6}`; }
+  get isStrip() { return this.mode === 'strip'; }
+  get isBatter() { return this.mode === 'batter'; }
+  get isBowler() { return this.mode === 'bowler'; }
+  get isPartnership() { return this.mode === 'partnership'; }
   token(ball: any) {
     if (ball.wicketType) return 'W';
     if (ball.extraType === 'WIDE') return 'Wd';
