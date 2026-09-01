@@ -83,3 +83,20 @@ Refactor the Angular application without changing public URLs, user flows, API c
 - Run the Angular production build in CI/local workspace after the structural batch.
 - Audit unused legacy V1/V2 screens that are not route entry points before deletion.
 - Convert compatibility shims to temporary deprecation boundaries and remove them only after repository-wide import migration.
+
+
+## Safe duplicate cleanup audit
+
+The following legacy root files are now compatibility boundaries and are intentionally retained until a repository-wide production build is green:
+- bulk-team-players.component.ts
+- bulk-team-players-v2.component.ts
+- live-scoring.component.ts
+- live-scoring-v2.component.ts
+- playing-xi.component.ts
+- playing-xi-v2.component.ts
+
+Canonical route imports already point directly to the feature-owned implementations. This keeps existing external/legacy imports working while preventing duplicate implementation ownership.
+
+### Live viewer
+
+live-viewer.component.ts remains an independent component for now. It is not a route entry point in app.routes.ts, so it must not be deleted until a broader repository usage audit and production build confirm it is unused.
