@@ -1,16 +1,42 @@
-<main class="overlay">
+<main class="overlay" [class.card-mode]="!isStrip">
   @if (score$ | async; as score) {
-    <section class="score-strip">
-      <div class="brand">CRICPULSE <span>LIVE</span></div>
-      <div class="teams">{{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}</div>
-      <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
-      <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
-      <div class="balls">
-        @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
-          <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">{{ token(ball) }}</span>
-        }
-      </div>
-      <div class="live"><b></b> LIVE</div>
-    </section>
+    @if (isStrip) {
+      <section class="score-strip">
+        <div class="brand">CRICPULSE <span>LIVE</span></div>
+        <div class="teams">{{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}</div>
+        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
+        <div class="balls">
+          @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
+            <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">{{ token(ball) }}</span>
+          }
+        </div>
+        <div class="live"><b></b> LIVE</div>
+      </section>
+    }
+    @if (isBatter) {
+      <section class="player-card">
+        <label>ON STRIKE · BATTER</label>
+        <h2>{{ score.strikerName || 'CURRENT BATTER' }}</h2>
+        <div class="hero-stat">{{ score.strikerRuns ?? 0 }} <small>RUNS</small></div>
+        <div class="sub-stat">{{ score.strikerBalls ?? 0 }} BALLS</div>
+      </section>
+    }
+    @if (isBowler) {
+      <section class="player-card">
+        <label>CURRENT BOWLER</label>
+        <h2>{{ score.bowlerName || 'CURRENT BOWLER' }}</h2>
+        <div class="hero-stat">{{ score.bowlerWickets ?? 0 }}<small>WKTS</small></div>
+        <div class="sub-stat">{{ score.bowlerRuns ?? 0 }} RUNS · {{ overs(score.bowlerLegalBalls ?? 0) }} OV</div>
+      </section>
+    }
+    @if (isPartnership) {
+      <section class="player-card partnership-card">
+        <label>PARTNERSHIP</label>
+        <h2>{{ score.partnership?.batterOneName || score.strikerName || 'BATTER 1' }} <i>+</i> {{ score.partnership?.batterTwoName || score.nonStrikerName || 'BATTER 2' }}</h2>
+        <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
+        <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
+      </section>
+    }
   }
 </main>
