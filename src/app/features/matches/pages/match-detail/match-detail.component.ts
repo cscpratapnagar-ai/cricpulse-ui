@@ -19,7 +19,7 @@ interface Match {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './match-detail.component.html',
-  styleUrl: './match-detail.component.scss']
+  styleUrl: './match-detail.component.scss'
 
 })
 export class MatchDetailComponent {
