@@ -3,6 +3,7 @@ import { join, relative, resolve } from 'node:path';
 
 const appRoot = resolve('src/app');
 const requiredSpecs = [
+  'src/app/core/auth/auth.spec.ts',
   'src/app/core/interceptors/loading.interceptor.spec.ts',
   'src/app/core/services/current-user.service.spec.ts',
   'src/app/core/services/live-score.service.spec.ts',
