@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,7 +27,7 @@ interface Tournament {
 })
 export class TournamentsComponent {
   private readonly http = inject(HttpClient);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   tournaments: Tournament[] = [];
   loading = true;
