@@ -7,7 +7,7 @@ import { AUDIENCES, ECOSYSTEM_NODES, PRODUCT_PILLARS } from '../../../landing/da
   standalone: true,
   imports: [RouterLink],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss'
+  styleUrl: './landing.component.scss',
 })
 export class LandingComponent implements OnInit {
   readonly ecosystemNodes = ECOSYSTEM_NODES;
@@ -18,7 +18,9 @@ export class LandingComponent implements OnInit {
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('cricpulse-theme');
-    this.lightMode = savedTheme ? savedTheme === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches;
+    this.lightMode = savedTheme
+      ? savedTheme === 'light'
+      : window.matchMedia('(prefers-color-scheme: light)').matches;
   }
 
   toggleTheme(): void {

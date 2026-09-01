@@ -11,7 +11,7 @@ export interface CpDropdownOption<T = string> {
   selector: 'cp-dropdown',
   standalone: true,
   templateUrl: './cp-dropdown.component.html',
-  styleUrl: './cp-dropdown.component.scss'
+  styleUrl: './cp-dropdown.component.scss',
 })
 export class CpDropdownComponent<T = string> {
   @Input() id = `cp-dropdown-${Math.random().toString(36).slice(2, 8)}`;
@@ -28,13 +28,17 @@ export class CpDropdownComponent<T = string> {
 
   constructor(private readonly host: ElementRef<HTMLElement>) {}
 
-  get hasValue(): boolean { return this.value !== null && this.value !== undefined && String(this.value) !== ''; }
+  get hasValue(): boolean {
+    return this.value !== null && this.value !== undefined && String(this.value) !== '';
+  }
   get selectedLabel(): string {
-    const selected = this.options.find(option => this.isSelected(option));
+    const selected = this.options.find((option) => this.isSelected(option));
     return selected?.label || this.placeholder;
   }
 
-  toggle(): void { if (!this.disabled) this.open = !this.open; }
+  toggle(): void {
+    if (!this.disabled) this.open = !this.open;
+  }
   select(option: CpDropdownOption<T>): void {
     if (option.disabled) return;
     this.valueChange.emit(option.value);
@@ -50,5 +54,7 @@ export class CpDropdownComponent<T = string> {
   }
 
   @HostListener('document:keydown.escape')
-  onEscape(): void { this.open = false; }
+  onEscape(): void {
+    this.open = false;
+  }
 }

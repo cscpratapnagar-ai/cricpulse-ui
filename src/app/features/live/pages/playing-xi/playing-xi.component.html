@@ -1,134 +1,328 @@
+<section class="xi-page">
+  @if (loadingMatch) {
+    <div class="loading-shell">
+      <div class="shimmer mini"></div>
+      <div class="shimmer title"></div>
+      <div class="shimmer sub"></div>
+      <div class="loading-grid">
+        <div class="shimmer card"></div>
+        <div class="shimmer card"></div>
+      </div>
+    </div>
+  } @else if (match) {
+    <a class="back-link" [routerLink]="['/matches', match.id]"
+      ><span>←</span> Match command center</a
+    >
 
-  <section class="xi-page">
-    @if (loadingMatch) {
-      <div class="loading-shell"><div class="shimmer mini"></div><div class="shimmer title"></div><div class="shimmer sub"></div><div class="loading-grid"><div class="shimmer card"></div><div class="shimmer card"></div></div></div>
-    } @else if (match) {
-      <a class="back-link" [routerLink]="['/matches',match.id]"><span>←</span> Match command center</a>
-
-      <header class="hero">
-        <div class="hero-top">
-          <div class="eyebrow"><i></i> Matchday setup · Step 1 of 4</div>
-          <div class="status"><span></span>{{statusLabel(match.status)}}</div>
+    <header class="hero">
+      <div class="hero-top">
+        <div class="eyebrow"><i></i> Matchday setup · Step 1 of 4</div>
+        <div class="status"><span></span>{{ statusLabel(match.status) }}</div>
+      </div>
+      <div class="hero-main">
+        <div class="hero-copy">
+          <h1>Playing XI</h1>
+          <p>
+            Build the matchday squads, assign leadership and lock in the players who take the field.
+          </p>
         </div>
-        <div class="hero-main">
-          <div class="hero-copy"><h1>Playing XI</h1><p>Build the matchday squads, assign leadership and lock in the players who take the field.</p></div>
-          <div class="fixture-mini"><span>{{match.format}}</span><b>vs</b><small>11 players per side</small></div>
+        <div class="fixture-mini">
+          <span>{{ match.format }}</span
+          ><b>vs</b><small>11 players per side</small>
         </div>
-        <div class="teams-line">
-          <div><i>{{(match.teamAName||'A').slice(0,1)}}</i><strong [title]="match.teamAName||'Team A'">{{match.teamAName||'Team A'}}</strong></div>
-          <span>vs</span>
-          <div class="away"><strong [title]="match.teamBName||'Team B'">{{match.teamBName||'Team B'}}</strong><i class="alt">{{(match.teamBName||'B').slice(0,1)}}</i></div>
+      </div>
+      <div class="teams-line">
+        <div>
+          <i>{{ (match.teamAName || 'A').slice(0, 1) }}</i
+          ><strong [title]="match.teamAName || 'Team A'">{{ match.teamAName || 'Team A' }}</strong>
         </div>
-      </header>
+        <span>vs</span>
+        <div class="away">
+          <strong [title]="match.teamBName || 'Team B'">{{ match.teamBName || 'Team B' }}</strong
+          ><i class="alt">{{ (match.teamBName || 'B').slice(0, 1) }}</i>
+        </div>
+      </div>
+    </header>
 
-      @if (match.status !== 'SCHEDULED') { <div class="notice"><b>Selection locked</b><span>This match has progressed beyond setup, so Playing XI can no longer be changed.</span></div> }
+    @if (match.status !== 'SCHEDULED') {
+      <div class="notice">
+        <b>Selection locked</b
+        ><span
+          >This match has progressed beyond setup, so Playing XI can no longer be changed.</span
+        >
+      </div>
+    }
 
-      <section class="progress">
-        <div class="progress-summary"><div class="progress-icon">01</div><div class="progress-copy"><span>Selection progress</span><b>{{(teams[0]?.selected?.length || 0)+(teams[1]?.selected?.length || 0)}} <small>of 22 players selected</small></b></div></div>
-        <div class="progress-center"><div class="progress-track"><i [style.width.%]="((teams[0]?.selected?.length || 0)+(teams[1]?.selected?.length || 0))/22*100"></i></div><span>{{(((teams[0]?.selected?.length || 0)+(teams[1]?.selected?.length || 0))/22*100) | number:'1.0-0'}}% complete</span></div>
-        <div class="progress-meta"><span class="step-status">Step 1 of 4</span><span class="save-status"><i></i>Changes save automatically</span></div>
-      </section>
+    <section class="progress">
+      <div class="progress-summary">
+        <div class="progress-icon">01</div>
+        <div class="progress-copy">
+          <span>Selection progress</span
+          ><b
+            >{{ (teams[0]?.selected?.length || 0) + (teams[1]?.selected?.length || 0) }}
+            <small>of 22 players selected</small></b
+          >
+        </div>
+      </div>
+      <div class="progress-center">
+        <div class="progress-track">
+          <i
+            [style.width.%]="
+              (((teams[0]?.selected?.length || 0) + (teams[1]?.selected?.length || 0)) / 22) * 100
+            "
+          ></i>
+        </div>
+        <span
+          >{{
+            (((teams[0]?.selected?.length || 0) + (teams[1]?.selected?.length || 0)) / 22) * 100
+              | number: '1.0-0'
+          }}% complete</span
+        >
+      </div>
+      <div class="progress-meta">
+        <span class="step-status">Step 1 of 4</span
+        ><span class="save-status"><i></i>Changes save automatically</span>
+      </div>
+    </section>
 
-      <div class="team-grid">
-        @for (team of teams; track team.id; let teamIndex=$index) {
-          <section class="team-card">
-            <header class="team-head">
-              <div class="team-identity"><div class="team-badge" [class.away-badge]="teamIndex===1">{{teamIndex===0?'A':'B'}}</div><div><span>{{teamIndex===0?'Home side':'Away side'}}</span><h2 [title]="team.name">{{team.name}}</h2></div></div>
-              <div class="count"><b>{{team.selected.length}}</b><span>/ 11</span></div>
-            </header>
-
-            @if (team.loading) { <div class="loading">Loading squad intelligence…</div> }
-            @else if (!team.accessible) {
-              <div class="access-denied"><div class="lock">⌁</div><b>Team-managed squad</b><p>You can review this fixture, but this team's lineup is controlled by its team manager.</p></div>
-              <div class="roles read-only">
-                <div><small>Captain</small><strong>{{roleName(team,team.captainId) || 'Not selected'}}</strong></div><div><small>Vice-captain</small><strong>{{roleName(team,team.viceCaptainId) || 'Not selected'}}</strong></div><div><small>Wicketkeeper</small><strong>{{roleName(team,team.wicketKeeperId) || 'Not selected'}}</strong></div>
+    <div class="team-grid">
+      @for (team of teams; track team.id; let teamIndex = $index) {
+        <section class="team-card">
+          <header class="team-head">
+            <div class="team-identity">
+              <div class="team-badge" [class.away-badge]="teamIndex === 1">
+                {{ teamIndex === 0 ? 'A' : 'B' }}
               </div>
-            } @else {
-              <section class="roles-panel">
-                <div class="section-label"><div><span>Match leadership</span><b>Assign key roles</b></div><button class="save-role" [disabled]="saving || match.status!=='SCHEDULED' || !team.selected.length" (click)="saveRoles(team)">{{saving?'Saving…':'Save roles'}}</button></div>
-                <div class="role-grid">
-                  <app-select-field label="Captain" name="captain" placeholder="Select captain" [options]="roleOptions(team)" [(value)]="team.captainId" />
-                  <app-select-field label="Vice-captain" name="viceCaptain" placeholder="Select vice captain" [options]="roleOptions(team)" [(value)]="team.viceCaptainId" />
-                  <app-select-field label="Wicketkeeper" name="wicketKeeper" placeholder="Select keeper" [options]="roleOptions(team)" [(value)]="team.wicketKeeperId" />
+              <div>
+                <span>{{ teamIndex === 0 ? 'Home side' : 'Away side' }}</span>
+                <h2 [title]="team.name">{{ team.name }}</h2>
+              </div>
+            </div>
+            <div class="count">
+              <b>{{ team.selected.length }}</b
+              ><span>/ 11</span>
+            </div>
+          </header>
+
+          @if (team.loading) {
+            <div class="loading">Loading squad intelligence…</div>
+          } @else if (!team.accessible) {
+            <div class="access-denied">
+              <div class="lock">⌁</div>
+              <b>Team-managed squad</b>
+              <p>
+                You can review this fixture, but this team's lineup is controlled by its team
+                manager.
+              </p>
+            </div>
+            <div class="roles read-only">
+              <div>
+                <small>Captain</small
+                ><strong>{{ roleName(team, team.captainId) || 'Not selected' }}</strong>
+              </div>
+              <div>
+                <small>Vice-captain</small
+                ><strong>{{ roleName(team, team.viceCaptainId) || 'Not selected' }}</strong>
+              </div>
+              <div>
+                <small>Wicketkeeper</small
+                ><strong>{{ roleName(team, team.wicketKeeperId) || 'Not selected' }}</strong>
+              </div>
+            </div>
+          } @else {
+            <section class="roles-panel">
+              <div class="section-label">
+                <div><span>Match leadership</span><b>Assign key roles</b></div>
+                <button
+                  class="save-role"
+                  [disabled]="saving || match.status !== 'SCHEDULED' || !team.selected.length"
+                  (click)="saveRoles(team)"
+                >
+                  {{ saving ? 'Saving…' : 'Save roles' }}
+                </button>
+              </div>
+              <div class="role-grid">
+                <app-select-field
+                  label="Captain"
+                  name="captain"
+                  placeholder="Select captain"
+                  [options]="roleOptions(team)"
+                  [(value)]="team.captainId"
+                />
+                <app-select-field
+                  label="Vice-captain"
+                  name="viceCaptain"
+                  placeholder="Select vice captain"
+                  [options]="roleOptions(team)"
+                  [(value)]="team.viceCaptainId"
+                />
+                <app-select-field
+                  label="Wicketkeeper"
+                  name="wicketKeeper"
+                  placeholder="Select keeper"
+                  [options]="roleOptions(team)"
+                  [(value)]="team.wicketKeeperId"
+                />
+              </div>
+            </section>
+
+            <div class="selection-board">
+              <section class="squad-list">
+                <div class="workspace-head">
+                  <div>
+                    <span>Match squad</span>
+                    <h3>Select players</h3>
+                    <p>Choose up to 11 players for this match.</p>
+                  </div>
+                  <div class="head-count">
+                    <b>{{ team.selected.length }}</b
+                    ><span>selected</span>
+                  </div>
+                </div>
+
+                <div class="squad-table">
+                  <div class="table-labels">
+                    <span>Player</span><span>Role</span><span>Selection</span>
+                  </div>
+                  <div class="players-scroll">
+                    @for (m of team.members; track m.playerId; let i = $index) {
+                      <article
+                        class="squad-row"
+                        [class.selected]="isSelected(team, m.playerId)"
+                        (click)="match.status === 'SCHEDULED' && toggle(team, m)"
+                      >
+                        <div class="player-main">
+                          <div class="row-number">{{ i + 1 | number: '2.0' }}</div>
+                          <div class="avatar">{{ initials(m.fullName) }}</div>
+                          <div class="player-copy">
+                            <b [title]="m.fullName">{{ m.fullName }}</b
+                            ><small>Available for selection</small>
+                          </div>
+                        </div>
+                        <div class="role-pill">{{ m.role || 'Player' }}</div>
+                        <button
+                          type="button"
+                          [class.selected-action]="isSelected(team, m.playerId)"
+                          [disabled]="
+                            match.status !== 'SCHEDULED' ||
+                            (!isSelected(team, m.playerId) && team.selected.length >= 11)
+                          "
+                          (click)="$event.stopPropagation(); toggle(team, m)"
+                        >
+                          <i>{{ isSelected(team, m.playerId) ? '✓' : '+' }}</i
+                          ><span>{{ isSelected(team, m.playerId) ? 'Selected' : 'Add' }}</span>
+                        </button>
+                      </article>
+                    } @empty {
+                      <div class="empty">No registered players are available for this side.</div>
+                    }
+                  </div>
                 </div>
               </section>
 
-              <div class="selection-board">
-                <section class="squad-list">
-                  <div class="workspace-head">
+              <aside class="xi-list">
+                <div class="xi-stage">
+                  <div class="xi-top">
                     <div>
-                      <span>Match squad</span>
-                      <h3>Select players</h3>
-                      <p>Choose up to 11 players for this match.</p>
+                      <span>Playing XI</span>
+                      <h3>
+                        {{ team.selected.length === 11 ? 'Lineup complete' : 'Match lineup' }}
+                      </h3>
                     </div>
-                    <div class="head-count"><b>{{team.selected.length}}</b><span>selected</span></div>
+                    <div class="xi-count">
+                      <b>{{ team.selected.length }}</b
+                      ><span>/11</span>
+                    </div>
+                  </div>
+                  <p class="xi-subtitle">
+                    {{
+                      team.selected.length === 11
+                        ? 'All players are ready for matchday.'
+                        : 'Select players to complete your matchday lineup.'
+                    }}
+                  </p>
+                  <div class="xi-progress">
+                    <i [style.width.%]="(team.selected.length / 11) * 100"></i>
                   </div>
 
-                  <div class="squad-table">
-                    <div class="table-labels"><span>Player</span><span>Role</span><span>Selection</span></div>
-                    <div class="players-scroll">
-                      @for (m of team.members; track m.playerId; let i=$index) {
-                        <article class="squad-row" [class.selected]="isSelected(team,m.playerId)" (click)="match.status==='SCHEDULED' && toggle(team,m)">
-                          <div class="player-main">
-                            <div class="row-number">{{i+1 | number:'2.0'}}</div>
-                            <div class="avatar">{{initials(m.fullName)}}</div>
-                            <div class="player-copy"><b [title]="m.fullName">{{m.fullName}}</b><small>Available for selection</small></div>
+                  <div class="xi-scroll">
+                    @for (p of team.selected; track p.playerId; let i = $index) {
+                      <article class="xi-row">
+                        <div class="order">{{ i + 1 }}</div>
+                        <div class="xi-avatar">{{ initials(p.name) }}</div>
+                        <div class="player-copy">
+                          <b [title]="p.name">{{ p.name }}</b>
+                          <div class="tags">
+                            @if (p.captain) {
+                              <span>Captain</span>
+                            }
+                            @if (p.viceCaptain) {
+                              <span>Vice-captain</span>
+                            }
+                            @if (p.wicketKeeper) {
+                              <span>Wicketkeeper</span>
+                            }
+                            @if (!p.captain && !p.viceCaptain && !p.wicketKeeper) {
+                              <small>Playing XI</small>
+                            }
                           </div>
-                          <div class="role-pill">{{m.role || 'Player'}}</div>
-                          <button type="button" [class.selected-action]="isSelected(team,m.playerId)" [disabled]="match.status!=='SCHEDULED' || (!isSelected(team,m.playerId) && team.selected.length>=11)" (click)="$event.stopPropagation(); toggle(team,m)">
-                            <i>{{isSelected(team,m.playerId)?'✓':'+'}}</i><span>{{isSelected(team,m.playerId)?'Selected':'Add'}}</span>
-                          </button>
-                        </article>
-                      } @empty { <div class="empty">No registered players are available for this side.</div> }
-                    </div>
-                  </div>
-                </section>
-
-                <aside class="xi-list">
-                  <div class="xi-stage">
-                    <div class="xi-top">
-                      <div><span>Playing XI</span><h3>{{team.selected.length === 11 ? 'Lineup complete' : 'Match lineup'}}</h3></div>
-                      <div class="xi-count"><b>{{team.selected.length}}</b><span>/11</span></div>
-                    </div>
-                    <p class="xi-subtitle">{{team.selected.length === 11 ? 'All players are ready for matchday.' : 'Select players to complete your matchday lineup.'}}</p>
-                    <div class="xi-progress"><i [style.width.%]="team.selected.length/11*100"></i></div>
-
-                    <div class="xi-scroll">
-                      @for (p of team.selected; track p.playerId; let i=$index) {
-                        <article class="xi-row">
-                          <div class="order">{{i+1}}</div>
-                          <div class="xi-avatar">{{initials(p.name)}}</div>
-                          <div class="player-copy">
-                            <b [title]="p.name">{{p.name}}</b>
-                            <div class="tags">@if(p.captain){<span>Captain</span>} @if(p.viceCaptain){<span>Vice-captain</span>} @if(p.wicketKeeper){<span>Wicketkeeper</span>} @if(!p.captain&&!p.viceCaptain&&!p.wicketKeeper){<small>Playing XI</small>}</div>
-                          </div>
-                          <button [disabled]="match.status!=='SCHEDULED'" (click)="remove(team,p.playerId)" title="Remove player"><span>×</span></button>
-                        </article>
+                        </div>
+                        <button
+                          [disabled]="match.status !== 'SCHEDULED'"
+                          (click)="remove(team, p.playerId)"
+                          title="Remove player"
+                        >
+                          <span>×</span>
+                        </button>
+                      </article>
+                    }
+                    @for (slot of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; track slot) {
+                      @if (slot > team.selected.length) {
+                        <div class="xi-slot">
+                          <span>{{ slot }}</span
+                          ><i></i><small>Open position</small>
+                        </div>
                       }
-                      @for (slot of [1,2,3,4,5,6,7,8,9,10,11]; track slot) {
-                        @if (slot > team.selected.length) {
-                          <div class="xi-slot"><span>{{slot}}</span><i></i><small>Open position</small></div>
-                        }
-                      }
-                    </div>
-
-                    <div class="xi-footer">
-                      <div><i></i><span>{{team.selected.length === 11 ? 'Selection complete' : (11-team.selected.length) + ' positions remaining'}}</span></div>
-                      <small>Changes save automatically</small>
-                    </div>
+                    }
                   </div>
-                </aside>
-              </div>
-            }
-          </section>
-        }
-      </div>
 
-      <div class="sticky-bar">
-        <div class="sticky-state"><i></i><div><span>Changes save instantly</span><b>Player selections are synced to the match</b></div></div>
-        <a [routerLink]="['/matches',match.id,'toss']" class="continue" [class.disabled]="!isSelectionComplete()" [attr.aria-disabled]="!isSelectionComplete()">Continue to Toss <b>→</b></a>
-      </div>
+                  <div class="xi-footer">
+                    <div>
+                      <i></i
+                      ><span>{{
+                        team.selected.length === 11
+                          ? 'Selection complete'
+                          : 11 - team.selected.length + ' positions remaining'
+                      }}</span>
+                    </div>
+                    <small>Changes save automatically</small>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          }
+        </section>
+      }
+    </div>
 
-      @if(toast){<div class="toast"><i>✓</i>{{toast}}</div>}
+    <div class="sticky-bar">
+      <div class="sticky-state">
+        <i></i>
+        <div>
+          <span>Changes save instantly</span><b>Player selections are synced to the match</b>
+        </div>
+      </div>
+      <a
+        [routerLink]="['/matches', match.id, 'toss']"
+        class="continue"
+        [class.disabled]="!isSelectionComplete()"
+        [attr.aria-disabled]="!isSelectionComplete()"
+        >Continue to Toss <b>→</b></a
+      >
+    </div>
+
+    @if (toast) {
+      <div class="toast"><i>✓</i>{{ toast }}</div>
     }
-  </section>
+  }
+</section>

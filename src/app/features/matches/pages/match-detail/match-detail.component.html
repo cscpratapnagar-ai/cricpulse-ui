@@ -1,84 +1,273 @@
+@if (loading) {
+  <section class="match-page">
+    <div class="loading-card">
+      <div class="shimmer line sm"></div>
+      <div class="shimmer line xl"></div>
+      <div class="shimmer line md"></div>
+      <div class="loading-score">
+        <div class="shimmer orb"></div>
+        <div class="shimmer line"></div>
+        <div class="shimmer orb"></div>
+      </div>
+    </div>
+  </section>
+} @else if (match) {
+  <section class="match-page">
+    <div class="ambient glow-a"></div>
+    <div class="ambient glow-b"></div>
+    <a class="back" routerLink="/matches"><span>←</span> ALL MATCHES</a>
 
-    @if (loading) {
-      <section class="match-page"><div class="loading-card"><div class="shimmer line sm"></div><div class="shimmer line xl"></div><div class="shimmer line md"></div><div class="loading-score"><div class="shimmer orb"></div><div class="shimmer line"></div><div class="shimmer orb"></div></div></div></section>
-    } @else if (match) {
-      <section class="match-page">
-        <div class="ambient glow-a"></div><div class="ambient glow-b"></div>
-        <a class="back" routerLink="/matches"><span>←</span> ALL MATCHES</a>
+    <section class="match-hero">
+      <div class="hero-top">
+        <div class="eyebrow"><i></i> MATCH COMMAND CENTER</div>
+        <div
+          class="status"
+          [class.live]="match.status === 'LIVE'"
+          [class.done]="match.status === 'COMPLETED'"
+        >
+          <span></span>{{ match.status }}
+        </div>
+      </div>
+      <div class="hero-title-row">
+        <div class="hero-copy">
+          <div class="match-ref">MATCH OVERVIEW</div>
+          <h1 [title]="match.name || 'Match'">{{ displayMatchTitle(match.name) }}</h1>
+          <p>Everything for this fixture, from match setup to the final delivery.</p>
+        </div>
+        <div class="hero-actions">
+          @if (match.status === 'COMPLETED') {
+            <a class="primary" [routerLink]="['/matches', match.id, 'result']"
+              >View result <b>→</b></a
+            >
+          } @else if (match.status === 'LIVE') {
+            <a class="primary live-btn" [routerLink]="['/matches', match.id, 'live-scoring']"
+              ><i></i> Live scoring <b>→</b></a
+            >
+          } @else {
+            <a class="primary" [routerLink]="['/matches', match.id, 'playing-xi']"
+              >Continue setup <b>→</b></a
+            >
+          }
+          <a
+            class="icon-action"
+            [routerLink]="['/matches', match.id, 'scorecard']"
+            title="Scorecard"
+            aria-label="Open scorecard"
+            ><svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              /></svg
+          ></a>
+        </div>
+      </div>
 
-        <section class="match-hero">
-          <div class="hero-top">
-            <div class="eyebrow"><i></i> MATCH COMMAND CENTER</div>
-            <div class="status" [class.live]="match.status === 'LIVE'" [class.done]="match.status === 'COMPLETED'"><span></span>{{ match.status }}</div>
+      <div class="fixture-board">
+        <div class="fixture-energy"><i></i><i></i><i></i></div>
+        <div class="team home">
+          <div class="team-mark">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 3 20 7v5c0 4.8-3.2 7.5-8 9-4.8-1.5-8-4.2-8-9V7l8-4Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+              />
+              <path
+                d="m8.5 12 2.2 2.2 4.8-5"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </div>
-          <div class="hero-title-row">
-            <div class="hero-copy"><div class="match-ref">MATCH OVERVIEW</div><h1 [title]="match.name || 'Match'">{{ displayMatchTitle(match.name) }}</h1><p>Everything for this fixture, from match setup to the final delivery.</p></div>
-            <div class="hero-actions">
-              @if (match.status === 'COMPLETED') {
-                <a class="primary" [routerLink]="['/matches', match.id, 'result']">View result <b>→</b></a>
-              } @else if (match.status === 'LIVE') {
-                <a class="primary live-btn" [routerLink]="['/matches', match.id, 'live-scoring']"><i></i> Live scoring <b>→</b></a>
-              } @else {
-                <a class="primary" [routerLink]="['/matches', match.id, 'playing-xi']">Continue setup <b>→</b></a>
-              }
-              <a class="icon-action" [routerLink]="['/matches', match.id, 'scorecard']" title="Scorecard" aria-label="Open scorecard"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></a>
-            </div>
+          <div class="team-copy">
+            <span>HOME SIDE</span
+            ><strong [title]="match.teamAName || 'Team A'">{{
+              match.teamAName || 'Team A'
+            }}</strong>
           </div>
-
-          <div class="fixture-board"><div class="fixture-energy"><i></i><i></i><i></i></div>
-            <div class="team home"><div class="team-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 20 7v5c0 4.8-3.2 7.5-8 9-4.8-1.5-8-4.2-8-9V7l8-4Z" stroke="currentColor" stroke-width="1.6"/><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="team-copy"><span>HOME SIDE</span><strong [title]="match.teamAName || 'Team A'">{{ match.teamAName || 'Team A' }}</strong></div></div>
-            <div class="fixture-core"><div class="vs"><span>VS</span></div><div class="format">{{ match.format }}</div><div class="date">{{ displayDate(match.scheduledAt) }}</div></div>
-            <div class="team away"><div class="team-copy"><span>AWAY SIDE</span><strong [title]="match.teamBName || 'Team B'">{{ match.teamBName || 'Team B' }}</strong></div><div class="team-mark alt"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M7.2 8.2c3.2 1.7 6.4 4.9 9.6 9.6M16.8 8.2c-3.2 1.7-6.4 4.9-9.6 9.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg></div></div>
+        </div>
+        <div class="fixture-core">
+          <div class="vs"><span>VS</span></div>
+          <div class="format">{{ match.format }}</div>
+          <div class="date">{{ displayDate(match.scheduledAt) }}</div>
+        </div>
+        <div class="team away">
+          <div class="team-copy">
+            <span>AWAY SIDE</span
+            ><strong [title]="match.teamBName || 'Team B'">{{
+              match.teamBName || 'Team B'
+            }}</strong>
           </div>
-        </section>
+          <div class="team-mark alt">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6" />
+              <path
+                d="M7.2 8.2c3.2 1.7 6.4 4.9 9.6 9.6M16.8 8.2c-3.2 1.7-6.4 4.9-9.6 9.6"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <section class="command-grid">
-          <article class="panel setup-panel">
-            <div class="panel-head"><div><span class="kicker">MATCH CONTROL</span><h2>Matchday workflow</h2></div><span class="head-state">{{ match.status }}</span></div>
-            <div class="workflow">
-              <a class="flow-step" [routerLink]="['/matches', match.id, 'playing-xi']"><div class="step-no">01</div><div class="flow-copy"><b>Playing XI</b><span>Confirm both squads</span></div><i>→</i></a>
-              <a class="flow-step" [routerLink]="['/matches', match.id, 'toss']"><div class="step-no">02</div><div class="flow-copy"><b>Toss & decision</b><span>Record the match call</span></div><i>→</i></a>
-              <a class="flow-step" [routerLink]="['/matches', match.id, 'opening-players']"><div class="step-no">03</div><div class="flow-copy"><b>Opening players</b><span>Set striker, non-striker & bowler</span></div><i>→</i></a>
-              <a class="flow-step accent-step" [routerLink]="['/matches', match.id, 'live-scoring']"><div class="step-no">04</div><div class="flow-copy"><b>Live scoring</b><span>Launch the scoring console</span></div><i>→</i></a>
+    <section class="command-grid">
+      <article class="panel setup-panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">MATCH CONTROL</span>
+            <h2>Matchday workflow</h2>
+          </div>
+          <span class="head-state">{{ match.status }}</span>
+        </div>
+        <div class="workflow">
+          <a class="flow-step" [routerLink]="['/matches', match.id, 'playing-xi']"
+            ><div class="step-no">01</div>
+            <div class="flow-copy"><b>Playing XI</b><span>Confirm both squads</span></div>
+            <i>→</i></a
+          >
+          <a class="flow-step" [routerLink]="['/matches', match.id, 'toss']"
+            ><div class="step-no">02</div>
+            <div class="flow-copy"><b>Toss & decision</b><span>Record the match call</span></div>
+            <i>→</i></a
+          >
+          <a class="flow-step" [routerLink]="['/matches', match.id, 'opening-players']"
+            ><div class="step-no">03</div>
+            <div class="flow-copy">
+              <b>Opening players</b><span>Set striker, non-striker & bowler</span>
             </div>
-          </article>
+            <i>→</i></a
+          >
+          <a class="flow-step accent-step" [routerLink]="['/matches', match.id, 'live-scoring']"
+            ><div class="step-no">04</div>
+            <div class="flow-copy"><b>Live scoring</b><span>Launch the scoring console</span></div>
+            <i>→</i></a
+          >
+        </div>
+      </article>
 
-          <article class="panel intelligence-panel">
-            <div class="panel-head"><div><span class="kicker">MATCH INTELLIGENCE</span><h2>Fixture pulse</h2></div><span class="pulse"><i></i> READY</span></div>
-            <div class="metrics">
-              <div><span>FORMAT</span><b>{{ match.format }}</b><small>Match configuration</small></div>
-              <div><span>SCHEDULE</span><b>{{ match.scheduledAt ? 'SET' : 'PENDING' }}</b><small>{{ match.scheduledAt ? 'Date confirmed' : 'Awaiting date' }}</small></div>
-              <div><span>STATUS</span><b>{{ match.status }}</b><small>Current lifecycle</small></div>
-              <div><span>MATCH ID</span><b class="id-value">{{ match.id }}</b><small>Fixture reference</small></div>
-            </div>
-          </article>
-        </section>
+      <article class="panel intelligence-panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">MATCH INTELLIGENCE</span>
+            <h2>Fixture pulse</h2>
+          </div>
+          <span class="pulse"><i></i> READY</span>
+        </div>
+        <div class="metrics">
+          <div>
+            <span>FORMAT</span><b>{{ match.format }}</b
+            ><small>Match configuration</small>
+          </div>
+          <div>
+            <span>SCHEDULE</span><b>{{ match.scheduledAt ? 'SET' : 'PENDING' }}</b
+            ><small>{{ match.scheduledAt ? 'Date confirmed' : 'Awaiting date' }}</small>
+          </div>
+          <div>
+            <span>STATUS</span><b>{{ match.status }}</b
+            ><small>Current lifecycle</small>
+          </div>
+          <div>
+            <span>MATCH ID</span><b class="id-value">{{ match.id }}</b
+            ><small>Fixture reference</small>
+          </div>
+        </div>
+      </article>
+    </section>
 
-        <section class="lower-grid">
-          <article class="panel next-panel">
-            <div class="panel-head"><div><span class="kicker">NEXT ACTION</span><h2>Take control</h2></div></div>
-            @if (match.status === 'SCHEDULED') {
-              <p>Complete the match setup in sequence. Your teams are locked in; now prepare the playing sides.</p>
-              <a class="action-link" [routerLink]="['/matches', match.id, 'playing-xi']">Set Playing XI <b>→</b></a>
-            } @else if (match.status === 'LIVE') {
-              <p>The fixture is in progress. Open the live command center to continue recording every delivery.</p>
-              <a class="action-link" [routerLink]="['/matches', match.id, 'live-scoring']">Open Live Scoring <b>→</b></a>
-            } @else {
-              <p>The match is complete. Review the result, scorecard and performance intelligence.</p>
-              <a class="action-link" [routerLink]="['/matches', match.id, 'result']">Review Result <b>→</b></a>
-            }
-          </article>
-          <article class="panel quick-panel">
-            <div class="panel-head"><div><span class="kicker">QUICK ACCESS</span><h2>Match views</h2></div></div>
-            <div class="quick-links">
-              <a [routerLink]="['/matches', match.id, 'scorecard']"><span><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span> Scorecard <b>→</b></a>
-              <a [routerLink]="['/matches', match.id, 'statistics']"><span><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span> Statistics <b>→</b></a>
-              <a [routerLink]="['/matches', match.id, 'live']"><span><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M7 9a7 7 0 0 0 0 6M17 9a7 7 0 0 1 0 6M4 6a11 11 0 0 0 0 12M20 6a11 11 0 0 1 0 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span> Live Center <b>→</b></a>
-            </div>
-          </article>
-        </section>
-      </section>
-    } @else {
-      <section class="match-page"><div class="empty"><div class="empty-orb">!</div><div class="eyebrow"><i></i> MATCH NOT FOUND</div><h1>This fixture isn't available.</h1><p>The match may have been removed or this link is no longer valid.</p><a class="primary" routerLink="/matches">Back to matches <b>→</b></a></div></section>
-    }
-  
+    <section class="lower-grid">
+      <article class="panel next-panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">NEXT ACTION</span>
+            <h2>Take control</h2>
+          </div>
+        </div>
+        @if (match.status === 'SCHEDULED') {
+          <p>
+            Complete the match setup in sequence. Your teams are locked in; now prepare the playing
+            sides.
+          </p>
+          <a class="action-link" [routerLink]="['/matches', match.id, 'playing-xi']"
+            >Set Playing XI <b>→</b></a
+          >
+        } @else if (match.status === 'LIVE') {
+          <p>
+            The fixture is in progress. Open the live command center to continue recording every
+            delivery.
+          </p>
+          <a class="action-link" [routerLink]="['/matches', match.id, 'live-scoring']"
+            >Open Live Scoring <b>→</b></a
+          >
+        } @else {
+          <p>The match is complete. Review the result, scorecard and performance intelligence.</p>
+          <a class="action-link" [routerLink]="['/matches', match.id, 'result']"
+            >Review Result <b>→</b></a
+          >
+        }
+      </article>
+      <article class="panel quick-panel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">QUICK ACCESS</span>
+            <h2>Match views</h2>
+          </div>
+        </div>
+        <div class="quick-links">
+          <a [routerLink]="['/matches', match.id, 'scorecard']"
+            ><span
+              ><svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                /></svg
+            ></span>
+            Scorecard <b>→</b></a
+          >
+          <a [routerLink]="['/matches', match.id, 'statistics']"
+            ><span
+              ><svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 19V9M10 19V5M15 19v-7M20 19V7"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                /></svg
+            ></span>
+            Statistics <b>→</b></a
+          >
+          <a [routerLink]="['/matches', match.id, 'live']"
+            ><span
+              ><svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 19V5M7 9a7 7 0 0 0 0 6M17 9a7 7 0 0 1 0 6M4 6a11 11 0 0 0 0 12M20 6a11 11 0 0 1 0 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                /></svg
+            ></span>
+            Live Center <b>→</b></a
+          >
+        </div>
+      </article>
+    </section>
+  </section>
+} @else {
+  <section class="match-page">
+    <div class="empty">
+      <div class="empty-orb">!</div>
+      <div class="eyebrow"><i></i> MATCH NOT FOUND</div>
+      <h1>This fixture isn't available.</h1>
+      <p>The match may have been removed or this link is no longer valid.</p>
+      <a class="primary" routerLink="/matches">Back to matches <b>→</b></a>
+    </div>
+  </section>
+}

@@ -1,78 +1,226 @@
-
 <section class="page">
   <header class="hero">
     <div class="hero-copy">
-      <div class="eyebrow-row"><i></i><span class="eyebrow">COMPETITION COMMAND CENTER</span><span class="live-sync">LIVE SYNC</span></div>
+      <div class="eyebrow-row">
+        <i></i><span class="eyebrow">COMPETITION COMMAND CENTER</span
+        ><span class="live-sync">LIVE SYNC</span>
+      </div>
       <h1>Tournaments<span>.</span></h1>
-      <p>Run every competition from setup to final. Monitor readiness, progress and operational status from one workspace.</p>
+      <p>
+        Run every competition from setup to final. Monitor readiness, progress and operational
+        status from one workspace.
+      </p>
     </div>
     <div class="hero-actions">
-      <button class="ghost command" type="button" (click)="focusSearch()" aria-label="Focus tournament search"><span>⌕</span> Search <kbd>/</kbd></button>
+      <button
+        class="ghost command"
+        type="button"
+        (click)="focusSearch()"
+        aria-label="Focus tournament search"
+      >
+        <span>⌕</span> Search <kbd>/</kbd>
+      </button>
       <button class="ghost" type="button" (click)="load()" [disabled]="loading">↻ Refresh</button>
-      <a class="primary create-action" routerLink="/tournaments/new" aria-label="Create tournament"><span class="create-icon" aria-hidden="true">+</span><span class="create-label">Create tournament</span><span class="create-arrow" aria-hidden="true">→</span></a>
+      <a class="primary create-action" routerLink="/tournaments/new" aria-label="Create tournament"
+        ><span class="create-icon" aria-hidden="true">+</span
+        ><span class="create-label">Create tournament</span
+        ><span class="create-arrow" aria-hidden="true">→</span></a
+      >
     </div>
   </header>
 
   <section class="metrics" aria-label="Tournament overview">
-    <article class="metric card"><span>ALL COMPETITIONS</span><strong>{{tournaments.length}}</strong><small>Available in this workspace</small><i class="metric-mark">01</i></article>
-    <article class="metric card"><span>ACTIVE NOW</span><strong>{{activeCount}}</strong><small>Currently in progress</small><i class="metric-mark">02</i></article>
-    <article class="metric card"><span>UPCOMING</span><strong>{{upcomingCount}}</strong><small>Ready for the next fixture</small><i class="metric-mark">03</i></article>
-    <article class="metric card"><span>FORMATS</span><strong>{{formatCount}}</strong><small>Competition structures used</small><i class="metric-mark">04</i></article>
+    <article class="metric card">
+      <span>ALL COMPETITIONS</span><strong>{{ tournaments.length }}</strong
+      ><small>Available in this workspace</small><i class="metric-mark">01</i>
+    </article>
+    <article class="metric card">
+      <span>ACTIVE NOW</span><strong>{{ activeCount }}</strong
+      ><small>Currently in progress</small><i class="metric-mark">02</i>
+    </article>
+    <article class="metric card">
+      <span>UPCOMING</span><strong>{{ upcomingCount }}</strong
+      ><small>Ready for the next fixture</small><i class="metric-mark">03</i>
+    </article>
+    <article class="metric card">
+      <span>FORMATS</span><strong>{{ formatCount }}</strong
+      ><small>Competition structures used</small><i class="metric-mark">04</i>
+    </article>
   </section>
 
-  @if(tournaments.length && !loading){
+  @if (tournaments.length && !loading) {
     <section class="card intelligence">
       <div class="intel-head">
-        <div><span class="eyebrow">COMPETITION INTELLIGENCE</span><h2>Workspace health</h2></div>
-        <span class="health-badge"><i></i>{{workspaceHealth}}% healthy</span>
+        <div>
+          <span class="eyebrow">COMPETITION INTELLIGENCE</span>
+          <h2>Workspace health</h2>
+        </div>
+        <span class="health-badge"><i></i>{{ workspaceHealth }}% healthy</span>
       </div>
       <div class="intel-grid">
-        <div class="health-orb" [style.--health]="workspaceHealth"><strong>{{workspaceHealth}}%</strong><span>READY</span></div>
-        <div class="intel-copy"><h3>{{healthMessage}}</h3><p>Competition signals are calculated from the current tournament lifecycle and workspace activity.</p><div class="signal-row"><span><i class="ok"></i>{{activeCount}} active</span><span><i></i>{{upcomingCount}} upcoming</span><span><i class="muted"></i>{{completedCount}} completed</span></div></div>
-        <div class="lifecycle"><span class="eyebrow">LIFECYCLE COVERAGE</span><div class="life-track"><i [style.width.%]="workspaceHealth"></i></div><div class="life-labels"><span>SETUP</span><span>LIVE</span><span>FINAL</span></div></div>
+        <div class="health-orb" [style.--health]="workspaceHealth">
+          <strong>{{ workspaceHealth }}%</strong><span>READY</span>
+        </div>
+        <div class="intel-copy">
+          <h3>{{ healthMessage }}</h3>
+          <p>
+            Competition signals are calculated from the current tournament lifecycle and workspace
+            activity.
+          </p>
+          <div class="signal-row">
+            <span><i class="ok"></i>{{ activeCount }} active</span
+            ><span><i></i>{{ upcomingCount }} upcoming</span
+            ><span><i class="muted"></i>{{ completedCount }} completed</span>
+          </div>
+        </div>
+        <div class="lifecycle">
+          <span class="eyebrow">LIFECYCLE COVERAGE</span>
+          <div class="life-track"><i [style.width.%]="workspaceHealth"></i></div>
+          <div class="life-labels"><span>SETUP</span><span>LIVE</span><span>FINAL</span></div>
+        </div>
       </div>
     </section>
   }
 
-
   <section class="card directory">
     <div class="directory-top">
       <div class="section-head">
-        <div><span class="eyebrow">COMPETITION DIRECTORY</span><h2>Manage tournaments</h2><p>{{visibleTournaments.length}} of {{tournaments.length}} competitions currently visible.</p></div>
+        <div>
+          <span class="eyebrow">COMPETITION DIRECTORY</span>
+          <h2>Manage tournaments</h2>
+          <p>
+            {{ visibleTournaments.length }} of {{ tournaments.length }} competitions currently
+            visible.
+          </p>
+        </div>
       </div>
       <div class="filters">
-        <label class="search"><span>⌕</span><input #searchInput [(ngModel)]="query" name="search" placeholder="Search tournaments..." (keydown.escape)="clearSearch()">@if(query){<button type="button" (click)="clearSearch()" aria-label="Clear search">×</button>}</label>
-        <cp-dropdown name="status" placeholder="All statuses" [options]="statusOptions" [value]="statusFilter" (valueChange)="statusFilter = $event || 'ALL'"></cp-dropdown>
-        <cp-dropdown name="sort" placeholder="Sort: newest" [options]="sortOptions" [value]="sortKey" (valueChange)="sortKey = $event || 'newest'"></cp-dropdown>
+        <label class="search"
+          ><span>⌕</span
+          ><input
+            #searchInput
+            [(ngModel)]="query"
+            name="search"
+            placeholder="Search tournaments..."
+            (keydown.escape)="clearSearch()"
+          />
+          @if (query) {
+            <button type="button" (click)="clearSearch()" aria-label="Clear search">×</button>
+          }
+        </label>
+        <cp-dropdown
+          name="status"
+          placeholder="All statuses"
+          [options]="statusOptions"
+          [value]="statusFilter"
+          (valueChange)="statusFilter = $event || 'ALL'"
+        ></cp-dropdown>
+        <cp-dropdown
+          name="sort"
+          placeholder="Sort: newest"
+          [options]="sortOptions"
+          [value]="sortKey"
+          (valueChange)="sortKey = $event || 'newest'"
+        ></cp-dropdown>
       </div>
     </div>
 
-    @if(loading){
+    @if (loading) {
       <div class="skeleton-grid" aria-label="Loading tournaments">
-        @for(item of skeletonItems;track item){<div class="skeleton-card"><div class="sk-line sk-top"></div><div class="sk-line sk-title"></div><div class="sk-line sk-copy"></div><div class="sk-line sk-meta"></div><div class="sk-line sk-meta short"></div></div>}
+        @for (item of skeletonItems; track item) {
+          <div class="skeleton-card">
+            <div class="sk-line sk-top"></div>
+            <div class="sk-line sk-title"></div>
+            <div class="sk-line sk-copy"></div>
+            <div class="sk-line sk-meta"></div>
+            <div class="sk-line sk-meta short"></div>
+          </div>
+        }
       </div>
-    }@else if(loadError){
-      <app-state-view state="error" title="Unable to load tournaments" message="The competition directory could not be synced. Check your connection and try again." actionLabel="Clear filters" (retry)="load()" (action)="clearFilters()"></app-state-view>
-    }@else if(visibleTournaments.length){
+    } @else if (loadError) {
+      <app-state-view
+        state="error"
+        title="Unable to load tournaments"
+        message="The competition directory could not be synced. Check your connection and try again."
+        actionLabel="Clear filters"
+        (retry)="load()"
+        (action)="clearFilters()"
+      ></app-state-view>
+    } @else if (visibleTournaments.length) {
       <div class="grid">
-        @for(t of visibleTournaments;track t.id;let index=$index){
-          <article class="tournament" [style.--delay]="index*45+'ms'">
-            <a class="card-link" [routerLink]="['/tournaments',t.id]" [attr.aria-label]="'Open '+t.name">
-              <div class="top"><div class="trophy">{{formatIcon(t.format)}}</div><span class="status" [class.live]="isActive(t.status)" [class.done]="isCompleted(t.status)"><i></i>{{statusLabel(t.status)}}</span></div>
-              <div class="main"><h3>{{t.name}}</h3><p>{{t.format}} <i>·</i> {{t.overs}} overs</p></div>
-              <div class="progress-block"><div><span>COMPETITION PROGRESS</span><b>{{progressFor(t)}}%</b></div><div class="progress-track"><i [style.width.%]="progressFor(t)"></i></div><small>{{progressLabel(t)}}</small></div>
-              <div class="meta"><div><span>LOCATION</span><b>{{t.location||'Not assigned'}}</b></div><div><span>START</span><b>{{t.startDate||'To be scheduled'}}</b></div></div>
+        @for (t of visibleTournaments; track t.id; let index = $index) {
+          <article class="tournament" [style.--delay]="index * 45 + 'ms'">
+            <a
+              class="card-link"
+              [routerLink]="['/tournaments', t.id]"
+              [attr.aria-label]="'Open ' + t.name"
+            >
+              <div class="top">
+                <div class="trophy">{{ formatIcon(t.format) }}</div>
+                <span
+                  class="status"
+                  [class.live]="isActive(t.status)"
+                  [class.done]="isCompleted(t.status)"
+                  ><i></i>{{ statusLabel(t.status) }}</span
+                >
+              </div>
+              <div class="main">
+                <h3>{{ t.name }}</h3>
+                <p>{{ t.format }} <i>·</i> {{ t.overs }} overs</p>
+              </div>
+              <div class="progress-block">
+                <div>
+                  <span>COMPETITION PROGRESS</span><b>{{ progressFor(t) }}%</b>
+                </div>
+                <div class="progress-track"><i [style.width.%]="progressFor(t)"></i></div>
+                <small>{{ progressLabel(t) }}</small>
+              </div>
+              <div class="meta">
+                <div>
+                  <span>LOCATION</span><b>{{ t.location || 'Not assigned' }}</b>
+                </div>
+                <div>
+                  <span>START</span><b>{{ t.startDate || 'To be scheduled' }}</b>
+                </div>
+              </div>
               <div class="footer"><span>Open command center</span><b>→</b></div>
             </a>
-            <button class="more" type="button" (click)="toggleMenu(t.id);$event.stopPropagation()" [attr.aria-expanded]="activeMenu===t.id" aria-label="Tournament actions">•••</button>
-            @if(activeMenu===t.id){<div class="context-menu"><a [routerLink]="['/tournaments',t.id]">Open details</a><button type="button" (click)="closeMenu()">Close menu</button></div>}
+            <button
+              class="more"
+              type="button"
+              (click)="toggleMenu(t.id); $event.stopPropagation()"
+              [attr.aria-expanded]="activeMenu === t.id"
+              aria-label="Tournament actions"
+            >
+              •••
+            </button>
+            @if (activeMenu === t.id) {
+              <div class="context-menu">
+                <a [routerLink]="['/tournaments', t.id]">Open details</a
+                ><button type="button" (click)="closeMenu()">Close menu</button>
+              </div>
+            }
           </article>
         }
       </div>
-    }@else if(tournaments.length){
-      <div class="state"><div class="state-icon">⌕</div><h3>No matching tournaments</h3><p>Try changing your search or status filter.</p><button class="text" type="button" (click)="clearFilters()">Clear filters</button></div>
-    }@else{
-      <div class="state"><div class="state-icon">🏟️</div><span class="eyebrow">NO COMPETITIONS YET</span><h3>Build your first tournament</h3><p>Create the competition shell, then add teams, schedule fixtures and track the entire journey.</p><a class="primary state-create" routerLink="/tournaments/new">Create tournament <b>→</b></a></div>
+    } @else if (tournaments.length) {
+      <div class="state">
+        <div class="state-icon">⌕</div>
+        <h3>No matching tournaments</h3>
+        <p>Try changing your search or status filter.</p>
+        <button class="text" type="button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    } @else {
+      <div class="state">
+        <div class="state-icon">🏟️</div>
+        <span class="eyebrow">NO COMPETITIONS YET</span>
+        <h3>Build your first tournament</h3>
+        <p>
+          Create the competition shell, then add teams, schedule fixtures and track the entire
+          journey.
+        </p>
+        <a class="primary state-create" routerLink="/tournaments/new">Create tournament <b>→</b></a>
+      </div>
     }
   </section>
 </section>

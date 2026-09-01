@@ -1,36 +1,252 @@
-
 <div class="control-room">
-<header class="mission-bar">
- <div class="mission-id"><a routerLink="/dashboard" class="mark">◈</a><div><b>CRICPULSE</b><small>LIVE CONTROL ROOM</small></div></div>
- <div class="match-radar"><i></i><span>{{score?.status || 'CONNECTING'}}</span><em>{{ballLabel}} · LIVE FEED</em></div>
- <nav><a class="active">Control</a><a [routerLink]="['/matches',matchId,'overview']">Match</a><a [routerLink]="['/matches',matchId,'scorecard']">Scorecard</a><a [routerLink]="['/matches',matchId,'statistics']">Insights</a></nav>
- <a routerLink="/dashboard" class="exit">Exit control ↗</a>
-</header>
-@if(loading){<div class="loading-state">Establishing scoring session…</div>}
-@else if(score){<main class="room">
- <section class="score-command">
-   <div class="teams-line"><span>{{battingName}}</span><i>VS</i><span>{{bowlingName}}</span><small>INNINGS {{score.inningsNumber || inningsNumber}}</small></div>
-   <div class="score-core"><div class="score-main"><div class="score-label"><label>CURRENT SCORE</label><span class="live-tag"><i></i> LIVE</span></div><strong>{{score.runs}}<em>/{{score.wickets}}</em></strong><span>{{overs(score.legalBalls)}} overs</span></div><div class="current-ball"><label>NEXT DELIVERY</label><b>{{ballLabel}}</b><span>{{needsBowlerChange?'NEW OVER · SELECT BOWLER':'SCORING READY'}}</span></div><div class="target"><label>TARGET</label><b>{{score.targetRuns || '—'}}</b><span>{{score.partnership?.runs || 0}} run partnership</span></div></div>
- </section>
- @if(score.status==='COMPLETED'){<section class="innings-complete"><i>✓</i><div><label>INNINGS COMPLETE</label><h2>{{score.runs}}/{{score.wickets}} in {{overs(score.legalBalls)}} overs</h2><p>{{completionText}}</p></div>@if(score.inningsNumber===1){<button (click)="startSecondInnings()">Launch 2nd innings →</button>}@else{<a [routerLink]="['/matches',matchId,'result']">View result →</a>}</section>}
- @else {<div class="control-grid">
-  <section class="scoring-deck">
-   <div class="deck-head"><div><label>DELIVERY INPUT</label><h2>Score the next ball</h2></div><span><i></i> AUTOSAVED</span></div>
-   <div class="field-strip"><div class="player-card striker"><span class="player-orb">S</span><div><label>ON STRIKE</label><b>{{playerName(score.strikerId)}}</b><small>{{batterRuns(score.strikerId)}} <em>({{batterBalls(score.strikerId)}})</em></small></div><span class="strike-pulse"></span></div><div class="player-card"><span class="player-orb">NS</span><div><label>NON-STRIKER</label><b>{{playerName(score.nonStrikerId)}}</b><small>{{batterRuns(score.nonStrikerId)}} <em>({{batterBalls(score.nonStrikerId)}})</em></small></div></div><div class="player-card bowler"><span class="player-orb">B</span><div><label>BOWLER</label><b>{{playerName(activeBowlerId)}}</b><small>{{bowlerFigures(activeBowlerId)}}</small></div></div></div>
-   <section class="momentum-strip"><div><label>MATCH MOMENTUM</label><b>LIVE</b></div><div class="momentum-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>Scoring rhythm updates delivery by delivery</span></section>
-   <div class="bowler-control" [class.locked]="!canChangeBowler"><div><label>BOWLER CONTROL</label><p>{{canChangeBowler?'Choose bowler before this over begins.':'Bowler locked until the next over.'}}</p></div><app-select-field label="Active bowler" placeholder="Select bowler" [options]="bowlerOptions" [(value)]="selectedBowlerId" [disabled]="!canChangeBowler"/></div>
-   <div class="scorepad"><label>BAT RUNS</label><div class="run-grid">@for(run of runs;track run){<button [disabled]="!canDeliver" (click)="recordRuns(run)">{{run}}</button>}</div></div>
-   <div class="action-zone"><label>EVENTS</label><div><button [disabled]="!canDeliver" (click)="recordExtra('WIDE')">WD <small>+1</small></button><button [disabled]="!canDeliver" (click)="recordExtra('NO_BALL')">NB <small>+1</small></button><button [disabled]="!canDeliver" (click)="recordExtra('BYE')">BYE</button><button [disabled]="!canDeliver" (click)="recordExtra('LEG_BYE')">LB</button><button class="wicket" [disabled]="!canDeliver || score.wickets>=10" (click)="openWicket()">WICKET</button><button class="undo" [disabled]="busy" (click)="undo()">↶ UNDO</button></div></div>
-   @if(wicketOpen){<section class="wicket-drawer"><div class="drawer-head"><div><label>DISMISSAL WORKFLOW</label><h3>Confirm wicket</h3></div><button (click)="wicketOpen=false">×</button></div><div class="wicket-grid"><app-select-field label="Dismissal type" placeholder="Select wicket type" [options]="wicketOptions" [(value)]="wicketType"/>@if(wicketType==='RUN_OUT'){<app-select-field label="Dismissed player" placeholder="Select player" [options]="dismissedOptions" [(value)]="dismissedPlayerId"/>}@if(score.wickets<9){<app-select-field label="Incoming batter" placeholder="Select batter" [options]="newBatterOptions" [(value)]="newBatterId"/>}</div><button class="confirm" [disabled]="!canConfirmWicket" (click)="confirmWicket()">Confirm wicket →</button></section>}
-  </section>
-  <aside class="intel-rail">
-   <section><div class="rail-head"><label>LIVE OVER</label><b>{{ballLabel}}</b></div><div class="ball-track">@for(ball of currentOverBalls;track $index){<span [class.boundary]="ball==='4'||ball==='6'" [class.wicket]="ball==='W'" [class.extra]="ball==='Wd'||ball==='Nb'">{{ball}}</span>}@if(!currentOverBalls.length){<small>Awaiting first delivery</small>}</div></section>
-   <section><div class="rail-head"><label>PARTNERSHIP</label><span>LIVE</span></div><strong class="partnership">{{score.partnership?.runs || 0}}<small> RUNS</small></strong><p>{{score.partnership?.balls || 0}} balls · current stand</p></section>
-   <section class="fow-panel"><div class="rail-head"><label>FALL OF WICKETS</label><span>{{score.wickets}}</span></div>@if(score.fallOfWickets?.length){@for(w of score.fallOfWickets;track w.wicketNumber){<div class="fow"><b>{{w.wicketNumber}}</b><span>{{playerName(w.playerId)}}</span><small>{{w.runs}}/{{w.wicketNumber}} · {{w.overNumber}}.{{w.ballNumber}}</small></div>}}@else{<p>No wickets recorded.</p>}</section>
-   <a class="viewer" [href]="publicScoreUrl" target="_blank" rel="noopener noreferrer"><span>PUBLIC SCOREBOARD</span><b>Open live view ↗</b></a>
-  </aside>
- </div>}
-</main>}
-@else{<div class="loading-state">Unable to load scoring session.</div>}
-<footer><span><i></i> REALTIME CONNECTION ACTIVE</span><span>Every delivery is persisted instantly</span></footer>
+  <header class="mission-bar">
+    <div class="mission-id">
+      <a routerLink="/dashboard" class="mark">◈</a>
+      <div><b>CRICPULSE</b><small>LIVE CONTROL ROOM</small></div>
+    </div>
+    <div class="match-radar">
+      <i></i><span>{{ score?.status || 'CONNECTING' }}</span
+      ><em>{{ ballLabel }} · LIVE FEED</em>
+    </div>
+    <nav>
+      <a class="active">Control</a><a [routerLink]="['/matches', matchId, 'overview']">Match</a
+      ><a [routerLink]="['/matches', matchId, 'scorecard']">Scorecard</a
+      ><a [routerLink]="['/matches', matchId, 'statistics']">Insights</a>
+    </nav>
+    <a routerLink="/dashboard" class="exit">Exit control ↗</a>
+  </header>
+  @if (loading) {
+    <div class="loading-state">Establishing scoring session…</div>
+  } @else if (score) {
+    <main class="room">
+      <section class="score-command">
+        <div class="teams-line">
+          <span>{{ battingName }}</span
+          ><i>VS</i><span>{{ bowlingName }}</span
+          ><small>INNINGS {{ score.inningsNumber || inningsNumber }}</small>
+        </div>
+        <div class="score-core">
+          <div class="score-main">
+            <div class="score-label">
+              <label>CURRENT SCORE</label><span class="live-tag"><i></i> LIVE</span>
+            </div>
+            <strong
+              >{{ score.runs }}<em>/{{ score.wickets }}</em></strong
+            ><span>{{ overs(score.legalBalls) }} overs</span>
+          </div>
+          <div class="current-ball">
+            <label>NEXT DELIVERY</label><b>{{ ballLabel }}</b
+            ><span>{{ needsBowlerChange ? 'NEW OVER · SELECT BOWLER' : 'SCORING READY' }}</span>
+          </div>
+          <div class="target">
+            <label>TARGET</label><b>{{ score.targetRuns || '—' }}</b
+            ><span>{{ score.partnership?.runs || 0 }} run partnership</span>
+          </div>
+        </div>
+      </section>
+      @if (score.status === 'COMPLETED') {
+        <section class="innings-complete">
+          <i>✓</i>
+          <div>
+            <label>INNINGS COMPLETE</label>
+            <h2>{{ score.runs }}/{{ score.wickets }} in {{ overs(score.legalBalls) }} overs</h2>
+            <p>{{ completionText }}</p>
+          </div>
+          @if (score.inningsNumber === 1) {
+            <button (click)="startSecondInnings()">Launch 2nd innings →</button>
+          } @else {
+            <a [routerLink]="['/matches', matchId, 'result']">View result →</a>
+          }
+        </section>
+      } @else {
+        <div class="control-grid">
+          <section class="scoring-deck">
+            <div class="deck-head">
+              <div>
+                <label>DELIVERY INPUT</label>
+                <h2>Score the next ball</h2>
+              </div>
+              <span><i></i> AUTOSAVED</span>
+            </div>
+            <div class="field-strip">
+              <div class="player-card striker">
+                <span class="player-orb">S</span>
+                <div>
+                  <label>ON STRIKE</label><b>{{ playerName(score.strikerId) }}</b
+                  ><small
+                    >{{ batterRuns(score.strikerId) }}
+                    <em>({{ batterBalls(score.strikerId) }})</em></small
+                  >
+                </div>
+                <span class="strike-pulse"></span>
+              </div>
+              <div class="player-card">
+                <span class="player-orb">NS</span>
+                <div>
+                  <label>NON-STRIKER</label><b>{{ playerName(score.nonStrikerId) }}</b
+                  ><small
+                    >{{ batterRuns(score.nonStrikerId) }}
+                    <em>({{ batterBalls(score.nonStrikerId) }})</em></small
+                  >
+                </div>
+              </div>
+              <div class="player-card bowler">
+                <span class="player-orb">B</span>
+                <div>
+                  <label>BOWLER</label><b>{{ playerName(activeBowlerId) }}</b
+                  ><small>{{ bowlerFigures(activeBowlerId) }}</small>
+                </div>
+              </div>
+            </div>
+            <section class="momentum-strip">
+              <div><label>MATCH MOMENTUM</label><b>LIVE</b></div>
+              <div class="momentum-bars">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span>Scoring rhythm updates delivery by delivery</span>
+            </section>
+            <div class="bowler-control" [class.locked]="!canChangeBowler">
+              <div>
+                <label>BOWLER CONTROL</label>
+                <p>
+                  {{
+                    canChangeBowler
+                      ? 'Choose bowler before this over begins.'
+                      : 'Bowler locked until the next over.'
+                  }}
+                </p>
+              </div>
+              <app-select-field
+                label="Active bowler"
+                placeholder="Select bowler"
+                [options]="bowlerOptions"
+                [(value)]="selectedBowlerId"
+                [disabled]="!canChangeBowler"
+              />
+            </div>
+            <div class="scorepad">
+              <label>BAT RUNS</label>
+              <div class="run-grid">
+                @for (run of runs; track run) {
+                  <button [disabled]="!canDeliver" (click)="recordRuns(run)">{{ run }}</button>
+                }
+              </div>
+            </div>
+            <div class="action-zone">
+              <label>EVENTS</label>
+              <div>
+                <button [disabled]="!canDeliver" (click)="recordExtra('WIDE')">
+                  WD <small>+1</small></button
+                ><button [disabled]="!canDeliver" (click)="recordExtra('NO_BALL')">
+                  NB <small>+1</small></button
+                ><button [disabled]="!canDeliver" (click)="recordExtra('BYE')">BYE</button
+                ><button [disabled]="!canDeliver" (click)="recordExtra('LEG_BYE')">LB</button
+                ><button
+                  class="wicket"
+                  [disabled]="!canDeliver || score.wickets >= 10"
+                  (click)="openWicket()"
+                >
+                  WICKET</button
+                ><button class="undo" [disabled]="busy" (click)="undo()">↶ UNDO</button>
+              </div>
+            </div>
+            @if (wicketOpen) {
+              <section class="wicket-drawer">
+                <div class="drawer-head">
+                  <div>
+                    <label>DISMISSAL WORKFLOW</label>
+                    <h3>Confirm wicket</h3>
+                  </div>
+                  <button (click)="wicketOpen = false">×</button>
+                </div>
+                <div class="wicket-grid">
+                  <app-select-field
+                    label="Dismissal type"
+                    placeholder="Select wicket type"
+                    [options]="wicketOptions"
+                    [(value)]="wicketType"
+                  />
+                  @if (wicketType === 'RUN_OUT') {
+                    <app-select-field
+                      label="Dismissed player"
+                      placeholder="Select player"
+                      [options]="dismissedOptions"
+                      [(value)]="dismissedPlayerId"
+                    />
+                  }
+                  @if (score.wickets < 9) {
+                    <app-select-field
+                      label="Incoming batter"
+                      placeholder="Select batter"
+                      [options]="newBatterOptions"
+                      [(value)]="newBatterId"
+                    />
+                  }
+                </div>
+                <button class="confirm" [disabled]="!canConfirmWicket" (click)="confirmWicket()">
+                  Confirm wicket →
+                </button>
+              </section>
+            }
+          </section>
+          <aside class="intel-rail">
+            <section>
+              <div class="rail-head">
+                <label>LIVE OVER</label><b>{{ ballLabel }}</b>
+              </div>
+              <div class="ball-track">
+                @for (ball of currentOverBalls; track $index) {
+                  <span
+                    [class.boundary]="ball === '4' || ball === '6'"
+                    [class.wicket]="ball === 'W'"
+                    [class.extra]="ball === 'Wd' || ball === 'Nb'"
+                    >{{ ball }}</span
+                  >
+                }
+                @if (!currentOverBalls.length) {
+                  <small>Awaiting first delivery</small>
+                }
+              </div>
+            </section>
+            <section>
+              <div class="rail-head"><label>PARTNERSHIP</label><span>LIVE</span></div>
+              <strong class="partnership"
+                >{{ score.partnership?.runs || 0 }}<small> RUNS</small></strong
+              >
+              <p>{{ score.partnership?.balls || 0 }} balls · current stand</p>
+            </section>
+            <section class="fow-panel">
+              <div class="rail-head">
+                <label>FALL OF WICKETS</label><span>{{ score.wickets }}</span>
+              </div>
+              @if (score.fallOfWickets?.length) {
+                @for (w of score.fallOfWickets; track w.wicketNumber) {
+                  <div class="fow">
+                    <b>{{ w.wicketNumber }}</b
+                    ><span>{{ playerName(w.playerId) }}</span
+                    ><small
+                      >{{ w.runs }}/{{ w.wicketNumber }} · {{ w.overNumber }}.{{
+                        w.ballNumber
+                      }}</small
+                    >
+                  </div>
+                }
+              } @else {
+                <p>No wickets recorded.</p>
+              }
+            </section>
+            <a class="viewer" [href]="publicScoreUrl" target="_blank" rel="noopener noreferrer"
+              ><span>PUBLIC SCOREBOARD</span><b>Open live view ↗</b></a
+            >
+          </aside>
+        </div>
+      }
+    </main>
+  } @else {
+    <div class="loading-state">Unable to load scoring session.</div>
+  }
+  <footer>
+    <span><i></i> REALTIME CONNECTION ACTIVE</span
+    ><span>Every delivery is persisted instantly</span>
+  </footer>
 </div>

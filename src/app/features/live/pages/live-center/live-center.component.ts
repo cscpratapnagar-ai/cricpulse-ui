@@ -41,7 +41,7 @@ interface InningsResponse {
   standalone: true,
   imports: [FormsModule, RouterLink, AsyncPipe, SelectFieldComponent],
   templateUrl: './live-center.component.html',
-  styleUrl: './live-center.component.scss'
+  styleUrl: './live-center.component.scss',
 })
 export class LiveCenterComponent {
   private readonly http = inject(HttpClient);
@@ -63,7 +63,7 @@ export class LiveCenterComponent {
   readonly runs = [0, 1, 2, 3, 4, 6];
   readonly inningsOptions: SelectOption[] = [
     { value: '1', label: 'Innings 1' },
-    { value: '2', label: 'Innings 2' }
+    { value: '2', label: 'Innings 2' },
   ];
   battingPlayers: Player[] = [];
   bowlingPlayers: Player[] = [];
@@ -84,7 +84,7 @@ export class LiveCenterComponent {
     }
     return [
       { value: this.activeMatch.teamAId, label: this.activeMatch.teamAName || 'Team A' },
-      { value: this.activeMatch.teamBId, label: this.activeMatch.teamBName || 'Team B' }
+      { value: this.activeMatch.teamBId, label: this.activeMatch.teamBName || 'Team B' },
     ];
   }
 
@@ -93,36 +93,36 @@ export class LiveCenterComponent {
       return 'Batting team';
     }
     return this.battingTeamId === this.activeMatch.teamBId
-      ? (this.activeMatch.teamBName || 'Team B')
-      : (this.activeMatch.teamAName || 'Team A');
+      ? this.activeMatch.teamBName || 'Team B'
+      : this.activeMatch.teamAName || 'Team A';
   }
 
   get battingPlayerOptions(): SelectOption[] {
-    return this.battingPlayers.map(player => ({ value: player.id, label: player.name }));
+    return this.battingPlayers.map((player) => ({ value: player.id, label: player.name }));
   }
 
   get bowlingPlayerOptions(): SelectOption[] {
-    return this.bowlingPlayers.map(player => ({ value: player.id, label: player.name }));
+    return this.bowlingPlayers.map((player) => ({ value: player.id, label: player.name }));
   }
 
   loadMatches(): void {
     this.loadingMatch = true;
     this.http.get<Match[]>('http://localhost:8080/api/matches').subscribe({
-      next: matches => {
+      next: (matches) => {
         this.matches = matches;
         this.loadingMatch = false;
       },
       error: () => {
         this.matches = [];
         this.loadingMatch = false;
-      }
+      },
     });
   }
 
   loadMatch(id: string): void {
     this.loadingMatch = true;
     this.http.get<Match>(`http://localhost:8080/api/matches/${id}`).subscribe({
-      next: match => {
+      next: (match) => {
         this.activeMatch = match;
         this.battingTeamId = match.teamAId;
         this.loadingMatch = false;
@@ -131,7 +131,7 @@ export class LiveCenterComponent {
       error: () => {
         this.activeMatch = null;
         this.loadingMatch = false;
-      }
+      },
     });
   }
 
@@ -141,7 +141,8 @@ export class LiveCenterComponent {
       return;
     }
 
-    const bowlingTeamId = teamId === this.activeMatch.teamAId ? this.activeMatch.teamBId : this.activeMatch.teamAId;
+    const bowlingTeamId =
+      teamId === this.activeMatch.teamAId ? this.activeMatch.teamBId : this.activeMatch.teamAId;
     this.loadPlayersForTeams(teamId, bowlingTeamId);
     this.strikerId = '';
     this.nonStrikerId = '';
@@ -150,24 +151,24 @@ export class LiveCenterComponent {
 
   private loadPlayersForTeams(battingTeamId: string, bowlingTeamId: string): void {
     this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${battingTeamId}`).subscribe({
-      next: players => {
+      next: (players) => {
         this.battingPlayers = players;
         this.strikerId = players[0]?.id || '';
         this.nonStrikerId = players[1]?.id || players[0]?.id || '';
       },
       error: () => {
         this.battingPlayers = [];
-      }
+      },
     });
 
     this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${bowlingTeamId}`).subscribe({
-      next: players => {
+      next: (players) => {
         this.bowlingPlayers = players;
         this.bowlerId = players[0]?.id || '';
       },
       error: () => {
         this.bowlingPlayers = [];
-      }
+      },
     });
   }
 
@@ -183,29 +184,34 @@ export class LiveCenterComponent {
 
     this.error = '';
     this.starting = true;
-    this.http.post<InningsResponse>('http://localhost:8080/api/scoring/innings', {
-      matchId: this.activeMatch.id,
-      inningsNumber: Number(this.inningsNumberValue),
-      battingTeamId: this.battingTeamId
-    }).subscribe({
-      next: response => {
-        this.inningsId = response.id;
-        this.message = `Innings ${response.inningsNumber} started`;
-        this.starting = false;
-        this.connectLive();
-      },
-      error: () => {
-        this.error = 'Could not start innings. Check the selected team and try again.';
-        this.starting = false;
-      }
-    });
+    this.http
+      .post<InningsResponse>('http://localhost:8080/api/scoring/innings', {
+        matchId: this.activeMatch.id,
+        inningsNumber: Number(this.inningsNumberValue),
+        battingTeamId: this.battingTeamId,
+      })
+      .subscribe({
+        next: (response) => {
+          this.inningsId = response.id;
+          this.message = `Innings ${response.inningsNumber} started`;
+          this.starting = false;
+          this.connectLive();
+        },
+        error: () => {
+          this.error = 'Could not start innings. Check the selected team and try again.';
+          this.starting = false;
+        },
+      });
   }
 
   connectLive(): void {
     if (!this.inningsId.trim()) {
       return;
     }
-    this.score$ = this.liveScore.watch(this.inningsId.trim()).pipe(startWith(null), catchError(() => of(null)));
+    this.score$ = this.liveScore.watch(this.inningsId.trim()).pipe(
+      startWith(null),
+      catchError(() => of(null)),
+    );
   }
 
   record(batRuns: number): void {
@@ -225,13 +231,22 @@ export class LiveCenterComponent {
       this.message = 'Start an innings before undoing a ball.';
       return;
     }
-    this.http.post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/undo`, {}).subscribe({
-      next: () => this.message = 'Last delivery undone',
-      error: () => this.message = 'Nothing to undo'
-    });
+    this.http
+      .post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/undo`, {})
+      .subscribe({
+        next: () => (this.message = 'Last delivery undone'),
+        error: () => (this.message = 'Nothing to undo'),
+      });
   }
 
-  private submit(batRuns: number, extraRuns: number, extraType: string | null, wicketType: string | null, dismissedPlayerId: string | null, legalBall: boolean): void {
+  private submit(
+    batRuns: number,
+    extraRuns: number,
+    extraType: string | null,
+    wicketType: string | null,
+    dismissedPlayerId: string | null,
+    legalBall: boolean,
+  ): void {
     if (!this.inningsId.trim()) {
       this.message = 'Start an innings before recording deliveries.';
       return;
@@ -252,16 +267,18 @@ export class LiveCenterComponent {
       extraRuns,
       extraType,
       wicketType,
-      dismissedPlayerId
+      dismissedPlayerId,
     };
 
-    this.http.post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/deliveries`, payload).subscribe({
-      next: () => {
-        this.message = 'Delivery recorded';
-        this.advanceBall(legalBall);
-      },
-      error: () => this.message = 'Delivery could not be recorded'
-    });
+    this.http
+      .post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/deliveries`, payload)
+      .subscribe({
+        next: () => {
+          this.message = 'Delivery recorded';
+          this.advanceBall(legalBall);
+        },
+        error: () => (this.message = 'Delivery could not be recorded'),
+      });
   }
 
   private currentOver = 0;
@@ -297,7 +314,7 @@ export class LiveCenterComponent {
       month: 'short',
       year: 'numeric',
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   }
 }

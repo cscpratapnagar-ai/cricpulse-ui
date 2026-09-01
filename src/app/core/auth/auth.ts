@@ -23,7 +23,7 @@ export const authGuard: CanActivateFn = () => {
   if (!token) return router.createUrlTree(['/login']);
 
   return http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).pipe(
-    map(user => {
+    map((user) => {
       currentUser.set(user);
       return true;
     }),
@@ -31,7 +31,7 @@ export const authGuard: CanActivateFn = () => {
       clearSession();
       currentUser.clear();
       return of(router.createUrlTree(['/login']));
-    })
+    }),
   );
 };
 

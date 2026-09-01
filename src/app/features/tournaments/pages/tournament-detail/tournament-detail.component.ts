@@ -5,13 +5,240 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
-interface Tournament{id:string;name:string;format:string;overs:number;location:string|null;startDate:string|null;status:string;}
-interface Team{id:string;name:string;city:string|null;seed:number|null;ownerId?:string;}
-interface Match{id:string;name:string;status:string;teamAId:string;teamBId:string;teamAName?:string;teamBName?:string;}
-interface Fixture{matchId:string;fixtureNumber:number|null;stage:string;matchName:string;teamAName:string;teamBName:string;status:string;}
-interface Point{teamId:string;teamName:string;played:number;wins:number;losses:number;ties:number;points:number;runsFor:number;runsAgainst:number;nrr:number;}
-interface GenerateResponse{tournamentId:string;generated:number;skipped:number;totalPairs:number;fixtures:Fixture[];}
-@Component({selector:'app-tournament-detail',standalone:true,imports:[CommonModule,RouterLink,FormsModule,SelectFieldComponent],templateUrl: './tournament-detail.component.html',styleUrl: './tournament-detail.component.scss'
-
+interface Tournament {
+  id: string;
+  name: string;
+  format: string;
+  overs: number;
+  location: string | null;
+  startDate: string | null;
+  status: string;
+}
+interface Team {
+  id: string;
+  name: string;
+  city: string | null;
+  seed: number | null;
+  ownerId?: string;
+}
+interface Match {
+  id: string;
+  name: string;
+  status: string;
+  teamAId: string;
+  teamBId: string;
+  teamAName?: string;
+  teamBName?: string;
+}
+interface Fixture {
+  matchId: string;
+  fixtureNumber: number | null;
+  stage: string;
+  matchName: string;
+  teamAName: string;
+  teamBName: string;
+  status: string;
+}
+interface Point {
+  teamId: string;
+  teamName: string;
+  played: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  points: number;
+  runsFor: number;
+  runsAgainst: number;
+  nrr: number;
+}
+interface GenerateResponse {
+  tournamentId: string;
+  generated: number;
+  skipped: number;
+  totalPairs: number;
+  fixtures: Fixture[];
+}
+@Component({
+  selector: 'app-tournament-detail',
+  standalone: true,
+  imports: [CommonModule, RouterLink, FormsModule, SelectFieldComponent],
+  templateUrl: './tournament-detail.component.html',
+  styleUrl: './tournament-detail.component.scss',
 })
-export class TournamentDetailComponent{private readonly http=inject(HttpClient);private readonly route=inject(ActivatedRoute);readonly api='http://localhost:8080/api';id=this.route.snapshot.paramMap.get('id')||'';loading=true;busy=false;actionError='';actionMessage='';activeTab=signal<'overview'|'teams'|'fixtures'|'standings'|'analytics'>('overview');tabs=[{key:'overview' as const,label:'Overview',icon:'◈'},{key:'teams' as const,label:'Teams',icon:'♜'},{key:'fixtures' as const,label:'Fixtures',icon:'▦'},{key:'standings' as const,label:'Standings',icon:'≡'},{key:'analytics' as const,label:'Analytics',icon:'↗'}];t:Tournament|null=null;teams:Team[]=[];availableTeams:Team[]=[];fixtures:Fixture[]=[];availableMatches:Match[]=[];points:Point[]=[];teamToAdd='';matchToAdd='';constructor(){if(this.id)this.load();else this.loading=false;}load(){this.http.get<Tournament>(`${this.api}/tournaments/${this.id}`).subscribe({next:t=>{this.t=t;this.loadChildren();},error:e=>{this.actionError=e?.error?.message||'Tournament could not be loaded.';this.loading=false;}});}loadChildren(){forkJoin({registered:this.http.get<Team[]>(`${this.api}/tournaments/${this.id}/teams`),mine:this.http.get<Team[]>(`${this.api}/teams/mine`),fixtures:this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`),matches:this.http.get<Match[]>(`${this.api}/matches`),points:this.http.get<Point[]>(`${this.api}/tournaments/${this.id}/points-table`)}).subscribe({next:r=>{this.teams=r.registered||[];const registeredIds=new Set(this.teams.map(x=>x.id));this.availableTeams=(r.mine||[]).filter(x=>!registeredIds.has(x.id));this.fixtures=r.fixtures||[];const fixtureIds=new Set(this.fixtures.map(f=>f.matchId));this.availableMatches=(r.matches||[]).filter(m=>!fixtureIds.has(m.id)&&registeredIds.has(m.teamAId)&&registeredIds.has(m.teamBId));this.points=r.points||[];this.teamToAdd='';if(this.matchToAdd&&!this.availableMatches.some(m=>m.id===this.matchToAdd))this.matchToAdd='';this.loading=false;},error:e=>{this.actionError=e?.error?.message||'Unable to load tournament data. Please refresh and try again.';this.loading=false;}});}get teamOptions():SelectOption[]{return this.availableTeams.map(x=>({value:x.id,label:x.city?`${x.name} · ${x.city}`:x.name}));}get matchOptions():SelectOption[]{return this.availableMatches.map(m=>({value:m.id,label:`${m.name} · ${m.teamAName||'Team A'} vs ${m.teamBName||'Team B'} · ${m.status}`}));}addTeam(){if(!this.teamToAdd){this.actionError='Select a team first.';return;}this.busy=true;this.actionError='';this.actionMessage='';this.http.post(`${this.api}/tournaments/${this.id}/teams/${this.teamToAdd}`,null).subscribe({next:()=>{this.teamToAdd='';this.busy=false;this.actionMessage='Team added successfully.';this.loadChildren();},error:e=>{this.actionError=e?.error?.message||'Unable to add team.';this.busy=false;}});}linkMatch(){if(!this.matchToAdd){this.actionError='Select an eligible match first.';return;}const selected=this.availableMatches.find(m=>m.id===this.matchToAdd);const registered=new Set(this.teams.map(t=>t.id));if(!selected||!registered.has(selected.teamAId)||!registered.has(selected.teamBId)){this.actionError='Both teams in the selected match must be registered in this tournament.';return;}this.busy=true;this.actionError='';this.actionMessage='';this.http.post(`${this.api}/tournaments/${this.id}/matches/${this.matchToAdd}?stage=LEAGUE`,null).subscribe({next:()=>{this.matchToAdd='';this.busy=false;this.actionMessage='Fixture linked successfully.';this.loadChildren();},error:e=>{this.actionError=e?.error?.message||'Unable to link match. Make sure both teams are registered.';this.busy=false;}});}generateFixtures(){if(this.teams.length<2){this.actionError='Add at least 2 teams before generating fixtures.';return;}this.busy=true;this.actionError='';this.actionMessage='';this.http.post<GenerateResponse>(`${this.api}/tournaments/${this.id}/fixtures/generate`,null).subscribe({next:r=>{this.busy=false;this.actionMessage=r.generated?`${r.generated} league fixture${r.generated===1?'':'s'} generated. ${r.skipped} existing pairing${r.skipped===1?'':'s'} preserved.`:'All team pairings already have fixtures.';this.loadChildren();},error:e=>{this.busy=false;this.actionError=e?.error?.message||'Unable to generate fixtures.';}});}get completed(){return this.fixtures.filter(x=>x.status==='COMPLETED').length;}get scheduled(){return this.fixtures.filter(x=>x.status==='SCHEDULED').length;}get pending(){return this.fixtures.length-this.completed-this.scheduled;}get completion(){return this.fixtures.length?Math.round(this.completed/this.fixtures.length*100):0;}refresh(){this.loading=true;this.actionError='';this.load();}}
+export class TournamentDetailComponent {
+  private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
+  readonly api = 'http://localhost:8080/api';
+  id = this.route.snapshot.paramMap.get('id') || '';
+  loading = true;
+  busy = false;
+  actionError = '';
+  actionMessage = '';
+  activeTab = signal<'overview' | 'teams' | 'fixtures' | 'standings' | 'analytics'>('overview');
+  tabs = [
+    { key: 'overview' as const, label: 'Overview', icon: '◈' },
+    { key: 'teams' as const, label: 'Teams', icon: '♜' },
+    { key: 'fixtures' as const, label: 'Fixtures', icon: '▦' },
+    { key: 'standings' as const, label: 'Standings', icon: '≡' },
+    { key: 'analytics' as const, label: 'Analytics', icon: '↗' },
+  ];
+  t: Tournament | null = null;
+  teams: Team[] = [];
+  availableTeams: Team[] = [];
+  fixtures: Fixture[] = [];
+  availableMatches: Match[] = [];
+  points: Point[] = [];
+  teamToAdd = '';
+  matchToAdd = '';
+  constructor() {
+    if (this.id) this.load();
+    else this.loading = false;
+  }
+  load() {
+    this.http.get<Tournament>(`${this.api}/tournaments/${this.id}`).subscribe({
+      next: (t) => {
+        this.t = t;
+        this.loadChildren();
+      },
+      error: (e) => {
+        this.actionError = e?.error?.message || 'Tournament could not be loaded.';
+        this.loading = false;
+      },
+    });
+  }
+  loadChildren() {
+    forkJoin({
+      registered: this.http.get<Team[]>(`${this.api}/tournaments/${this.id}/teams`),
+      mine: this.http.get<Team[]>(`${this.api}/teams/mine`),
+      fixtures: this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`),
+      matches: this.http.get<Match[]>(`${this.api}/matches`),
+      points: this.http.get<Point[]>(`${this.api}/tournaments/${this.id}/points-table`),
+    }).subscribe({
+      next: (r) => {
+        this.teams = r.registered || [];
+        const registeredIds = new Set(this.teams.map((x) => x.id));
+        this.availableTeams = (r.mine || []).filter((x) => !registeredIds.has(x.id));
+        this.fixtures = r.fixtures || [];
+        const fixtureIds = new Set(this.fixtures.map((f) => f.matchId));
+        this.availableMatches = (r.matches || []).filter(
+          (m) =>
+            !fixtureIds.has(m.id) && registeredIds.has(m.teamAId) && registeredIds.has(m.teamBId),
+        );
+        this.points = r.points || [];
+        this.teamToAdd = '';
+        if (this.matchToAdd && !this.availableMatches.some((m) => m.id === this.matchToAdd))
+          this.matchToAdd = '';
+        this.loading = false;
+      },
+      error: (e) => {
+        this.actionError =
+          e?.error?.message || 'Unable to load tournament data. Please refresh and try again.';
+        this.loading = false;
+      },
+    });
+  }
+  get teamOptions(): SelectOption[] {
+    return this.availableTeams.map((x) => ({
+      value: x.id,
+      label: x.city ? `${x.name} · ${x.city}` : x.name,
+    }));
+  }
+  get matchOptions(): SelectOption[] {
+    return this.availableMatches.map((m) => ({
+      value: m.id,
+      label: `${m.name} · ${m.teamAName || 'Team A'} vs ${m.teamBName || 'Team B'} · ${m.status}`,
+    }));
+  }
+  addTeam() {
+    if (!this.teamToAdd) {
+      this.actionError = 'Select a team first.';
+      return;
+    }
+    this.busy = true;
+    this.actionError = '';
+    this.actionMessage = '';
+    this.http.post(`${this.api}/tournaments/${this.id}/teams/${this.teamToAdd}`, null).subscribe({
+      next: () => {
+        this.teamToAdd = '';
+        this.busy = false;
+        this.actionMessage = 'Team added successfully.';
+        this.loadChildren();
+      },
+      error: (e) => {
+        this.actionError = e?.error?.message || 'Unable to add team.';
+        this.busy = false;
+      },
+    });
+  }
+  linkMatch() {
+    if (!this.matchToAdd) {
+      this.actionError = 'Select an eligible match first.';
+      return;
+    }
+    const selected = this.availableMatches.find((m) => m.id === this.matchToAdd);
+    const registered = new Set(this.teams.map((t) => t.id));
+    if (!selected || !registered.has(selected.teamAId) || !registered.has(selected.teamBId)) {
+      this.actionError = 'Both teams in the selected match must be registered in this tournament.';
+      return;
+    }
+    this.busy = true;
+    this.actionError = '';
+    this.actionMessage = '';
+    this.http
+      .post(`${this.api}/tournaments/${this.id}/matches/${this.matchToAdd}?stage=LEAGUE`, null)
+      .subscribe({
+        next: () => {
+          this.matchToAdd = '';
+          this.busy = false;
+          this.actionMessage = 'Fixture linked successfully.';
+          this.loadChildren();
+        },
+        error: (e) => {
+          this.actionError =
+            e?.error?.message || 'Unable to link match. Make sure both teams are registered.';
+          this.busy = false;
+        },
+      });
+  }
+  generateFixtures() {
+    if (this.teams.length < 2) {
+      this.actionError = 'Add at least 2 teams before generating fixtures.';
+      return;
+    }
+    this.busy = true;
+    this.actionError = '';
+    this.actionMessage = '';
+    this.http
+      .post<GenerateResponse>(`${this.api}/tournaments/${this.id}/fixtures/generate`, null)
+      .subscribe({
+        next: (r) => {
+          this.busy = false;
+          this.actionMessage = r.generated
+            ? `${r.generated} league fixture${r.generated === 1 ? '' : 's'} generated. ${r.skipped} existing pairing${r.skipped === 1 ? '' : 's'} preserved.`
+            : 'All team pairings already have fixtures.';
+          this.loadChildren();
+        },
+        error: (e) => {
+          this.busy = false;
+          this.actionError = e?.error?.message || 'Unable to generate fixtures.';
+        },
+      });
+  }
+  get completed() {
+    return this.fixtures.filter((x) => x.status === 'COMPLETED').length;
+  }
+  get scheduled() {
+    return this.fixtures.filter((x) => x.status === 'SCHEDULED').length;
+  }
+  get pending() {
+    return this.fixtures.length - this.completed - this.scheduled;
+  }
+  get completion() {
+    return this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0;
+  }
+  refresh() {
+    this.loading = true;
+    this.actionError = '';
+    this.load();
+  }
+}

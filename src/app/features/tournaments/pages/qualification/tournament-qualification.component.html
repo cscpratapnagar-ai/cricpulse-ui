@@ -1,1 +1,88 @@
-<section class="page"><a class="back" [routerLink]="['/tournaments',id]">← Tournament</a>@if(loading){<section class="card state">Loading qualification preview…</section>}@else if(preview){<header class="hero card"><div><span class="eyebrow">CRICPULSE · PLAYOFF ENGINE</span><h1>Qualification</h1><p>Current projection from the live points table.</p></div><span class="badge">{{preview.eligible?'TOP 4':'NOT READY'}}</span></header><div class="notice" [class.warn]="!preview.eligible">{{preview.message}}</div>@if(preview.eligible){<section class="bracket"><article class="card playoff"><span class="eyebrow">QUALIFIER 1</span><h2>#1 {{preview.qualifiers[0].higherSeed.teamName}}</h2><div class="vs">vs</div><h2>#4 {{preview.qualifiers[0].lowerSeed.teamName}}</h2><small>Current seeds · no matches created</small></article><article class="card playoff"><span class="eyebrow">QUALIFIER 2</span><h2>#2 {{preview.qualifiers[1].higherSeed.teamName}}</h2><div class="vs">vs</div><h2>#3 {{preview.qualifiers[1].lowerSeed.teamName}}</h2><small>Current seeds · no matches created</small></article></section>}<section class="card panel"><div class="head"><div><span class="eyebrow">LIVE STANDINGS</span><h2>Qualification order</h2></div></div>@if(preview.table.length){<div class="table-wrap"><table><thead><tr><th>#</th><th>TEAM</th><th>P</th><th>W</th><th>L</th><th>PTS</th><th>NRR</th></tr></thead><tbody>@for(p of preview.table;track p.teamId;let i=$index){<tr [class.qualified]="preview.eligible&&i<4"><td>{{i+1}}</td><td><strong>{{p.teamName}}</strong></td><td>{{p.played}}</td><td>{{p.wins}}</td><td>{{p.losses}}</td><td>{{p.points}}</td><td>{{p.nrr|number:'1.3-3'}}</td></tr>}</tbody></table></div>}@else{<p class="muted">No standings yet. Complete tournament matches to build qualification order.</p>}</section><div class="actions"><a [routerLink]="['/tournaments',id]">Tournament Control →</a><a [routerLink]="['/tournaments',id,'schedule']">Schedule Fixtures →</a></div>}@else{<section class="card state"><h2>Qualification unavailable</h2><p>{{error||'Unable to load qualification data.'}}</p><a [routerLink]="['/tournaments',id]">Back to tournament →</a></section>}</section>
+<section class="page">
+  <a class="back" [routerLink]="['/tournaments', id]">← Tournament</a>
+  @if (loading) {
+    <section class="card state">Loading qualification preview…</section>
+  } @else if (preview) {
+    <header class="hero card">
+      <div>
+        <span class="eyebrow">CRICPULSE · PLAYOFF ENGINE</span>
+        <h1>Qualification</h1>
+        <p>Current projection from the live points table.</p>
+      </div>
+      <span class="badge">{{ preview.eligible ? 'TOP 4' : 'NOT READY' }}</span>
+    </header>
+    <div class="notice" [class.warn]="!preview.eligible">{{ preview.message }}</div>
+    @if (preview.eligible) {
+      <section class="bracket">
+        <article class="card playoff">
+          <span class="eyebrow">QUALIFIER 1</span>
+          <h2>#1 {{ preview.qualifiers[0].higherSeed.teamName }}</h2>
+          <div class="vs">vs</div>
+          <h2>#4 {{ preview.qualifiers[0].lowerSeed.teamName }}</h2>
+          <small>Current seeds · no matches created</small>
+        </article>
+        <article class="card playoff">
+          <span class="eyebrow">QUALIFIER 2</span>
+          <h2>#2 {{ preview.qualifiers[1].higherSeed.teamName }}</h2>
+          <div class="vs">vs</div>
+          <h2>#3 {{ preview.qualifiers[1].lowerSeed.teamName }}</h2>
+          <small>Current seeds · no matches created</small>
+        </article>
+      </section>
+    }
+    <section class="card panel">
+      <div class="head">
+        <div>
+          <span class="eyebrow">LIVE STANDINGS</span>
+          <h2>Qualification order</h2>
+        </div>
+      </div>
+      @if (preview.table.length) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>TEAM</th>
+                <th>P</th>
+                <th>W</th>
+                <th>L</th>
+                <th>PTS</th>
+                <th>NRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of preview.table; track p.teamId; let i = $index) {
+                <tr [class.qualified]="preview.eligible && i < 4">
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <strong>{{ p.teamName }}</strong>
+                  </td>
+                  <td>{{ p.played }}</td>
+                  <td>{{ p.wins }}</td>
+                  <td>{{ p.losses }}</td>
+                  <td>{{ p.points }}</td>
+                  <td>{{ p.nrr | number: '1.3-3' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="muted">
+          No standings yet. Complete tournament matches to build qualification order.
+        </p>
+      }
+    </section>
+    <div class="actions">
+      <a [routerLink]="['/tournaments', id]">Tournament Control →</a
+      ><a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures →</a>
+    </div>
+  } @else {
+    <section class="card state">
+      <h2>Qualification unavailable</h2>
+      <p>{{ error || 'Unable to load qualification data.' }}</p>
+      <a [routerLink]="['/tournaments', id]">Back to tournament →</a>
+    </section>
+  }
+</section>

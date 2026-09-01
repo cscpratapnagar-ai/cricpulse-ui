@@ -36,16 +36,9 @@ export class AccountProfileComponent {
     { key: 'security', label: 'Security' },
   ];
 
-  fullName =
-    this.user()?.fullName ||
-    this.user()?.displayName ||
-    this.user()?.name ||
-    '';
+  fullName = this.user()?.fullName || this.user()?.displayName || this.user()?.name || '';
 
-  displayName =
-    this.user()?.displayName ||
-    this.user()?.username ||
-    '';
+  displayName = this.user()?.displayName || this.user()?.username || '';
 
   email = this.user()?.email || '';
 

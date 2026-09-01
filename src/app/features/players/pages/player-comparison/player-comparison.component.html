@@ -1,8 +1,100 @@
-
 <div class="compare-page">
-<header class="hero"><div><span class="eyebrow">PLAYER INTELLIGENCE</span><h1>Compare <em>players</em></h1><p>Side-by-side career performance with instant statistical advantages.</p></div><a routerLink="/players/statistics">← Player statistics</a></header>
-<section class="selector-card"><div class="select-player"><app-select-field label="PLAYER A" name="left-player" placeholder="Choose first player" [options]="leftOptions" [value]="leftId" (valueChange)="selectLeft($event)"/></div><div class="vs">VS</div><div class="select-player"><app-select-field label="PLAYER B" name="right-player" placeholder="Choose second player" [options]="rightOptions" [value]="rightId" (valueChange)="selectRight($event)"/></div></section>
-@if(loading){<div class="state">Building comparison…</div>}@else if(comparison){<section class="duel-hero"><article><div class="avatar">{{initial(comparison.left.name)}}</div><div><span>{{comparison.left.role || 'PLAYER'}}</span><h2>{{comparison.left.name}}</h2><p>{{comparison.left.teamName || 'Independent player'}}</p></div></article><div class="duel-vs">VS</div><article class="right"><div><span>{{comparison.right.role || 'PLAYER'}}</span><h2>{{comparison.right.name}}</h2><p>{{comparison.right.teamName || 'Independent player'}}</p></div><div class="avatar">{{initial(comparison.right.name)}}</div></article></section>
-<section class="metrics"><div class="section-title"><span class="eyebrow">CAREER COMPARISON</span><h2>Who has the edge?</h2></div>@for(metric of metrics;track metric.label){<article class="metric"><div class="metric-values"><strong [class.winner]="metric.left>metric.right">{{metric.left}}</strong><span>{{metric.label}}</span><strong [class.winner]="metric.right>metric.left">{{metric.right}}</strong></div><div class="race"><i class="left-bar" [style.width.%]="bar(metric.left,metric.right)"></i><i class="right-bar" [style.width.%]="bar(metric.right,metric.left)"></i></div><div class="advantage">{{advantage(metric)}}</div></article>}</section>
-<section class="records"><article><span>BEST SCORE</span><strong>{{comparison.left.bestScore || '—'}}</strong><b>{{comparison.left.name}}</b></article><article><span>BEST SCORE</span><strong>{{comparison.right.bestScore || '—'}}</strong><b>{{comparison.right.name}}</b></article><article><span>BEST BOWLING</span><strong>{{comparison.left.bestBowling || '—'}}</strong><b>{{comparison.left.name}}</b></article><article><span>BEST BOWLING</span><strong>{{comparison.right.bestBowling || '—'}}</strong><b>{{comparison.right.name}}</b></article></section>}@else{<div class="empty"><div>◈</div><h2>Select two players</h2><p>Choose players above to generate a real career comparison.</p></div>}
+  <header class="hero">
+    <div>
+      <span class="eyebrow">PLAYER INTELLIGENCE</span>
+      <h1>Compare <em>players</em></h1>
+      <p>Side-by-side career performance with instant statistical advantages.</p>
+    </div>
+    <a routerLink="/players/statistics">← Player statistics</a>
+  </header>
+  <section class="selector-card">
+    <div class="select-player">
+      <app-select-field
+        label="PLAYER A"
+        name="left-player"
+        placeholder="Choose first player"
+        [options]="leftOptions"
+        [value]="leftId"
+        (valueChange)="selectLeft($event)"
+      />
+    </div>
+    <div class="vs">VS</div>
+    <div class="select-player">
+      <app-select-field
+        label="PLAYER B"
+        name="right-player"
+        placeholder="Choose second player"
+        [options]="rightOptions"
+        [value]="rightId"
+        (valueChange)="selectRight($event)"
+      />
+    </div>
+  </section>
+  @if (loading) {
+    <div class="state">Building comparison…</div>
+  } @else if (comparison) {
+    <section class="duel-hero">
+      <article>
+        <div class="avatar">{{ initial(comparison.left.name) }}</div>
+        <div>
+          <span>{{ comparison.left.role || 'PLAYER' }}</span>
+          <h2>{{ comparison.left.name }}</h2>
+          <p>{{ comparison.left.teamName || 'Independent player' }}</p>
+        </div>
+      </article>
+      <div class="duel-vs">VS</div>
+      <article class="right">
+        <div>
+          <span>{{ comparison.right.role || 'PLAYER' }}</span>
+          <h2>{{ comparison.right.name }}</h2>
+          <p>{{ comparison.right.teamName || 'Independent player' }}</p>
+        </div>
+        <div class="avatar">{{ initial(comparison.right.name) }}</div>
+      </article>
+    </section>
+    <section class="metrics">
+      <div class="section-title">
+        <span class="eyebrow">CAREER COMPARISON</span>
+        <h2>Who has the edge?</h2>
+      </div>
+      @for (metric of metrics; track metric.label) {
+        <article class="metric">
+          <div class="metric-values">
+            <strong [class.winner]="metric.left > metric.right">{{ metric.left }}</strong
+            ><span>{{ metric.label }}</span
+            ><strong [class.winner]="metric.right > metric.left">{{ metric.right }}</strong>
+          </div>
+          <div class="race">
+            <i class="left-bar" [style.width.%]="bar(metric.left, metric.right)"></i
+            ><i class="right-bar" [style.width.%]="bar(metric.right, metric.left)"></i>
+          </div>
+          <div class="advantage">{{ advantage(metric) }}</div>
+        </article>
+      }
+    </section>
+    <section class="records">
+      <article>
+        <span>BEST SCORE</span><strong>{{ comparison.left.bestScore || '—' }}</strong
+        ><b>{{ comparison.left.name }}</b>
+      </article>
+      <article>
+        <span>BEST SCORE</span><strong>{{ comparison.right.bestScore || '—' }}</strong
+        ><b>{{ comparison.right.name }}</b>
+      </article>
+      <article>
+        <span>BEST BOWLING</span><strong>{{ comparison.left.bestBowling || '—' }}</strong
+        ><b>{{ comparison.left.name }}</b>
+      </article>
+      <article>
+        <span>BEST BOWLING</span><strong>{{ comparison.right.bestBowling || '—' }}</strong
+        ><b>{{ comparison.right.name }}</b>
+      </article>
+    </section>
+  } @else {
+    <div class="empty">
+      <div>◈</div>
+      <h2>Select two players</h2>
+      <p>Choose players above to generate a real career comparison.</p>
+    </div>
+  }
 </div>

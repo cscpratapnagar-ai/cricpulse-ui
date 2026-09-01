@@ -3,16 +3,39 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-interface MatchView { id:string; name:string; teamAId:string; teamBId:string; teamAName:string; teamBName:string; format:string; status:string; scheduledAt?:string|null; }
-interface TossResponse { matchId:string; tossWinnerTeamId:string|null; decision:string|null; battingTeamId:string|null; bowlingTeamId:string|null; recorded:boolean; }
-interface TossSaveResponse { matchId:string; tossWinnerTeamId:string; decision:string; battingTeamId:string; bowlingTeamId:string; }
+interface MatchView {
+  id: string;
+  name: string;
+  teamAId: string;
+  teamBId: string;
+  teamAName: string;
+  teamBName: string;
+  format: string;
+  status: string;
+  scheduledAt?: string | null;
+}
+interface TossResponse {
+  matchId: string;
+  tossWinnerTeamId: string | null;
+  decision: string | null;
+  battingTeamId: string | null;
+  bowlingTeamId: string | null;
+  recorded: boolean;
+}
+interface TossSaveResponse {
+  matchId: string;
+  tossWinnerTeamId: string;
+  decision: string;
+  battingTeamId: string;
+  bowlingTeamId: string;
+}
 
 @Component({
-  selector:'app-toss',
-  standalone:true,
-  imports:[FormsModule,RouterLink],
+  selector: 'app-toss',
+  standalone: true,
+  imports: [FormsModule, RouterLink],
   templateUrl: './toss.component.html',
-  styleUrl: './toss.component.scss'
+  styleUrl: './toss.component.scss',
 })
 export class TossComponent {
   private readonly http = inject(HttpClient);
@@ -52,19 +75,26 @@ export class TossComponent {
   }
 
   loadMatch(): void {
-    if (!this.matchId) { this.loading = false; this.error = 'Match id is missing.'; return; }
+    if (!this.matchId) {
+      this.loading = false;
+      this.error = 'Match id is missing.';
+      return;
+    }
     this.http.get<MatchView>(`${this.api}/matches/${this.matchId}`).subscribe({
-      next: match => {
+      next: (match) => {
         this.match = match;
         this.loadToss();
       },
-      error: err => { this.loading = false; this.error = err?.error?.message || 'Unable to load the match.'; }
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.message || 'Unable to load the match.';
+      },
     });
   }
 
   loadToss(): void {
     this.http.get<TossResponse>(`${this.api}/matches/${this.matchId}/toss`).subscribe({
-      next: response => {
+      next: (response) => {
         this.loading = false;
         this.saved = response.recorded;
         this.winnerTeamId = response.tossWinnerTeamId || '';
@@ -73,10 +103,10 @@ export class TossComponent {
         this.bowlingTeamId = response.bowlingTeamId || '';
         if (this.saved) this.success = 'Toss already recorded. Previous selection restored.';
       },
-      error: err => {
+      error: (err) => {
         this.loading = false;
         this.error = err?.error?.message || 'Unable to load the toss.';
-      }
+      },
     });
   }
 
@@ -88,23 +118,25 @@ export class TossComponent {
       return;
     }
     this.saving = true;
-    this.http.post<TossSaveResponse>(`${this.api}/matches/${this.matchId}/toss`, {
-      matchId: this.matchId,
-      winnerTeamId: this.winnerTeamId,
-      decision: this.decision
-    }).subscribe({
-      next: response => {
-        this.saving = false;
-        this.saved = true;
-        this.battingTeamId = response.battingTeamId;
-        this.bowlingTeamId = response.bowlingTeamId;
-        this.success = 'Toss recorded successfully.';
-      },
-      error: err => {
-        this.saving = false;
-        this.error = err?.error?.message || 'Toss could not be recorded.';
-      }
-    });
+    this.http
+      .post<TossSaveResponse>(`${this.api}/matches/${this.matchId}/toss`, {
+        matchId: this.matchId,
+        winnerTeamId: this.winnerTeamId,
+        decision: this.decision,
+      })
+      .subscribe({
+        next: (response) => {
+          this.saving = false;
+          this.saved = true;
+          this.battingTeamId = response.battingTeamId;
+          this.bowlingTeamId = response.bowlingTeamId;
+          this.success = 'Toss recorded successfully.';
+        },
+        error: (err) => {
+          this.saving = false;
+          this.error = err?.error?.message || 'Toss could not be recorded.';
+        },
+      });
   }
 
   continueToOpeningPlayers(): void {

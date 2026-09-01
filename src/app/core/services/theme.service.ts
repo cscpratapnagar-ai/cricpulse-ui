@@ -8,9 +8,8 @@ export type ThemePreference = AppTheme | 'system';
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly storageKey = 'cricpulse-theme';
-  private readonly media = typeof window !== 'undefined'
-    ? window.matchMedia('(prefers-color-scheme: dark)')
-    : null;
+  private readonly media =
+    typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
   readonly preference = signal<ThemePreference>(this.readInitialPreference());
   readonly theme = signal<AppTheme>(this.resolve(this.preference()));
@@ -30,7 +29,9 @@ export class ThemeService {
     this.preference.set(preference);
     const resolved = this.resolve(preference);
     this.theme.set(resolved);
-    try { localStorage.setItem(this.storageKey, preference); } catch {}
+    try {
+      localStorage.setItem(this.storageKey, preference);
+    } catch {}
     this.apply(resolved, true);
   }
 

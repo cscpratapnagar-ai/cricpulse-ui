@@ -1,31 +1,130 @@
+<section class="scorecard-page">
+  <header class="topbar">
+    <div>
+      <span class="eyebrow">CRICPULSE · SCORECARD</span>
+      <h1>{{ data?.teamName || 'Live Scorecard' }}</h1>
+      <p>Premium match centre · complete innings view</p>
+    </div>
+    <div class="actions">
+      <span class="live"><i></i> LIVE</span
+      ><a [routerLink]="['/matches', matchId, 'live']">Live match →</a>
+    </div>
+  </header>
 
-    <section class="scorecard-page">
-      <header class="topbar">
-        <div><span class="eyebrow">CRICPULSE · SCORECARD</span><h1>{{ data?.teamName || 'Live Scorecard' }}</h1><p>Premium match centre · complete innings view</p></div>
-        <div class="actions"><span class="live"><i></i> LIVE</span><a [routerLink]="['/matches', matchId, 'live']">Live match →</a></div>
-      </header>
-
-      @if(score$ | async; as score){
-        <section class="hero card"><div><span class="label">INNINGS {{ score.inningsNumber }}</span><div class="score">{{score.runs}}<em>/{{score.wickets}}</em></div><div class="meta">{{overs(score.legalBalls)}} OVERS · RUN RATE {{rate(score.runs,score.legalBalls)}}</div></div><div class="hero-status"><span>LIVE SCORE</span><strong>{{score.runs}}/{{score.wickets}}</strong><small>{{overs(score.legalBalls)}} overs completed</small></div></section>
-      }
-
-      <nav class="tabs"><a class="active">Scorecard</a><a [routerLink]="['/matches', matchId, 'live']">Live</a><a>Stats</a><a>Commentary</a></nav>
-
-      <div class="grid"><main>
-        <article class="card panel"><header class="panel-title"><div><span>BATTING</span><h2>{{data?.teamName || 'Batting Card'}}</h2></div><small>R · B · 4s · 6s · SR</small></header>
-          <div class="thead"><span>BATTER</span><span>R</span><span>B</span><span>4s</span><span>6s</span><span>SR</span></div>
-          @for(row of data?.batting || []; track row.playerId){<div class="row"><div><b>{{row.playerName}}</b><small>{{row.dismissal || 'not out'}}</small></div><b>{{row.runs}}</b><span>{{row.balls}}</span><span>{{row.fours}}</span><span>{{row.sixes}}</span><span>{{row.strikeRate | number:'1.1-1'}}</span></div>}
-          @if(!(data?.batting?.length)){<div class="empty-state">Batting data will appear when the innings starts.</div>}
-          <div class="summary"><span>Extras</span><b>{{data?.extras || 0}}</b></div><div class="summary total"><b>TOTAL</b><strong>{{data?.runs || 0}}/{{data?.wickets || 0}} <small>({{overs(data?.legalBalls || 0)}} ov)</small></strong></div>
-        </article>
-
-        <article class="card panel"><header class="panel-title"><div><span>BOWLING</span><h2>Bowling Card</h2></div><small>O · M · R · W · ECO</small></header>
-          <div class="thead"><span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECO</span></div>
-          @for(row of data?.bowling || []; track row.playerId){<div class="row"><div><b>{{row.playerName}}</b></div><span>{{row.overs}}</span><span>{{row.maidens}}</span><span>{{row.runs}}</span><b>{{row.wickets}}</b><span>{{row.economy | number:'1.1-1'}}</span></div>}
-          @if(!(data?.bowling?.length)){<div class="empty-state">Bowling data will appear when a bowler is active.</div>}
-        </article>
-      </main>
-
-      <aside><article class="card panel side-panel"><header class="panel-title"><div><span>THIS OVER</span><h2>Ball sequence</h2></div></header><div class="balls"><i>·</i><i>·</i><i>·</i><i>·</i><i>·</i><i>·</i></div></article><article class="card panel side-panel"><header class="panel-title"><div><span>PARTNERSHIP</span><h2>Current stand</h2></div></header><strong class="partnership">0</strong><small>runs · 0 balls</small></article></aside></div>
+  @if (score$ | async; as score) {
+    <section class="hero card">
+      <div>
+        <span class="label">INNINGS {{ score.inningsNumber }}</span>
+        <div class="score">
+          {{ score.runs }}<em>/{{ score.wickets }}</em>
+        </div>
+        <div class="meta">
+          {{ overs(score.legalBalls) }} OVERS · RUN RATE {{ rate(score.runs, score.legalBalls) }}
+        </div>
+      </div>
+      <div class="hero-status">
+        <span>LIVE SCORE</span><strong>{{ score.runs }}/{{ score.wickets }}</strong
+        ><small>{{ overs(score.legalBalls) }} overs completed</small>
+      </div>
     </section>
-  
+  }
+
+  <nav class="tabs">
+    <a class="active">Scorecard</a><a [routerLink]="['/matches', matchId, 'live']">Live</a
+    ><a>Stats</a><a>Commentary</a>
+  </nav>
+
+  <div class="grid">
+    <main>
+      <article class="card panel">
+        <header class="panel-title">
+          <div>
+            <span>BATTING</span>
+            <h2>{{ data?.teamName || 'Batting Card' }}</h2>
+          </div>
+          <small>R · B · 4s · 6s · SR</small>
+        </header>
+        <div class="thead">
+          <span>BATTER</span><span>R</span><span>B</span><span>4s</span><span>6s</span
+          ><span>SR</span>
+        </div>
+        @for (row of data?.batting || []; track row.playerId) {
+          <div class="row">
+            <div>
+              <b>{{ row.playerName }}</b
+              ><small>{{ row.dismissal || 'not out' }}</small>
+            </div>
+            <b>{{ row.runs }}</b
+            ><span>{{ row.balls }}</span
+            ><span>{{ row.fours }}</span
+            ><span>{{ row.sixes }}</span
+            ><span>{{ row.strikeRate | number: '1.1-1' }}</span>
+          </div>
+        }
+        @if (!data?.batting?.length) {
+          <div class="empty-state">Batting data will appear when the innings starts.</div>
+        }
+        <div class="summary">
+          <span>Extras</span><b>{{ data?.extras || 0 }}</b>
+        </div>
+        <div class="summary total">
+          <b>TOTAL</b
+          ><strong
+            >{{ data?.runs || 0 }}/{{ data?.wickets || 0 }}
+            <small>({{ overs(data?.legalBalls || 0) }} ov)</small></strong
+          >
+        </div>
+      </article>
+
+      <article class="card panel">
+        <header class="panel-title">
+          <div>
+            <span>BOWLING</span>
+            <h2>Bowling Card</h2>
+          </div>
+          <small>O · M · R · W · ECO</small>
+        </header>
+        <div class="thead">
+          <span>BOWLER</span><span>O</span><span>M</span><span>R</span><span>W</span
+          ><span>ECO</span>
+        </div>
+        @for (row of data?.bowling || []; track row.playerId) {
+          <div class="row">
+            <div>
+              <b>{{ row.playerName }}</b>
+            </div>
+            <span>{{ row.overs }}</span
+            ><span>{{ row.maidens }}</span
+            ><span>{{ row.runs }}</span
+            ><b>{{ row.wickets }}</b
+            ><span>{{ row.economy | number: '1.1-1' }}</span>
+          </div>
+        }
+        @if (!data?.bowling?.length) {
+          <div class="empty-state">Bowling data will appear when a bowler is active.</div>
+        }
+      </article>
+    </main>
+
+    <aside>
+      <article class="card panel side-panel">
+        <header class="panel-title">
+          <div>
+            <span>THIS OVER</span>
+            <h2>Ball sequence</h2>
+          </div>
+        </header>
+        <div class="balls"><i>·</i><i>·</i><i>·</i><i>·</i><i>·</i><i>·</i></div>
+      </article>
+      <article class="card panel side-panel">
+        <header class="panel-title">
+          <div>
+            <span>PARTNERSHIP</span>
+            <h2>Current stand</h2>
+          </div>
+        </header>
+        <strong class="partnership">0</strong><small>runs · 0 balls</small>
+      </article>
+    </aside>
+  </div>
+</section>

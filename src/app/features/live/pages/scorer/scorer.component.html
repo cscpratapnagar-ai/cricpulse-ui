@@ -1,44 +1,167 @@
+<section class="scorer-page">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">CRICPULSE SCORER</div>
+      <h1>{{ match?.name || 'Scorer Control Room' }}</h1>
+      <p>
+        {{ match?.teamAName || 'Team A' }} <span>vs</span> {{ match?.teamBName || 'Team B' }} ·
+        {{ match?.format || 'LIVE MATCH' }}
+      </p>
+    </div>
+    <div class="top-actions">
+      <span class="live-pill"><i></i> LIVE</span><a routerLink="/matches" class="back">Matches</a>
+    </div>
+  </header>
 
-    <section class="scorer-page">
-      <header class="topbar">
-        <div><div class="eyebrow">CRICPULSE SCORER</div><h1>{{ match?.name || 'Scorer Control Room' }}</h1><p>{{ match?.teamAName || 'Team A' }} <span>vs</span> {{ match?.teamBName || 'Team B' }} · {{ match?.format || 'LIVE MATCH' }}</p></div>
-        <div class="top-actions"><span class="live-pill"><i></i> LIVE</span><a routerLink="/matches" class="back">Matches</a></div>
-      </header>
-
-      @if (!inningsId) {
-        <section class="setup card">
-          <div class="section-title"><div><span>01 · INNINGS SETUP</span><h2>Start the scoring session</h2></div><b>READY</b></div>
-          <div class="setup-grid">
-            <app-select-field label="Batting team" placeholder="Choose batting team" [options]="teamOptions" [(value)]="battingTeamId" />
-            <app-select-field label="Innings" placeholder="Choose innings" [options]="inningsOptions" [(value)]="inningsNumber" />
-            <button class="start" (click)="startInnings()" [disabled]="starting">{{ starting ? 'Starting…' : 'Start innings' }} <span>→</span></button>
-          </div>
-          @if (message) { <p class="message">{{ message }}</p> }
-        </section>
-      } @else {
-        <section class="score-hero card">
-          <div class="score-main"><div class="score-label">{{ battingTeamName }} · INNINGS {{ inningsNumber }}</div>@if (score$ | async; as score) {<div class="score">{{ score?.runs ?? 0 }}<em>/{{ score?.wickets ?? 0 }}</em></div><div class="score-sub"><b>{{ overs(score?.legalBalls ?? 0) }}</b> OVERS <span>•</span> LIVE SYNC <strong>●</strong></div>} @else {<div class="score">0<em>/0</em></div>}</div>
-          <div class="match-state"><span>SCORING SESSION</span><strong>{{ currentOverLabel }}</strong><small>{{ message || 'Ready for next delivery' }}</small></div>
-        </section>
-        <section class="workspace">
-          <div class="main-column">
-            <article class="card delivery-card">
-              <div class="section-title"><div><span>02 · DELIVERY CONSOLE</span><h2>Record the next ball</h2></div><span class="ball-chip">{{ currentOverLabel }}</span></div>
-              <div class="run-grid">@for (run of runs; track run) { <button class="run" (click)="record(run)">{{ run }}</button> }</div>
-              <div class="extra-grid"><button (click)="extra('WIDE')">WIDE</button><button (click)="extra('NO_BALL')">NO BALL</button><button (click)="extra('BYE')">BYE</button><button (click)="extra('LEG_BYE')">LEG BYE</button><button class="wicket" (click)="wicket()">WICKET</button><button class="undo" (click)="undo()">UNDO</button></div>
-              <div class="hint">Tap a scoring action once. Every delivery is persisted by the scoring engine and broadcast to live viewers.</div>
-            </article>
-            <article class="card players-card">
-              <div class="section-title"><div><span>03 · ON-FIELD</span><h2>Players at the crease</h2></div><span class="live-dot">● SYNCED</span></div>
-              <div class="player-grid"><app-select-field label="Striker" placeholder="Select striker" [options]="battingOptions" [(value)]="strikerId" /><app-select-field label="Non-striker" placeholder="Select non-striker" [options]="battingOptions" [(value)]="nonStrikerId" /><app-select-field label="Bowler" placeholder="Select bowler" [options]="bowlingOptions" [(value)]="bowlerId" /></div>
-            </article>
-          </div>
-          <aside class="side-column">
-            <article class="card mini-card"><div class="section-title"><div><span>THIS OVER</span><h2>Ball sequence</h2></div></div><div class="balls">@for (ball of overBalls; track $index) { <span [class.boundary]="ball === '4' || ball === '6'" [class.extra]="ball === 'Wd' || ball === 'Nb'">{{ ball }}</span> } @if (!overBalls.length) { <small>Awaiting first delivery</small> }</div></article>
-            <article class="card mini-card"><div class="section-title"><div><span>PARTNERSHIP</span><h2>Current stand</h2></div></div><div class="partnership"><strong>{{ partnershipRuns }}</strong><span>{{ partnershipBalls }} balls</span></div></article>
-            <article class="card mini-card action-card"><div><span>LIVE VIEW</span><h2>Open public score</h2><p>Use the same real-time feed for viewers and broadcast overlays.</p></div><a [routerLink]="['/matches', matchId, 'live']">Open live match →</a></article>
-          </aside>
-        </section>
+  @if (!inningsId) {
+    <section class="setup card">
+      <div class="section-title">
+        <div>
+          <span>01 · INNINGS SETUP</span>
+          <h2>Start the scoring session</h2>
+        </div>
+        <b>READY</b>
+      </div>
+      <div class="setup-grid">
+        <app-select-field
+          label="Batting team"
+          placeholder="Choose batting team"
+          [options]="teamOptions"
+          [(value)]="battingTeamId"
+        />
+        <app-select-field
+          label="Innings"
+          placeholder="Choose innings"
+          [options]="inningsOptions"
+          [(value)]="inningsNumber"
+        />
+        <button class="start" (click)="startInnings()" [disabled]="starting">
+          {{ starting ? 'Starting…' : 'Start innings' }} <span>→</span>
+        </button>
+      </div>
+      @if (message) {
+        <p class="message">{{ message }}</p>
       }
     </section>
-  
+  } @else {
+    <section class="score-hero card">
+      <div class="score-main">
+        <div class="score-label">{{ battingTeamName }} · INNINGS {{ inningsNumber }}</div>
+        @if (score$ | async; as score) {
+          <div class="score">
+            {{ score?.runs ?? 0 }}<em>/{{ score?.wickets ?? 0 }}</em>
+          </div>
+          <div class="score-sub">
+            <b>{{ overs(score?.legalBalls ?? 0) }}</b> OVERS <span>•</span> LIVE SYNC
+            <strong>●</strong>
+          </div>
+        } @else {
+          <div class="score">0<em>/0</em></div>
+        }
+      </div>
+      <div class="match-state">
+        <span>SCORING SESSION</span><strong>{{ currentOverLabel }}</strong
+        ><small>{{ message || 'Ready for next delivery' }}</small>
+      </div>
+    </section>
+    <section class="workspace">
+      <div class="main-column">
+        <article class="card delivery-card">
+          <div class="section-title">
+            <div>
+              <span>02 · DELIVERY CONSOLE</span>
+              <h2>Record the next ball</h2>
+            </div>
+            <span class="ball-chip">{{ currentOverLabel }}</span>
+          </div>
+          <div class="run-grid">
+            @for (run of runs; track run) {
+              <button class="run" (click)="record(run)">{{ run }}</button>
+            }
+          </div>
+          <div class="extra-grid">
+            <button (click)="extra('WIDE')">WIDE</button
+            ><button (click)="extra('NO_BALL')">NO BALL</button
+            ><button (click)="extra('BYE')">BYE</button
+            ><button (click)="extra('LEG_BYE')">LEG BYE</button
+            ><button class="wicket" (click)="wicket()">WICKET</button
+            ><button class="undo" (click)="undo()">UNDO</button>
+          </div>
+          <div class="hint">
+            Tap a scoring action once. Every delivery is persisted by the scoring engine and
+            broadcast to live viewers.
+          </div>
+        </article>
+        <article class="card players-card">
+          <div class="section-title">
+            <div>
+              <span>03 · ON-FIELD</span>
+              <h2>Players at the crease</h2>
+            </div>
+            <span class="live-dot">● SYNCED</span>
+          </div>
+          <div class="player-grid">
+            <app-select-field
+              label="Striker"
+              placeholder="Select striker"
+              [options]="battingOptions"
+              [(value)]="strikerId"
+            /><app-select-field
+              label="Non-striker"
+              placeholder="Select non-striker"
+              [options]="battingOptions"
+              [(value)]="nonStrikerId"
+            /><app-select-field
+              label="Bowler"
+              placeholder="Select bowler"
+              [options]="bowlingOptions"
+              [(value)]="bowlerId"
+            />
+          </div>
+        </article>
+      </div>
+      <aside class="side-column">
+        <article class="card mini-card">
+          <div class="section-title">
+            <div>
+              <span>THIS OVER</span>
+              <h2>Ball sequence</h2>
+            </div>
+          </div>
+          <div class="balls">
+            @for (ball of overBalls; track $index) {
+              <span
+                [class.boundary]="ball === '4' || ball === '6'"
+                [class.extra]="ball === 'Wd' || ball === 'Nb'"
+                >{{ ball }}</span
+              >
+            }
+            @if (!overBalls.length) {
+              <small>Awaiting first delivery</small>
+            }
+          </div>
+        </article>
+        <article class="card mini-card">
+          <div class="section-title">
+            <div>
+              <span>PARTNERSHIP</span>
+              <h2>Current stand</h2>
+            </div>
+          </div>
+          <div class="partnership">
+            <strong>{{ partnershipRuns }}</strong
+            ><span>{{ partnershipBalls }} balls</span>
+          </div>
+        </article>
+        <article class="card mini-card action-card">
+          <div>
+            <span>LIVE VIEW</span>
+            <h2>Open public score</h2>
+            <p>Use the same real-time feed for viewers and broadcast overlays.</p>
+          </div>
+          <a [routerLink]="['/matches', matchId, 'live']">Open live match →</a>
+        </article>
+      </aside>
+    </section>
+  }
+</section>

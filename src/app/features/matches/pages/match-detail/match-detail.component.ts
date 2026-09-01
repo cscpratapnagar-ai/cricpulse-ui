@@ -19,8 +19,7 @@ interface Match {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './match-detail.component.html',
-  styleUrl: './match-detail.component.scss'
-
+  styleUrl: './match-detail.component.scss',
 })
 export class MatchDetailComponent {
   private readonly http = inject(HttpClient);
@@ -30,10 +29,19 @@ export class MatchDetailComponent {
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) { this.loading = false; return; }
+    if (!id) {
+      this.loading = false;
+      return;
+    }
     this.http.get<Match>(`http://localhost:8080/api/matches/${id}`).subscribe({
-      next: match => { this.match = match; this.loading = false; },
-      error: () => { this.match = null; this.loading = false; }
+      next: (match) => {
+        this.match = match;
+        this.loading = false;
+      },
+      error: () => {
+        this.match = null;
+        this.loading = false;
+      },
     });
   }
 
@@ -46,6 +54,12 @@ export class MatchDetailComponent {
     if (!value) return 'Schedule pending';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'numeric', minute:'2-digit' }).format(date);
+    return new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date);
   }
 }

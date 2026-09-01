@@ -23,13 +23,15 @@ export class CurrentUserService {
   readonly displayName = computed(() => {
     const user = this.userState();
 
-    return user?.displayName?.trim()
-      || user?.fullName?.trim()
-      || user?.name?.trim()
-      || user?.firstName?.trim()
-      || user?.username?.trim()
-      || user?.email?.split('@')[0]
-      || 'there';
+    return (
+      user?.displayName?.trim() ||
+      user?.fullName?.trim() ||
+      user?.name?.trim() ||
+      user?.firstName?.trim() ||
+      user?.username?.trim() ||
+      user?.email?.split('@')[0] ||
+      'there'
+    );
   });
 
   set(user: CurrentUser): void {
@@ -45,7 +47,7 @@ export class CurrentUserService {
   private readFromStorage(): CurrentUser | null {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) as CurrentUser : null;
+      return raw ? (JSON.parse(raw) as CurrentUser) : null;
     } catch {
       return null;
     }

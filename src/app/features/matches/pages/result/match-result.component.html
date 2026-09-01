@@ -1,29 +1,212 @@
 <section class="result-page">
-@if(loading){<section class="card loading"><div class="loader-orb"></div><div><span class="eyebrow">RESULT CENTER</span><h2>Preparing final result</h2><p>Calculating the completed match outcome…</p></div></section>}
-@else if(result){
-  <a class="back" [routerLink]="['/matches',result.matchId,'overview']"><svg viewBox="0 0 24 24" fill="none"><path d="m14 6-6 6 6 6M9 12h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Back to match centre</a>
-  <header class="hero card">
-    <div class="hero-glow"></div><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
-    <div class="hero-copy"><span class="eyebrow"><i></i> CRICPULSE · FINAL RESULT</span><h1>{{result.matchName}}</h1><p>{{result.format}} <span>•</span> Match completed</p></div>
-    <div class="trophy" aria-label="Match completed"><svg viewBox="0 0 24 24" fill="none"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6M8 16h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  </header>
-  <section class="result-banner card">
-    <div class="result-mark"><svg viewBox="0 0 24 24" fill="none"><path d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div><span class="eyebrow">MATCH DECISION</span><h2>{{result.resultText}}</h2><p>The final result has been confirmed from both completed innings.</p></div>
-    <span class="completed"><i></i> COMPLETED</span>
-  </section>
-  <section class="scores">
-    <article class="score-card card" [class.winner]="result.winningTeamId===result.firstInnings.teamId">
-      <div class="winner-sweep"></div><div class="team-head"><span>INNINGS 1</span>@if(result.winningTeamId===result.firstInnings.teamId){<b><svg viewBox="0 0 24 24" fill="none"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> WINNER</b>}</div>
-      <h2>{{result.firstInnings.teamName}}</h2><div class="score">{{result.firstInnings.runs}}<small>/{{result.firstInnings.wickets}}</small></div><div class="overs"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>{{overs(result.firstInnings.legalBalls)}} OVERS</div>
-    </article>
-    <div class="vs"><span>VS</span></div>
-    <article class="score-card card" [class.winner]="result.winningTeamId===result.secondInnings.teamId">
-      <div class="winner-sweep"></div><div class="team-head"><span>INNINGS 2</span>@if(result.winningTeamId===result.secondInnings.teamId){<b><svg viewBox="0 0 24 24" fill="none"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> WINNER</b>}</div>
-      <h2>{{result.secondInnings.teamName}}</h2><div class="score">{{result.secondInnings.runs}}<small>/{{result.secondInnings.wickets}}</small></div><div class="overs"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>{{overs(result.secondInnings.legalBalls)}} OVERS</div>
-    </article>
-  </section>
-  <section class="card summary"><div><span>RESULT TYPE</span><strong>{{result.resultType}}</strong></div><div><span>MATCH STATUS</span><strong>{{result.status}}</strong></div><div><span>FIRST INNINGS</span><strong>{{result.firstInnings.runs}}<small>/{{result.firstInnings.wickets}}</small></strong></div><div><span>SECOND INNINGS</span><strong>{{result.secondInnings.runs}}<small>/{{result.secondInnings.wickets}}</small></strong></div></section>
-  <nav class="actions"><a [routerLink]="['/matches',result.matchId,'overview']"><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19V7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg> Match Centre</a><a [routerLink]="['/matches',result.matchId,'scorecard']"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg> Full Scorecard</a><a [routerLink]="['/matches',result.matchId,'statistics']"><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V9M10 19V5M15 19v-7M20 19V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Match Statistics</a></nav>
-}@else{<section class="card error"><div class="result-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4m0 4h.01M5.4 19h13.2a2 2 0 0 0 1.7-3L13.7 5a2 2 0 0 0-3.4 0L3.7 16a2 2 0 0 0 1.7 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><span class="eyebrow">RESULT UNAVAILABLE</span><h1>Match result is not ready</h1><p>Both innings must be completed before the final result can be calculated.</p><a routerLink="/matches">Back to matches</a></section>}
+  @if (loading) {
+    <section class="card loading">
+      <div class="loader-orb"></div>
+      <div>
+        <span class="eyebrow">RESULT CENTER</span>
+        <h2>Preparing final result</h2>
+        <p>Calculating the completed match outcome…</p>
+      </div>
+    </section>
+  } @else if (result) {
+    <a class="back" [routerLink]="['/matches', result.matchId, 'overview']"
+      ><svg viewBox="0 0 24 24" fill="none">
+        <path
+          d="m14 6-6 6 6 6M9 12h11"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      Back to match centre</a
+    >
+    <header class="hero card">
+      <div class="hero-glow"></div>
+      <div class="orbit orbit-a"></div>
+      <div class="orbit orbit-b"></div>
+      <div class="hero-copy">
+        <span class="eyebrow"><i></i> CRICPULSE · FINAL RESULT</span>
+        <h1>{{ result.matchName }}</h1>
+        <p>{{ result.format }} <span>•</span> Match completed</p>
+      </div>
+      <div class="trophy" aria-label="Match completed">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6M8 16h8"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </header>
+    <section class="result-banner card">
+      <div class="result-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="m6 12 4 4 8-9"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <div>
+        <span class="eyebrow">MATCH DECISION</span>
+        <h2>{{ result.resultText }}</h2>
+        <p>The final result has been confirmed from both completed innings.</p>
+      </div>
+      <span class="completed"><i></i> COMPLETED</span>
+    </section>
+    <section class="scores">
+      <article
+        class="score-card card"
+        [class.winner]="result.winningTeamId === result.firstInnings.teamId"
+      >
+        <div class="winner-sweep"></div>
+        <div class="team-head">
+          <span>INNINGS 1</span>
+          @if (result.winningTeamId === result.firstInnings.teamId) {
+            <b
+              ><svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+              WINNER</b
+            >
+          }
+        </div>
+        <h2>{{ result.firstInnings.teamName }}</h2>
+        <div class="score">
+          {{ result.firstInnings.runs }}<small>/{{ result.firstInnings.wickets }}</small>
+        </div>
+        <div class="overs">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6" />
+            <path
+              d="M12 8v4l3 2"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            /></svg
+          >{{ overs(result.firstInnings.legalBalls) }} OVERS
+        </div>
+      </article>
+      <div class="vs"><span>VS</span></div>
+      <article
+        class="score-card card"
+        [class.winner]="result.winningTeamId === result.secondInnings.teamId"
+      >
+        <div class="winner-sweep"></div>
+        <div class="team-head">
+          <span>INNINGS 2</span>
+          @if (result.winningTeamId === result.secondInnings.teamId) {
+            <b
+              ><svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M8 4h8v3a4 4 0 0 1-8 0V4Zm0 2H5c0 3 1.4 5 4 5M16 6h3c0 3-1.4 5-4 5M12 11v5M9 20h6"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+              WINNER</b
+            >
+          }
+        </div>
+        <h2>{{ result.secondInnings.teamName }}</h2>
+        <div class="score">
+          {{ result.secondInnings.runs }}<small>/{{ result.secondInnings.wickets }}</small>
+        </div>
+        <div class="overs">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6" />
+            <path
+              d="M12 8v4l3 2"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            /></svg
+          >{{ overs(result.secondInnings.legalBalls) }} OVERS
+        </div>
+      </article>
+    </section>
+    <section class="card summary">
+      <div>
+        <span>RESULT TYPE</span><strong>{{ result.resultType }}</strong>
+      </div>
+      <div>
+        <span>MATCH STATUS</span><strong>{{ result.status }}</strong>
+      </div>
+      <div>
+        <span>FIRST INNINGS</span
+        ><strong
+          >{{ result.firstInnings.runs }}<small>/{{ result.firstInnings.wickets }}</small></strong
+        >
+      </div>
+      <div>
+        <span>SECOND INNINGS</span
+        ><strong
+          >{{ result.secondInnings.runs }}<small>/{{ result.secondInnings.wickets }}</small></strong
+        >
+      </div>
+    </section>
+    <nav class="actions">
+      <a [routerLink]="['/matches', result.matchId, 'overview']"
+        ><svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 19V9M10 19V5M15 19v-7M20 19V7"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+        Match Centre</a
+      ><a [routerLink]="['/matches', result.matchId, 'scorecard']"
+        ><svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h3"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+        Full Scorecard</a
+      ><a [routerLink]="['/matches', result.matchId, 'statistics']"
+        ><svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 19V9M10 19V5M15 19v-7M20 19V7"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+        Match Statistics</a
+      >
+    </nav>
+  } @else {
+    <section class="card error">
+      <div class="result-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 8v4m0 4h.01M5.4 19h13.2a2 2 0 0 0 1.7-3L13.7 5a2 2 0 0 0-3.4 0L3.7 16a2 2 0 0 0 1.7 3Z"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+      <span class="eyebrow">RESULT UNAVAILABLE</span>
+      <h1>Match result is not ready</h1>
+      <p>Both innings must be completed before the final result can be calculated.</p>
+      <a routerLink="/matches">Back to matches</a>
+    </section>
+  }
 </section>

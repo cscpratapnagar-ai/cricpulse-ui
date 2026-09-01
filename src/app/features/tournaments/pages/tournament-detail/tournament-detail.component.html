@@ -1,53 +1,371 @@
-<section class="page tournament-page">@if(loading){<section class="state-shell"><div class="pulse-orb"></div><p>Preparing tournament command center…</p></section>}@else if(t){<a class="back" routerLink="/tournaments"><span>←</span> All tournaments</a>
+<section class="page tournament-page">
+  @if (loading) {
+    <section class="state-shell">
+      <div class="pulse-orb"></div>
+      <p>Preparing tournament command center…</p>
+    </section>
+  } @else if (t) {
+    <a class="back" routerLink="/tournaments"><span>←</span> All tournaments</a>
 
-<header class="hero">
-  <div class="hero-main"><div class="trophy">🏆</div><div><div class="eyebrow-row"><span class="eyebrow">TOURNAMENT COMMAND CENTER</span><span class="status-dot"></span><span class="live-label">{{t.status}}</span></div><h1>{{t.name}}</h1><p>{{t.format}} <i>•</i> {{t.overs}} overs <i>•</i> {{t.location||'Location not set'}}</p></div></div>
-  <div class="hero-actions"><button class="icon-btn" title="Refresh data" (click)="refresh()">↻</button><a class="ghost-btn" [routerLink]="['/tournaments',id,'analytics']">Analytics</a><button class="primary-cta" [disabled]="busy||teams.length<2" (click)="generateFixtures()">{{busy?'Working…':'Generate fixtures'}} <span>→</span></button></div>
-</header>
+    <header class="hero">
+      <div class="hero-main">
+        <div class="trophy">🏆</div>
+        <div>
+          <div class="eyebrow-row">
+            <span class="eyebrow">TOURNAMENT COMMAND CENTER</span><span class="status-dot"></span
+            ><span class="live-label">{{ t.status }}</span>
+          </div>
+          <h1>{{ t.name }}</h1>
+          <p>
+            {{ t.format }} <i>•</i> {{ t.overs }} overs <i>•</i>
+            {{ t.location || 'Location not set' }}
+          </p>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="icon-btn" title="Refresh data" (click)="refresh()">↻</button
+        ><a class="ghost-btn" [routerLink]="['/tournaments', id, 'analytics']">Analytics</a
+        ><button
+          class="primary-cta"
+          [disabled]="busy || teams.length < 2"
+          (click)="generateFixtures()"
+        >
+          {{ busy ? 'Working…' : 'Generate fixtures' }} <span>→</span>
+        </button>
+      </div>
+    </header>
 
-<nav class="tabs" aria-label="Tournament navigation">
- @for(tab of tabs;track tab.key){<button [class.active]="activeTab()===tab.key" (click)="activeTab.set(tab.key)"><span>{{tab.icon}}</span>{{tab.label}}</button>}
-</nav>
+    <nav class="tabs" aria-label="Tournament navigation">
+      @for (tab of tabs; track tab.key) {
+        <button [class.active]="activeTab() === tab.key" (click)="activeTab.set(tab.key)">
+          <span>{{ tab.icon }}</span
+          >{{ tab.label }}
+        </button>
+      }
+    </nav>
 
-@if(actionError){<div class="notice error"><b>Action needed</b>{{actionError}}<button (click)="actionError=''">×</button></div>}
-@if(actionMessage){<div class="notice success"><b>Success</b>{{actionMessage}}<button (click)="actionMessage=''">×</button></div>}
+    @if (actionError) {
+      <div class="notice error">
+        <b>Action needed</b>{{ actionError }}<button (click)="actionError = ''">×</button>
+      </div>
+    }
+    @if (actionMessage) {
+      <div class="notice success">
+        <b>Success</b>{{ actionMessage }}<button (click)="actionMessage = ''">×</button>
+      </div>
+    }
 
-@if(activeTab()==='overview'){
-<section class="metrics">
- <article class="metric-card"><span class="metric-icon">♜</span><div><small>REGISTERED TEAMS</small><strong>{{teams.length}}</strong><em>{{availableTeams.length}} available to add</em></div></article>
- <article class="metric-card"><span class="metric-icon">▦</span><div><small>TOTAL FIXTURES</small><strong>{{fixtures.length}}</strong><em>{{scheduled}} scheduled</em></div></article>
- <article class="metric-card accent-metric"><span class="metric-icon">✓</span><div><small>COMPLETION</small><strong>{{completion}}%</strong><div class="progress"><i [style.width.%]="completion"></i></div></div></article>
- <article class="metric-card"><span class="metric-icon">◷</span><div><small>START DATE</small><strong class="date-value">{{t.startDate||'TBD'}}</strong><em>{{completed}} matches completed</em></div></article>
+    @if (activeTab() === 'overview') {
+      <section class="metrics">
+        <article class="metric-card">
+          <span class="metric-icon">♜</span>
+          <div>
+            <small>REGISTERED TEAMS</small><strong>{{ teams.length }}</strong
+            ><em>{{ availableTeams.length }} available to add</em>
+          </div>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon">▦</span>
+          <div>
+            <small>TOTAL FIXTURES</small><strong>{{ fixtures.length }}</strong
+            ><em>{{ scheduled }} scheduled</em>
+          </div>
+        </article>
+        <article class="metric-card accent-metric">
+          <span class="metric-icon">✓</span>
+          <div>
+            <small>COMPLETION</small><strong>{{ completion }}%</strong>
+            <div class="progress"><i [style.width.%]="completion"></i></div>
+          </div>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon">◷</span>
+          <div>
+            <small>START DATE</small><strong class="date-value">{{ t.startDate || 'TBD' }}</strong
+            ><em>{{ completed }} matches completed</em>
+          </div>
+        </article>
+      </section>
+
+      <section class="command-grid">
+        <article class="command-card">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">COMPETITION SETUP</span>
+              <h2>Build your tournament</h2>
+              <p>Manage teams, fixtures and competition flow from one workspace.</p>
+            </div>
+            <span class="step-pill">{{ teams.length < 2 ? 'STEP 1' : 'READY' }}</span>
+          </div>
+          <div class="action-stack">
+            <div class="setup-row">
+              <div class="setup-icon">♜</div>
+              <div>
+                <strong>Register teams</strong
+                ><small>{{ teams.length }} teams currently competing</small>
+              </div>
+              <app-select-field
+                label=""
+                placeholder="Select a team"
+                [options]="teamOptions"
+                [value]="teamToAdd"
+                (valueChange)="teamToAdd = $event"
+              ></app-select-field
+              ><button class="row-action" [disabled]="!teamToAdd || busy" (click)="addTeam()">
+                Add
+              </button>
+            </div>
+            <div class="setup-row">
+              <div class="setup-icon">▦</div>
+              <div>
+                <strong>Link existing match</strong><small>Both teams must be registered</small>
+              </div>
+              <app-select-field
+                label=""
+                placeholder="Select eligible match"
+                [options]="matchOptions"
+                [value]="matchToAdd"
+                (valueChange)="matchToAdd = $event"
+              ></app-select-field
+              ><button class="row-action" [disabled]="!matchToAdd || busy" (click)="linkMatch()">
+                Link
+              </button>
+            </div>
+          </div>
+          <div class="quick-links">
+            <a [routerLink]="['/tournaments', id, 'schedule']"
+              >Open fixture planner <span>→</span></a
+            ><a [routerLink]="['/tournaments', id, 'qualification']"
+              >Qualification preview <span>→</span></a
+            >
+          </div>
+        </article>
+        <article class="insight-card">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">TOURNAMENT HEALTH</span>
+              <h2>Competition progress</h2>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut" [style.--progress]="completion">
+              <div>
+                <strong>{{ completion }}%</strong><span>complete</span>
+              </div>
+            </div>
+            <div class="progress-copy">
+              <strong>{{ completed }} of {{ fixtures.length }}</strong
+              ><span>fixtures completed</span>
+              <p>
+                {{ fixtures.length - completed }} matches remaining in the current tournament flow.
+              </p>
+            </div>
+          </div>
+          <div class="health-row">
+            <span
+              >Completed <b>{{ completed }}</b></span
+            ><span
+              >Scheduled <b>{{ scheduled }}</b></span
+            ><span
+              >Pending <b>{{ pending }}</b></span
+            >
+          </div>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel standings">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">LIVE STANDINGS</span>
+              <h2>Points table</h2>
+            </div>
+            <span class="subtle">2 PTS / WIN</span>
+          </div>
+          @if (points.length) {
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>TEAM</th>
+                    <th>P</th>
+                    <th>W</th>
+                    <th>L</th>
+                    <th>PTS</th>
+                    <th>NRR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (p of points; track p.teamId; let i = $index) {
+                    <tr [class.top]="i < 2">
+                      <td>
+                        <span class="rank">{{ i + 1 }}</span>
+                      </td>
+                      <td>
+                        <strong>{{ p.teamName }}</strong>
+                      </td>
+                      <td>{{ p.played }}</td>
+                      <td>{{ p.wins }}</td>
+                      <td>{{ p.losses }}</td>
+                      <td class="points">{{ p.points }}</td>
+                      <td [class.positive]="p.nrr > 0">{{ p.nrr | number: '1.3-3' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-inline">Standings will appear after tournament matches begin.</div>
+          }
+        </article>
+        <article class="panel next-match">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">FIXTURE RADAR</span>
+              <h2>Next fixtures</h2>
+            </div>
+            <a [routerLink]="['/tournaments', id, 'schedule']">View all</a>
+          </div>
+          @if (fixtures.length) {
+            <div class="fixture-list">
+              @for (f of fixtures.slice(0, 4); track f.matchId) {
+                <a [routerLink]="['/matches', f.matchId]" class="fixture-row"
+                  ><span class="fixture-no">#{{ f.fixtureNumber || '—' }}</span>
+                  <div>
+                    <small>{{ f.stage }} · {{ f.status }}</small
+                    ><strong>{{ f.teamAName }} <b>vs</b> {{ f.teamBName }}</strong>
+                  </div>
+                  <span class="arrow">→</span></a
+                >
+              }
+            </div>
+          } @else {
+            <div class="empty-inline">No fixtures generated yet.</div>
+          }
+        </article>
+      </section>
+    }
+    @if (activeTab() === 'teams') {
+      <section class="panel full-panel">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">SQUAD DIRECTORY</span>
+            <h2>
+              Registered teams <span class="count-badge">{{ teams.length }}</span>
+            </h2>
+          </div>
+        </div>
+        <div class="team-grid">
+          @for (x of teams; track x.id) {
+            <article class="team-card">
+              <span class="team-mark">{{ x.name.charAt(0) }}</span>
+              <div>
+                <strong>{{ x.name }}</strong
+                ><small>{{ x.city || 'City not set' }} · Seed {{ x.seed || '—' }}</small>
+              </div>
+              <span>→</span>
+            </article>
+          } @empty {
+            <div class="empty-inline">No teams registered yet.</div>
+          }
+        </div>
+      </section>
+    }
+    @if (activeTab() === 'fixtures') {
+      <section class="panel full-panel">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">MATCH DIRECTORY</span>
+            <h2>
+              Fixtures <span class="count-badge">{{ fixtures.length }}</span>
+            </h2>
+            <a [routerLink]="['/tournaments', id, 'schedule']" class="ghost-btn">Open planner</a>
+          </div>
+        </div>
+        <div class="fixture-list expanded">
+          @for (f of fixtures; track f.matchId) {
+            <a [routerLink]="['/matches', f.matchId]" class="fixture-row"
+              ><span class="fixture-no">#{{ f.fixtureNumber || '—' }}</span>
+              <div>
+                <small>{{ f.stage }} · {{ f.status }}</small
+                ><strong>{{ f.teamAName }} <b>vs</b> {{ f.teamBName }}</strong
+                ><em>{{ f.matchName }}</em>
+              </div>
+              <span class="arrow">→</span></a
+            >
+          } @empty {
+            <div class="empty-inline">No fixtures generated yet.</div>
+          }
+        </div>
+      </section>
+    }
+    @if (activeTab() === 'standings') {
+      <section class="panel full-panel">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">LEAGUE TABLE</span>
+            <h2>Complete standings</h2>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>TEAM</th>
+                <th>P</th>
+                <th>W</th>
+                <th>L</th>
+                <th>T</th>
+                <th>PTS</th>
+                <th>NRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of points; track p.teamId; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <strong>{{ p.teamName }}</strong>
+                  </td>
+                  <td>{{ p.played }}</td>
+                  <td>{{ p.wins }}</td>
+                  <td>{{ p.losses }}</td>
+                  <td>{{ p.ties }}</td>
+                  <td class="points">{{ p.points }}</td>
+                  <td>{{ p.nrr | number: '1.3-3' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="empty-cell">No standings data yet.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+    @if (activeTab() === 'analytics') {
+      <section class="analytics-redirect panel">
+        <span class="eyebrow">TOURNAMENT INTELLIGENCE</span>
+        <h2>Advanced analytics workspace</h2>
+        <p>
+          Explore completion trends, team performance and competition signals in the dedicated
+          analytics experience.
+        </p>
+        <a [routerLink]="['/tournaments', id, 'analytics']" class="primary-cta">Open analytics →</a>
+      </section>
+    }
+    <div class="bottom-actions">
+      <a [routerLink]="['/tournaments', id, 'schedule']">Fixture planner</a
+      ><a [routerLink]="['/tournaments', id, 'qualification']">Qualification</a
+      ><a routerLink="/matches/new">Create match</a>
+    </div>
+  } @else {
+    <section class="state-shell">
+      <h2>Tournament not found</h2>
+      <a routerLink="/tournaments">Back to tournaments →</a>
+    </section>
+  }
 </section>
-
-<section class="command-grid">
- <article class="command-card">
-   <div class="section-head"><div><span class="eyebrow">COMPETITION SETUP</span><h2>Build your tournament</h2><p>Manage teams, fixtures and competition flow from one workspace.</p></div><span class="step-pill">{{teams.length<2?'STEP 1':'READY'}}</span></div>
-   <div class="action-stack">
-    <div class="setup-row"><div class="setup-icon">♜</div><div><strong>Register teams</strong><small>{{teams.length}} teams currently competing</small></div><app-select-field label="" placeholder="Select a team" [options]="teamOptions" [value]="teamToAdd" (valueChange)="teamToAdd=$event"></app-select-field><button class="row-action" [disabled]="!teamToAdd||busy" (click)="addTeam()">Add</button></div>
-    <div class="setup-row"><div class="setup-icon">▦</div><div><strong>Link existing match</strong><small>Both teams must be registered</small></div><app-select-field label="" placeholder="Select eligible match" [options]="matchOptions" [value]="matchToAdd" (valueChange)="matchToAdd=$event"></app-select-field><button class="row-action" [disabled]="!matchToAdd||busy" (click)="linkMatch()">Link</button></div>
-   </div>
-   <div class="quick-links"><a [routerLink]="['/tournaments',id,'schedule']">Open fixture planner <span>→</span></a><a [routerLink]="['/tournaments',id,'qualification']">Qualification preview <span>→</span></a></div>
- </article>
- <article class="insight-card">
-  <div class="section-head"><div><span class="eyebrow">TOURNAMENT HEALTH</span><h2>Competition progress</h2></div></div>
-  <div class="donut-wrap"><div class="donut" [style.--progress]="completion"><div><strong>{{completion}}%</strong><span>complete</span></div></div><div class="progress-copy"><strong>{{completed}} of {{fixtures.length}}</strong><span>fixtures completed</span><p>{{fixtures.length-completed}} matches remaining in the current tournament flow.</p></div></div>
-  <div class="health-row"><span>Completed <b>{{completed}}</b></span><span>Scheduled <b>{{scheduled}}</b></span><span>Pending <b>{{pending}}</b></span></div>
- </article>
-</section>
-
-<section class="content-grid">
- <article class="panel standings"><div class="section-head"><div><span class="eyebrow">LIVE STANDINGS</span><h2>Points table</h2></div><span class="subtle">2 PTS / WIN</span></div>
- @if(points.length){<div class="table-wrap"><table><thead><tr><th>#</th><th>TEAM</th><th>P</th><th>W</th><th>L</th><th>PTS</th><th>NRR</th></tr></thead><tbody>@for(p of points;track p.teamId;let i=$index){<tr [class.top]="i<2"><td><span class="rank">{{i+1}}</span></td><td><strong>{{p.teamName}}</strong></td><td>{{p.played}}</td><td>{{p.wins}}</td><td>{{p.losses}}</td><td class="points">{{p.points}}</td><td [class.positive]="p.nrr>0">{{p.nrr|number:'1.3-3'}}</td></tr>}</tbody></table></div>}@else{<div class="empty-inline">Standings will appear after tournament matches begin.</div>}
- </article>
- <article class="panel next-match"><div class="section-head"><div><span class="eyebrow">FIXTURE RADAR</span><h2>Next fixtures</h2></div><a [routerLink]="['/tournaments',id,'schedule']">View all</a></div>
- @if(fixtures.length){<div class="fixture-list">@for(f of fixtures.slice(0,4);track f.matchId){<a [routerLink]="['/matches',f.matchId]" class="fixture-row"><span class="fixture-no">#{{f.fixtureNumber||'—'}}</span><div><small>{{f.stage}} · {{f.status}}</small><strong>{{f.teamAName}} <b>vs</b> {{f.teamBName}}</strong></div><span class="arrow">→</span></a>}</div>}@else{<div class="empty-inline">No fixtures generated yet.</div>}
- </article>
-</section>
-}
-@if(activeTab()==='teams'){<section class="panel full-panel"><div class="section-head"><div><span class="eyebrow">SQUAD DIRECTORY</span><h2>Registered teams <span class="count-badge">{{teams.length}}</span></h2></div></div><div class="team-grid">@for(x of teams;track x.id){<article class="team-card"><span class="team-mark">{{x.name.charAt(0)}}</span><div><strong>{{x.name}}</strong><small>{{x.city||'City not set'}} · Seed {{x.seed||'—'}}</small></div><span>→</span></article>}@empty{<div class="empty-inline">No teams registered yet.</div>}</div></section>}
-@if(activeTab()==='fixtures'){<section class="panel full-panel"><div class="section-head"><div><span class="eyebrow">MATCH DIRECTORY</span><h2>Fixtures <span class="count-badge">{{fixtures.length}}</span></h2><a [routerLink]="['/tournaments',id,'schedule']" class="ghost-btn">Open planner</a></div></div><div class="fixture-list expanded">@for(f of fixtures;track f.matchId){<a [routerLink]="['/matches',f.matchId]" class="fixture-row"><span class="fixture-no">#{{f.fixtureNumber||'—'}}</span><div><small>{{f.stage}} · {{f.status}}</small><strong>{{f.teamAName}} <b>vs</b> {{f.teamBName}}</strong><em>{{f.matchName}}</em></div><span class="arrow">→</span></a>}@empty{<div class="empty-inline">No fixtures generated yet.</div>}</div></section>}
-@if(activeTab()==='standings'){<section class="panel full-panel"><div class="section-head"><div><span class="eyebrow">LEAGUE TABLE</span><h2>Complete standings</h2></div></div><div class="table-wrap"><table><thead><tr><th>#</th><th>TEAM</th><th>P</th><th>W</th><th>L</th><th>T</th><th>PTS</th><th>NRR</th></tr></thead><tbody>@for(p of points;track p.teamId;let i=$index){<tr><td>{{i+1}}</td><td><strong>{{p.teamName}}</strong></td><td>{{p.played}}</td><td>{{p.wins}}</td><td>{{p.losses}}</td><td>{{p.ties}}</td><td class="points">{{p.points}}</td><td>{{p.nrr|number:'1.3-3'}}</td></tr>}@empty{<tr><td colspan="8" class="empty-cell">No standings data yet.</td></tr>}</tbody></table></div></section>}
-@if(activeTab()==='analytics'){<section class="analytics-redirect panel"><span class="eyebrow">TOURNAMENT INTELLIGENCE</span><h2>Advanced analytics workspace</h2><p>Explore completion trends, team performance and competition signals in the dedicated analytics experience.</p><a [routerLink]="['/tournaments',id,'analytics']" class="primary-cta">Open analytics →</a></section>}
-<div class="bottom-actions"><a [routerLink]="['/tournaments',id,'schedule']">Fixture planner</a><a [routerLink]="['/tournaments',id,'qualification']">Qualification</a><a routerLink="/matches/new">Create match</a></div>
-}@else{<section class="state-shell"><h2>Tournament not found</h2><a routerLink="/tournaments">Back to tournaments →</a></section>}</section>

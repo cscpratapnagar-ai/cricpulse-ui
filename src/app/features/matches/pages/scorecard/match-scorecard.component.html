@@ -1,72 +1,280 @@
-
 <section class="scorecard-page">
-  @if(loading){
-    <section class="state-card"><div class="loader"></div><div><span class="eyebrow">MATCH SCORECARD</span><h2>Building the match story</h2><p>Loading innings, player performances and dismissals.</p></div></section>
-  } @else if(scorecards.length && currentInnings){
+  @if (loading) {
+    <section class="state-card">
+      <div class="loader"></div>
+      <div>
+        <span class="eyebrow">MATCH SCORECARD</span>
+        <h2>Building the match story</h2>
+        <p>Loading innings, player performances and dismissals.</p>
+      </div>
+    </section>
+  } @else if (scorecards.length && currentInnings) {
     <header class="page-header">
-      <a class="back" [routerLink]="['/matches',matchId,'result']"><span>←</span> Back to result</a>
+      <a class="back" [routerLink]="['/matches', matchId, 'result']"
+        ><span>←</span> Back to result</a
+      >
       <div class="title-row">
-        <div><span class="eyebrow">MATCH PERFORMANCE</span><h1>Full Scorecard</h1><p>{{scorecards[0].teamName}} <b>vs</b> {{opponentName}} · Complete innings breakdown</p></div>
-        <div class="match-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Zm0 2H4c0 3.1 1.4 5.2 4.3 6M17 6h3c0 3.1-1.4 5.2-4.3 6M12 13v4M9 20h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <div>
+          <span class="eyebrow">MATCH PERFORMANCE</span>
+          <h1>Full Scorecard</h1>
+          <p>
+            {{ scorecards[0].teamName }} <b>vs</b> {{ opponentName }} · Complete innings breakdown
+          </p>
+        </div>
+        <div class="match-mark">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M7 4h10v4a5 5 0 0 1-10 0V4Zm0 2H4c0 3.1 1.4 5.2 4.3 6M17 6h3c0 3.1-1.4 5.2-4.3 6M12 13v4M9 20h6"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
       </div>
     </header>
 
     <section class="match-strip">
       <div class="strip-team">
-        <span class="team-avatar">{{teamInitial(scorecards[0].teamName)}}</span>
-        <div><span>INNINGS 1</span><strong>{{scorecards[0].teamName}}</strong></div>
-        <b>{{scorecards[0].runs}}<small>/{{scorecards[0].wickets}}</small></b>
+        <span class="team-avatar">{{ teamInitial(scorecards[0].teamName) }}</span>
+        <div>
+          <span>INNINGS 1</span><strong>{{ scorecards[0].teamName }}</strong>
+        </div>
+        <b
+          >{{ scorecards[0].runs }}<small>/{{ scorecards[0].wickets }}</small></b
+        >
       </div>
       <div class="strip-vs"><i></i><em>VS</em><i></i></div>
       <div class="strip-team right">
-        <b>{{scorecards[1]?.runs ?? 0}}<small>/{{scorecards[1]?.wickets ?? 0}}</small></b>
-        <div><span>INNINGS 2</span><strong>{{scorecards[1]?.teamName || 'Opponent'}}</strong></div>
-        <span class="team-avatar">{{teamInitial(scorecards[1]?.teamName || 'Opponent')}}</span>
+        <b
+          >{{ scorecards[1]?.runs ?? 0 }}<small>/{{ scorecards[1]?.wickets ?? 0 }}</small></b
+        >
+        <div>
+          <span>INNINGS 2</span><strong>{{ scorecards[1]?.teamName || 'Opponent' }}</strong>
+        </div>
+        <span class="team-avatar">{{ teamInitial(scorecards[1]?.teamName || 'Opponent') }}</span>
       </div>
     </section>
 
     <nav class="innings-switch" aria-label="Select innings">
-      @for(innings of scorecards; track innings.inningsId){
-        <button [class.active]="selectedInnings===innings.inningsNumber" (click)="selectedInnings=innings.inningsNumber">
-          <span class="switch-index">0{{innings.inningsNumber}}</span>
-          <span><b>{{innings.teamName}}</b><small>{{innings.runs}}/{{innings.wickets}} · {{overs(innings.legalBalls)}} ov</small></span>
-          @if(selectedInnings===innings.inningsNumber){<i>Viewing</i>}
+      @for (innings of scorecards; track innings.inningsId) {
+        <button
+          [class.active]="selectedInnings === innings.inningsNumber"
+          (click)="selectedInnings = innings.inningsNumber"
+        >
+          <span class="switch-index">0{{ innings.inningsNumber }}</span>
+          <span
+            ><b>{{ innings.teamName }}</b
+            ><small
+              >{{ innings.runs }}/{{ innings.wickets }} · {{ overs(innings.legalBalls) }} ov</small
+            ></span
+          >
+          @if (selectedInnings === innings.inningsNumber) {
+            <i>Viewing</i>
+          }
         </button>
       }
     </nav>
 
     <section class="innings-hero">
-      <div class="innings-copy"><span class="eyebrow">INNINGS {{currentInnings.inningsNumber}} SCORE</span><h2>{{currentInnings.teamName}}</h2><p>{{currentInnings.batting.length}} batters used · {{currentInnings.bowling.length}} bowlers used</p></div>
-      <div class="hero-score"><strong>{{currentInnings.runs}}<small>/{{currentInnings.wickets}}</small></strong><span>{{overs(currentInnings.legalBalls)}} overs</span></div>
-      <div class="hero-metrics"><div><span>EXTRAS</span><b>{{currentInnings.extras}}</b></div><div><span>RUN RATE</span><b>{{runRate(currentInnings.runs,currentInnings.legalBalls)}}</b></div></div>
+      <div class="innings-copy">
+        <span class="eyebrow">INNINGS {{ currentInnings.inningsNumber }} SCORE</span>
+        <h2>{{ currentInnings.teamName }}</h2>
+        <p>
+          {{ currentInnings.batting.length }} batters used ·
+          {{ currentInnings.bowling.length }} bowlers used
+        </p>
+      </div>
+      <div class="hero-score">
+        <strong
+          >{{ currentInnings.runs }}<small>/{{ currentInnings.wickets }}</small></strong
+        ><span>{{ overs(currentInnings.legalBalls) }} overs</span>
+      </div>
+      <div class="hero-metrics">
+        <div>
+          <span>EXTRAS</span><b>{{ currentInnings.extras }}</b>
+        </div>
+        <div>
+          <span>RUN RATE</span><b>{{ runRate(currentInnings.runs, currentInnings.legalBalls) }}</b>
+        </div>
+      </div>
     </section>
 
     <main class="score-layout">
       <div class="primary-column">
         <section class="data-card">
-          <header class="section-head"><div class="section-icon bat"><svg viewBox="0 0 24 24" fill="none"><path d="m8 20 9-9M14 4l6 6M5 21l4-4M13 3l8 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><div><span class="eyebrow">BATTING</span><h2>Batting performance</h2><p>Individual contribution for this innings</p></div></header>
-          <div class="table-wrap"><table class="batting-table"><thead><tr><th>BATTER</th><th>DISMISSAL</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>
-            @for(b of currentInnings.batting; track b.playerId){<tr><td class="player-cell"><span class="player-avatar">{{playerInitial(b.playerName)}}</span><div><strong>{{b.playerName}}</strong><small>@if(b.out){Dismissed}@else{Not out}</small></div></td><td class="dismissal"><span [class.notout]="!b.out">{{b.out ? (b.dismissal || 'Dismissed') : 'Not out'}}</span></td><td class="num runs">{{b.runs}}</td><td class="num">{{b.balls}}</td><td class="num">{{b.fours}}</td><td class="num">{{b.sixes}}</td><td class="num rate">{{formatRate(b.strikeRate)}}</td></tr>}
-          </tbody></table></div>
-          <footer class="innings-total"><div><span>Extras</span><b>{{currentInnings.extras}}</b></div><div class="grand-total"><span>Total</span><b>{{currentInnings.runs}}<small>/{{currentInnings.wickets}} · {{overs(currentInnings.legalBalls)}} ov</small></b></div></footer>
+          <header class="section-head">
+            <div class="section-icon bat">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="m8 20 9-9M14 4l6 6M5 21l4-4M13 3l8 8"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <span class="eyebrow">BATTING</span>
+              <h2>Batting performance</h2>
+              <p>Individual contribution for this innings</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="batting-table">
+              <thead>
+                <tr>
+                  <th>BATTER</th>
+                  <th>DISMISSAL</th>
+                  <th>R</th>
+                  <th>B</th>
+                  <th>4s</th>
+                  <th>6s</th>
+                  <th>SR</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of currentInnings.batting; track b.playerId) {
+                  <tr>
+                    <td class="player-cell">
+                      <span class="player-avatar">{{ playerInitial(b.playerName) }}</span>
+                      <div>
+                        <strong>{{ b.playerName }}</strong
+                        ><small>
+                          @if (b.out) {
+                            Dismissed
+                          } @else {
+                            Not out
+                          }
+                        </small>
+                      </div>
+                    </td>
+                    <td class="dismissal">
+                      <span [class.notout]="!b.out">{{
+                        b.out ? b.dismissal || 'Dismissed' : 'Not out'
+                      }}</span>
+                    </td>
+                    <td class="num runs">{{ b.runs }}</td>
+                    <td class="num">{{ b.balls }}</td>
+                    <td class="num">{{ b.fours }}</td>
+                    <td class="num">{{ b.sixes }}</td>
+                    <td class="num rate">{{ formatRate(b.strikeRate) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <footer class="innings-total">
+            <div>
+              <span>Extras</span><b>{{ currentInnings.extras }}</b>
+            </div>
+            <div class="grand-total">
+              <span>Total</span
+              ><b
+                >{{ currentInnings.runs
+                }}<small
+                  >/{{ currentInnings.wickets }} · {{ overs(currentInnings.legalBalls) }} ov</small
+                ></b
+              >
+            </div>
+          </footer>
         </section>
 
         <section class="data-card">
-          <header class="section-head"><div class="section-icon ball"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><path d="M8 5c2 2 3 4 3 7s1 5 3 7M16 5c-2 2-3 4-3 7s-1 5-3 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div><span class="eyebrow">BOWLING</span><h2>Bowling performance</h2><p>Overs, wickets and economy at a glance</p></div></header>
-          <div class="table-wrap"><table class="bowling-table"><thead><tr><th>BOWLER</th><th>O</th><th>R</th><th>W</th><th>ECON</th></tr></thead><tbody>
-            @for(b of currentInnings.bowling; track b.playerId){<tr><td class="player-cell"><span class="player-avatar">{{playerInitial(b.playerName)}}</span><strong>{{b.playerName}}</strong></td><td class="num">{{overs(b.legalBalls)}}</td><td class="num">{{b.runs}}</td><td class="num wicket">{{b.wickets}}</td><td class="num rate">{{formatRate(b.economy)}}</td></tr>}
-          </tbody></table></div>
+          <header class="section-head">
+            <div class="section-icon ball">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7" />
+                <path
+                  d="M8 5c2 2 3 4 3 7s1 5 3 7M16 5c-2 2-3 4-3 7s-1 5-3 7"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <span class="eyebrow">BOWLING</span>
+              <h2>Bowling performance</h2>
+              <p>Overs, wickets and economy at a glance</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="bowling-table">
+              <thead>
+                <tr>
+                  <th>BOWLER</th>
+                  <th>O</th>
+                  <th>R</th>
+                  <th>W</th>
+                  <th>ECON</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (b of currentInnings.bowling; track b.playerId) {
+                  <tr>
+                    <td class="player-cell">
+                      <span class="player-avatar">{{ playerInitial(b.playerName) }}</span
+                      ><strong>{{ b.playerName }}</strong>
+                    </td>
+                    <td class="num">{{ overs(b.legalBalls) }}</td>
+                    <td class="num">{{ b.runs }}</td>
+                    <td class="num wicket">{{ b.wickets }}</td>
+                    <td class="num rate">{{ formatRate(b.economy) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
 
       <aside class="side-column">
-        <section class="side-card score-summary"><span class="eyebrow">INNINGS SNAPSHOT</span><div class="donut"><span>{{currentInnings.wickets}}<small>WKTS</small></span></div><div class="snapshot-row"><span>Runs</span><b>{{currentInnings.runs}}</b></div><div class="snapshot-row"><span>Overs</span><b>{{overs(currentInnings.legalBalls)}}</b></div><div class="snapshot-row"><span>Extras</span><b>{{currentInnings.extras}}</b></div></section>
-        <section class="side-card"><header><span class="eyebrow">FALL OF WICKETS</span><h2>Wicket timeline</h2></header>
-          @if(currentInnings.fallOfWickets.length){<div class="timeline">@for(w of currentInnings.fallOfWickets; track w.wicketNumber){<div class="timeline-item"><b>{{w.wicketNumber}}</b><div><strong>{{w.playerName}}</strong><span>{{w.runs}} runs · {{w.overNumber}}.{{w.ballNumber}} ov</span></div></div>}</div>}@else{<div class="empty-mini">No wickets fell in this innings.</div>}
+        <section class="side-card score-summary">
+          <span class="eyebrow">INNINGS SNAPSHOT</span>
+          <div class="donut">
+            <span>{{ currentInnings.wickets }}<small>WKTS</small></span>
+          </div>
+          <div class="snapshot-row">
+            <span>Runs</span><b>{{ currentInnings.runs }}</b>
+          </div>
+          <div class="snapshot-row">
+            <span>Overs</span><b>{{ overs(currentInnings.legalBalls) }}</b>
+          </div>
+          <div class="snapshot-row">
+            <span>Extras</span><b>{{ currentInnings.extras }}</b>
+          </div>
+        </section>
+        <section class="side-card">
+          <header>
+            <span class="eyebrow">FALL OF WICKETS</span>
+            <h2>Wicket timeline</h2>
+          </header>
+          @if (currentInnings.fallOfWickets.length) {
+            <div class="timeline">
+              @for (w of currentInnings.fallOfWickets; track w.wicketNumber) {
+                <div class="timeline-item">
+                  <b>{{ w.wicketNumber }}</b>
+                  <div>
+                    <strong>{{ w.playerName }}</strong
+                    ><span>{{ w.runs }} runs · {{ w.overNumber }}.{{ w.ballNumber }} ov</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-mini">No wickets fell in this innings.</div>
+          }
         </section>
       </aside>
     </main>
   } @else {
-    <section class="state-card empty-state"><div class="empty-icon">!</div><span class="eyebrow">SCORECARD UNAVAILABLE</span><h2>No innings scorecard found</h2><p>This match does not have completed innings data yet.</p><a [routerLink]="['/matches',matchId,'result']">Back to result</a></section>
+    <section class="state-card empty-state">
+      <div class="empty-icon">!</div>
+      <span class="eyebrow">SCORECARD UNAVAILABLE</span>
+      <h2>No innings scorecard found</h2>
+      <p>This match does not have completed innings data yet.</p>
+      <a [routerLink]="['/matches', matchId, 'result']">Back to result</a>
+    </section>
   }
 </section>

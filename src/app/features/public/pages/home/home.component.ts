@@ -6,9 +6,11 @@ import { CurrentUser, CurrentUserService } from '../../../../current-user.servic
 import { RouterLink } from '@angular/router';
 
 @Component({
- selector:'app-home', standalone:true, imports:[RouterLink],
- templateUrl: './home.component.html',
- styleUrl: './home.component.scss'
+  selector: 'app-home',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
   readonly cursorX = signal(-500);
@@ -24,7 +26,6 @@ export class HomeComponent implements OnInit {
   private readonly http = inject(HttpClient);
   readonly currentUser = inject(CurrentUserService);
 
-
   greeting = 'Good evening';
 
   ngOnInit(): void {
@@ -34,21 +35,21 @@ export class HomeComponent implements OnInit {
   }
 
   private loadCurrentUser(): void {
-    this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').pipe(
-      catchError(() => of(this.readCachedUser()))
-    ).subscribe(user => {
-      if (!user) return;
-      this.currentUser.set(user);
-    });
+    this.http
+      .get<CurrentUser>('http://localhost:8080/api/auth/me')
+      .pipe(catchError(() => of(this.readCachedUser())))
+      .subscribe((user) => {
+        if (!user) return;
+        this.currentUser.set(user);
+      });
   }
 
   private readCachedUser(): CurrentUser | null {
     try {
       const raw = localStorage.getItem('cricketpulse_user');
-      return raw ? JSON.parse(raw) as CurrentUser : null;
+      return raw ? (JSON.parse(raw) as CurrentUser) : null;
     } catch {
       return null;
     }
   }
-
 }
