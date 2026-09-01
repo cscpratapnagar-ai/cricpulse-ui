@@ -3,3 +3,4 @@ node_modules/
 coverage/
 .angular/
 *.lock
+scripts/audit-route-integrity.mjs
