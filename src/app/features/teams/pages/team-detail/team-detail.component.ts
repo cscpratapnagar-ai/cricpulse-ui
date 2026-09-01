@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { API_BASE_URL } from '../../../../core/config/api.config';
 import { FormsModule } from '@angular/forms';
 import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
