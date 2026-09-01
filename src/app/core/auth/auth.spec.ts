@@ -23,7 +23,7 @@ describe('authInterceptor', () => {
 
   it('does not add the token to login requests', () => {
     localStorage.setItem('cricketpulse_access_token', 'token-123');
-    const request = new HttpRequest('POST', '/api/auth/login');
+    const request = new HttpRequest('POST', '/api/auth/login', null);
 
     authInterceptor(request, (next) => {
       expect(next.headers.has('Authorization')).toBeFalse();
