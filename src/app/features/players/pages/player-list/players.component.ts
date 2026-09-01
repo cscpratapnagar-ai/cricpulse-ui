@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
 interface PlayerStat{playerId:string;playerName:string;matches:number;runs:number;highestScore:number;battingAverage:number;strikeRate:number;wickets:number;economy:number;}
 type SortKey='playerName'|'matches'|'runs'|'battingAverage'|'strikeRate'|'wickets'|'economy';
 
-@Component({selector:'app-players',standalone:true,imports:[CommonModule,FormsModule,RouterLink,StateViewComponent],templateUrl: './players.component.html',styleUrl: './players.component.scss']} )
+@Component({selector:'app-players',standalone:true,imports:[CommonModule,FormsModule,RouterLink,StateViewComponent],templateUrl: './players.component.html',styleUrl: './players.component.scss'} )
 export class PlayersComponent{
  private http=inject(HttpClient);players:PlayerStat[]=[];loading=true;error=false;query='';roleFilter='all';roleOpen=false;sort:SortKey='runs';ascending=false;page=1;readonly pageSize=10;readonly roleOptions=[{value:'all',label:'All players',icon:'◉'},{value:'batters',label:'Batters',icon:'↗'},{value:'bowlers',label:'Bowlers',icon:'✦'},{value:'allrounders',label:'All-rounders',icon:'◎'}];
  constructor(){this.loadPlayers();}loadPlayers(){this.loading=true;this.error=false;this.http.get<PlayerStat[]>('http://localhost:8080/api/players/statistics').subscribe({next:r=>{this.players=r||[];this.loading=false},error:()=>{this.players=[];this.error=true;this.loading=false}})}goToOnboarding(){location.assign('/player/onboarding')}
