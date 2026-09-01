@@ -2,10 +2,10 @@ import 'zone.js/testing';
 import { getTestBed } from '@angular/core/testing';
 import {
   BrowserTestingModule,
-  platformBrowserTesting,
+  platformBrowserTesting
 } from '@angular/platform-browser/testing';
 
 getTestBed().initTestEnvironment(
   BrowserTestingModule,
-  platformBrowserTesting(),
+  platformBrowserTesting()
 );
