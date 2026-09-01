@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Team {
