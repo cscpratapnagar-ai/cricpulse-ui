@@ -74,7 +74,7 @@ const dashboardChildren: Routes = [
   { path: 'matches/:id/statistics', component: MatchStatisticsComponent },
   { path: 'matches/:id/live', component: LiveMatchEntryComponent },
   { path: 'matches/:id/scorer', component: ScorerComponent },
-  { path: 'matches/:id/overview', redirectTo: 'matches/:id', pathMatch: 'full' },
+  { path: 'matches/:id/overview', component: MatchDetailComponent },
   { path: 'matches/:id', component: MatchDetailComponent },
   { path: 'teams', component: TeamsComponent },
   { path: 'teams/new', component: CreateTeamComponent },
