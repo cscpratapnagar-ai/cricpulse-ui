@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, startWith } from 'rxjs';
 import { LiveScore } from '../../../../core/services/live-score.service';
-import { ScorecardData } from '../../../models/scorecard.models';
-import { ScorecardService } from '../../../data-access/scorecard.service';
+import { ScorecardData } from '../../models/scorecard.models';
+import { ScorecardService } from '../../data-access/scorecard.service';
 
 @Component({
   selector: 'app-scorecard',
