@@ -1,7 +1,7 @@
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  it('should expose the application shell', () => {
-    expect(AppComponent).toBeTruthy();
+  it('should declare the root application selector', () => {
+    expect(AppComponent.ɵcmp.selectors).toContainEqual([['app-root']]);
   });
 });
