@@ -73,6 +73,11 @@ export class LiveScoringV2Component {
   wicketLegalDelivery = true;
   completionReason = '';
   lifecycleBusy = false;
+  connectionState: 'ONLINE' | 'RECONNECTING' | 'OFFLINE' = 'ONLINE';
+  lastSyncedAt: Date | null = null;
+  private refreshTimer?: ReturnType<typeof setInterval>;
+  private onlineHandler = () => this.handleReconnect();
+  private offlineHandler = () => (this.connectionState = 'OFFLINE');
   undoConfirmOpen = false;
   private lastDeliveryPayload: any = null;
   constructor() {
@@ -349,6 +354,11 @@ export class LiveScoringV2Component {
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
         this.applyScore(s);
+        this.lastSyncedAt = new Date();
+        this.connectionState = 'ONLINE';
+        if (!this.refreshTimer && this.score?.status === 'LIVE') {
+          this.refreshTimer = setInterval(() => this.loadScore(true), 15000);
+        }
         this.loading = false;
       },
       error: (e) => {
