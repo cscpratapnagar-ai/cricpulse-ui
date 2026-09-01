@@ -125,8 +125,8 @@
         <div class="sync-banner" [class.offline]="connectionState === 'OFFLINE'" [class.reconnecting]="connectionState === 'RECONNECTING'">
           <span class="sync-dot"></span>
           <div>
-            <b>{{ reconciling ? 'RECONCILING' : connectionLabel }}</b>
-            <small>{{ connectionHint }}</small>
+            <b>{{ socketState === 'CONNECTED' ? 'LIVE SOCKET' : reconciling ? 'RECONCILING' : connectionLabel }}</b>
+            <small>{{ socketState === 'CONNECTED' ? 'Instant server updates enabled.' : connectionHint }}</small>
           </div>
           @if (connectionState !== 'ONLINE') {
             <button type="button" (click)="handleReconnect()">Retry sync</button>
