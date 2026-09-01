@@ -1,6 +1,6 @@
 # CricPulse UI production sign-off matrix
 
-## Completed and verified
+## Automated refactor and quality work completed
 
 - [x] Feature-based Angular architecture
 - [x] `core/`, `shared/`, `layout/`, `features/` boundaries
@@ -9,27 +9,30 @@
 - [x] Route duplication reduced to a canonical protected-child inventory
 - [x] Formatting quality gate
 - [x] TypeScript quality gate
+- [x] Canonical component structure audit
+- [x] Route integrity audit
+- [x] Critical test inventory audit
 - [x] Legacy compatibility shim audit command
 - [x] Production build gate
-- [x] CI changed from build-only verification to quality + build stages
+- [x] CI quality stage before production build
 - [x] Formatter workflow changed from branch mutation to verification-only
+- [x] Critical core behavior specs strengthened for loading, current-user, theme, auth and scorecard flows
+- [x] Regression checklist documented
 
-## Still required before full production sign-off
+## Release evidence still required outside static repository audits
 
-- [ ] Behavioral component tests for critical flows
-- [ ] Service tests for API/error/retry paths
-- [ ] Guard and interceptor behavior tests
-- [ ] Route behavior tests
+These checks require an executable browser/device/backend environment and must not be fabricated from a green compile:
+
+- [ ] Execute the Angular unit-test suite in a configured test runner
 - [ ] End-to-end regression for login and protected routes
-- [ ] CRUD workflow regression
-- [ ] Live-scoring edge-case regression
-- [ ] Dark/light mode regression
+- [ ] CRUD workflow regression against a running backend
+- [ ] Live-scoring edge-case regression against realtime infrastructure
+- [ ] Dark/light visual regression
 - [ ] Desktop/tablet/mobile regression
-- [ ] Reusable dropdown and date/time control regression
-- [ ] Dependency/security review
 - [ ] Accessibility and performance review
+- [ ] Dependency/security review
 - [ ] Evidence-based removal of unused legacy compatibility files
 
 ## Completion rule
 
-A green production build proves compilation. A production-quality sign-off additionally requires the behavioral and regression evidence above. Do not mark the UI as fully production-complete until those checks have passed.
+The refactor and automated repository-quality task is complete when CI is green for the current commit. Full release sign-off additionally requires the executable browser/device/backend evidence above. A green production build alone must never be presented as proof of full behavioral production readiness.
