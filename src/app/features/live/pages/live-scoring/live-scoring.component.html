@@ -9,7 +9,7 @@
     </div>
 
     <div class="match-context">
-      <span class="live-dot"></span>
+      <span class="live-dot"><i></i></span>
       <b>{{ score?.status || 'CONNECTING' }}</b>
       <span>{{ battingName }} vs {{ bowlingName }}</span>
     </div>
@@ -32,6 +32,8 @@
   } @else if (score) {
     <main class="scorer-shell">
       <section class="score-hero">
+        <div class="hero-orbit orbit-one"></div>
+        <div class="hero-orbit orbit-two"></div>
         <div class="innings-meta">
           <span>INNINGS {{ score.inningsNumber || inningsNumber }}</span>
           <i></i>
@@ -121,6 +123,7 @@
 
         <div class="workspace">
           <section class="scoring-panel">
+            <div class="panel-glow"></div>
             <div class="panel-heading">
               <div>
                 <span class="eyebrow">DELIVERY INPUT</span>
@@ -203,7 +206,7 @@
               </div>
               <div class="run-grid">
                 @for (run of runs; track run) {
-                  <button type="button" [disabled]="!canDeliver" (click)="recordRuns(run)">
+                  <button type="button" [disabled]="!canDeliver" (click)="recordRuns(run)" [style.--run-delay]="$index">
                     <span>{{ run }}</span>
                   </button>
                 }
@@ -218,10 +221,10 @@
                 </div>
               </div>
               <div class="event-grid">
-                <button type="button" [disabled]="!canDeliver" (click)="openExtra('WIDE')"><b>WD</b><small>Wide</small></button>
-                <button type="button" [disabled]="!canDeliver" (click)="openExtra('NO_BALL')"><b>NB</b><small>No ball</small></button>
-                <button type="button" [disabled]="!canDeliver" (click)="openExtra('BYE')"><b>B</b><small>Bye</small></button>
-                <button type="button" [disabled]="!canDeliver" (click)="openExtra('LEG_BYE')"><b>LB</b><small>Leg bye</small></button>
+                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('WIDE')"><b>WD</b><small>Wide</small></button>
+                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('NO_BALL')"><b>NB</b><small>No ball</small></button>
+                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('BYE')"><b>B</b><small>Bye</small></button>
+                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('LEG_BYE')"><b>LB</b><small>Leg bye</small></button>
                 <button type="button" class="danger-event" [disabled]="!canDeliver || score.wickets >= 10" (click)="openWicket()"><b>W</b><small>Wicket</small></button>
                 <button type="button" class="undo-event" [disabled]="busy || !score.recentBalls?.length" (click)="requestUndo()"><b>↶</b><small>Undo</small></button>
               </div>
