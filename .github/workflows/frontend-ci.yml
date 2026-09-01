@@ -34,7 +34,7 @@ jobs:
           node-version: '20'
           cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
@@ -67,6 +67,6 @@ jobs:
           node-version: '20'
           cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Verify Angular production build
         run: npm run build -- --configuration production
