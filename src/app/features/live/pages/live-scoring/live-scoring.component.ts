@@ -177,6 +177,41 @@ export class LiveScoringV2Component implements OnDestroy {
         ? 'ACTION FAILED'
         : 'SYNCED';
   }
+  get connectionLabel() {
+    if (this.connectionState === 'OFFLINE') return 'OFFLINE';
+    if (this.connectionState === 'RECONNECTING') return 'RECONNECTING';
+    return 'SYNCING LIVE STATE';
+  }
+  get connectionHint() {
+    if (this.connectionState === 'OFFLINE') return 'Waiting for an internet connection.';
+    if (this.connectionState === 'RECONNECTING') return 'Refreshing the authoritative innings state.';
+    return 'Polling is active while the live socket reconnects.';
+  }
+  ballToken(ball: any) {
+    if (!ball) return '—';
+    if (ball.wicketType) return 'W';
+    if (ball.extraType === 'WIDE') return ball.totalRuns > 1 ? `Wd+${ball.totalRuns - 1}` : 'Wd';
+    if (ball.extraType === 'NO_BALL') return ball.totalRuns > 1 ? `Nb+${ball.totalRuns - 1}` : 'Nb';
+    if (ball.extraType === 'BYE') return `B${ball.totalRuns || ''}`;
+    if (ball.extraType === 'LEG_BYE') return `Lb${ball.totalRuns || ''}`;
+    return String(ball.totalRuns ?? ball.batRuns ?? 0);
+  }
+  ballSemantic(ball: any) {
+    if (!ball) return '';
+    if (ball.wicketType) return 'wicket';
+    if (ball.extraType) return 'extra';
+    if (ball.totalRuns === 4 || ball.totalRuns === 6) return 'boundary';
+    return '';
+  }
+  selectRecentBall(ball: any) {
+    this.selectedRecentBall = ball;
+  }
+  dismissRecentBall() {
+    this.selectedRecentBall = null;
+  }
+  dismissExternalUpdate() {
+    this.externalUpdateNotice = '';
+  }
   get requiredRuns() {
     if (!this.score?.targetRuns) return 0;
     return Math.max(0, this.score.targetRuns - this.score.runs);
@@ -416,8 +451,15 @@ export class LiveScoringV2Component implements OnDestroy {
       status: s.status,
     });
     if (nextFingerprint === this.scoreFingerprint) return;
+    const hadScore = !!this.scoreFingerprint;
+    this.reconciling = true;
     this.scoreFingerprint = nextFingerprint;
     this.applyScore(s);
+    this.lastSyncedAt = new Date();
+    if (silent && hadScore && !this.busy) {
+      this.externalUpdateNotice = 'The scorer has been refreshed with the latest authoritative match state.';
+    }
+    this.reconciling = false;
   }
 
   private applyScore(s: LiveScore) {
