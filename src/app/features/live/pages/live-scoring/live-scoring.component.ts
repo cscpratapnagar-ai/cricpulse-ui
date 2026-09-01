@@ -119,28 +119,28 @@ export class LiveScoringV2Component implements OnDestroy {
   get activeBowlerId() {
     return this.selectedBowlerId || this.score?.currentBowlerId || '';
   }
-  get hasActiveBowler() {
-    // The innings API is authoritative. Playing XI can arrive later and must never
-    // lock an otherwise valid scorer.
-    return !!this.activeBowlerId;
-  }
   get needsBowlerChange() {
-    if (!this.score || this.score.status !== 'LIVE') return false;
-    const atOverBoundary =
-      this.score.legalBalls > 0 && this.score.legalBalls % 6 === 0;
-    return (atOverBoundary || !this.hasActiveBowler) && !this.selectedBowlerId;
+    return (
+      !!this.score &&
+      this.score.status === 'LIVE' &&
+      this.score.legalBalls > 0 &&
+      this.score.legalBalls % 6 === 0 &&
+      !this.selectedBowlerId
+    );
   }
   get canChangeBowler() {
-    if (!this.score || this.score.status !== 'LIVE' || this.busy) return false;
-    const atOverBoundary =
-      this.score.legalBalls > 0 && this.score.legalBalls % 6 === 0;
-    return atOverBoundary || !this.hasActiveBowler;
+    return (
+      !!this.score &&
+      this.score.status === 'LIVE' &&
+      !this.busy &&
+      (this.score.legalBalls || 0) % 6 === 0
+    );
   }
   get canDeliver() {
     return (
       !!this.score &&
       this.score.status === 'LIVE' &&
-      this.hasActiveBowler &&
+      !!this.activeBowlerId &&
       !this.needsBowlerChange &&
       !this.busy &&
       (this.score.wickets ?? 0) < 10
@@ -166,8 +166,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.score) return 'Loading match state…';
     if (this.score.status !== 'LIVE') return 'Scoring is unavailable for this innings.';
     if (this.busy) return 'Saving the previous action…';
-    if (this.needsBowlerChange) return 'Select a valid bowler before scoring can continue.';
-    if (!this.hasActiveBowler) return 'Select an active bowler before scoring.';
+    if (this.needsBowlerChange) return 'Select a new bowler to begin the next over.';
+    if (!this.activeBowlerId) return 'Select an active bowler before scoring.';
     return 'Ready for the next delivery.';
   }
   get syncLabel() {
@@ -409,20 +409,15 @@ export class LiveScoringV2Component implements OnDestroy {
     }
     const nextFingerprint = JSON.stringify({
       inningsId: s.inningsId,
-      eventVersion: s.eventVersion,
+      eventVersion: (s as any).eventVersion,
       runs: s.runs,
       wickets: s.wickets,
       legalBalls: s.legalBalls,
       status: s.status,
-      strikerId: s.strikerId,
-      nonStrikerId: s.nonStrikerId,
-      currentBowlerId: s.currentBowlerId,
-      latestDeliveryId: s.recentBalls?.[0]?.deliveryId,
     });
     if (nextFingerprint === this.scoreFingerprint) return;
     this.scoreFingerprint = nextFingerprint;
     this.applyScore(s);
-    this.lastSyncedAt = new Date();
   }
 
   private applyScore(s: LiveScore) {
@@ -442,8 +437,7 @@ export class LiveScoringV2Component implements OnDestroy {
       this.selectedBowlerId = '';
     } else {
       this.previousBowlerId = '';
-      // Keep the server-authoritative bowler even if Playing XI is still loading.
-      if (s.currentBowlerId) this.selectedBowlerId = s.currentBowlerId;
+      this.selectedBowlerId = s.currentBowlerId || '';
     }
   }
   private reloadScoreAfterDelivery() {
