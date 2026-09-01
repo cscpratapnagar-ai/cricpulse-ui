@@ -10,7 +10,7 @@ interface Preview { eligible:boolean; message:string; table:Point[]; qualifiers:
 @Component({
  selector:'app-tournament-qualification', standalone:true, imports:[CommonModule,RouterLink],
  templateUrl: './tournament-qualification.component.html',
- styleUrl: './tournament-qualification.component.scss']
+ styleUrl: './tournament-qualification.component.scss'
 })
 export class TournamentQualificationComponent {
  private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); readonly api='http://localhost:8080/api';
