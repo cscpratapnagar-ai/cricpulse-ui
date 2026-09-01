@@ -32,7 +32,15 @@ for (const entry of featureEntries.filter((item) => item.isDirectory())) {
 
   const routed = components.filter((file) => {
     const className = file.split('/').at(-1).replace('.component.ts', '');
-    return routes.includes(className) || routes.includes(className.split('-').map((part) => part[0]?.toUpperCase() + part.slice(1)).join(''));
+    return (
+      routes.includes(className) ||
+      routes.includes(
+        className
+          .split('-')
+          .map((part) => part[0]?.toUpperCase() + part.slice(1))
+          .join(''),
+      )
+    );
   });
 
   if (!routed.length) {
