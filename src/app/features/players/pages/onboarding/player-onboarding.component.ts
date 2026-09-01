@@ -121,31 +121,25 @@ export class PlayerOnboardingComponent {
       bio: this.bio.trim() || null,
       profilePhotoUrl: null,
     };
-    this.http
-      .get<Player>('http://localhost:8080/api/players/me')
-      .subscribe({
-        next: () => this.update(payload),
-        error: (response) =>
-          response.status === 404
-            ? this.create(payload)
-            : this.fail('Could not load your player profile.'),
-      });
+    this.http.get<Player>('http://localhost:8080/api/players/me').subscribe({
+      next: () => this.update(payload),
+      error: (response) =>
+        response.status === 404
+          ? this.create(payload)
+          : this.fail('Could not load your player profile.'),
+    });
   }
   private create(payload: object): void {
-    this.http
-      .post<Player>('http://localhost:8080/api/players', payload)
-      .subscribe({
-        next: (player) => this.finish(player),
-        error: (response) => this.fail(this.apiError(response)),
-      });
+    this.http.post<Player>('http://localhost:8080/api/players', payload).subscribe({
+      next: (player) => this.finish(player),
+      error: (response) => this.fail(this.apiError(response)),
+    });
   }
   private update(payload: object): void {
-    this.http
-      .put<Player>('http://localhost:8080/api/players/me', payload)
-      .subscribe({
-        next: (player) => this.finish(player),
-        error: (response) => this.fail(this.apiError(response)),
-      });
+    this.http.put<Player>('http://localhost:8080/api/players/me', payload).subscribe({
+      next: (player) => this.finish(player),
+      error: (response) => this.fail(this.apiError(response)),
+    });
   }
   private finish(player: Player): void {
     localStorage.setItem('cricketpulse_player', JSON.stringify(player));

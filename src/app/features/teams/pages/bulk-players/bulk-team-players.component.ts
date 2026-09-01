@@ -50,12 +50,10 @@ export class BulkTeamPlayersV2Component {
   constructor() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id)
-      this.http
-        .get<Team>(`${this.api}/teams/${id}`)
-        .subscribe({
-          next: (t) => (this.team = t),
-          error: (e) => this.show(e?.error?.message || 'Unable to load team', true),
-        });
+      this.http.get<Team>(`${this.api}/teams/${id}`).subscribe({
+        next: (t) => (this.team = t),
+        error: (e) => this.show(e?.error?.message || 'Unable to load team', true),
+      });
   }
   get validRows() {
     return this.rows.filter((r) => this.isValid(r));

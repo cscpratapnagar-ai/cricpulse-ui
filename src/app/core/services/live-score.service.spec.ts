@@ -13,9 +13,11 @@ describe('LiveScoreService', () => {
   it('creates the service', () => expect(service).toBeTruthy());
 
   it('rejects an empty innings id', (done) => {
-    service.watch('').subscribe({ error: (error) => {
-      expect(error.message).toContain('Innings ID is required');
-      done();
-    }});
+    service.watch('').subscribe({
+      error: (error) => {
+        expect(error.message).toContain('Innings ID is required');
+        done();
+      },
+    });
   });
 });

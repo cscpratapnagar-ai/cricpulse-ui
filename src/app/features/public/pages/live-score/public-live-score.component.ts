@@ -46,12 +46,10 @@ export class PublicLiveScoreComponent {
 
   constructor() {
     if (!this.matchId) return;
-    this.http
-      .get<Match>(`${this.api}/matches/${this.matchId}`)
-      .subscribe({
-        next: (m) => (this.match = m),
-        error: (e) => console.error('[PublicLive] match load failed', e),
-      });
+    this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({
+      next: (m) => (this.match = m),
+      error: (e) => console.error('[PublicLive] match load failed', e),
+    });
     this.http
       .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
       .subscribe({

@@ -66,19 +66,17 @@ export class PlayerComparisonComponent implements OnInit {
     this.compare();
   }
   ngOnInit() {
-    this.http
-      .get<any[]>(this.api + '/players/statistics')
-      .subscribe(
-        (r) =>
-          (this.players = (r || [])
-            .map((x) => ({
-              id: x.playerId || x.id,
-              name: x.playerName || x.name || 'Unknown player',
-              role: x.role,
-              teamName: x.teamName,
-            }))
-            .filter((p) => !!p.id && p.name !== 'Unknown player')),
-      );
+    this.http.get<any[]>(this.api + '/players/statistics').subscribe(
+      (r) =>
+        (this.players = (r || [])
+          .map((x) => ({
+            id: x.playerId || x.id,
+            name: x.playerName || x.name || 'Unknown player',
+            role: x.role,
+            teamName: x.teamName,
+          }))
+          .filter((p) => !!p.id && p.name !== 'Unknown player')),
+    );
   }
   compare() {
     if (!this.leftId || !this.rightId || this.leftId === this.rightId) {

@@ -103,12 +103,10 @@ export class TeamDetailComponent {
     });
   }
   loadAccess(id: string) {
-    this.http
-      .get<TeamAccess>(`http://localhost:8080/api/teams/${id}/access`)
-      .subscribe({
-        next: (x) => (this.access = x),
-        error: (e) => this.showToast(e?.error?.message || 'Unable to load team access', 'error'),
-      });
+    this.http.get<TeamAccess>(`http://localhost:8080/api/teams/${id}/access`).subscribe({
+      next: (x) => (this.access = x),
+      error: (e) => this.showToast(e?.error?.message || 'Unable to load team access', 'error'),
+    });
   }
   loadMembers(id: string) {
     this.http.get<Member[]>(`http://localhost:8080/api/teams/${id}/members`).subscribe({
