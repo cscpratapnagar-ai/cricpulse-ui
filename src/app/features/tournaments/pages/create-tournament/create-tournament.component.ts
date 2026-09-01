@@ -15,7 +15,7 @@ type Step = 1|2|3;
   standalone:true,
   imports:[CommonModule,FormsModule,RouterLink,DateTimeFieldComponent,CpDropdownComponent],
   templateUrl: './create-tournament.component.html',
-styleUrl: './create-tournament.component.scss']
+styleUrl: './create-tournament.component.scss'
 })
 export class CreateTournamentComponent {
   private readonly http=inject(HttpClient);
