@@ -42,31 +42,19 @@ if (!derivedCompatibilityRoutes) {
 }
 
 const lifecycleRequirements = [
-  [/path:\s*'matches\\/:id\\/playing-xi'/, 'canonical Playing XI route'],
-  [
-    /path:\s*'matches\\/:id\\/toss'[\s\S]{0,160}canActivate:\s*\[canAccessMatchToss\]/,
-    'guarded Toss route',
-  ],
-  [
-    /path:\s*'matches\\/:id\\/opening-players'[\s\S]{0,180}canActivate:\s*\[canAccessMatchOpening\]/,
-    'guarded Opening Players route',
-  ],
-  [
-    /path:\s*'matches\\/:id\\/live-scoring'[\s\S]{0,180}canActivate:\s*\[canAccessLiveScoring\]/,
-    'guarded Live Scoring route',
-  ],
-  [
-    /path:\s*'live-scoring\\/:id'\s*,\s*redirectTo:\s*'matches\\/:id\\/live-scoring'/,
-    'legacy live-scoring redirect',
-  ],
-  [
-    /path:\s*'scoring\\/:id'\s*,\s*redirectTo:\s*'matches\\/:id\\/live-scoring'/,
-    'legacy scoring redirect',
-  ],
+  ['matches/:id/playing-xi', 'canonical Playing XI route'],
+  ['matches/:id/toss', 'canonical Toss route'],
+  ['matches/:id/opening-players', 'canonical Opening Players route'],
+  ['matches/:id/live-scoring', 'canonical Live Scoring route'],
+  ["canActivate: [canAccessMatchToss]", 'Toss lifecycle guard'],
+  ["canActivate: [canAccessMatchOpening]", 'Opening Players lifecycle guard'],
+  ["canActivate: [canAccessLiveScoring]", 'Live Scoring lifecycle guard'],
+  ["path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy live-scoring redirect'],
+  ["path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy scoring redirect'],
 ];
 
-for (const [pattern, label] of lifecycleRequirements) {
-  if (!pattern.test(source)) failures.push(`missing ${label}`);
+for (const [needle, label] of lifecycleRequirements) {
+  if (!source.includes(needle)) failures.push(`missing ${label}`);
 }
 
 if (failures.length > 0) {
