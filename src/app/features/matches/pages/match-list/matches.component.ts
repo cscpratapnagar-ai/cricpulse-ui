@@ -22,7 +22,7 @@ type Filter = 'ALL' | 'SCHEDULED' | 'LIVE' | 'COMPLETED';
   standalone: true,
   imports: [RouterLink, StateViewComponent],
   templateUrl: './matches.component.html',
-  styleUrl: './matches.component.scss']
+  styleUrl: './matches.component.scss'
 })
 export class MatchesComponent {
   private readonly http = inject(HttpClient);
