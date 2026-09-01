@@ -1116,3 +1116,65 @@ footer i {
     animation: none;
   }
 }
+
+.extra-drawer {
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid var(--cp-border);
+  border-radius: 18px;
+  background: var(--cp-surface);
+  animation: drawerIn 180ms ease-out both;
+}
+.extra-choice-grid {
+  display: grid;
+  gap: 14px;
+  margin: 14px 0;
+}
+.extra-choice-grid > div > label {
+  display: block;
+  margin-bottom: 8px;
+}
+.mini-run-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+.mini-run-grid button {
+  min-height: 38px;
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  background: var(--cp-surface-hover);
+  color: var(--cp-text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.mini-run-grid button.active {
+  border-color: var(--cp-accent);
+  background: var(--cp-accent);
+  color: var(--cp-accent-contrast, #102018);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--cp-accent) 25%, transparent);
+}
+.extra-summary {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--cp-surface-hover);
+  color: var(--cp-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+@keyframes drawerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 560px) {
+  .mini-run-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
