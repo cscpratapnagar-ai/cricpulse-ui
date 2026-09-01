@@ -45,18 +45,24 @@
         </div>
       </section>
       @if (score.status === 'COMPLETED') {
-        <section class="innings-complete">
-          <i>✓</i>
-          <div>
-            <label>INNINGS COMPLETE</label>
-            <h2>{{ score.runs }}/{{ score.wickets }} in {{ overs(score.legalBalls) }} overs</h2>
-            <p>{{ completionText }}</p>
+        <section class="innings-complete lifecycle-complete">
+          <div class="completion-mark">✓</div>
+          <div class="completion-copy">
+            <label>{{ completionTitle }}</label>
+            <h2>{{ score.runs }}/{{ score.wickets }} <span>· {{ overs(score.legalBalls) }} overs</span></h2>
+            <p>{{ completionReasonText }}</p>
+            <small>{{ completionText }}</small>
           </div>
-          @if (score.inningsNumber === 1) {
-            <button (click)="startSecondInnings()">Launch 2nd innings →</button>
-          } @else {
-            <a [routerLink]="['/matches', matchId, 'result']">View result →</a>
-          }
+          <div class="completion-actions">
+            @if (score.inningsNumber === 1) {
+              <button [disabled]="!canAdvanceInnings" (click)="startSecondInnings()">
+                {{ lifecycleBusy ? 'Preparing…' : 'Set up 2nd innings →' }}
+              </button>
+            } @else {
+              <a [routerLink]="['/matches', matchId, 'result']">Open match result →</a>
+            }
+            <a [routerLink]="['/matches', matchId, 'scorecard']" class="secondary">Review scorecard</a>
+          </div>
         </section>
       } @else {
         <section class="match-intelligence">
