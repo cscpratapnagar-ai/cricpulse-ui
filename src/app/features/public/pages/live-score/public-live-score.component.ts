@@ -11,7 +11,7 @@ interface CurrentInnings { inningsId:string; matchId?:string; inningsNumber:numb
 @Component({
   selector:'app-public-live-score', standalone:true, imports:[AsyncPipe,RouterLink],
   templateUrl: './public-live-score.component.html',
-  styleUrl: './public-live-score.component.scss']
+  styleUrl: './public-live-score.component.scss'
 })
 export class PublicLiveScoreComponent {
   private readonly route=inject(ActivatedRoute); private readonly http=inject(HttpClient); private readonly liveScore=inject(LiveScoreService);
