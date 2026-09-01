@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { AccountProfileComponent } from './account-profile.component';
-import { CurrentUserService } from '../../../../current-user.service';
+import { CurrentUserService } from '../../../../core/services/current-user.service';
 
 describe('AccountProfileComponent', () => {
   beforeEach(async () => {
