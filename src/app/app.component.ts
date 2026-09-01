@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoadingService } from './loading.service';
+import { LoadingService } from './core/services/loading.service';
 
 @Component({
   selector: 'app-root',
