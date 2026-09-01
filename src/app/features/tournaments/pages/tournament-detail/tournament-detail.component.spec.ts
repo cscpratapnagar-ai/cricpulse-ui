@@ -4,7 +4,9 @@ import { TournamentDetailComponent } from './tournament-detail.component';
 
 describe('TournamentDetailComponent', () => {
   function createComponent() {
-    const component = Object.create(TournamentDetailComponent.prototype) as TournamentDetailComponent;
+    const component = Object.create(
+      TournamentDetailComponent.prototype,
+    ) as TournamentDetailComponent;
     (component as any).api = 'http://api.test/api';
     component.id = 't-1';
     component.loading = false;
@@ -33,7 +35,10 @@ describe('TournamentDetailComponent', () => {
 
   it('generates fixtures and reports generated pairings', () => {
     const component = createComponent();
-    component.teams = [{ id: 'a', name: 'A', city: null, seed: null }, { id: 'b', name: 'B', city: null, seed: null }];
+    component.teams = [
+      { id: 'a', name: 'A', city: null, seed: null },
+      { id: 'b', name: 'B', city: null, seed: null },
+    ];
     (component as any).http.post.and.returnValue(
       of({ tournamentId: 't-1', generated: 3, skipped: 1, totalPairs: 4, fixtures: [] }),
     );
@@ -75,8 +80,13 @@ describe('TournamentDetailComponent', () => {
 
   it('surfaces fixture generation errors', () => {
     const component = createComponent();
-    component.teams = [{ id: 'a', name: 'A', city: null, seed: null }, { id: 'b', name: 'B', city: null, seed: null }];
-    (component as any).http.post.and.returnValue(throwError(() => ({ error: { message: 'Generation failed' } })));
+    component.teams = [
+      { id: 'a', name: 'A', city: null, seed: null },
+      { id: 'b', name: 'B', city: null, seed: null },
+    ];
+    (component as any).http.post.and.returnValue(
+      throwError(() => ({ error: { message: 'Generation failed' } })),
+    );
 
     component.generateFixtures();
 
