@@ -13,7 +13,7 @@ interface InningsScorecard { inningsId:string; matchId:string; inningsNumber:num
   standalone:true,
   imports:[CommonModule,RouterLink],
   templateUrl: './match-scorecard.component.html',
-  styleUrl: './match-scorecard.component.scss']
+  styleUrl: './match-scorecard.component.scss'
 
 })
 export class MatchScorecardComponent{
