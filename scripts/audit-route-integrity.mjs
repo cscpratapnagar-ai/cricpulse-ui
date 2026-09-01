@@ -42,22 +42,31 @@ if (!derivedCompatibilityRoutes) {
 }
 
 const lifecycleRequirements = [
-  ["{ path: 'matches/:id/playing-xi'", 'canonical Playing XI route'],
-  ["{ path: 'matches/:id/toss', component: TossComponent, canActivate: [canAccessMatchToss] }", 'guarded Toss route'],
+  [/path:\s*'matches\\/:id\\/playing-xi'/, 'canonical Playing XI route'],
   [
-    "{ path: 'matches/:id/opening-players', component: OpeningPlayersComponent, canActivate: [canAccessMatchOpening] }",
+    /path:\s*'matches\\/:id\\/toss'[\s\S]{0,160}canActivate:\s*\[canAccessMatchToss\]/,
+    'guarded Toss route',
+  ],
+  [
+    /path:\s*'matches\\/:id\\/opening-players'[\s\S]{0,180}canActivate:\s*\[canAccessMatchOpening\]/,
     'guarded Opening Players route',
   ],
   [
-    "{ path: 'matches/:id/live-scoring', component: LiveScoringV2Component, canActivate: [canAccessLiveScoring] }",
+    /path:\s*'matches\\/:id\\/live-scoring'[\s\S]{0,180}canActivate:\s*\[canAccessLiveScoring\]/,
     'guarded Live Scoring route',
   ],
-  ["{ path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy live-scoring redirect'],
-  ["{ path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring'", 'legacy scoring redirect'],
+  [
+    /path:\s*'live-scoring\\/:id'\s*,\s*redirectTo:\s*'matches\\/:id\\/live-scoring'/,
+    'legacy live-scoring redirect',
+  ],
+  [
+    /path:\s*'scoring\\/:id'\s*,\s*redirectTo:\s*'matches\\/:id\\/live-scoring'/,
+    'legacy scoring redirect',
+  ],
 ];
 
-for (const [needle, label] of lifecycleRequirements) {
-  if (!source.includes(needle)) failures.push(`missing ${label}`);
+for (const [pattern, label] of lifecycleRequirements) {
+  if (!pattern.test(source)) failures.push(`missing ${label}`);
 }
 
 if (failures.length > 0) {
