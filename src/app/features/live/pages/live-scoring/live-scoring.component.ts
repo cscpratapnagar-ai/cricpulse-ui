@@ -59,6 +59,8 @@ export class LiveScoringV2Component {
   loading = true;
   busy = false;
   message = '';
+  lastAction = '';
+  syncState: 'SYNCED' | 'SAVING' | 'ERROR' = 'SYNCED';
   wicketOpen = false;
   wicketType = '';
   newBatterId = '';
@@ -107,6 +109,38 @@ export class LiveScoringV2Component {
       !this.busy &&
       (this.score.wickets ?? 0) < 10
     );
+  }
+  get validationHint() {
+    if (!this.score) return 'Loading match state…';
+    if (this.score.status !== 'LIVE') return 'Scoring is unavailable for this innings.';
+    if (this.busy) return 'Saving the previous action…';
+    if (this.needsBowlerChange) return 'Select a new bowler to begin the next over.';
+    if (!this.activeBowlerId) return 'Select an active bowler before scoring.';
+    return 'Ready for the next delivery.';
+  }
+  get syncLabel() {
+    return this.syncState === 'SAVING'
+      ? 'SAVING'
+      : this.syncState === 'ERROR'
+        ? 'ACTION FAILED'
+        : 'SYNCED';
+  }
+  get requiredRuns() {
+    if (!this.score?.targetRuns) return 0;
+    return Math.max(0, this.score.targetRuns - this.score.runs);
+  }
+  get ballsRemaining() {
+    const matchOvers = Number(this.match?.format?.match(/\d+/)?.[0]);
+    if (!Number.isFinite(matchOvers) || !matchOvers) return null;
+    return Math.max(0, matchOvers * 6 - (this.score?.legalBalls || 0));
+  }
+  get currentRunRate() {
+    const balls = this.score?.legalBalls || 0;
+    return balls ? ((this.score?.runs || 0) * 6) / balls : 0;
+  }
+  get requiredRunRate() {
+    const balls = this.ballsRemaining;
+    return balls && this.requiredRuns ? (this.requiredRuns * 6) / balls : 0;
   }
   get ballLabel() {
     const b = this.score?.legalBalls || 0;
@@ -280,6 +314,8 @@ export class LiveScoringV2Component {
       ...body,
     };
     this.busy = true;
+    this.syncState = 'SAVING';
+    this.lastAction = body.wicketType ? 'Wicket recorded' : body.extraType ? `${body.extraType} recorded` : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
     this.http
       .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload)
       .subscribe({
@@ -287,16 +323,19 @@ export class LiveScoringV2Component {
           if (s && s.inningsId) {
             this.applyScore(s);
             this.busy = false;
+            this.syncState = 'SYNCED';
             this.message = '';
           } else {
             this.reloadScoreAfterDelivery();
             this.busy = false;
+            this.syncState = 'SYNCED';
             this.message = '';
           }
         },
         error: (e) => {
           this.busy = false;
-          this.message = e?.error?.message || 'Unable to record delivery.';
+          this.syncState = 'ERROR';
+          this.message = e?.error?.message || 'Unable to record delivery. Please try again.';
         },
       });
   }
@@ -344,14 +383,19 @@ export class LiveScoringV2Component {
   undo() {
     if (!this.inningsId || this.busy) return;
     this.busy = true;
+    this.syncState = 'SAVING';
+    this.lastAction = 'Undoing last delivery';
     this.http.post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/undo`, {}).subscribe({
       next: (s) => {
         this.applyScore(s);
         this.busy = false;
+        this.syncState = 'SYNCED';
+        this.lastAction = 'Last delivery undone';
       },
       error: (e) => {
         this.busy = false;
-        this.message = e?.error?.message || 'Unable to undo last delivery.';
+        this.syncState = 'ERROR';
+        this.message = e?.error?.message || 'Unable to undo last delivery. Please try again.';
       },
     });
   }
