@@ -1,127 +1,48 @@
 # Frontend architecture refactor
 
 ## Goal
-Refactor the Angular application without changing public URLs, user flows, API contracts, or runtime behaviour.
 
-## Target boundaries
-- `core/`: application-wide singleton services, guards, interceptors, infrastructure
-- `shared/`: reusable presentational UI, directives, pipes, utilities
-- `layout/`: shell, navigation and persistent application chrome
-- `features/`: domain-owned screens and feature-local code
+Refactor the Angular application without changing public URLs, user flows, API contracts or runtime behaviour.
 
-## Current migration inventory
+## Verified structural completion
 
-### Core candidates
-- auth.ts
-- current-user.service.ts
-- loading.service.ts
-- loading.interceptor.ts
-- live-score.service.ts
+- `core/`, `shared/`, `layout/` and `features/` boundaries are established.
+- Route entry points use domain-owned feature folders.
+- Dashboard shell is under `layout/dashboard/`.
+- Realtime score infrastructure is under `core/services/`.
+- Scoring models and data access are feature-owned.
+- Canonical components use colocated `.component.ts`, `.component.html`, `.component.scss` and `.component.spec.ts` files.
+- Root legacy files are compatibility boundaries, not canonical implementations.
 
-### Shared UI candidates
-- state-view.component.ts
-- cp-dropdown.component.ts
-- cp-calendar.component.ts
-- date-time-field.component.ts
-- select-field.component.ts
-- ui-primitives.component.ts
-- theme.service.ts
+## Route hardening
 
-### Feature domains
-- auth: login, signup
-- dashboard
-- account
-- teams: list, detail, create, bulk players
-- players: list, profile, statistics, comparison, onboarding
-- tournaments: list, detail, create, analytics, schedule, qualification
-- matches: list, detail, create, result, statistics, scorecard
-- scoring: scorer, toss, playing XI, live scoring, live viewer
-- public: landing, home, public live score
-- system: notifications, settings, not found, state gallery
+The route table now has one canonical protected-child inventory. Top-level compatibility URLs are derived from that inventory instead of manually duplicating declarations, reducing route drift while preserving deep links.
 
-## Safety rules
-1. Move one boundary/domain at a time.
-2. Preserve route paths and component behaviour.
-3. Update every import atomically with the move.
-4. Do not mix visual redesign with structural migration.
-5. Keep reusable primitives framework-agnostic where practical.
-6. Remove duplicate V1/V2 implementations only after route and dependency verification.
-7. Build after each migration batch before continuing.
+## Quality gates
 
-## Migration order
-1. Audit and dependency map
-2. Core + shared foundations
-3. Auth + public pages
-4. Layout + dashboard
-5. Teams + players
-6. Tournaments
-7. Matches + scoring
-8. System pages
-9. Duplicate cleanup
-10. Final route, import and build verification
+The repository exposes:
 
+- `npm run format:check`
+- `npm run typecheck`
+- `npm run legacy:audit`
+- `npm run quality`
+- `npm run build -- --configuration production`
 
-## Migration status
+CI runs formatting, TypeScript checking, legacy-shim auditing and the production build as separate gates. The formatter workflow is verification-only and no longer mutates the branch.
 
-### Completed in current branch
-- Core authentication, loading, and current-user infrastructure moved to canonical `core/` locations.
-- Theme ownership moved to `core/services`.
-- Reusable state, dropdown, calendar, date-time, select, and primitive UI moved under `shared/components/`.
-- Route entry points migrated into domain-owned `features/` folders.
-- Dashboard shell moved to `layout/dashboard/`.
-- Realtime score infrastructure moved to `core/services/`.
-- Scoring models and data-access services moved into the scoring feature.
-- `app.routes.ts` now consumes canonical feature entry points.
-- Legacy root entry files for migrated code are compatibility re-export shims, leaving one canonical implementation.
+## Legacy compatibility policy
 
-### Verification completed
-- Every relative import in `app.routes.ts` resolves to a tracked source file.
-- All migrated route entry points have canonical feature or layout locations.
-- Public route URLs and route declarations were preserved during migration.
+Legacy root files remain until:
 
-### Final hardening status
-- Canonical feature, layout, shared UI and app-shell components use colocated `.component.ts`, `.component.html`, `.component.scss`, and `.component.spec.ts` files.
-- Source formatting is enforced with Prettier through the `format` and `format:check` scripts and the UI branch formatter workflow.
-- Core services and interceptors remain under `core/`; scoring data access and models remain feature-owned.
-- Root legacy files remain compatibility boundaries and are intentionally not treated as canonical implementations.
-- Final Angular production build is verified in CI on the formatted UI branch head.
+1. Repository-wide import/usage audit identifies no required consumers.
+2. Canonical feature implementation is the only runtime owner.
+3. TypeScript and production build are green after removal.
+4. Critical workflow regression has been completed.
 
+The audit script reports compatibility shims without deleting them. Removal is a separate evidence-based change.
 
-## Safe duplicate cleanup audit
+## Production sign-off
 
-The following legacy root files are now compatibility boundaries and are intentionally retained until a repository-wide production build is green:
-- bulk-team-players.component.ts
-- bulk-team-players-v2.component.ts
-- live-scoring.component.ts
-- live-scoring-v2.component.ts
-- playing-xi.component.ts
-- playing-xi-v2.component.ts
+Structural completion is not behavioral completion. Final production sign-off still requires meaningful component, service, guard, interceptor and route tests, plus end-to-end regression for authentication, protected routes, CRUD, live scoring, dark/light mode, responsive UI and reusable controls.
 
-Canonical route imports already point directly to the feature-owned implementations. This keeps existing external/legacy imports working while preventing duplicate implementation ownership.
-
-### Live viewer
-
-live-viewer.component.ts remains an independent component for now. It is not a route entry point in app.routes.ts, so it must not be deleted until a broader repository usage audit and production build confirm it is unused.
-
-
-## Final Angular File Conventions
-
-The canonical application structure follows these rules:
-
-- Feature pages and reusable components use colocated .component.ts, .component.html, .component.scss, and .component.spec.ts files.
-- Component templates and styles are externalized; large inline template and styles blocks are not used for canonical feature components.
-- Root-level legacy files are compatibility re-export shims only and are not duplicate implementations.
-- Cross-cutting services, guards and interceptors remain under core; reusable UI remains under shared; domain code remains feature-owned.
-- Application and production build verification is performed after structural migration.
-
-
-## Completion checklist
-
-- [x] Architecture boundaries established
-- [x] Feature migration completed
-- [x] Canonical TS → HTML/SCSS separation completed
-- [x] Canonical component spec structure completed
-- [x] Core service/interceptor ownership audited
-- [x] Feature data-access/model ownership audited
-- [x] Prettier formatting workflow enabled and applied
-- [x] Final Angular production build verified on `ui`
+See `docs/production-signoff.md` for the current matrix.
