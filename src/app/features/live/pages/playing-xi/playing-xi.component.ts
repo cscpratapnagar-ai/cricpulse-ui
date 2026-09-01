@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 
 interface Match {
@@ -53,7 +54,7 @@ interface TeamState {
 export class PlayingXiV2Component {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
-  private api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   loadingMatch = true;
   saving = false;
   match: Match | null = null;
