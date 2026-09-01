@@ -50,8 +50,13 @@
   transform: rotate(180deg);
 }
 .select-trigger.disabled {
-  opacity: 0.5;
+  opacity: 0.72;
+  color: var(--cp-text-muted);
   cursor: not-allowed;
+}
+.select-trigger.disabled .muted {
+  color: var(--cp-text-muted);
+  opacity: 1;
 }
 .muted {
   color: var(--cp-text-muted);
