@@ -1224,3 +1224,93 @@ footer i {
     transition: none;
   }
 }
+
+.lifecycle-complete {
+  position: relative;
+  overflow: hidden;
+}
+.lifecycle-complete::after {
+  content: '';
+  position: absolute;
+  inset: auto -12% -90% auto;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cp-accent) 10%, transparent);
+  pointer-events: none;
+}
+.completion-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border-radius: 15px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-contrast, #102018);
+  font-size: 22px;
+  font-weight: 950;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--cp-accent) 28%, transparent);
+}
+.completion-copy {
+  min-width: 0;
+  flex: 1;
+}
+.completion-copy h2 {
+  margin: 5px 0;
+}
+.completion-copy h2 span {
+  color: var(--cp-text-muted);
+  font-size: 0.65em;
+  font-weight: 650;
+}
+.completion-copy small {
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.completion-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  position: relative;
+  z-index: 1;
+}
+.completion-actions button,
+.completion-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+}
+.completion-actions button {
+  border: 0;
+  background: var(--cp-accent);
+  color: var(--cp-accent-contrast, #102018);
+  cursor: pointer;
+}
+.completion-actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.completion-actions .secondary {
+  border: 1px solid var(--cp-border);
+  color: var(--cp-text);
+  background: var(--cp-surface);
+}
+@media (max-width: 760px) {
+  .lifecycle-complete {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .completion-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .completion-actions > * {
+    flex: 1;
+  }
+}
