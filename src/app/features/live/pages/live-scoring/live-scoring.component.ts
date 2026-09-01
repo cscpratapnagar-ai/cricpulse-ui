@@ -73,6 +73,8 @@ export class LiveScoringV2Component {
   wicketLegalDelivery = true;
   completionReason = '';
   lifecycleBusy = false;
+  undoConfirmOpen = false;
+  private lastDeliveryPayload: any = null;
   constructor() {
     this.load();
   }
@@ -378,8 +380,18 @@ export class LiveScoringV2Component {
   private reloadScoreAfterDelivery() {
     this.loadScoreById(this.inningsId);
   }
-  private postDelivery(body: any) {
+  retryLastAction() {
+    if (this.busy || !this.lastDeliveryPayload) return;
+    this.message = '';
+    this.postDelivery(this.lastDeliveryPayload, true);
+  }
+  dismissError() {
+    this.message = '';
+    if (this.syncState === 'ERROR') this.syncState = 'SYNCED';
+  }
+  private postDelivery(body: any, isRetry = false) {
     if (!this.score || !this.inningsId || !this.canDeliver) return;
+    this.lastDeliveryPayload = { ...body };
     const payload = {
       inningsId: this.inningsId,
       overNumber: Math.floor((this.score.legalBalls || 0) / 6),
@@ -391,7 +403,7 @@ export class LiveScoringV2Component {
     };
     this.busy = true;
     this.syncState = 'SAVING';
-    this.lastAction = body.wicketType ? 'Wicket recorded' : body.extraType ? `${body.extraType} recorded` : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
+    this.lastAction = isRetry ? 'Retrying previous action' : body.wicketType ? 'Wicket recorded' : body.extraType ? `${body.extraType} recorded` : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
     this.http
       .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload)
       .subscribe({
@@ -401,6 +413,7 @@ export class LiveScoringV2Component {
             this.busy = false;
             this.syncState = 'SYNCED';
             this.message = '';
+            this.lastDeliveryPayload = null;
           } else {
             this.reloadScoreAfterDelivery();
             this.busy = false;
@@ -468,8 +481,16 @@ export class LiveScoringV2Component {
     });
     this.wicketOpen = false;
   }
+  requestUndo() {
+    if (!this.inningsId || this.busy || !this.score?.recentBalls?.length) return;
+    this.undoConfirmOpen = true;
+  }
+  cancelUndo() {
+    if (!this.busy) this.undoConfirmOpen = false;
+  }
   undo() {
     if (!this.inningsId || this.busy) return;
+    this.undoConfirmOpen = false;
     this.busy = true;
     this.syncState = 'SAVING';
     this.lastAction = 'Undoing last delivery';
