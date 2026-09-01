@@ -11,7 +11,7 @@ interface Team { id: string; name: string; }
   selector: 'app-create-match', standalone: true,
   imports: [FormsModule, RouterLink, SelectFieldComponent, DateTimeFieldComponent],
   templateUrl: './create-match.component.html',
-  styleUrl: './create-match.component.scss']
+  styleUrl: './create-match.component.scss'
 
 })
 export class CreateMatchComponent {
