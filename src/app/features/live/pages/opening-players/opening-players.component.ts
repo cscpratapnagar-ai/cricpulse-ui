@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface Match {
   id: string;
@@ -55,7 +56,7 @@ export class OpeningPlayersComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   matchId = this.route.snapshot.paramMap.get('id') || '';
   inningsNumber = Number(this.route.snapshot.queryParamMap.get('innings') || '1');
   match: Match | null = null;
