@@ -20,7 +20,9 @@ const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map((match) =>
 const duplicates = childPaths.filter((path, index) => childPaths.indexOf(path) !== index);
 
 if (duplicates.length > 0) {
-  failures.push(`duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`);
+  failures.push(
+    `duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`,
+  );
 }
 
 const emptyHomeCount = (childBlock.match(/path:\s*''/g) ?? []).length;
