@@ -42,6 +42,11 @@ import { TournamentScheduleComponent } from './features/tournaments/pages/schedu
 import { TournamentDetailComponent } from './features/tournaments/pages/tournament-detail/tournament-detail.component';
 import { TournamentsComponent } from './features/tournaments/pages/tournament-list/tournaments.component';
 import { authGuard } from './core/auth/auth';
+import {
+  canAccessLiveScoring,
+  canAccessMatchOpening,
+  canAccessMatchToss,
+} from './core/routing/match-lifecycle.guard';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 
 const dashboardChildren: Routes = [
@@ -49,9 +54,9 @@ const dashboardChildren: Routes = [
   { path: 'matches', component: MatchesComponent },
   { path: 'matches/new', component: CreateMatchComponent },
   { path: 'matches/:id/playing-xi', component: PlayingXiV2Component },
-  { path: 'matches/:id/toss', component: TossComponent },
-  { path: 'matches/:id/opening-players', component: OpeningPlayersComponent },
-  { path: 'matches/:id/live-scoring', component: LiveScoringV2Component },
+  { path: 'matches/:id/toss', component: TossComponent, canActivate: [canAccessMatchToss] },
+  { path: 'matches/:id/opening-players', component: OpeningPlayersComponent, canActivate: [canAccessMatchOpening] },
+  { path: 'matches/:id/live-scoring', component: LiveScoringV2Component, canActivate: [canAccessLiveScoring] },
   { path: 'matches/:id/result', component: MatchResultComponent },
   { path: 'matches/:id/scorecard', component: MatchScorecardComponent },
   { path: 'matches/:id/statistics', component: MatchStatisticsComponent },
