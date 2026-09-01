@@ -46,12 +46,20 @@
       </section>
       @if (score.status === 'COMPLETED') {
         <section class="innings-complete lifecycle-complete">
-          <div class="completion-mark">✓</div>
+          <div class="completion-mark" [class.tie]="resultOutcome?.type === 'TIE'">
+            {{ resultOutcome?.type === 'TIE' ? '=' : '✓' }}
+          </div>
           <div class="completion-copy">
-            <label>{{ completionTitle }}</label>
+            <label>{{ resultOutcome?.headline || completionTitle }}</label>
             <h2>{{ score.runs }}/{{ score.wickets }} <span>· {{ overs(score.legalBalls) }} overs</span></h2>
-            <p>{{ completionReasonText }}</p>
+            <p>{{ resultOutcome?.detail || completionReasonText }}</p>
             <small>{{ completionText }}</small>
+            @if (resultOutcome) {
+              <div class="result-meta">
+                <span>{{ score.targetRuns ? 'TARGET ' + score.targetRuns : 'FINAL INNINGS' }}</span>
+                <span>{{ ballsRemaining !== null ? ballsRemaining + ' BALLS REMAINING' : 'MATCH COMPLETE' }}</span>
+              </div>
+            }
           </div>
           <div class="completion-actions">
             @if (score.inningsNumber === 1) {
