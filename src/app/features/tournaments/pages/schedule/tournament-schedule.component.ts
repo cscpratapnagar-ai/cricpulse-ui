@@ -11,7 +11,8 @@ interface Fixture { matchId:string; fixtureNumber:number|null; stage:string; mat
  selector:'app-tournament-schedule',
  standalone:true,
  imports:[CommonModule,RouterLink,DateTimeFieldComponent],
- template: `
+ templateUrl: './tournament-schedule.component.html',
+ styleUrl: './tournament-schedule.component.scss'
 <section class="page">
   <a class="back" [routerLink]="['/tournaments',id]">← Tournament</a>
   @if (loading) {
