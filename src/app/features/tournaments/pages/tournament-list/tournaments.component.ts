@@ -13,7 +13,7 @@ selector:'app-tournaments',
 standalone:true,
 imports:[CommonModule,FormsModule,RouterLink,CpDropdownComponent,StateViewComponent],
 templateUrl: './tournaments.component.html',
-styleUrl: './tournaments.component.scss']
+styleUrl: './tournaments.component.scss'
 })
 export class TournamentsComponent{
 private readonly http=inject(HttpClient);readonly api='http://localhost:8080/api';
