@@ -1,0 +1,55 @@
+import { readFile } from 'node:fs/promises';
+
+const source = await readFile('src/app/app.routes.ts', 'utf8');
+const failures = [];
+
+if (!source.includes('export const routes: Routes = [')) {
+  failures.push('routes export was not found');
+}
+
+if (!source.includes('const dashboardChildren: Routes = [')) {
+  failures.push('canonical dashboardChildren inventory was not found');
+}
+
+if (!source.includes('canActivate: [authGuard]')) {
+  failures.push('protected dashboard route guard was not found');
+}
+
+const childBlock =
+  source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
+const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
+const duplicates = childPaths.filter(
+  (path, index) => childPaths.indexOf(path) !== index,
+);
+
+if (duplicates.length > 0) {
+  failures.push(`duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`);
+}
+
+const emptyHomeCount = (childBlock.match(/path:\s*''/g) ?? []).length;
+if (emptyHomeCount !== 1) {
+  failures.push(`expected one dashboard home route, found ${emptyHomeCount}`);
+}
+
+const wildcardIndex = source.lastIndexOf("{ path: '**'");
+const routesEndIndex = source.lastIndexOf('];');
+if (wildcardIndex === -1 || wildcardIndex > routesEndIndex) {
+  failures.push('wildcard fallback route must be the final route');
+}
+
+const derivedCompatibilityRoutes =
+  source.includes('.filter((route) => route.path)') &&
+  source.includes('.map((route) => ({') &&
+  source.includes("...dashboardRoute([{ ...route, path: '' }])");
+
+if (!derivedCompatibilityRoutes) {
+  failures.push('top-level compatibility routes are not derived from canonical inventory');
+}
+
+if (failures.length > 0) {
+  console.error('Route integrity audit failed:');
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log(`Route integrity audit passed for ${childPaths.length} canonical dashboard paths.`);
