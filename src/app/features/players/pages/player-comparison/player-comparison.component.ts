@@ -8,7 +8,7 @@ interface Player {id:string;name:string;role?:string;teamName?:string;}
 interface Snapshot {playerId:string;name:string;role:string;teamName:string;profilePhotoUrl?:string;matches:number;runs:number;average:number;strikeRate:number;wickets:number;economy:number;fours:number;sixes:number;bestScore?:string;bestBowling?:string;}
 interface Comparison {left:Snapshot;right:Snapshot;}
 
-@Component({selector:'app-player-comparison',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],templateUrl: './player-comparison.component.html',styleUrl: './player-comparison.component.scss']
+@Component({selector:'app-player-comparison',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],templateUrl: './player-comparison.component.html',styleUrl: './player-comparison.component.scss'
 })
 export class PlayerComparisonComponent implements OnInit{
  private http=inject(HttpClient); api='http://localhost:8080/api'; players:Player[]=[]; leftId='';rightId='';comparison:Comparison|null=null;loading=false;
