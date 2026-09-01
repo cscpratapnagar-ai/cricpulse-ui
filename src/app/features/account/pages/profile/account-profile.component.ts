@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CurrentUserService } from '../../../../current-user.service';
+import { CurrentUserService } from '../../../../core/services/current-user.service';
 
 type Tab = 'profile' | 'account' | 'preferences' | 'security';
 
