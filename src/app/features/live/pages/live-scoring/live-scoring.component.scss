@@ -391,22 +391,25 @@ label {
 .run-grid button:active:not(:disabled) {
   transform: translateY(0) scale(0.97);
 }
+/* Disabled controls must remain fully legible. The global disabled contract is
+   intentionally overridden here because a scorer needs to see every action. */
 .run-grid button:disabled,
 .action-zone button:disabled {
-  opacity: 0.88;
-  color: var(--cp-text);
+  opacity: 1 !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
   cursor: not-allowed;
-}
-.run-grid button:disabled {
-  -webkit-text-fill-color: var(--cp-text);
 }
 .scorepad.blocked .run-grid button,
 .action-zone.blocked button {
-  background: color-mix(in srgb, var(--cp-surface-hover) 82%, transparent);
+  opacity: 1 !important;
+  background: #102a21 !important;
+  border-color: rgba(184, 244, 92, 0.26) !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
 }
-.scorepad.blocked .run-grid button {
-  color: var(--cp-text);
-  -webkit-text-fill-color: var(--cp-text);
+.run-grid button:disabled {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 }
 .bowler-warning {
   grid-column: 1 / -1;
