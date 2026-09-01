@@ -402,6 +402,24 @@ export class LiveScoringV2Component implements OnDestroy {
       },
     });
   }
+  private reconcileScore(s: LiveScore, silent = false) {
+    if (!s || !s.inningsId) {
+      if (!silent) this.message = 'Live score response is incomplete.';
+      return;
+    }
+    const nextFingerprint = JSON.stringify({
+      inningsId: s.inningsId,
+      eventVersion: (s as any).eventVersion,
+      runs: s.runs,
+      wickets: s.wickets,
+      legalBalls: s.legalBalls,
+      status: s.status,
+    });
+    if (nextFingerprint === this.scoreFingerprint) return;
+    this.scoreFingerprint = nextFingerprint;
+    this.applyScore(s);
+  }
+
   private applyScore(s: LiveScore) {
     if (!s || !s.inningsId) {
       this.message = 'Live score response is incomplete.';
