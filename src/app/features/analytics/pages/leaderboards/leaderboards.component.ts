@@ -15,7 +15,7 @@ type Board = 'runs'|'average'|'strikeRate'|'wickets'|'economy';
   standalone:true,
   imports:[CommonModule,RouterLink],
   templateUrl: './leaderboards.component.html',
-  styleUrl: './leaderboards.component.scss']
+  styleUrl: './leaderboards.component.scss'
 })
 export class LeaderboardsComponent {
   private readonly http=inject(HttpClient);
