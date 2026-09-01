@@ -1462,3 +1462,72 @@ footer i {
   .undo-backdrop,
   .undo-dialog { animation: none; }
 }
+
+/* Live scorer connection resilience */
+.sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 13px;
+  border: 1px solid var(--cp-border);
+  border-radius: 13px;
+  background: var(--cp-surface);
+}
+.sync-banner > div {
+  min-width: 0;
+  flex: 1;
+}
+.sync-banner b,
+.sync-banner small {
+  display: block;
+}
+.sync-banner b {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.sync-banner small {
+  margin-top: 2px;
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cp-accent) 12%, transparent);
+}
+.sync-banner.reconnecting .sync-dot {
+  animation: syncPulse 1s ease-in-out infinite;
+}
+.sync-banner.offline .sync-dot {
+  background: var(--cp-danger, #ef6a62);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cp-danger, #ef6a62) 12%, transparent);
+}
+.sync-banner button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  background: var(--cp-surface-hover);
+  color: var(--cp-text);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+@keyframes syncPulse {
+  50% { transform: scale(1.45); opacity: 0.5; }
+}
+@media (max-width: 520px) {
+  .sync-banner {
+    align-items: flex-start;
+  }
+  .sync-banner button {
+    flex: 0 0 auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sync-banner.reconnecting .sync-dot { animation: none; }
+}
