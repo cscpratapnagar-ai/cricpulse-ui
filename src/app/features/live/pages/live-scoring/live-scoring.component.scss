@@ -379,6 +379,9 @@ label {
   gap: 9px;
 }
 .run-grid button {
+  position: relative;
+  display: grid !important;
+  place-items: center !important;
   height: 62px;
   border: 1px solid color-mix(in srgb, var(--cp-accent) 18%, var(--cp-border));
   border-radius: 15px;
@@ -396,6 +399,36 @@ label {
     background 0.18s ease,
     border-color 0.18s ease,
     box-shadow 0.18s ease;
+}
+.run-grid button .run-value {
+  position: relative;
+  z-index: 2;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+/* Fallback paint layer: guarantees the numeric action remains visible even when
+   browser/theme disabled-button rendering interferes with text descendants. */
+.run-grid button::after {
+  content: attr(data-run);
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid !important;
+  place-items: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  pointer-events: none;
 }
 .run-grid button:hover:not(:disabled) {
   background: var(--cp-accent);
