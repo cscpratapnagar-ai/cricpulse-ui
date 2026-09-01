@@ -10,7 +10,6 @@ import { LiveMatchEntryComponent } from './features/live/pages/live-match-entry/
 import { LiveScoringV2Component } from './features/live/pages/live-scoring/live-scoring.component';
 import { OpeningPlayersComponent } from './features/live/pages/opening-players/opening-players.component';
 import { PlayingXiV2Component } from './features/live/pages/playing-xi/playing-xi.component';
-import { ScorerComponent } from './features/live/pages/scorer/scorer.component';
 import { TossComponent } from './features/live/pages/toss/toss.component';
 import { CreateMatchComponent } from './features/matches/pages/create-match/create-match.component';
 import { MatchDetailComponent } from './features/matches/pages/match-detail/match-detail.component';
@@ -73,7 +72,7 @@ const dashboardChildren: Routes = [
   { path: 'matches/:id/scorecard', component: MatchScorecardComponent },
   { path: 'matches/:id/statistics', component: MatchStatisticsComponent },
   { path: 'matches/:id/live', component: LiveMatchEntryComponent },
-  { path: 'matches/:id/scorer', component: ScorerComponent },
+  { path: 'matches/:id/scorer', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   { path: 'matches/:id/overview', component: MatchDetailComponent },
   { path: 'matches/:id', component: MatchDetailComponent },
   { path: 'teams', component: TeamsComponent },
@@ -93,7 +92,7 @@ const dashboardChildren: Routes = [
   { path: 'tournaments/:id', component: TournamentDetailComponent },
   { path: 'tournaments', component: TournamentsComponent },
   { path: 'live', component: LiveCenterComponent },
-  { path: 'scorer', component: ScorerComponent },
+  { path: 'scorer', redirectTo: 'live', pathMatch: 'full' },
   { path: 'analytics', component: AnalyticsComponent },
   { path: 'leaderboards', component: LeaderboardsComponent },
   { path: 'settings', component: SettingsComponent },
