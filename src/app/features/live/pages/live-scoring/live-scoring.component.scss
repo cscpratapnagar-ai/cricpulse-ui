@@ -393,8 +393,16 @@ label {
 }
 .run-grid button:disabled,
 .action-zone button:disabled {
-  opacity: 0.38;
+  opacity: 0.62;
+  color: var(--cp-text-muted);
   cursor: not-allowed;
+}
+.scorepad.blocked .run-grid button,
+.action-zone.blocked button {
+  background: color-mix(in srgb, var(--cp-surface-hover) 82%, transparent);
+}
+.scorepad.blocked .run-grid button {
+  color: color-mix(in srgb, var(--cp-text-muted) 88%, var(--cp-text));
 }
 .action-zone > div {
   display: grid;
