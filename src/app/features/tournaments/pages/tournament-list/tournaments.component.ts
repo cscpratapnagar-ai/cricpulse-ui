@@ -4,7 +4,7 @@ import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CpDropdownComponent, CpDropdownOption } from '../../../../shared/cp-dropdown.component';
-import { StateViewComponent } from '../../../../state-view.component';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Tournament {
   id: string;
