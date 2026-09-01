@@ -48,6 +48,9 @@ jobs:
       - name: Audit critical test inventory
         run: npm run test:inventory
 
+      - name: Execute Angular unit tests
+        run: npm run test
+
       - name: Audit legacy compatibility shims
         run: npm run legacy:audit
 
