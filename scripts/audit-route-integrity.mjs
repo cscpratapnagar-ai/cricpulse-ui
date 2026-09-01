@@ -15,19 +15,12 @@ if (!source.includes('canActivate: [authGuard]')) {
   failures.push('protected dashboard route guard was not found');
 }
 
-const childBlock =
-  source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
-const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map(
-  (match) => match[1],
-);
-const duplicates = childPaths.filter(
-  (path, index) => childPaths.indexOf(path) !== index,
-);
+const childBlock = source.match(/const dashboardChildren: Routes = \[([\s\S]*?)\n\];/)?.[1] ?? '';
+const childPaths = [...childBlock.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
+const duplicates = childPaths.filter((path, index) => childPaths.indexOf(path) !== index);
 
 if (duplicates.length > 0) {
-  failures.push(
-    `duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`,
-  );
+  failures.push(`duplicate canonical child paths: ${[...new Set(duplicates)].join(', ')}`);
 }
 
 const emptyHomeCount = (childBlock.match(/path:\s*''/g) ?? []).length;
@@ -45,9 +38,7 @@ const derivedCompatibilityRoutes =
   source.includes("...dashboardRoute([{ ...route, path: '' }])");
 
 if (!derivedCompatibilityRoutes) {
-  failures.push(
-    'top-level compatibility routes are not derived from canonical inventory',
-  );
+  failures.push('top-level compatibility routes are not derived from canonical inventory');
 }
 
 const lifecycleRequirements = [
@@ -78,6 +69,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(
-  `Route integrity audit passed for ${childPaths.length} canonical dashboard paths.`,
-);
+console.log(`Route integrity audit passed for ${childPaths.length} canonical dashboard paths.`);
