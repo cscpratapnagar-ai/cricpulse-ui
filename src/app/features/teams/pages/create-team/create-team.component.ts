@@ -10,7 +10,7 @@ interface CreatedTeam { id:string; name:string; city:string|null; ownerId:string
   standalone:true,
   imports:[FormsModule,RouterLink],
   templateUrl: './create-team.component.html',
-  styleUrl: './create-team.component.scss']
+  styleUrl: './create-team.component.scss'
 })
 export class CreateTeamComponent{
   private readonly http=inject(HttpClient);
