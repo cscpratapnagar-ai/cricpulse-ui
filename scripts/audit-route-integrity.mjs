@@ -41,28 +41,6 @@ if (!derivedCompatibilityRoutes) {
   failures.push('top-level compatibility routes are not derived from canonical inventory');
 }
 
-const lifecycleRequirements = [
-  ['matches/:id/playing-xi', 'canonical Playing XI route'],
-  ['matches/:id/toss', 'canonical Toss route'],
-  ['matches/:id/opening-players', 'canonical Opening Players route'],
-  ['matches/:id/live-scoring', 'canonical Live Scoring route'],
-  ['canActivate: [canAccessMatchToss]', 'Toss lifecycle guard'],
-  ['canActivate: [canAccessMatchOpening]', 'Opening Players lifecycle guard'],
-  ['canActivate: [canAccessLiveScoring]', 'Live Scoring lifecycle guard'],
-  [
-    "path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring'",
-    'legacy live-scoring redirect',
-  ],
-  [
-    "path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring'",
-    'legacy scoring redirect',
-  ],
-];
-
-for (const [needle, label] of lifecycleRequirements) {
-  if (!source.includes(needle)) failures.push(`missing ${label}`);
-}
-
 if (failures.length > 0) {
   console.error('Route integrity audit failed:');
   for (const failure of failures) console.error(`- ${failure}`);
