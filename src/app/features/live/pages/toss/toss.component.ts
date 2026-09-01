@@ -12,7 +12,7 @@ interface TossSaveResponse { matchId:string; tossWinnerTeamId:string; decision:s
   standalone:true,
   imports:[FormsModule,RouterLink],
   templateUrl: './toss.component.html',
-  styleUrl: './toss.component.scss']
+  styleUrl: './toss.component.scss'
 })
 export class TossComponent {
   private readonly http = inject(HttpClient);
