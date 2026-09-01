@@ -31,6 +31,13 @@
     </div>
   } @else if (score) {
     <main class="scorer-shell">
+      @if (deliveryFeedback) {
+        <div class="delivery-feedback" [class]="'delivery-feedback ' + deliveryFeedback.type" role="status">
+          <div class="feedback-ring"></div>
+          <strong>{{ deliveryFeedback.label }}</strong>
+          <span>{{ deliveryFeedback.detail }}</span>
+        </div>
+      }
       <section class="score-hero">
         <div class="hero-orbit orbit-one"></div>
         <div class="hero-orbit orbit-two"></div>
