@@ -3,10 +3,9 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { CurrentUser, CurrentUserService } from '../services/current-user.service';
+import { API_BASE_URL } from '../config/api.config';
 
 export type { CurrentUser };
-
-const API_BASE_URL = 'http://localhost:8080/api';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = localStorage.getItem('cricketpulse_access_token');
