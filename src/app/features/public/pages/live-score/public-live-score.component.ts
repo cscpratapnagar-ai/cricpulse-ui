@@ -1,9 +1,10 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, of, timer, switchMap, distinctUntilChanged } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
+import { API_ORIGIN } from '../../../../core/config/api.config';
 
 interface Match {
   id: string;
@@ -39,10 +40,11 @@ export class PublicLiveScoreComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
-  private readonly api = 'http://localhost:8080/api';
+  private readonly api = `${API_ORIGIN}/api`;
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   match: Match | null = null;
   score$ = of<LiveScore | null>(null);
+  lastEventVersion = 0;
 
   constructor() {
     if (!this.matchId) return;
@@ -57,6 +59,11 @@ export class PublicLiveScoreComponent {
           const inningsId = innings.inningsId;
           if (!inningsId) return;
           this.score$ = this.liveScore.watch(inningsId).pipe(
+            distinctUntilChanged((a, b) => a.eventVersion === b.eventVersion),
+            switchMap((score) => {
+              this.lastEventVersion = Math.max(this.lastEventVersion, score.eventVersion ?? 0);
+              return of(score);
+            }),
             catchError((e) => {
               console.error('[PublicLive] score failed', e);
               return of<LiveScore | null>(null);
