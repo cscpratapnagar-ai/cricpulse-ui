@@ -18,7 +18,7 @@ describe('ThemeService', () => {
     document.documentElement.classList.remove(
       'theme-light',
       'theme-dark',
-      'theme-transition',
+      'theme-transition'
     );
     document.body.classList.remove('theme-light', 'theme-dark');
   });
