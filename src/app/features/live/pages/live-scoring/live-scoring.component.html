@@ -83,10 +83,20 @@
         </section>
         <div class="control-grid">
           <section class="scoring-deck">
-            <div class="sync-banner" [class.offline]="connectionState === 'OFFLINE'" [class.reconnecting]="connectionState === 'RECONNECTING'">
+            @if (externalUpdateNotice) {
+          <div class="reconcile-notice" role="status">
+            <span>↻</span>
+            <div>
+              <b>LIVE STATE UPDATED</b>
+              <small>{{ externalUpdateNotice }}</small>
+            </div>
+            <button type="button" aria-label="Dismiss update notice" (click)="dismissExternalUpdate()">×</button>
+          </div>
+        }
+        <div class="sync-banner" [class.offline]="connectionState === 'OFFLINE'" [class.reconnecting]="connectionState === 'RECONNECTING'">
           <span class="sync-dot"></span>
           <div>
-            <b>{{ connectionLabel }}</b>
+            <b>{{ reconciling ? 'RECONCILING' : connectionLabel }}</b>
             <small>{{ connectionHint }}</small>
           </div>
           @if (connectionState !== 'ONLINE') {
