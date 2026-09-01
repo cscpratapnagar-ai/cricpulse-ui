@@ -8,7 +8,7 @@ import { LiveScore } from '../../../../live-score.service';
 interface Match { id:string; name:string; status:string; format?:string; teamAId:string; teamBId:string; teamAName?:string; teamBName?:string; }
 interface XIPlayer { teamId:string; playerId:string; name:string; captain:boolean; viceCaptain:boolean; wicketKeeper:boolean; }
 
-@Component({selector:'app-live-scoring-v2',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],templateUrl: './live-scoring.component.html',styleUrl: './live-scoring.component.scss']
+@Component({selector:'app-live-scoring-v2',standalone:true,imports:[CommonModule,RouterLink,SelectFieldComponent],templateUrl: './live-scoring.component.html',styleUrl: './live-scoring.component.scss'
 
 })
 export class LiveScoringV2Component {
