@@ -50,13 +50,17 @@
   transform: rotate(180deg);
 }
 .select-trigger.disabled {
-  opacity: 0.72;
-  color: var(--cp-text-muted);
+  opacity: 1 !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
   cursor: not-allowed;
 }
-.select-trigger.disabled .muted {
-  color: var(--cp-text-muted);
-  opacity: 1;
+.select-trigger.disabled .muted,
+.select-trigger.disabled span,
+.select-trigger.disabled b {
+  opacity: 1 !important;
+  color: #edf8f2 !important;
+  -webkit-text-fill-color: #edf8f2 !important;
 }
 .muted {
   color: var(--cp-text-muted);
