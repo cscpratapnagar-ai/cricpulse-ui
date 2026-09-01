@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CpDropdownComponent, CpDropdownOption } from '../../../../shared/cp-dropdown.component';
-import { StateViewComponent } from '../../../../state-view.component';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Tournament {
   id: string;
@@ -26,7 +27,7 @@ interface Tournament {
 })
 export class TournamentsComponent {
   private readonly http = inject(HttpClient);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   tournaments: Tournament[] = [];
   loading = true;

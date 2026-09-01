@@ -2,9 +2,9 @@ import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, startWith } from 'rxjs';
-import { LiveScore } from '../../../../live-score.service';
-import { ScorecardData } from '../../../../scorecard.models';
-import { ScorecardService } from '../../../../scorecard.service';
+import { LiveScore } from '../../../../core/services/live-score.service';
+import { ScorecardData } from '../../models/scorecard.models';
+import { ScorecardService } from '../../data-access/scorecard.service';
 
 @Component({
   selector: 'app-scorecard',

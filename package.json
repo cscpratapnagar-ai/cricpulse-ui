@@ -4,9 +4,20 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-    "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\"",
-    "format:check": "npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\"",
-    "lint:format": "npm run format:check"
+    "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\" \"scripts/**/*.{mjs,js}\" \"*.json\"",
+    "format:check": "npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\" \"scripts/**/*.{mjs,js}\" \"*.json\"",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "component:audit": "node scripts/audit-component-structure.mjs",
+    "legacy:audit": "node scripts/audit-legacy-shims.mjs",
+    "quality": "npm run format:check && npm run typecheck && npm run component:audit && npm run route:audit && npm run test:inventory && npm run legacy:audit && npm run security:audit && npm run feature:audit && npm run test",
+    "lint:format": "npm run format:check",
+    "route:audit": "node scripts/audit-route-integrity.mjs",
+    "test:inventory": "node scripts/audit-test-inventory.mjs",
+    "test:compile": "tsc -p tsconfig.app.json --noEmit",
+    "test": "ng test --watch=false",
+    "test:coverage": "ng test --watch=false --code-coverage",
+    "security:audit": "node scripts/audit-security-api.mjs",
+    "feature:audit": "node scripts/audit-feature-integration.mjs"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
@@ -18,12 +29,20 @@
     "@angular/router": "^19.0.0",
     "@stomp/stompjs": "^7.1.1",
     "rxjs": "^7.8.1",
-    "zone.js": "^0.15.0"
+    "zone.js": "^0.15.0",
+    "@angular/platform-browser-dynamic": "^19.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.0.0",
     "@angular/cli": "^19.0.0",
     "@angular/compiler-cli": "^19.0.0",
-    "typescript": "~5.6.2"
+    "typescript": "~5.6.2",
+    "jasmine-core": "~5.5.0",
+    "karma": "~6.4.4",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.1",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "@types/jasmine": "~5.1.0"
   }
 }

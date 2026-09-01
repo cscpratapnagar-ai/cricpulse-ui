@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -39,7 +40,7 @@ export class SignupComponent {
     if (this.password !== this.confirmPassword) return this.showToast('Passwords do not match.');
     this.loading = true;
     this.http
-      .post('http://localhost:8080/api/users', {
+      .post(`${API_BASE_URL}/users`, {
         fullName: name,
         email,
         phone,

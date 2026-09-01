@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { Component, inject } from '@angular/core';
-import { StateViewComponent } from '../../../../state-view.component';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 import { Router, RouterLink } from '@angular/router';
 
 interface Team {
@@ -31,7 +32,7 @@ export class TeamsComponent {
   loadTeams() {
     this.loading = true;
     this.error = false;
-    this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+    this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
       next: (teams) => {
         this.teams = teams;
         const saved = localStorage.getItem('cricketpulse_active_team_id');

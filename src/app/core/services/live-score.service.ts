@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { Observable } from 'rxjs';
+import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
 
 export interface LiveBatter {
   playerId: string;
@@ -90,7 +91,6 @@ export interface LiveScore {
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080';
 
   watch(inningsId: string): Observable<LiveScore> {
     return new Observable<LiveScore>((subscriber) => {
@@ -103,7 +103,7 @@ export class LiveScoreService {
 
       // Public viewer must never depend on scorer authentication.
       this.http
-        .get<LiveScore>(`${this.apiUrl}/api/public/innings/${encodeURIComponent(inningsId)}`)
+        .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
         .subscribe({
           next: (score) => {
             if (!stopped && score?.inningsId === inningsId) subscriber.next(score);
@@ -117,7 +117,7 @@ export class LiveScoreService {
         });
 
       const client = new Client({
-        brokerURL: this.apiUrl.replace('http', 'ws') + '/ws',
+        brokerURL: WS_ORIGIN + '/ws',
         reconnectDelay: 3000,
         connectionTimeout: 10000,
         onConnect: () => {

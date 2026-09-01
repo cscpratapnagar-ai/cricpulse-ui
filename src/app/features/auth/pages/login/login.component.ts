@@ -2,6 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
+import { CurrentUserService } from '../../../../core/services/current-user.service';
 
 interface AuthResponse {
   accessToken: string;
@@ -30,6 +32,7 @@ interface Team {
 export class LoginComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly currentUser = inject(CurrentUserService);
   email = '';
   password = '';
   loading = false;
@@ -50,17 +53,17 @@ export class LoginComponent {
     }
     this.loading = true;
     this.http
-      .post<AuthResponse>('http://localhost:8080/api/auth/login', {
+      .post<AuthResponse>(`${API_BASE_URL}/auth/login`, {
         email,
         password: this.password,
       })
       .subscribe({
         next: (r) => {
           localStorage.setItem('cricketpulse_access_token', r.accessToken);
-          this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+          this.http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).subscribe({
             next: (u) => {
-              localStorage.setItem('cricketpulse_user', JSON.stringify(u));
-              this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+              this.currentUser.set(u);
+              this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
                 next: (t) => {
                   if (t.length) localStorage.setItem('cricketpulse_team', JSON.stringify(t[0]));
                   this.router.navigateByUrl('/dashboard');

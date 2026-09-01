@@ -2,15 +2,19 @@ import { HttpClient, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
+
+import { API_BASE_URL, isApiRequest } from '../config/api.config';
 import { CurrentUser, CurrentUserService } from '../services/current-user.service';
 
 export type { CurrentUser };
 
-const API_BASE_URL = 'http://localhost:8080/api';
-
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = localStorage.getItem('cricketpulse_access_token');
-  if (!token || request.url.includes('/api/auth/login')) return next(request);
+
+  if (!token || !isApiRequest(request.url) || request.url.includes('/api/auth/login')) {
+    return next(request);
+  }
+
   return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
 };
 
@@ -20,7 +24,9 @@ export const authGuard: CanActivateFn = () => {
   const currentUser = inject(CurrentUserService);
   const token = localStorage.getItem('cricketpulse_access_token');
 
-  if (!token) return router.createUrlTree(['/login']);
+  if (!token) {
+    return router.createUrlTree(['/login']);
+  }
 
   return http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).pipe(
     map((user) => {

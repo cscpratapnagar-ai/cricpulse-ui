@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+
+import { API_BASE_URL } from '../../../../core/config/api.config';
 interface Career {
   playerName: string;
   matches: number;
@@ -30,7 +32,7 @@ interface Career {
 export class PlayerFormComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   playerId = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   career: Career | null = null;

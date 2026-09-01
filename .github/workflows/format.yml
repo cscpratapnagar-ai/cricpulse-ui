@@ -1,35 +1,21 @@
-name: Format Angular Code
+name: Format Verification
 
 on:
   push:
     branches: [ui]
+  pull_request:
+    branches: [ui]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   prettier:
+    name: Prettier check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-      - run: npm run format
-
-      - name: Commit formatted code
+      - name: Verify all source and config formatting
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src .prettierrc .prettierignore
-            git commit -m "style: format Angular source with Prettier"
-            git push
-          fi
+          npm run format:check

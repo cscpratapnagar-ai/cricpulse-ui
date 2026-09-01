@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface PlayerStat {
   playerId: string;
@@ -35,7 +36,7 @@ export class AnalyticsComponent {
     { key: 'strikeRate', label: 'Strike rate' },
   ];
   constructor() {
-    this.http.get<PlayerStat[]>('http://localhost:8080/api/players/statistics').subscribe({
+    this.http.get<PlayerStat[]>(`${API_BASE_URL}/players/statistics`).subscribe({
       next: (r) => {
         this.players = r || [];
         this.loading = false;

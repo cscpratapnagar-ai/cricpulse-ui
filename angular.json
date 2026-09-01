@@ -32,10 +32,23 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "cricketpulse-web:build:production" },
-            "development": { "buildTarget": "cricketpulse-web:build:development" }
+            "production": {
+              "buildTarget": "cricketpulse-web:build:production"
+            },
+            "development": {
+              "buildTarget": "cricketpulse-web:build:development"
+            }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json",
+            "styles": ["src/styles.css"],
+            "karmaConfig": "karma.conf.js"
+          }
         }
       }
     }

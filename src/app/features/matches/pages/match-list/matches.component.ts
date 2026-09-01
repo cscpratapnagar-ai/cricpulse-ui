@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { Component, inject } from '@angular/core';
-import { StateViewComponent } from '../../../../state-view.component';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 import { RouterLink } from '@angular/router';
 
 interface Match {
@@ -70,7 +71,7 @@ export class MatchesComponent {
   load(): void {
     this.loading = true;
     this.error = false;
-    this.http.get<Match[]>('http://localhost:8080/api/matches').subscribe({
+    this.http.get<Match[]>(`${API_BASE_URL}/matches`).subscribe({
       next: (matches) => {
         this.matches = matches ?? [];
         this.loading = false;
