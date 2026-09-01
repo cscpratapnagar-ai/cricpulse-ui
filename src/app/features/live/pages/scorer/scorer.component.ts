@@ -15,7 +15,7 @@ interface InningsResponse { id: string; inningsNumber: number; }
   standalone: true,
   imports: [AsyncPipe, RouterLink, SelectFieldComponent],
   templateUrl: './scorer.component.html',
-  styleUrl: './scorer.component.scss']
+  styleUrl: './scorer.component.scss'
 })
 export class ScorerComponent {
   private readonly http=inject(HttpClient); private readonly route=inject(ActivatedRoute); private readonly router=inject(Router); private readonly liveScore=inject(LiveScoreService);
