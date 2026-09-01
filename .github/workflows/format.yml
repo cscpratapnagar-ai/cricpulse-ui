@@ -21,4 +21,7 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci
-      - run: npm run format:check
+      - name: Verify formatting
+        run: |
+          npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}" "*.json"
+          git diff --exit-code -- "src/**/*" "*.json"
