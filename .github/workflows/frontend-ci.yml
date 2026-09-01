@@ -42,6 +42,12 @@ jobs:
       - name: Audit canonical component structure
         run: npm run component:audit
 
+      - name: Audit route integrity
+        run: npm run route:audit
+
+      - name: Audit critical test inventory
+        run: npm run test:inventory
+
       - name: Audit legacy compatibility shims
         run: npm run legacy:audit
 
