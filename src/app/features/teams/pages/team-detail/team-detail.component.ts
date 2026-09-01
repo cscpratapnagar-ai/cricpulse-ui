@@ -13,7 +13,7 @@ type Tab='overview'|'squad'|'management';
   selector:'app-team-detail', standalone:true,
   imports:[RouterLink,FormsModule,StateViewComponent],
   templateUrl: './team-detail.component.html',
-  styleUrl: './team-detail.component.scss']
+  styleUrl: './team-detail.component.scss'
 })
 export class TeamDetailComponent {
   private http=inject(HttpClient); private route=inject(ActivatedRoute); history=window.history;
