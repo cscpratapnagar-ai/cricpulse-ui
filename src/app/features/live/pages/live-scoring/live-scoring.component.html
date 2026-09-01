@@ -73,6 +73,35 @@
           </div>
         </section>
       } @else {
+        <section class="delivery-audit">
+          <div class="audit-head">
+            <div><label>DELIVERY TIMELINE</label><small>Latest authoritative events</small></div>
+            <button type="button" (click)="auditExpanded = !auditExpanded">{{ auditExpanded ? 'Collapse' : 'View all' }}</button>
+          </div>
+          <div class="ball-timeline" [class.expanded]="auditExpanded">
+            @for (ball of score.recentBalls || []; track ball.deliveryId) {
+              <button type="button" class="ball-chip" [class]="ballSemantic(ball)" (click)="selectRecentBall(ball)">
+                <span>{{ ball.overNumber }}.{{ ball.ballNumber }}</span>
+                <b>{{ ballToken(ball) }}</b>
+              </button>
+            }
+          </div>
+          @if (selectedRecentBall) {
+            <div class="delivery-inspector">
+              <div>
+                <label>SELECTED DELIVERY</label>
+                <h4>{{ selectedRecentBall.overNumber }}.{{ selectedRecentBall.ballNumber }} · {{ ballToken(selectedRecentBall) }}</h4>
+                <small>
+                  {{ selectedRecentBall.legalDelivery ? 'Legal delivery' : 'Illegal delivery' }}
+                  · {{ selectedRecentBall.totalRuns }} total run{{ selectedRecentBall.totalRuns === 1 ? '' : 's' }}
+                  @if (selectedRecentBall.wicketType) { · {{ selectedRecentBall.wicketType.replace('_', ' ') }} }
+                  @if (selectedRecentBall.extraType) { · {{ selectedRecentBall.extraType.replace('_', ' ') }} }
+                </small>
+              </div>
+              <button type="button" (click)="dismissRecentBall()">×</button>
+            </div>
+          }
+        </section>
         <section class="match-intelligence">
           <div><label>CRR</label><b>{{ currentRunRate.toFixed(2) }}</b><span>Current run rate</span></div>
           @if (score.targetRuns) {
