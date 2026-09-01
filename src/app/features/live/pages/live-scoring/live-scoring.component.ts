@@ -71,6 +71,8 @@ export class LiveScoringV2Component {
   dismissedPlayerId = '';
   wicketRuns = 0;
   wicketLegalDelivery = true;
+  completionReason = '';
+  lifecycleBusy = false;
   constructor() {
     this.load();
   }
@@ -170,6 +172,23 @@ export class LiveScoringV2Component {
   }
   get publicScoreUrl() {
     return `/live/${this.matchId}`;
+  }
+  get completionTitle() {
+    if (!this.score) return 'Innings complete';
+    if (this.score.wickets >= 10) return 'ALL OUT';
+    if (this.score.targetRuns && this.requiredRuns === 0) return 'TARGET REACHED';
+    if (this.ballsRemaining === 0) return 'OVERS COMPLETE';
+    return 'INNINGS COMPLETE';
+  }
+  get completionReasonText() {
+    if (!this.score) return '';
+    if (this.score.wickets >= 10) return 'All wickets are down. This innings is closed.';
+    if (this.score.targetRuns && this.requiredRuns === 0) return 'The target has been reached. Scoring is locked.';
+    if (this.ballsRemaining === 0) return 'The allotted overs have been completed.';
+    return 'This innings has been completed and scoring is now locked.';
+  }
+  get canAdvanceInnings() {
+    return !!this.score && this.score.status === 'COMPLETED' && this.score.inningsNumber === 1 && !this.lifecycleBusy;
   }
   get completionText() {
     if (!this.score) return '';
@@ -443,6 +462,8 @@ export class LiveScoringV2Component {
     });
   }
   startSecondInnings() {
+    if (!this.canAdvanceInnings) return;
+    this.lifecycleBusy = true;
     this.router.navigate(['/matches', this.matchId, 'opening-players'], {
       queryParams: { innings: 2 },
     });
