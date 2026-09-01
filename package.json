@@ -9,11 +9,13 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "component:audit": "node scripts/audit-component-structure.mjs",
     "legacy:audit": "node scripts/audit-legacy-shims.mjs",
-    "quality": "npm run format:check && npm run typecheck && npm run component:audit && npm run route:audit && npm run test:inventory && npm run legacy:audit",
+    "quality": "npm run format:check && npm run typecheck && npm run component:audit && npm run route:audit && npm run test:inventory && npm run legacy:audit && npm run test",
     "lint:format": "npm run format:check",
     "route:audit": "node scripts/audit-route-integrity.mjs",
     "test:inventory": "node scripts/audit-test-inventory.mjs",
-    "test:compile": "tsc -p tsconfig.app.json --noEmit"
+    "test:compile": "tsc -p tsconfig.app.json --noEmit",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test:coverage": "ng test --watch=false --browsers=ChromeHeadless --code-coverage"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
@@ -31,6 +33,12 @@
     "@angular-devkit/build-angular": "^19.0.0",
     "@angular/cli": "^19.0.0",
     "@angular/compiler-cli": "^19.0.0",
-    "typescript": "~5.6.2"
+    "typescript": "~5.6.2",
+    "jasmine-core": "^5.4.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0"
   }
 }
