@@ -391,10 +391,18 @@ label {
 .run-grid button:active:not(:disabled) {
   transform: translateY(0) scale(0.97);
 }
+/* Keep scoring labels readable even while input is locked. Disabled means
+   unavailable, not hidden — the scorer must still see every possible action. */
 .run-grid button:disabled,
 .action-zone button:disabled {
-  opacity: 0.38;
+  opacity: 1;
+  color: #eef7f1;
+  -webkit-text-fill-color: #eef7f1;
   cursor: not-allowed;
+}
+.run-grid button:disabled {
+  background: #10261e;
+  border-color: #315941;
 }
 .action-zone > div {
   display: grid;
