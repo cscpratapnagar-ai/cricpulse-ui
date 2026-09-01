@@ -119,23 +119,30 @@ export class LiveScoringV2Component implements OnDestroy {
   get activeBowlerId() {
     return this.selectedBowlerId || this.score?.currentBowlerId || '';
   }
+  get hasKnownActiveBowler() {
+    const id = this.activeBowlerId;
+    if (!id) return false;
+    // A stale/foreign ID from an interrupted setup must never silently lock the scorer.
+    return this.xi.some((p) => p.teamId === this.bowlingTeamId && p.playerId === id);
+  }
   get needsBowlerChange() {
     if (!this.score || this.score.status !== 'LIVE') return false;
     const atOverBoundary =
       this.score.legalBalls > 0 && this.score.legalBalls % 6 === 0;
-    return (atOverBoundary || !this.score.currentBowlerId) && !this.selectedBowlerId;
+    return (atOverBoundary || !this.hasKnownActiveBowler) && !this.selectedBowlerId;
   }
   get canChangeBowler() {
     if (!this.score || this.score.status !== 'LIVE' || this.busy) return false;
-    const atOverBoundary = (this.score.legalBalls || 0) % 6 === 0;
-    // Recovery-safe: never lock the scorer when the authoritative score has no bowler.
-    return atOverBoundary || !this.score.currentBowlerId;
+    const atOverBoundary =
+      this.score.legalBalls > 0 && this.score.legalBalls % 6 === 0;
+    // Recovery-safe: unlock whenever the authoritative bowler is absent or invalid.
+    return atOverBoundary || !this.hasKnownActiveBowler;
   }
   get canDeliver() {
     return (
       !!this.score &&
       this.score.status === 'LIVE' &&
-      !!this.activeBowlerId &&
+      this.hasKnownActiveBowler &&
       !this.needsBowlerChange &&
       !this.busy &&
       (this.score.wickets ?? 0) < 10
@@ -161,8 +168,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.score) return 'Loading match state…';
     if (this.score.status !== 'LIVE') return 'Scoring is unavailable for this innings.';
     if (this.busy) return 'Saving the previous action…';
-    if (this.needsBowlerChange) return 'Select a new bowler to begin the next over.';
-    if (!this.activeBowlerId) return 'Select an active bowler before scoring.';
+    if (this.needsBowlerChange) return 'Select a valid bowler before scoring can continue.';
+    if (!this.hasKnownActiveBowler) return 'Select an active bowler before scoring.';
     return 'Ready for the next delivery.';
   }
   get syncLabel() {
@@ -432,13 +439,20 @@ export class LiveScoringV2Component implements OnDestroy {
     this.bowlingTeamId = (s as any).bowlingTeamId || this.bowlingTeamId;
     this.normalizeTeamIds();
     const boundary = s.status === 'LIVE' && s.legalBalls > 0 && s.legalBalls % 6 === 0;
+    const serverBowlerIsKnown = this.xi.some(
+      (p) => p.teamId === this.bowlingTeamId && p.playerId === s.currentBowlerId,
+    );
     if (boundary) {
-      this.previousBowlerId = s.currentBowlerId || '';
+      this.previousBowlerId = serverBowlerIsKnown ? s.currentBowlerId || '' : '';
       this.selectedBowlerId = '';
     } else {
       this.previousBowlerId = '';
-      // Do not erase a locally selected bowler while waiting for the first delivery.
-      if (s.currentBowlerId) this.selectedBowlerId = s.currentBowlerId;
+      // Keep a local recovery selection, but only trust a bowler that belongs to the bowling XI.
+      if (serverBowlerIsKnown && s.currentBowlerId) {
+        this.selectedBowlerId = s.currentBowlerId;
+      } else if (this.selectedBowlerId && !this.hasKnownActiveBowler) {
+        this.selectedBowlerId = '';
+      }
     }
   }
   private reloadScoreAfterDelivery() {
