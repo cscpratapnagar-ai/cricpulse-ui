@@ -78,6 +78,8 @@ export class LiveScoringV2Component {
   private refreshTimer?: ReturnType<typeof setInterval>;
   private scoreFingerprint = '';
   externalUpdateNotice = '';
+  selectedRecentBall: any = null;
+  auditExpanded = false;
   reconciling = false;
   private onlineHandler = () => this.handleReconnect();
   private offlineHandler = () => (this.connectionState = 'OFFLINE');
