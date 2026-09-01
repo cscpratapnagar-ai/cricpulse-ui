@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { catchError, of, startWith } from 'rxjs';
-import { LiveScore, LiveScoreService } from './live-score.service';
+import { LiveScore, LiveScoreService } from './core/services/live-score.service';
 
 @Component({
   selector: 'app-live-viewer', standalone: true, imports: [FormsModule, AsyncPipe],
