@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 interface Match {
@@ -24,7 +25,9 @@ interface Match {
 export class MatchDetailComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
+  readonly api = API_BASE_URL;
   loading = true;
+  error = '';
   match: Match | null = null;
 
   constructor() {
@@ -33,13 +36,14 @@ export class MatchDetailComponent {
       this.loading = false;
       return;
     }
-    this.http.get<Match>(`http://localhost:8080/api/matches/${id}`).subscribe({
+    this.http.get<Match>(`${this.api}/matches/${id}`).subscribe({
       next: (match) => {
         this.match = match;
         this.loading = false;
       },
       error: () => {
         this.match = null;
+        this.error = 'Match details could not be loaded. Please try again.';
         this.loading = false;
       },
     });
