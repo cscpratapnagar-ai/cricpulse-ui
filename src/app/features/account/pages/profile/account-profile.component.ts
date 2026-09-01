@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CurrentUserService } from '../../../../current-user.service';
 
 type Tab='profile'|'account'|'preferences'|'security';
-@Component({selector:'app-account-profile',standalone:true,imports:[CommonModule,FormsModule],templateUrl: './account-profile.component.html',styleUrl: './account-profile.component.scss']} )
+@Component({selector:'app-account-profile',standalone:true,imports:[CommonModule,FormsModule],templateUrl: './account-profile.component.html',styleUrl: './account-profile.component.scss'} )
 export class AccountProfileComponent{
  readonly users=inject(CurrentUserService);readonly user=this.users.user;readonly tab=signal<Tab>('profile');readonly saving=signal(false);readonly saved=signal(false);readonly showName=signal(true);readonly compact=signal(false);readonly reduceMotion=signal(false);
  readonly tabs:{key:Tab;label:string}[]=[{key:'profile',label:'Profile'},{key:'account',label:'Account'},{key:'preferences',label:'Preferences'},{key:'security',label:'Security'}];
