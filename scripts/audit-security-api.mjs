@@ -25,7 +25,7 @@ if (!config.includes('API_BASE_URL')) failures.push('central API configuration i
 for (const file of await walk('src/app')) {
   if (file === 'src/app/core/config/api.config.ts') continue;
   const source = await readFile(file, 'utf8');
-  if (/https?:\\/\\/localhost:8080/.test(source)) failures.push(`hardcoded local API endpoint: ${file}`);
+  if (/https?:\/\/localhost:8080/.test(source)) failures.push(`hardcoded local API endpoint: ${file}`);
 }
 
 if (failures.length) {
