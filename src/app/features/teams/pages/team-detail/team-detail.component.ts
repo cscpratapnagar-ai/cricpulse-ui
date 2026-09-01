@@ -261,20 +261,18 @@ export class TeamDetailComponent {
     const m = this.confirmMember;
     if (!this.team || !m || !this.access?.canManage || this.saving) return;
     this.saving = true;
-    this.http
-      .delete(`${API_BASE_URL}/teams/${this.team.id}/members/${m.playerId}`)
-      .subscribe({
-        next: () => {
-          this.members = this.members.filter((x) => x.playerId !== m.playerId);
-          this.confirmMember = null;
-          this.saving = false;
-          this.showToast(`${m.fullName} removed from the team`, 'success');
-        },
-        error: (e) => {
-          this.saving = false;
-          this.showToast(e?.error?.message || 'Unable to remove player', 'error');
-        },
-      });
+    this.http.delete(`${API_BASE_URL}/teams/${this.team.id}/members/${m.playerId}`).subscribe({
+      next: () => {
+        this.members = this.members.filter((x) => x.playerId !== m.playerId);
+        this.confirmMember = null;
+        this.saving = false;
+        this.showToast(`${m.fullName} removed from the team`, 'success');
+      },
+      error: (e) => {
+        this.saving = false;
+        this.showToast(e?.error?.message || 'Unable to remove player', 'error');
+      },
+    });
   }
   showToast(message: string, type: 'success' | 'error') {
     this.toast = message;
