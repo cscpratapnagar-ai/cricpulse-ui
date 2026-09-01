@@ -83,7 +83,17 @@
         </section>
         <div class="control-grid">
           <section class="scoring-deck">
-            <div class="deck-head">
+            <div class="sync-banner" [class.offline]="connectionState === 'OFFLINE'" [class.reconnecting]="connectionState === 'RECONNECTING'">
+          <span class="sync-dot"></span>
+          <div>
+            <b>{{ connectionLabel }}</b>
+            <small>{{ connectionHint }}</small>
+          </div>
+          @if (connectionState !== 'ONLINE') {
+            <button type="button" (click)="handleReconnect()">Retry sync</button>
+          }
+        </div>
+        <div class="deck-head">
               <div>
                 <label>DELIVERY INPUT</label>
                 <h2>Score the next ball</h2>
