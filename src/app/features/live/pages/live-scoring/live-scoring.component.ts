@@ -76,6 +76,9 @@ export class LiveScoringV2Component {
   connectionState: 'ONLINE' | 'RECONNECTING' | 'OFFLINE' = 'ONLINE';
   lastSyncedAt: Date | null = null;
   private refreshTimer?: ReturnType<typeof setInterval>;
+  private scoreFingerprint = '';
+  externalUpdateNotice = '';
+  reconciling = false;
   private onlineHandler = () => this.handleReconnect();
   private offlineHandler = () => (this.connectionState = 'OFFLINE');
   undoConfirmOpen = false;
@@ -353,9 +356,7 @@ export class LiveScoringV2Component {
     this.inningsId = id;
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
-        this.applyScore(s);
-        this.lastSyncedAt = new Date();
-        this.connectionState = 'ONLINE';
+        this.reconcileScore(s, silent);
         if (!this.refreshTimer && this.score?.status === 'LIVE') {
           this.refreshTimer = setInterval(() => this.loadScore(true), 15000);
         }
