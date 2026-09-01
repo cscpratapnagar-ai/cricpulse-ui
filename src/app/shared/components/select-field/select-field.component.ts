@@ -8,7 +8,7 @@ export interface SelectOption { value: string; label: string; }
   standalone: true,
   imports: [NgIf],
   templateUrl: './select-field.component.html',
-  styleUrl: './select-field.component.scss' ]
+  styleUrl: './select-field.component.scss'
 })
 export class SelectFieldComponent {
   @Input() label = ''; @Input() name = ''; @Input() placeholder = 'Select'; @Input() options: SelectOption[] = []; @Input() value = ''; @Input() disabled = false;
