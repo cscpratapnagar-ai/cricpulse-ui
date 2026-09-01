@@ -7,7 +7,8 @@ import { API_ORIGIN } from '../../../../core/config/api.config';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 
 interface CurrentInnings { inningsId: string; }
-type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership';
+type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'event';
+type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
 
 interface Match { id: string; name: string; teamAName?: string; teamBName?: string; }
 
@@ -24,6 +25,7 @@ export class BroadcastOverlayComponent {
   private readonly liveScore = inject(LiveScoreService);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   readonly mode: OverlayMode = (this.route.snapshot.queryParamMap.get('mode') as OverlayMode) || 'strip';
+  readonly eventKind: EventKind = (this.route.snapshot.queryParamMap.get('event') as EventKind) || 'FOUR';
   match: Match | null = null;
   score$ = of<LiveScore | null>(null);
 
@@ -37,6 +39,21 @@ export class BroadcastOverlayComponent {
     });
   }
   overs(balls: number) { return `${Math.floor(balls / 6)}.${balls % 6}`; }
+  get isEvent() { return this.mode === 'event'; }
+  eventLabel(score: LiveScore) {
+    if (this.eventKind === 'RESULT') return score.status === 'COMPLETED' ? 'MATCH COMPLETE' : 'MATCH RESULT';
+    if (this.eventKind === 'MILESTONE') return 'MILESTONE';
+    if (this.eventKind === 'OVER_COMPLETE') return 'OVER COMPLETE';
+    return this.eventKind;
+  }
+  eventDetail(score: LiveScore) {
+    if (this.eventKind === 'FOUR') return 'BOUNDARY';
+    if (this.eventKind === 'SIX') return 'MAXIMUM';
+    if (this.eventKind === 'WICKET') return 'WICKET FALLEN';
+    if (this.eventKind === 'OVER_COMPLETE') return `${this.overs(score.legalBalls)} OVERS`;
+    if (this.eventKind === 'RESULT') return `${score.runs}/${score.wickets}`;
+    return `${score.runs}/${score.wickets} · LIVE`; 
+  }
   get isStrip() { return this.mode === 'strip'; }
   get isBatter() { return this.mode === 'batter'; }
   get isBowler() { return this.mode === 'bowler'; }
