@@ -1178,3 +1178,49 @@ footer i {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+.wicket-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(180px, 1fr);
+  gap: 14px;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--cp-surface-hover), var(--cp-surface));
+}
+.wicket-context > div > label {
+  display: block;
+  margin-bottom: 8px;
+}
+.wicket-rule {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 2px;
+}
+.wicket-rule b {
+  font-size: 12px;
+}
+.wicket-rule small {
+  color: var(--cp-text-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.wicket-context .mini-run-grid button {
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.wicket-context .mini-run-grid button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+@media (max-width: 620px) {
+  .wicket-context {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wicket-context .mini-run-grid button {
+    transition: none;
+  }
+}
