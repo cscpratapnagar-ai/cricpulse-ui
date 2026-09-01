@@ -4,8 +4,8 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-    "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\" \"*.json\"",
-    "format:check": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\" \"*.json\" && npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\" \"*.json\"",
+    "format": "npx --yes prettier@3.5.3 --write \"src/**/*.{ts,html,scss,css,json}\" \"scripts/**/*.{mjs,js}\" \"*.json\"",
+    "format:check": "npx --yes prettier@3.5.3 --check \"src/**/*.{ts,html,scss,css,json}\" \"scripts/**/*.{mjs,js}\" \"*.json\"",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "component:audit": "node scripts/audit-component-structure.mjs",
     "legacy:audit": "node scripts/audit-legacy-shims.mjs",
