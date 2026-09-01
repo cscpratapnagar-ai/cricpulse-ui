@@ -14,7 +14,7 @@ interface StartResponse { id:string; matchId:string; inningsNumber:number; batti
   standalone:true,
   imports:[CommonModule,RouterLink,SelectFieldComponent],
   templateUrl: './opening-players.component.html',
-  styleUrl: './opening-players.component.scss']
+  styleUrl: './opening-players.component.scss'
 })
 export class OpeningPlayersComponent {
  private readonly http=inject(HttpClient);private readonly route=inject(ActivatedRoute);private readonly router=inject(Router);private readonly api='http://localhost:8080/api';
