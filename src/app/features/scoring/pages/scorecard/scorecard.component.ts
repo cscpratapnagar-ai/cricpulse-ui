@@ -11,7 +11,7 @@ import { ScorecardService } from '../../../../scorecard.service';
   standalone: true,
   imports: [AsyncPipe, DecimalPipe, RouterLink],
   templateUrl: './scorecard.component.html',
-  styleUrl: './scorecard.component.scss']
+  styleUrl: './scorecard.component.scss'
 
 })
 export class ScorecardComponent {
