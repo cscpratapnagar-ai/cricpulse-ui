@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { StateViewComponent } from '../../../../state-view.component';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 @Component({
   selector: 'app-state-gallery',
   standalone: true,
