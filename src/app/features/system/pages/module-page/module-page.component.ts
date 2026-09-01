@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-module-page', standalone: true, imports: [RouterLink],
