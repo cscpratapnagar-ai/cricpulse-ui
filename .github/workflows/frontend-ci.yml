@@ -39,6 +39,9 @@ jobs:
         run: npm run format:check
       - name: Verify TypeScript
         run: npm run typecheck
+      - name: Audit canonical component structure
+        run: npm run component:audit
+
       - name: Audit legacy compatibility shims
         run: npm run legacy:audit
 
