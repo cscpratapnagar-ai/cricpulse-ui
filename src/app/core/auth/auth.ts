@@ -9,7 +9,8 @@ export type { CurrentUser };
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = localStorage.getItem('cricketpulse_access_token');
-  if (!token || !isApiRequest(request.url) || request.url.includes('/api/auth/login')) return next(request);
+  if (!token || !isApiRequest(request.url) || request.url.includes('/api/auth/login'))
+    return next(request);
   return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
 };
 
