@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { FormsModule } from '@angular/forms';
 import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
@@ -89,7 +90,7 @@ export class TeamDetailComponent {
     }
     this.loading = true;
     this.loadError = false;
-    this.http.get<Team>(`http://localhost:8080/api/teams/${id}`).subscribe({
+    this.http.get<Team>(`${API_BASE_URL}/teams/${id}`).subscribe({
       next: (t) => {
         this.team = t;
         this.loadAccess(id);
@@ -103,13 +104,13 @@ export class TeamDetailComponent {
     });
   }
   loadAccess(id: string) {
-    this.http.get<TeamAccess>(`http://localhost:8080/api/teams/${id}/access`).subscribe({
+    this.http.get<TeamAccess>(`${API_BASE_URL}/teams/${id}/access`).subscribe({
       next: (x) => (this.access = x),
       error: (e) => this.showToast(e?.error?.message || 'Unable to load team access', 'error'),
     });
   }
   loadMembers(id: string) {
-    this.http.get<Member[]>(`http://localhost:8080/api/teams/${id}/members`).subscribe({
+    this.http.get<Member[]>(`${API_BASE_URL}/teams/${id}/members`).subscribe({
       next: (x) => {
         this.members = x || [];
         this.loading = false;
@@ -213,7 +214,7 @@ export class TeamDetailComponent {
     if (!this.team || !this.email.trim() || !this.access?.canManage || this.saving) return;
     this.saving = true;
     this.http
-      .post<Member>(`http://localhost:8080/api/teams/${this.team.id}/members`, {
+      .post<Member>(`${API_BASE_URL}/teams/${this.team.id}/members`, {
         email: this.email.trim(),
         role: this.role,
       })
@@ -238,7 +239,7 @@ export class TeamDetailComponent {
     if (!this.team || !this.access?.canManage || m.role === 'OWNER' || this.saving) return;
     this.saving = true;
     this.http
-      .patch<Member>(`http://localhost:8080/api/teams/${this.team.id}/members/${m.playerId}`, {
+      .patch<Member>(`${API_BASE_URL}/teams/${this.team.id}/members/${m.playerId}`, {
         role,
       })
       .subscribe({
@@ -261,7 +262,7 @@ export class TeamDetailComponent {
     if (!this.team || !m || !this.access?.canManage || this.saving) return;
     this.saving = true;
     this.http
-      .delete(`http://localhost:8080/api/teams/${this.team.id}/members/${m.playerId}`)
+      .delete(`${API_BASE_URL}/teams/${this.team.id}/members/${m.playerId}`)
       .subscribe({
         next: () => {
           this.members = this.members.filter((x) => x.playerId !== m.playerId);
