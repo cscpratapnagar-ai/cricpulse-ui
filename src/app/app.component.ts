@@ -8,7 +8,7 @@ import { LoadingService } from './core/services/loading.service';
   standalone: true,
   imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss']
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   readonly loading = inject(LoadingService);
