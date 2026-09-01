@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 interface PlayerStat{playerId:string;playerName:string;matches:number;runs:number;highestScore:number;battingAverage:number;strikeRate:number;wickets:number;economy:number;}
 type Metric='runs'|'wickets'|'average'|'strikeRate';
 
-@Component({selector:'app-analytics',standalone:true,imports:[CommonModule,RouterLink],templateUrl: './analytics.component.html',styleUrl: './analytics.component.scss']
+@Component({selector:'app-analytics',standalone:true,imports:[CommonModule,RouterLink],templateUrl: './analytics.component.html',styleUrl: './analytics.component.scss'
 })
 export class AnalyticsComponent{
  private http=inject(HttpClient);players:PlayerStat[]=[];loading=true;metric:Metric='runs';
