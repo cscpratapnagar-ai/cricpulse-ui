@@ -26,6 +26,7 @@ import { PlayerStatisticsComponent } from './features/players/pages/player-stati
 import { HomeComponent } from './features/public/pages/home/home.component';
 import { LandingComponent } from './features/public/pages/landing/landing.component';
 import { PublicLiveScoreComponent } from './features/public/pages/live-score/public-live-score.component';
+import { BroadcastOverlayComponent } from './features/broadcast/pages/overlay/broadcast-overlay.component';
 import { SettingsComponent } from './features/settings/pages/settings/settings.component';
 import { NotFoundComponent } from './features/system/pages/not-found/not-found.component';
 import { NotificationsComponent } from './features/system/pages/notifications/notifications.component';
@@ -112,6 +113,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'live/:id', component: PublicLiveScoreComponent },
+  { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
   { path: 'dashboard', ...dashboardRoute() },
   // Legacy scoring URLs remain as compatibility redirects; all new navigation uses the canonical match lifecycle route.
   { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
