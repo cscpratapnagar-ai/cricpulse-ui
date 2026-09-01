@@ -190,6 +190,32 @@ export class LiveScoringV2Component {
   get canAdvanceInnings() {
     return !!this.score && this.score.status === 'COMPLETED' && this.score.inningsNumber === 1 && !this.lifecycleBusy;
   }
+  get resultOutcome() {
+    if (!this.score || this.score.status !== 'COMPLETED' || this.score.inningsNumber !== 2)
+      return null;
+    const target = this.score.targetRuns || 0;
+    if (!target) return { type: 'COMPLETE', headline: 'MATCH COMPLETE', detail: 'Final innings completed.' };
+    if (this.score.runs >= target) {
+      const wicketsLeft = Math.max(0, 10 - this.score.wickets);
+      return {
+        type: 'CHASE_WIN',
+        headline: `WON BY ${wicketsLeft} WICKET${wicketsLeft === 1 ? '' : 'S'}`,
+        detail: `${this.battingName} chased ${target} with ${this.ballsRemaining ?? 0} balls remaining.`,
+      };
+    }
+    if (this.score.runs === target - 1) {
+      return { type: 'TIE', headline: 'MATCH TIED', detail: 'Both teams finished on the same score.' };
+    }
+    const margin = target - 1 - this.score.runs;
+    return {
+      type: 'DEFEND_WIN',
+      headline: `DEFENDED BY ${margin} RUN${margin === 1 ? '' : 'S'}`,
+      detail: `${this.bowlingName} successfully defended the target of ${target}.`,
+    };
+  }
+  get resultAccent() {
+    return this.resultOutcome?.type === 'TIE' ? 'neutral' : 'win';
+  }
   get completionText() {
     if (!this.score) return '';
     return this.score.inningsNumber === 1
