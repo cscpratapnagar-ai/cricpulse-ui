@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -56,7 +57,7 @@ export class PlayersComponent {
   loadPlayers() {
     this.loading = true;
     this.error = false;
-    this.http.get<PlayerStat[]>('http://localhost:8080/api/players/statistics').subscribe({
+    this.http.get<PlayerStat[]>(`${API_BASE_URL}/players/statistics`).subscribe({
       next: (r) => {
         this.players = r || [];
         this.loading = false;
