@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -35,7 +36,7 @@ export class LiveScoringV2Component {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   readonly runs = [0, 1, 2, 3, 4, 5, 6];
   readonly wicketOptions: SelectOption[] = [
     { value: 'BOWLED', label: 'Bowled' },
