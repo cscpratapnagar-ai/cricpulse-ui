@@ -132,6 +132,12 @@
               <div>
                 <b>{{ syncState === 'ERROR' ? 'Action needs attention' : canDeliver ? 'Ready to score' : 'Next step required' }}</b>
                 <small>{{ message || validationHint }}</small>
+                @if (syncState === 'ERROR') {
+                  <span class="guidance-actions">
+                    <button type="button" (click)="retryLastAction()" [disabled]="busy">Retry</button>
+                    <button type="button" (click)="dismissError()">Dismiss</button>
+                  </span>
+                }
               </div>
               @if (lastAction && syncState === 'SYNCED') {
                 <em>{{ lastAction }}</em>
@@ -179,7 +185,7 @@
                   (click)="openWicket()"
                 >
                   WICKET</button
-                ><button class="undo" [disabled]="busy" (click)="undo()">↶ UNDO</button>
+                ><button class="undo" [disabled]="busy || !score.recentBalls?.length" (click)="requestUndo()">↶ UNDO</button>
               </div>
             </div>
             @if (extraOpen) {
@@ -323,6 +329,22 @@
     </main>
   } @else {
     <div class="loading-state">Unable to load scoring session.</div>
+  }
+  @if (undoConfirmOpen) {
+    <div class="undo-backdrop" (click)="cancelUndo()">
+      <section class="undo-dialog" role="dialog" aria-modal="true" aria-labelledby="undo-title" (click)="$event.stopPropagation()">
+        <div class="undo-icon">↶</div>
+        <div>
+          <label>REVIEW ACTION</label>
+          <h3 id="undo-title">Undo last delivery?</h3>
+          <p>This will remove the most recently recorded delivery and recalculate the live innings state.</p>
+        </div>
+        <div class="undo-actions">
+          <button type="button" class="secondary" (click)="cancelUndo()">Keep delivery</button>
+          <button type="button" class="danger" (click)="undo()">Yes, undo</button>
+        </div>
+      </section>
+    </div>
   }
   <footer>
     <span><i></i> REALTIME CONNECTION ACTIVE</span
