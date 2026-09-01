@@ -11,7 +11,7 @@ export interface CpDropdownOption<T = string> {
   selector: 'cp-dropdown',
   standalone: true,
   templateUrl: './cp-dropdown.component.html',
-  styleUrl: './cp-dropdown.component.scss']
+  styleUrl: './cp-dropdown.component.scss'
 })
 export class CpDropdownComponent<T = string> {
   @Input() id = `cp-dropdown-${Math.random().toString(36).slice(2, 8)}`;
