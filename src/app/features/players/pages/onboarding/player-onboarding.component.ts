@@ -16,7 +16,7 @@ interface Player {
   selector: 'app-player-onboarding', standalone: true,
   imports: [FormsModule, RouterLink, SelectFieldComponent, DateTimeFieldComponent],
   templateUrl: './player-onboarding.component.html',
-  styleUrl: './player-onboarding.component.scss']
+  styleUrl: './player-onboarding.component.scss'
 })
 export class PlayerOnboardingComponent {
   private readonly http = inject(HttpClient); private readonly router = inject(Router);
