@@ -100,3 +100,14 @@ Canonical route imports already point directly to the feature-owned implementati
 ### Live viewer
 
 live-viewer.component.ts remains an independent component for now. It is not a route entry point in app.routes.ts, so it must not be deleted until a broader repository usage audit and production build confirm it is unused.
+
+
+## Final Angular File Conventions
+
+The canonical application structure follows these rules:
+
+- Feature pages and reusable components use colocated .component.ts, .component.html, .component.scss, and .component.spec.ts files.
+- Component templates and styles are externalized; large inline template and styles blocks are not used for canonical feature components.
+- Root-level legacy files are compatibility re-export shims only and are not duplicate implementations.
+- Cross-cutting services, guards and interceptors remain under core; reusable UI remains under shared; domain code remains feature-owned.
+- Application and production build verification is performed after structural migration.
