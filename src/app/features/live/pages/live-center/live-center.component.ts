@@ -41,7 +41,7 @@ interface InningsResponse {
   standalone: true,
   imports: [FormsModule, RouterLink, AsyncPipe, SelectFieldComponent],
   templateUrl: './live-center.component.html',
-  styleUrl: './live-center.component.scss']
+  styleUrl: './live-center.component.scss'
 })
 export class LiveCenterComponent {
   private readonly http = inject(HttpClient);
