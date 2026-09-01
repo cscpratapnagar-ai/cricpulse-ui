@@ -35,9 +35,7 @@ describe('ScorecardService', () => {
       expect(scorecard).toEqual(scorecardFixture);
     });
 
-    const request = http.expectOne(
-      'http://localhost:8080/api/matches/match-42/scorecard'
-    );
+    const request = http.expectOne('http://localhost:8080/api/matches/match-42/scorecard');
     expect(request.request.method).toBe('GET');
     request.flush(scorecardFixture);
   });
