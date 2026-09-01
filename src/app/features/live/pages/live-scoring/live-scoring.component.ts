@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 import { LiveScore } from '../../../../core/services/live-score.service';
+import { LiveScoreSocketService, LiveSocketState } from '../../../../core/services/live-score-socket.service';
 
 interface Match {
   id: string;
@@ -32,10 +33,11 @@ interface XIPlayer {
   templateUrl: './live-scoring.component.html',
   styleUrl: './live-scoring.component.scss',
 })
-export class LiveScoringV2Component {
+export class LiveScoringV2Component implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly liveSocket = inject(LiveScoreSocketService);
   readonly api = API_BASE_URL;
   readonly runs = [0, 1, 2, 3, 4, 5, 6];
   readonly wicketOptions: SelectOption[] = [
@@ -74,6 +76,7 @@ export class LiveScoringV2Component {
   completionReason = '';
   lifecycleBusy = false;
   connectionState: 'ONLINE' | 'RECONNECTING' | 'OFFLINE' = 'ONLINE';
+  socketState: LiveSocketState = 'DISCONNECTED';
   lastSyncedAt: Date | null = null;
   private refreshTimer?: ReturnType<typeof setInterval>;
   private scoreFingerprint = '';
@@ -86,7 +89,17 @@ export class LiveScoringV2Component {
   undoConfirmOpen = false;
   private lastDeliveryPayload: any = null;
   constructor() {
+    this.liveSocket.state$.subscribe((state) => {
+      this.socketState = state;
+      if (state === 'CONNECTED') this.connectionState = 'ONLINE';
+    });
     this.load();
+  }
+  ngOnDestroy(): void {
+    this.liveSocket.disconnect();
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
+    window.removeEventListener('online', this.onlineHandler);
+    window.removeEventListener('offline', this.offlineHandler);
   }
   get battingName() {
     return this.match
@@ -325,7 +338,8 @@ export class LiveScoringV2Component {
         this.battingTeamId = i.battingTeamId || '';
         this.bowlingTeamId = i.bowlingTeamId || '';
         this.normalizeTeamIds();
-        this.loadScoreById(this.inningsId);
+        this.loadScoreById(this.inningsId, true);
+        this.connectLiveSocket(this.inningsId);
       },
       error: (e) => {
         this.loading = false;
@@ -349,7 +363,15 @@ export class LiveScoringV2Component {
       this.bowlingTeamId = this.match.teamBId;
     }
   }
-  private loadScoreById(id: string) {
+  private connectLiveSocket(inningsId: string) {
+    if (!inningsId) return;
+    this.liveSocket.connect(inningsId, (payload) => {
+      const score = payload as LiveScore;
+      if (!score?.inningsId || this.busy) return;
+      this.reconcileScore(score, true);
+    });
+  }
+  private loadScoreById(id: string, silent = false) {
     if (!id) {
       this.loading = false;
       this.message = 'Current innings ID is missing.';
