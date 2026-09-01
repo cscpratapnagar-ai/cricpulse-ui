@@ -63,8 +63,28 @@ describe('AnalyticsComponent', () => {
     request.flush([]);
 
     component.players = [
-      { playerId: '1', playerName: 'A', matches: 1, runs: 10, highestScore: 10, battingAverage: 10, strikeRate: 100, wickets: 1, economy: 5 },
-      { playerId: '2', playerName: 'B', matches: 1, runs: 30, highestScore: 30, battingAverage: 30, strikeRate: 150, wickets: 3, economy: 4 },
+      {
+        playerId: '1',
+        playerName: 'A',
+        matches: 1,
+        runs: 10,
+        highestScore: 10,
+        battingAverage: 10,
+        strikeRate: 100,
+        wickets: 1,
+        economy: 5,
+      },
+      {
+        playerId: '2',
+        playerName: 'B',
+        matches: 1,
+        runs: 30,
+        highestScore: 30,
+        battingAverage: 30,
+        strikeRate: 150,
+        wickets: 3,
+        economy: 4,
+      },
     ];
     component.metric = 'wickets';
 
