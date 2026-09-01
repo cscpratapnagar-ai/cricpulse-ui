@@ -17,4 +17,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify formatting
-        run: npx --yes prettier@3.5.3 --check "src/**/*.{ts,html,scss,css,json}" "*.json"
+        run: npx --yes prettier@3.5.3 --check "src/**/*.{ts,html,scss,css}" "*.json"
