@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
-import { LiveScore } from '../../../../live-score.service';
+import { LiveScore } from '../../../../core/services/live-score.service';
 
 interface Match {
   id: string;
