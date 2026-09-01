@@ -1,0 +1,17 @@
+<section class="statistics-page">
+<header class="page-header"><div><span class="eyebrow">PLAYER ANALYTICS</span><h1>Player statistics</h1><p>Career performance across every recorded match and innings.</p></div><a class="back" routerLink="/players">← Players</a></header>
+@if(loading){<section class="state-card"><div class="loader"></div><div><span class="eyebrow">LOADING DATA</span><h2>Preparing player statistics</h2><p>Calculating career performance records.</p></div></section>}
+@else if(players.length){
+<section class="summary-grid">
+<article class="summary-card"><div class="summary-icon">P</div><span>PLAYERS</span><strong>{{players.length}}</strong><small>With recorded performance</small></article>
+<article class="summary-card"><div class="summary-icon">R</div><span>TOTAL RUNS</span><strong>{{totalRuns}}</strong><small>Across all innings</small></article>
+<article class="summary-card"><div class="summary-icon">W</div><span>TOTAL WICKETS</span><strong>{{totalWickets}}</strong><small>Across bowling spells</small></article>
+<article class="summary-card"><div class="summary-icon">6</div><span>TOTAL SIXES</span><strong>{{totalSixes}}</strong><small>Maximum scoring shots</small></article>
+</section>
+<section class="rankings-card">
+<header class="section-head"><div><span class="eyebrow">CAREER LEADERBOARD</span><h2>Player performance</h2><p>Compare batting output and bowling impact in one view.</p></div><div class="ranking-badge"><span>{{players.length}}</span> PLAYERS</div></header>
+<div class="table-wrap"><table><thead><tr><th>PLAYER</th><th>M</th><th>RUNS</th><th>AVG</th><th>SR</th><th>4s</th><th>6s</th><th>W</th><th>ECON</th><th>BEST</th></tr></thead><tbody>@for(p of players;track p.playerId;let i=$index){<tr><td><a class="player-link" [routerLink]="['/players',p.playerId]"><span class="rank">{{i+1}}</span><span class="avatar">{{p.playerName.charAt(0)}}</span><span class="player-info"><strong>{{p.playerName}}</strong><small>View profile</small></span></a></td><td class="num">{{p.matches}}</td><td class="num accent">{{p.runs}}</td><td class="num">{{format(p.battingAverage)}}</td><td class="num">{{format(p.strikeRate)}}</td><td class="num">{{p.fours}}</td><td class="num">{{p.sixes}}</td><td class="num wicket">{{p.wickets}}</td><td class="num">{{format(p.economy)}}</td><td class="num best">{{p.bestWickets}}</td></tr>}</tbody></table></div>
+</section>
+<section class="engine-note"><div class="note-icon">✓</div><div><span class="eyebrow">STATISTICS ENGINE</span><h2>Built from match records</h2><p>Figures are calculated from completed innings batting and bowling data, keeping the statistics independent from live scoring workflows.</p></div></section>
+}@else{<section class="state-card empty"><div class="empty-icon">↗</div><div><span class="eyebrow">NO DATA YET</span><h2>No player statistics available</h2><p>Complete matches with recorded batting or bowling data to build career statistics.</p></div></section>}
+</section>
