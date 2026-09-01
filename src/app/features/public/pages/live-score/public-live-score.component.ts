@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { LiveScore, LiveScoreService } from '../../../../live-score.service';
+import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 
 interface Match {
   id: string;
