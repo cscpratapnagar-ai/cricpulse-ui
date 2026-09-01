@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
+type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
 
 @Component({
   selector: 'app-broadcast-control',
@@ -13,6 +14,14 @@ export class BroadcastControlComponent {
   private readonly route = inject(ActivatedRoute);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
+  readonly events: { kind: EventKind; title: string; icon: string }[] = [
+    { kind: 'FOUR', title: 'Boundary FOUR', icon: '4' },
+    { kind: 'SIX', title: 'Maximum SIX', icon: '6' },
+    { kind: 'WICKET', title: 'Wicket', icon: 'W' },
+    { kind: 'MILESTONE', title: 'Milestone', icon: '★' },
+    { kind: 'OVER_COMPLETE', title: 'Over Complete', icon: 'OV' },
+    { kind: 'RESULT', title: 'Match Result', icon: '✓' },
+  ];
 
   readonly scenes: { mode: Mode; title: string; description: string }[] = [
     { mode: 'strip', title: 'Live Score Strip', description: 'Persistent score bar for the main broadcast scene.' },
@@ -25,10 +34,18 @@ export class BroadcastControlComponent {
     return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=${mode}`;
   }
 
+  eventUrl(kind: EventKind) {
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=event&event=${kind}`;
+  }
+
   async copy(mode: Mode) {
     await navigator.clipboard.writeText(this.url(mode));
     this.copied = mode;
     setTimeout(() => (this.copied = ''), 1800);
+  }
+
+  openEvent(kind: EventKind) {
+    window.open(this.eventUrl(kind), '_blank', 'noopener,noreferrer');
   }
 
   open(mode: Mode) {
