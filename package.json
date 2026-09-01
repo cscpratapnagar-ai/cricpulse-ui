@@ -9,8 +9,10 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "component:audit": "node scripts/audit-component-structure.mjs",
     "legacy:audit": "node scripts/audit-legacy-shims.mjs",
-    "quality": "npm run format:check && npm run typecheck && npm run component:audit && npm run legacy:audit",
-    "lint:format": "npm run format:check"
+    "quality": "npm run format:check && npm run typecheck && npm run component:audit && npm run route:audit && npm run test:inventory && npm run legacy:audit",
+    "lint:format": "npm run format:check",
+    "route:audit": "node scripts/audit-route-integrity.mjs",
+    "test:inventory": "node scripts/audit-test-inventory.mjs"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
