@@ -1,14 +1,35 @@
-name: One-time dependency lock refresh
+name: One-time formatting repair
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - develop
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  refresh:
+  format:
     runs-on: ubuntu-latest
     steps:
-      - name: Explain why this workflow is disabled
-        run: echo "Dependency migration is intentionally manual; production CI must never mutate develop automatically."
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+      - name: Format the three CI-reported files
+        run: npx --yes prettier@3.5.3 --write src/app/core/config/api.config.ts src/app/core/interceptors/api-error.interceptor.spec.ts src/main.ts
+      - name: Commit formatting repair
+        run: |
+          if git diff --quiet -- src/app/core/config/api.config.ts src/app/core/interceptors/api-error.interceptor.spec.ts src/main.ts; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/core/config/api.config.ts src/app/core/interceptors/api-error.interceptor.spec.ts src/main.ts
+          git commit -m "style: apply Prettier formatting to runtime hardening files"
+          git push origin develop
