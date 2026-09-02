@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface Point {
   teamId: string;
@@ -38,7 +39,7 @@ interface Preview {
 export class TournamentQualificationComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   id = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   preview: Preview | null = null;
