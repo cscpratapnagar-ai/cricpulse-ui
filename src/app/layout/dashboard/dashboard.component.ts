@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { clearSession } from '../../core/auth/auth';
+import { API_BASE_URL } from '../../core/config/api.config';
 import { ThemeService } from '../../core/services/theme.service';
 interface CurrentUser {
   userId: string;
@@ -52,11 +53,11 @@ export class DashboardComponent {
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) this.closeSidebar();
     });
-    this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+    this.http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).subscribe({
       next: (u) => {
         this.user = u;
         this.http
-          .get<Team[]>('http://localhost:8080/api/teams/mine')
+          .get<Team[]>(`${API_BASE_URL}/teams/mine`)
           .subscribe({ next: (t) => (this.team = t[0] || null) });
       },
       error: () => {
