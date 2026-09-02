@@ -22,6 +22,8 @@ const failures = [];
 const auth = await readFile('src/app/core/auth/auth.ts', 'utf8');
 const routes = await readFile('src/app/app.routes.ts', 'utf8');
 const config = await readFile('src/app/core/config/api.config.ts', 'utf8');
+const main = await readFile('src/main.ts', 'utf8');
+const proxy = await readFile('proxy.conf.json', 'utf8');
 
 if (!auth.includes('isApiRequest(request.url)')) {
   failures.push('auth interceptor is not restricted to API-origin requests');
@@ -35,8 +37,24 @@ if (!routes.includes('canActivate: [authGuard]')) {
   failures.push('protected dashboard routes are missing authGuard');
 }
 
-if (!config.includes('API_BASE_URL')) {
-  failures.push('central API configuration is missing');
+if (!config.includes('API_BASE_URL') || !config.includes('isApiRequest')) {
+  failures.push('central API configuration is missing or incomplete');
+}
+
+if (!config.includes("url.startsWith('/api/')")) {
+  failures.push('API request classification does not protect same-origin asset requests');
+}
+
+if (!main.includes('apiErrorInterceptor')) {
+  failures.push('central API error/session interceptor is not registered');
+}
+
+if (!proxy.includes('"/api/**"') || !proxy.includes('"target": "http://localhost:8080"')) {
+  failures.push('local API proxy is missing or does not target the development backend');
+}
+
+if (!proxy.includes('"/ws"') || !proxy.includes('"ws": true')) {
+  failures.push('local websocket proxy is missing');
 }
 
 for (const file of await walk('src/app')) {
