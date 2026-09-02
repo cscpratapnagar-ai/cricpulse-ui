@@ -7,7 +7,9 @@
           <div class="teams">
             {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
           </div>
-          <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+          <div class="score">
+            {{ score.runs }}<em>/{{ score.wickets }}</em>
+          </div>
           <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
           <div class="live"><b></b> LIVE</div>
         </section>
@@ -67,11 +69,16 @@
         <div class="teams">
           {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
         </div>
-        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="score">
+          {{ score.runs }}<em>/{{ score.wickets }}</em>
+        </div>
         <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
         <div class="balls">
           @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
-            <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">
+            <span
+              [class.wicket]="ball.wicketType"
+              [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+            >
               {{ token(ball) }}
             </span>
           }
@@ -92,9 +99,7 @@
         <label>CURRENT BOWLER</label>
         <h2>{{ score.currentBowlerId || 'CURRENT BOWLER' }}</h2>
         <div class="hero-stat">{{ bowlerWickets(score) }}<small>WKTS</small></div>
-        <div class="sub-stat">
-          {{ bowlerRuns(score) }} RUNS · {{ bowlerOvers(score) }} OV
-        </div>
+        <div class="sub-stat">{{ bowlerRuns(score) }} RUNS · {{ bowlerOvers(score) }} OV</div>
       </section>
     }
     @if (isPartnership) {
