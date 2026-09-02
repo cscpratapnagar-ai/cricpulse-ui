@@ -16,9 +16,11 @@ export const scoringCommandIdInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const commandId = crypto.randomUUID();
-  return next(req.clone({
-    setHeaders: {
-      'X-Command-Id': commandId,
-    },
-  }));
+  return next(
+    req.clone({
+      setHeaders: {
+        'X-Command-Id': commandId,
+      },
+    }),
+  );
 };
