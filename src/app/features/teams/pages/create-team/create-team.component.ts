@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -56,7 +57,7 @@ export class CreateTeamComponent {
     this.loading = true;
     this.error = '';
     this.http
-      .post<CreatedTeam>('http://localhost:8080/api/teams', {
+      .post<CreatedTeam>(`${API_BASE_URL}/teams`, {
         name,
         city: this.city.trim() || null,
       })

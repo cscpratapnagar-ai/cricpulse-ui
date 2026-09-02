@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -34,7 +35,7 @@ interface Result {
 export class BulkTeamPlayersV2Component {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
-  private api = 'http://localhost:8080/api';
+  private api = `${API_BASE_URL}`;
   team: Team | null = null;
   rows: Row[] = [];
   count = 15;

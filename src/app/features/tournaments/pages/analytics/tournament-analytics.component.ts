@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -51,7 +52,7 @@ interface Point {
 export class TournamentAnalyticsComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = `${API_BASE_URL}`;
   id = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   t: Tournament | null = null;

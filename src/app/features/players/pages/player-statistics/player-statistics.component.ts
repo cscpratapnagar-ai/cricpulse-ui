@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -31,7 +32,7 @@ interface PlayerStatistics {
 })
 export class PlayerStatisticsComponent {
   private readonly http = inject(HttpClient);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = `${API_BASE_URL}`;
   players: PlayerStatistics[] = [];
   loading = true;
   constructor() {

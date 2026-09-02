@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -48,7 +49,7 @@ export class CreateMatchComponent {
   loadTeams(): void {
     const saved = localStorage.getItem('cricketpulse_team');
     const active = saved ? (JSON.parse(saved) as Team) : null;
-    this.http.get<Team[]>('http://localhost:8080/api/teams').subscribe({
+    this.http.get<Team[]>(`${API_BASE_URL}/teams`).subscribe({
       next: (teams) => {
         this.teams = teams;
         this.form.teamAId = active?.id || teams[0]?.id || '';
@@ -73,7 +74,7 @@ export class CreateMatchComponent {
     }
     this.loading = true;
     this.http
-      .post('http://localhost:8080/api/matches', {
+      .post(`${API_BASE_URL}/matches`, {
         name: this.form.name.trim(),
         format: this.form.format,
         teamAId: this.form.teamAId,

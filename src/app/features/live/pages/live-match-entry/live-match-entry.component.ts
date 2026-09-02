@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -29,7 +30,7 @@ export class LiveMatchEntryComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly api = 'http://localhost:8080/api';
+  private readonly api = `${API_BASE_URL}`;
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   error = '';

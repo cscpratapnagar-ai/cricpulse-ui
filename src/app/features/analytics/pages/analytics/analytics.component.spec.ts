@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
@@ -22,7 +23,7 @@ describe('AnalyticsComponent', () => {
   it('should load statistics and calculate totals', () => {
     const fixture = TestBed.createComponent(AnalyticsComponent);
     const component = fixture.componentInstance;
-    const request = http.expectOne('http://localhost:8080/api/players/statistics');
+    const request = http.expectOne(`${API_BASE_URL}/players/statistics`);
 
     request.flush([
       {
@@ -59,7 +60,7 @@ describe('AnalyticsComponent', () => {
   it('should rank players by the selected metric', () => {
     const fixture = TestBed.createComponent(AnalyticsComponent);
     const component = fixture.componentInstance;
-    const request = http.expectOne('http://localhost:8080/api/players/statistics');
+    const request = http.expectOne(`${API_BASE_URL}/players/statistics`);
     request.flush([]);
 
     component.players = [

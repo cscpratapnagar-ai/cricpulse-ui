@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { AsyncPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -91,7 +92,7 @@ export class ScorerComponent {
     return `${this.currentOver}.${Math.max(0, this.currentBall - 1)}`;
   }
   private loadMatch(): void {
-    this.http.get<Match>(`http://localhost:8080/api/matches/${this.matchId}`).subscribe({
+    this.http.get<Match>(`${API_BASE_URL}/matches/${this.matchId}`).subscribe({
       next: (m) => {
         this.match = m;
         this.battingTeamId = m.teamAId;
@@ -101,7 +102,7 @@ export class ScorerComponent {
     });
   }
   private loadPlayers(battingId: string, bowlingId: string): void {
-    this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${battingId}`).subscribe({
+    this.http.get<Player[]>(`${API_BASE_URL}/players/teams/${battingId}`).subscribe({
       next: (p) => {
         this.battingPlayers = p;
         this.strikerId = p[0]?.id || '';
@@ -109,7 +110,7 @@ export class ScorerComponent {
       },
       error: () => (this.battingPlayers = []),
     });
-    this.http.get<Player[]>(`http://localhost:8080/api/players/teams/${bowlingId}`).subscribe({
+    this.http.get<Player[]>(`${API_BASE_URL}/players/teams/${bowlingId}`).subscribe({
       next: (p) => {
         this.bowlingPlayers = p;
         this.bowlerId = p[0]?.id || '';
@@ -125,7 +126,7 @@ export class ScorerComponent {
     this.starting = true;
     this.message = 'Starting innings…';
     this.http
-      .post<InningsResponse>('http://localhost:8080/api/scoring/innings', {
+      .post<InningsResponse>(`${API_BASE_URL}/scoring/innings`, {
         matchId: this.match.id,
         inningsNumber: Number(this.inningsNumber),
         battingTeamId: this.battingTeamId,
@@ -165,7 +166,7 @@ export class ScorerComponent {
           ) {
             this.message = 'Innings already exists. Opening Live Scoring…';
             this.http
-              .get<LiveScore>(`http://localhost:8080/api/matches/${this.matchId}/current-innings`)
+              .get<LiveScore>(`${API_BASE_URL}/matches/${this.matchId}/current-innings`)
               .subscribe({
                 next: (existing) => {
                   this.inningsId = existing.inningsId;
@@ -228,7 +229,7 @@ export class ScorerComponent {
       dismissedPlayerId: wicketType ? this.strikerId : null,
     };
     this.http
-      .post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/deliveries`, payload)
+      .post(`${API_BASE_URL}/scoring/innings/${this.inningsId}/deliveries`, payload)
       .subscribe({
         next: () => {
           this.message = wicketType ? 'Wicket recorded' : `${batRuns || extraType || 0} recorded`;
@@ -261,16 +262,14 @@ export class ScorerComponent {
       this.message = 'Start an innings first.';
       return;
     }
-    this.http
-      .post(`http://localhost:8080/api/scoring/innings/${this.inningsId}/undo`, {})
-      .subscribe({
-        next: () => {
-          this.message = 'Last delivery undone';
-          this.currentLegalBalls = Math.max(0, this.currentLegalBalls - 1);
-          this.currentBall = Math.max(1, this.currentBall - 1);
-        },
-        error: () => (this.message = 'Nothing to undo'),
-      });
+    this.http.post(`${API_BASE_URL}/scoring/innings/${this.inningsId}/undo`, {}).subscribe({
+      next: () => {
+        this.message = 'Last delivery undone';
+        this.currentLegalBalls = Math.max(0, this.currentLegalBalls - 1);
+        this.currentBall = Math.max(1, this.currentBall - 1);
+      },
+      error: () => (this.message = 'Nothing to undo'),
+    });
   }
   overs(balls: number): string {
     return `${Math.floor(balls / 6)}.${balls % 6}`;

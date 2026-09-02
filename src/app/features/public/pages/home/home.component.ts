@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
@@ -36,7 +37,7 @@ export class HomeComponent implements OnInit {
 
   private loadCurrentUser(): void {
     this.http
-      .get<CurrentUser>('http://localhost:8080/api/auth/me')
+      .get<CurrentUser>(`${API_BASE_URL}/auth/me`)
       .pipe(catchError(() => of(this.readCachedUser())))
       .subscribe((user) => {
         if (!user) return;

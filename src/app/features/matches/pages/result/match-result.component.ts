@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -39,7 +40,7 @@ export class MatchResultComponent {
       this.loading = false;
       return;
     }
-    this.http.get<MatchResult>(`http://localhost:8080/api/matches/${id}/result`).subscribe({
+    this.http.get<MatchResult>(`${API_BASE_URL}/matches/${id}/result`).subscribe({
       next: (r) => {
         this.result = r;
         this.loading = false;

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -41,7 +42,7 @@ interface Comparison {
 })
 export class PlayerComparisonComponent implements OnInit {
   private http = inject(HttpClient);
-  api = 'http://localhost:8080/api';
+  api = `${API_BASE_URL}`;
   players: Player[] = [];
   leftId = '';
   rightId = '';

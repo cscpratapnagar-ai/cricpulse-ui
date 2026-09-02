@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -35,7 +36,7 @@ describe('ScorecardService', () => {
       expect(scorecard).toEqual(scorecardFixture);
     });
 
-    const request = http.expectOne('http://localhost:8080/api/matches/match-42/scorecard');
+    const request = http.expectOne(`${API_BASE_URL}/matches/match-42/scorecard`);
     expect(request.request.method).toBe('GET');
     request.flush(scorecardFixture);
   });

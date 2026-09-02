@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -84,7 +85,7 @@ export class PlayerOnboardingComponent {
     return this.playingRole.replaceAll('_', ' ');
   }
   private loadProfile(): void {
-    this.http.get<Player>('http://localhost:8080/api/players/me').subscribe({
+    this.http.get<Player>(`${API_BASE_URL}/players/me`).subscribe({
       next: (player) => {
         this.battingStyle = player.battingStyle || 'RIGHT_HAND';
         this.bowlingStyle = player.bowlingStyle || 'RIGHT_ARM_FAST';
@@ -121,7 +122,7 @@ export class PlayerOnboardingComponent {
       bio: this.bio.trim() || null,
       profilePhotoUrl: null,
     };
-    this.http.get<Player>('http://localhost:8080/api/players/me').subscribe({
+    this.http.get<Player>(`${API_BASE_URL}/players/me`).subscribe({
       next: () => this.update(payload),
       error: (response) =>
         response.status === 404
@@ -130,13 +131,13 @@ export class PlayerOnboardingComponent {
     });
   }
   private create(payload: object): void {
-    this.http.post<Player>('http://localhost:8080/api/players', payload).subscribe({
+    this.http.post<Player>(`${API_BASE_URL}/players`, payload).subscribe({
       next: (player) => this.finish(player),
       error: (response) => this.fail(this.apiError(response)),
     });
   }
   private update(payload: object): void {
-    this.http.put<Player>('http://localhost:8080/api/players/me', payload).subscribe({
+    this.http.put<Player>(`${API_BASE_URL}/players/me`, payload).subscribe({
       next: (player) => this.finish(player),
       error: (response) => this.fail(this.apiError(response)),
     });

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
@@ -55,7 +56,7 @@ interface PlayerStat {
 export class MatchStatisticsComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = `${API_BASE_URL}`;
   matchId = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   scorecards: InningsScorecard[] = [];
