@@ -5,11 +5,18 @@ import { WS_ORIGIN } from '../config/api.config';
 
 export type LiveSocketState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
 
+interface AuthoritativeLiveScoreEvent {
+  inningsId?: string;
+  eventVersion?: number;
+  sequenceNo?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreSocketService {
   private client?: Client;
   private subscription?: { unsubscribe(): void };
   private connectionToken = 0;
+  private lastEventVersion = 0;
   private readonly stateSubject = new BehaviorSubject<LiveSocketState>('DISCONNECTED');
 
   readonly state$: Observable<LiveSocketState> = this.stateSubject.asObservable();
@@ -19,6 +26,7 @@ export class LiveScoreSocketService {
 
     const token = ++this.connectionToken;
     this.disconnect(false);
+    this.lastEventVersion = 0;
     this.stateSubject.next('CONNECTING');
 
     this.client = new Client({
@@ -35,7 +43,16 @@ export class LiveScoreSocketService {
           (message: IMessage) => {
             if (token !== this.connectionToken) return;
             try {
-              onScore(JSON.parse(message.body));
+              const payload = JSON.parse(message.body) as AuthoritativeLiveScoreEvent;
+              if (payload?.inningsId !== inningsId) return;
+
+              const version = payload.eventVersion;
+              if (typeof version === 'number' && Number.isFinite(version)) {
+                if (version <= this.lastEventVersion) return;
+                this.lastEventVersion = version;
+              }
+
+              onScore(payload);
             } catch {
               // Keep the socket healthy when a malformed event is received.
               // The REST reconciliation path remains the source of truth.
@@ -51,8 +68,6 @@ export class LiveScoreSocketService {
       },
       onWebSocketClose: () => {
         if (token !== this.connectionToken) return;
-        // STOMP will retry automatically. CONNECTING makes that lifecycle
-        // visible to the scorer instead of leaving the UI stuck on ERROR.
         this.stateSubject.next('CONNECTING');
       },
     });
@@ -65,6 +80,7 @@ export class LiveScoreSocketService {
     this.subscription = undefined;
     const client = this.client;
     this.client = undefined;
+    this.lastEventVersion = 0;
     if (client) void client.deactivate();
     if (updateState) {
       this.connectionToken++;
