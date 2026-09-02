@@ -30,6 +30,11 @@ for (const entry of featureEntries.filter((item) => item.isDirectory())) {
   const files = await walk(join(featureRoot, feature));
   const components = files.filter((file) => file.endsWith('.component.ts'));
 
+  // Data-only feature folders are support modules, not routable UI features.
+  if (!components.length && files.length && files.every((file) => file.includes('/data/'))) {
+    continue;
+  }
+
   if (!components.length) {
     failures.push(`feature "${feature}" has no components`);
     continue;
