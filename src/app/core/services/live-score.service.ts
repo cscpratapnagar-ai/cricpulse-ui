@@ -80,6 +80,9 @@ export interface LiveScore {
   currentBowlerId?: string | null;
   overBalls?: string[];
   eventVersion?: number;
+  eventType?: string;
+  eventId?: string;
+  sequenceNo?: number;
   batters?: LiveBatter[];
   bowlers?: LiveBowler[];
   overs?: LiveOver[];
@@ -100,13 +103,19 @@ export class LiveScoreService {
       }
       let subscription: StompSubscription | undefined;
       let stopped = false;
+      let lastEventVersion = 0;
 
       // Public viewer must never depend on scorer authentication.
       this.http
         .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
         .subscribe({
           next: (score) => {
-            if (!stopped && score?.inningsId === inningsId) subscriber.next(score);
+            if (stopped || score?.inningsId !== inningsId) return;
+            const version = score.eventVersion;
+            if (typeof version === 'number' && Number.isFinite(version)) {
+              lastEventVersion = Math.max(lastEventVersion, version);
+            }
+            subscriber.next(score);
           },
           error: (error) => {
             if (!stopped)
@@ -126,7 +135,13 @@ export class LiveScoreService {
           subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
             try {
               const score = JSON.parse(message.body) as LiveScore;
-              if (score?.inningsId === inningsId) subscriber.next(score);
+              if (score?.inningsId !== inningsId) return;
+              const version = score.eventVersion;
+              if (typeof version === 'number' && Number.isFinite(version)) {
+                if (version <= lastEventVersion) return;
+                lastEventVersion = version;
+              }
+              subscriber.next(score);
             } catch {
               subscriber.error(new Error('Invalid live score payload'));
             }
