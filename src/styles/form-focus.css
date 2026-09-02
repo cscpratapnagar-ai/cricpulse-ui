@@ -1,0 +1,19 @@
+/* Global form-focus contract
+   Remove browser's rectangular focus outline from controls.
+   Components remain responsible for their rounded focus ring/border treatment. */
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+}
+
+/* Inputs inside grouped controls already receive their focus treatment from
+   the wrapper's :focus-within state; never paint a second inner ring. */
+.input-wrap input:focus,
+.input-wrap input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
