@@ -91,6 +91,15 @@ export interface LiveScore {
   fallOfWickets?: LiveFallOfWicket[];
 }
 
+/** Stable id for one scoring intent. Reuse this id if the same request is retried. */
+export function createScoringCommandId(): string {
+  return crypto.randomUUID();
+}
+
+export function withCommandId(commandId: string): { 'X-Command-Id': string } {
+  return { 'X-Command-Id': commandId };
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
@@ -101,27 +110,69 @@ export class LiveScoreService {
         subscriber.error(new Error('Innings ID is required'));
         return;
       }
+
       let subscription: StompSubscription | undefined;
       let stopped = false;
       let lastEventVersion = 0;
+      let reconciling = false;
+      let reconcileQueued = false;
 
-      // Public viewer must never depend on scorer authentication.
+      const emitAuthoritative = (score: LiveScore) => {
+        if (stopped || score?.inningsId !== inningsId) return;
+        const version = score.eventVersion;
+        if (typeof version === 'number' && Number.isFinite(version)) {
+          if (version < lastEventVersion) return;
+          lastEventVersion = Math.max(lastEventVersion, version);
+        }
+        subscriber.next(score);
+      };
+
+      const reconcile = () => {
+        if (stopped) return;
+        if (reconciling) {
+          reconcileQueued = true;
+          return;
+        }
+        reconciling = true;
+        this.http
+          .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
+          .subscribe({
+            next: (score) => {
+              if (!stopped && score?.inningsId === inningsId) {
+                const version = score.eventVersion;
+                if (typeof version === 'number' && Number.isFinite(version)) {
+                  lastEventVersion = Math.max(lastEventVersion, version);
+                }
+                subscriber.next(score);
+              }
+            },
+            error: () => {
+              reconciling = false;
+              if (reconcileQueued) {
+                reconcileQueued = false;
+                reconcile();
+              }
+            },
+            complete: () => {
+              reconciling = false;
+              if (reconcileQueued) {
+                reconcileQueued = false;
+                reconcile();
+              }
+            },
+          });
+      };
+
       this.http
         .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
         .subscribe({
-          next: (score) => {
-            if (stopped || score?.inningsId !== inningsId) return;
-            const version = score.eventVersion;
-            if (typeof version === 'number' && Number.isFinite(version)) {
-              lastEventVersion = Math.max(lastEventVersion, version);
-            }
-            subscriber.next(score);
-          },
+          next: emitAuthoritative,
           error: (error) => {
-            if (!stopped)
+            if (!stopped) {
               subscriber.error(
                 new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
               );
+            }
           },
         });
 
@@ -132,25 +183,38 @@ export class LiveScoreService {
         onConnect: () => {
           if (stopped) return;
           subscription?.unsubscribe();
+          // Recovery first: reconnects may have missed one or more broadcasts.
+          reconcile();
           subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
             try {
               const score = JSON.parse(message.body) as LiveScore;
               if (score?.inningsId !== inningsId) return;
+
               const version = score.eventVersion;
               if (typeof version === 'number' && Number.isFinite(version)) {
                 if (version <= lastEventVersion) return;
-                lastEventVersion = version;
+                // A version jump proves a missed authoritative event. Recover the
+                // complete state instead of applying a potentially partial frame.
+                if (version > lastEventVersion + 1) {
+                  reconcile();
+                  return;
+                }
               }
-              subscriber.next(score);
+              emitAuthoritative(score);
             } catch {
-              subscriber.error(new Error('Invalid live score payload'));
+              // Never terminate a public viewer because of one malformed frame.
+              reconcile();
             }
           });
         },
-        onStompError: (frame) =>
-          subscriber.error(new Error(frame.headers['message'] ?? 'WebSocket error')),
-        onWebSocketError: () => {},
+        onStompError: () => {
+          if (!stopped) reconcile();
+        },
+        onWebSocketError: () => {
+          if (!stopped) reconcile();
+        },
       });
+
       client.activate();
       return () => {
         stopped = true;
