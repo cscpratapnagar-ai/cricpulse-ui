@@ -16,7 +16,11 @@
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "styles": ["src/styles.css", "src/styles/live-scoring-mobile.css"]
+            "styles": [
+              "src/styles.css",
+              "src/styles/live-scoring-mobile.css",
+              "src/styles/mobile-shell-safe-area.css"
+            ]
           },
           "configurations": {
             "production": {
