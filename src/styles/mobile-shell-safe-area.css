@@ -1,22 +1,40 @@
 /* Mobile shell contract.
-   The dashboard content owns the scroll container and the mobile navigation is
-   a normal flex sibling, so it can never cover the last routed content. */
+   On mobile the dashboard becomes a vertical app shell: routed content owns
+   the remaining viewport and the navigation occupies its own layout row.
+   This avoids overlaying the last page content with a fixed bottom bar. */
 @media (max-width: 900px) {
-  .app-shell > .content {
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100dvh;
     min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-shell > .content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .app-shell > .content > .page-content {
+    flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
     overscroll-behavior-y: contain;
     scroll-padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .app-shell > .content > .mobile-nav {
+  .app-shell > .mobile-nav {
     position: relative;
     z-index: 5;
     inset: auto;
+    display: flex;
     flex: 0 0 auto;
     width: 100%;
     min-height: 66px;
@@ -31,7 +49,7 @@
 }
 
 @media (max-width: 430px) {
-  .app-shell > .content > .mobile-nav {
+  .app-shell > .mobile-nav {
     min-height: 72px;
   }
 }
