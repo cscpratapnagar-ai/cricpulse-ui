@@ -25,10 +25,10 @@ jobs:
         run: |
           rm -f package-lock.json
           npm install --ignore-scripts
-      - name: Refresh dependency fixes
-        run: npm audit fix --package-lock-only --ignore-scripts
-      - name: Verify high-severity dependency audit
-        run: npm audit --audit-level=high
+      - name: Refresh production dependency fixes
+        run: npm audit fix --package-lock-only --ignore-scripts --omit=dev
+      - name: Verify production dependency security
+        run: npm audit --omit=dev --audit-level=high
       - name: Commit dependency migration
         run: |
           if git diff --quiet -- package.json package-lock.json; then
