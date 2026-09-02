@@ -36,10 +36,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Temporary formatter diagnostic
-        run: |
-          npx --yes prettier@3.5.3 --write "src/app/features/broadcast/pages/control/broadcast-control.component.html" "src/app/features/broadcast/pages/control/broadcast-control.component.scss" "src/app/features/broadcast/pages/control/broadcast-control.component.ts" "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.html" "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.scss" "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.ts"
-          git diff -- src/app/features/broadcast/pages/control/broadcast-control.component.html src/app/features/broadcast/pages/control/broadcast-control.component.scss src/app/features/broadcast/pages/control/broadcast-control.component.ts src/app/features/broadcast/pages/overlay/broadcast-overlay.component.html src/app/features/broadcast/pages/overlay/broadcast-overlay.component.scss src/app/features/broadcast/pages/overlay/broadcast-overlay.component.ts
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
