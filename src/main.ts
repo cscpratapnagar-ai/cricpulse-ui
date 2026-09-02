@@ -9,13 +9,7 @@ import { loadingInterceptor } from './app/core/interceptors/loading.interceptor'
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(
-      withInterceptors([
-        authInterceptor,
-        apiErrorInterceptor,
-        loadingInterceptor,
-      ]),
-    ),
+    provideHttpClient(withInterceptors([authInterceptor, apiErrorInterceptor, loadingInterceptor])),
     provideRouter(routes),
   ],
 }).catch((error: unknown) => console.error(error));

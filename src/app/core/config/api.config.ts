@@ -9,10 +9,12 @@ function getRuntimeConfig(): CricPulseRuntimeConfig {
   }
 
   return (
-    globalThis as typeof globalThis & {
-      __CRICPULSE_CONFIG__?: CricPulseRuntimeConfig;
-    }
-  ).__CRICPULSE_CONFIG__ ?? {};
+    (
+      globalThis as typeof globalThis & {
+        __CRICPULSE_CONFIG__?: CricPulseRuntimeConfig;
+      }
+    ).__CRICPULSE_CONFIG__ ?? {}
+  );
 }
 
 function getBrowserOrigin(): string {
@@ -34,13 +36,9 @@ function toWebSocketOrigin(origin: string): string {
 const runtimeConfig = getRuntimeConfig();
 const browserOrigin = getBrowserOrigin();
 
-export const API_ORIGIN = normalizeOrigin(
-  runtimeConfig.apiOrigin ?? browserOrigin,
-);
+export const API_ORIGIN = normalizeOrigin(runtimeConfig.apiOrigin ?? browserOrigin);
 export const API_BASE_URL = `${API_ORIGIN}/api`;
-export const WS_ORIGIN = normalizeOrigin(
-  runtimeConfig.wsOrigin ?? toWebSocketOrigin(API_ORIGIN),
-);
+export const WS_ORIGIN = normalizeOrigin(runtimeConfig.wsOrigin ?? toWebSocketOrigin(API_ORIGIN));
 
 export function isApiRequest(url: string): boolean {
   if (url === '/api' || url.startsWith('/api/')) {
@@ -55,10 +53,7 @@ export function isApiRequest(url: string): boolean {
     const requestUrl = new URL(url, browserOrigin || undefined);
     const apiOrigin = new URL(API_ORIGIN, browserOrigin || undefined);
 
-    return (
-      requestUrl.origin === apiOrigin.origin &&
-      requestUrl.pathname.startsWith('/api/')
-    );
+    return requestUrl.origin === apiOrigin.origin && requestUrl.pathname.startsWith('/api/');
   } catch {
     return false;
   }

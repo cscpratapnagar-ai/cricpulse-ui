@@ -10,9 +10,7 @@ function runInterceptor(request: HttpRequest<unknown>) {
   return TestBed.runInInjectionContext(() =>
     apiErrorInterceptor(request, (nextRequest) => {
       expect(nextRequest).toBe(request);
-      return throwError(
-        () => new HttpErrorResponse({ status: 401, url: request.url }),
-      );
+      return throwError(() => new HttpErrorResponse({ status: 401, url: request.url }));
     }),
   );
 }
@@ -47,9 +45,7 @@ describe('apiErrorInterceptor', () => {
     const response = of({ ok: true });
 
     const result = await firstValueFrom(
-      TestBed.runInInjectionContext(() =>
-        apiErrorInterceptor(request, () => response),
-      ),
+      TestBed.runInInjectionContext(() => apiErrorInterceptor(request, () => response)),
     );
 
     expect(result).toEqual({ ok: true });
