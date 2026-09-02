@@ -1,9 +1,51 @@
-/* Mobile shell safe-area contract.
+/* Mobile shell contract.
    The dashboard shell owns the scroll container while .mobile-nav is fixed.
-   Reserve real scroll space so child pages can never finish underneath it. */
+   Reserve real scroll space and keep the navigation above routed content. */
 @media (max-width: 900px) {
-  .app-shell .page-content {
-    padding-bottom: calc(82px + env(safe-area-inset-bottom));
-    scroll-padding-bottom: calc(82px + env(safe-area-inset-bottom));
+  .app-shell {
+    --cp-mobile-nav-space: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .app-shell > .content > .page-content {
+    min-height: 0;
+    padding-bottom: var(--cp-mobile-nav-space) !important;
+    scroll-padding-bottom: var(--cp-mobile-nav-space);
+    overscroll-behavior-y: contain;
+  }
+
+  .app-shell > .mobile-nav {
+    position: fixed;
+    z-index: 1000;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-height: 66px;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: max(4px, env(safe-area-inset-left));
+    padding-right: max(4px, env(safe-area-inset-right));
+    background: var(--cp-surface);
+    border-top: 1px solid var(--cp-border);
+    box-shadow: 0 -12px 30px color-mix(in srgb, var(--cp-bg) 24%, transparent);
+    isolation: isolate;
+  }
+
+  /* The final routed element can have its own layout height. This spacer is
+     inside the shell scrollport, guaranteeing a real end-of-scroll clearance. */
+  .app-shell > .content > .page-content::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-shell {
+    --cp-mobile-nav-space: calc(100px + env(safe-area-inset-bottom));
+  }
+
+  .app-shell > .mobile-nav {
+    min-height: 72px;
   }
 }
