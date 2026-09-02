@@ -14,13 +14,7 @@ interface CurrentInnings {
   inningsId: string;
 }
 
-type OverlayMode =
-  | 'strip'
-  | 'batter'
-  | 'bowler'
-  | 'partnership'
-  | 'event'
-  | 'auto';
+type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'event' | 'auto';
 type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
 interface Match {
   id: string;
@@ -64,9 +58,7 @@ export class BroadcastOverlayComponent {
       .get<Match>(`${API_ORIGIN}/api/matches/${this.matchId}`)
       .subscribe({ next: (match) => (this.match = match) });
     this.http
-      .get<CurrentInnings>(
-        `${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`,
-      )
+      .get<CurrentInnings>(`${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`)
       .subscribe({
         next: ({ inningsId }) => {
           this.score$ = this.liveScore.watch(inningsId).pipe(
@@ -128,10 +120,7 @@ export class BroadcastOverlayComponent {
 
   private isNewState(score: LiveScore, previous: LiveScore | null) {
     if (!previous) return false;
-    if (
-      typeof score.eventVersion === 'number' &&
-      typeof previous.eventVersion === 'number'
-    ) {
+    if (typeof score.eventVersion === 'number' && typeof previous.eventVersion === 'number') {
       return score.eventVersion > previous.eventVersion;
     }
     return (

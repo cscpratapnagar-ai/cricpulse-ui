@@ -108,8 +108,10 @@
           <small>WKTS</small>
         </div>
         <div class="sub-stat">
-          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.runsConceded ?? 0 }} RUNS ·
-          {{ overs(score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.legalBalls ?? 0) }} OV
+          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.runsConceded ?? 0 }}
+          RUNS ·
+          {{ overs(score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.legalBalls ?? 0) }}
+          OV
         </div>
       </section>
     }
@@ -120,12 +122,8 @@
           {{ score.partnership?.batterOneId || score.strikerId || 'BATTER 1' }} <i>+</i>
           {{ score.partnership?.batterTwoId || score.nonStrikerId || 'BATTER 2' }}
         </h2>
-        <div class="hero-stat">
-          {{ score.partnership?.runs ?? 0 }}<small>RUNS</small>
-        </div>
-        <div class="sub-stat">
-          {{ score.partnership?.balls ?? 0 }} BALLS TOGETHER
-        </div>
+        <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
+        <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
       </section>
     }
   }

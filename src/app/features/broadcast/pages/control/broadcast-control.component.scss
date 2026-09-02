@@ -54,7 +54,9 @@ header p {
   border: 1px solid var(--cp-border);
   border-radius: 20px;
   background: var(--cp-surface);
-  transition: transform 180ms ease, border-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
 }
 
 .scene-grid article:hover {
@@ -209,7 +211,10 @@ header p {
   background: var(--cp-surface);
   color: var(--cp-text);
   cursor: pointer;
-  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .event-trigger:hover {

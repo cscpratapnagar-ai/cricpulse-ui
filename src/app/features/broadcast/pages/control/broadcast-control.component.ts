@@ -70,10 +70,6 @@ export class BroadcastControlComponent {
   }
 
   open(mode: Mode | 'auto') {
-    window.open(
-      mode === 'auto' ? this.autoUrl() : this.url(mode),
-      '_blank',
-      'noopener,noreferrer',
-    );
+    window.open(mode === 'auto' ? this.autoUrl() : this.url(mode), '_blank', 'noopener,noreferrer');
   }
 }
