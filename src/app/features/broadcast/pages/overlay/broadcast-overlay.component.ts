@@ -153,6 +153,28 @@ export class BroadcastOverlayComponent {
     };
   }
 
+  batterRuns(score: LiveScore) {
+    return score.batters?.find((batter) => batter.playerId === score.strikerId)?.runs ?? 0;
+  }
+
+  batterBalls(score: LiveScore) {
+    return score.batters?.find((batter) => batter.playerId === score.strikerId)?.ballsFaced ?? 0;
+  }
+
+  bowlerWickets(score: LiveScore) {
+    return score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.wickets ?? 0;
+  }
+
+  bowlerRuns(score: LiveScore) {
+    return score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.runsConceded ?? 0;
+  }
+
+  bowlerOvers(score: LiveScore) {
+    return this.overs(
+      score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.legalBalls ?? 0,
+    );
+  }
+
   overs(balls: number) {
     return `${Math.floor(balls / 6)}.${balls % 6}`;
   }
