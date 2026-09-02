@@ -1,0 +1,38 @@
+name: Temporary Prettier Fix
+
+on:
+  push:
+    branches:
+      - 'feat/scorer-recovery-race-protection'
+
+permissions:
+  contents: write
+
+jobs:
+  format-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: feat/scorer-recovery-race-protection
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Format repository
+        run: npm run format
+      - name: Commit formatted files
+        run: |
+          if git diff --quiet; then
+            echo "Already formatted"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src scripts package.json package-lock.json
+          git commit -m "chore: apply prettier formatting"
+          git push origin HEAD:feat/scorer-recovery-race-protection
