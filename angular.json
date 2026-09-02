@@ -42,7 +42,8 @@
               "buildTarget": "cricketpulse-web:build:production"
             },
             "development": {
-              "buildTarget": "cricketpulse-web:build:development"
+              "buildTarget": "cricketpulse-web:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
