@@ -35,7 +35,9 @@ describe('apiErrorInterceptor', () => {
   it('clears the session when an authenticated API request returns 401', async () => {
     const request = new HttpRequest('GET', '/api/matches');
 
-    await expectAsync(firstValueFrom(runInterceptor(request))).toBeRejected();
+    await expectAsync(
+      firstValueFrom(runInterceptor(request)),
+    ).toBeRejected();
 
     expect(localStorage.getItem('cricketpulse_access_token')).toBeNull();
     expect(currentUser.user()).toBeNull();
