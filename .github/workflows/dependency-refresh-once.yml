@@ -21,16 +21,22 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - name: Refresh non-breaking dependency fixes
-        run: npm audit fix --package-lock-only --ignore-scripts
-      - name: Commit refreshed lockfile
+      - name: Install upgraded Angular toolchain
+        run: npm install --ignore-scripts
+      - name: Run Angular 21 migrations
+        run: npx ng update @angular/cli@^21 @angular/core@^21 --allow-dirty --migrate-only
+      - name: Refresh dependency lockfile
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Verify high-severity dependency audit
+        run: npm audit --audit-level=high
+      - name: Commit dependency migration
         run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "No lockfile changes required."
+          if git diff --quiet -- package.json package-lock.json angular.json tsconfig*.json src; then
+            echo "No dependency migration changes required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore(deps): refresh vulnerable transitive packages"
+          git add package.json package-lock.json angular.json tsconfig*.json src
+          git commit -m "chore(deps): migrate Angular 21 toolchain"
           git push origin develop
