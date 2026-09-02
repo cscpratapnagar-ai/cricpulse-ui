@@ -1,0 +1,14 @@
+name: One-time dependency lock refresh
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain why this workflow is disabled
+        run: echo "Dependency migration is intentionally manual; production CI must never mutate develop automatically."
