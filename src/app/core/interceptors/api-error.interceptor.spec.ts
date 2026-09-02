@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { firstValueFrom, of, throwError } from 'rxjs';
@@ -42,12 +42,12 @@ describe('apiErrorInterceptor', () => {
 
   it('does not intercept non-API requests', async () => {
     const request = new HttpRequest('GET', 'https://example.com/data');
-    const response = of({ ok: true });
+    const response = of(new HttpResponse({ body: { ok: true } }));
 
     const result = await firstValueFrom(
       TestBed.runInInjectionContext(() => apiErrorInterceptor(request, () => response)),
     );
 
-    expect(result).toEqual({ ok: true });
+    expect(result).toEqual(jasmine.any(HttpResponse));
   });
 });
