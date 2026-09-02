@@ -10,7 +10,11 @@ import { loadingInterceptor } from './app/core/interceptors/loading.interceptor'
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(
-      withInterceptors([authInterceptor, apiErrorInterceptor, loadingInterceptor]),
+      withInterceptors([
+        authInterceptor,
+        apiErrorInterceptor,
+        loadingInterceptor,
+      ]),
     ),
     provideRouter(routes),
   ],
