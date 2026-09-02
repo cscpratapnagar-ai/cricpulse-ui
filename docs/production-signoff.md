@@ -24,7 +24,7 @@
 - [x] Centralized 401 session invalidation and login redirect
 - [x] Security/API boundary audit enforced in CI
 - [x] Feature integration audit enforced in CI
-- [x] High-severity dependency audit enforced in CI
+- [ ] Dependency vulnerability remediation — **OPEN / EXTERNAL MAINTENANCE**
 
 ## Production Runtime Hardening matrix
 
@@ -49,7 +49,7 @@ These checks require an executable browser/device/backend environment and must n
 - [ ] Dark/light visual regression
 - [ ] Desktop/tablet/mobile regression
 - [ ] Accessibility and performance review
-- [x] Dependency/security review gate added to CI (`npm audit --audit-level=high`)
+- [ ] Dependency vulnerability remediation and production dependency review
 - [ ] Evidence-based removal of unused legacy compatibility files
 
 ## Deployment contract
