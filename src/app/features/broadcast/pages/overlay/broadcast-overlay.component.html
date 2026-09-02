@@ -91,12 +91,10 @@
         <label>ON STRIKE · BATTER</label>
         <h2>{{ score.strikerId || 'CURRENT BATTER' }}</h2>
         <div class="hero-stat">
-          {{ score.batters?.find(b => b.playerId === score.strikerId)?.runs ?? 0 }}
+          {{ batterRuns(score) }}
           <small>RUNS</small>
         </div>
-        <div class="sub-stat">
-          {{ score.batters?.find(b => b.playerId === score.strikerId)?.ballsFaced ?? 0 }} BALLS
-        </div>
+        <div class="sub-stat">{{ batterBalls(score) }} BALLS</div>
       </section>
     }
     @if (isBowler) {
@@ -104,14 +102,11 @@
         <label>CURRENT BOWLER</label>
         <h2>{{ score.currentBowlerId || 'CURRENT BOWLER' }}</h2>
         <div class="hero-stat">
-          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.wickets ?? 0 }}
+          {{ bowlerWickets(score) }}
           <small>WKTS</small>
         </div>
         <div class="sub-stat">
-          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.runsConceded ?? 0 }}
-          RUNS ·
-          {{ overs(score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.legalBalls ?? 0) }}
-          OV
+          {{ bowlerRuns(score) }} RUNS · {{ bowlerOvers(score) }} OV
         </div>
       </section>
     }
