@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DateTimeFieldComponent } from '../../../../ui/date-time-field.component';
 import { CpDropdownComponent, CpDropdownOption } from '../../../../shared/cp-dropdown.component';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface TournamentResponse {
   id: string;
@@ -28,7 +29,7 @@ type Step = 1 | 2 | 3;
 export class CreateTournamentComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   step: Step = 1;
   saving = false;
   error = '';
