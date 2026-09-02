@@ -22,6 +22,7 @@
 - [x] Local API/WebSocket development proxy added
 - [x] API requests restricted to `/api` paths before attaching bearer tokens
 - [x] Centralized 401 session invalidation and login redirect
+- [x] Remaining hardcoded frontend API endpoints removed and formatted
 - [x] Security/API boundary audit enforced in CI
 - [x] Feature integration audit enforced in CI
 - [ ] Dependency vulnerability remediation — **OPEN / EXTERNAL MAINTENANCE**
