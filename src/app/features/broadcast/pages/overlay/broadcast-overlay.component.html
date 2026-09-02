@@ -7,7 +7,9 @@
           <div class="teams">
             {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
           </div>
-          <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+          <div class="score">
+            {{ score.runs }}<em>/{{ score.wickets }}</em>
+          </div>
           <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
           <div class="live"><b></b> LIVE</div>
         </section>
@@ -39,12 +41,24 @@
           <label>CRICPULSE LIVE</label>
           <h1>{{ eventLabel(score) }}</h1>
           <p>{{ eventDetail(score) }}</p>
-          @if (eventKind === 'FOUR') { <div class="event-mark">4</div> }
-          @if (eventKind === 'SIX') { <div class="event-mark">6</div> }
-          @if (eventKind === 'WICKET') { <div class="event-mark">W</div> }
-          @if (eventKind === 'OVER_COMPLETE') { <div class="event-mark">OV</div> }
-          @if (eventKind === 'MILESTONE') { <div class="event-mark">★</div> }
-          @if (eventKind === 'RESULT') { <div class="event-mark">✓</div> }
+          @if (eventKind === 'FOUR') {
+            <div class="event-mark">4</div>
+          }
+          @if (eventKind === 'SIX') {
+            <div class="event-mark">6</div>
+          }
+          @if (eventKind === 'WICKET') {
+            <div class="event-mark">W</div>
+          }
+          @if (eventKind === 'OVER_COMPLETE') {
+            <div class="event-mark">OV</div>
+          }
+          @if (eventKind === 'MILESTONE') {
+            <div class="event-mark">★</div>
+          }
+          @if (eventKind === 'RESULT') {
+            <div class="event-mark">✓</div>
+          }
         </div>
       </section>
     }
@@ -55,11 +69,16 @@
         <div class="teams">
           {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
         </div>
-        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="score">
+          {{ score.runs }}<em>/{{ score.wickets }}</em>
+        </div>
         <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
         <div class="balls">
           @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
-            <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">
+            <span
+              [class.wicket]="ball.wicketType"
+              [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+            >
               {{ token(ball) }}
             </span>
           }
@@ -71,17 +90,26 @@
       <section class="player-card">
         <label>ON STRIKE · BATTER</label>
         <h2>{{ score.strikerId || 'CURRENT BATTER' }}</h2>
-        <div class="hero-stat">{{ score.batters?.find(b => b.playerId === score.strikerId)?.runs ?? 0 }} <small>RUNS</small></div>
-        <div class="sub-stat">{{ score.batters?.find(b => b.playerId === score.strikerId)?.ballsFaced ?? 0 }} BALLS</div>
+        <div class="hero-stat">
+          {{ score.batters?.find(b => b.playerId === score.strikerId)?.runs ?? 0 }}
+          <small>RUNS</small>
+        </div>
+        <div class="sub-stat">
+          {{ score.batters?.find(b => b.playerId === score.strikerId)?.ballsFaced ?? 0 }} BALLS
+        </div>
       </section>
     }
     @if (isBowler) {
       <section class="player-card">
         <label>CURRENT BOWLER</label>
         <h2>{{ score.currentBowlerId || 'CURRENT BOWLER' }}</h2>
-        <div class="hero-stat">{{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.wickets ?? 0 }}<small>WKTS</small></div>
+        <div class="hero-stat">
+          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.wickets ?? 0 }}
+          <small>WKTS</small>
+        </div>
         <div class="sub-stat">
-          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.runsConceded ?? 0 }} RUNS · {{ overs(score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.legalBalls ?? 0) }} OV
+          {{ score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.runsConceded ?? 0 }} RUNS ·
+          {{ overs(score.bowlers?.find(b => b.playerId === score.currentBowlerId)?.legalBalls ?? 0) }} OV
         </div>
       </section>
     }
@@ -92,8 +120,12 @@
           {{ score.partnership?.batterOneId || score.strikerId || 'BATTER 1' }} <i>+</i>
           {{ score.partnership?.batterTwoId || score.nonStrikerId || 'BATTER 2' }}
         </h2>
-        <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
-        <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
+        <div class="hero-stat">
+          {{ score.partnership?.runs ?? 0 }}<small>RUNS</small>
+        </div>
+        <div class="sub-stat">
+          {{ score.partnership?.balls ?? 0 }} BALLS TOGETHER
+        </div>
       </section>
     }
   }
