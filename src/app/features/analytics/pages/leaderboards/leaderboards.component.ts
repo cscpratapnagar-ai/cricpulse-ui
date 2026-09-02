@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface PlayerStatistics {
   playerId: string;
@@ -28,7 +29,7 @@ type Board = 'runs' | 'average' | 'strikeRate' | 'wickets' | 'economy';
 })
 export class LeaderboardsComponent {
   private readonly http = inject(HttpClient);
-  readonly api = 'http://localhost:8080/api';
+  readonly api = API_BASE_URL;
   players: PlayerStatistics[] = [];
   loading = true;
   active: Board = 'runs';
@@ -68,39 +69,25 @@ export class LeaderboardsComponent {
   }
   value(p: PlayerStatistics, key: Board = this.active): number {
     switch (key) {
-      case 'runs':
-        return Number(p.runs || 0);
-      case 'average':
-        return Number(p.battingAverage || 0);
-      case 'strikeRate':
-        return Number(p.strikeRate || 0);
-      case 'wickets':
-        return Number(p.wickets || 0);
-      case 'economy':
-        return Number(p.economy || 0);
+      case 'runs': return Number(p.runs || 0);
+      case 'average': return Number(p.battingAverage || 0);
+      case 'strikeRate': return Number(p.strikeRate || 0);
+      case 'wickets': return Number(p.wickets || 0);
+      case 'economy': return Number(p.economy || 0);
     }
   }
   get ranked() {
-    const items =
-      this.active === 'economy'
-        ? this.players.filter((p) => p.wickets > 0 && Number.isFinite(Number(p.economy)))
-        : [...this.players];
-    return items.sort((a, b) =>
-      this.active === 'economy'
-        ? this.economyValue(a) - this.economyValue(b)
-        : this.value(b) - this.value(a),
-    );
+    const items = this.active === 'economy'
+      ? this.players.filter((p) => p.wickets > 0 && Number.isFinite(Number(p.economy)))
+      : [...this.players];
+    return items.sort((a, b) => this.active === 'economy'
+      ? this.economyValue(a) - this.economyValue(b)
+      : this.value(b) - this.value(a));
   }
-  get topThree() {
-    return this.ranked.slice(0, 3);
-  }
-  economyValue(p: PlayerStatistics) {
-    return Number(p.economy || 0);
-  }
+  get topThree() { return this.ranked.slice(0, 3); }
+  economyValue(p: PlayerStatistics) { return Number(p.economy || 0); }
   progress(p: PlayerStatistics) {
-    const values = this.ranked
-      .map((x) => (this.active === 'economy' ? this.economyValue(x) : this.value(x)))
-      .filter(Number.isFinite);
+    const values = this.ranked.map((x) => this.active === 'economy' ? this.economyValue(x) : this.value(x)).filter(Number.isFinite);
     if (!values.length) return 0;
     if (this.active === 'economy') {
       const max = Math.max(...values, 1);
@@ -111,9 +98,7 @@ export class LeaderboardsComponent {
   }
   display(p: PlayerStatistics) {
     const v = this.active === 'economy' ? this.economyValue(p) : this.value(p);
-    return this.active === 'runs' || this.active === 'wickets'
-      ? String(Math.round(v))
-      : this.format(v);
+    return this.active === 'runs' || this.active === 'wickets' ? String(Math.round(v)) : this.format(v);
   }
   secondary(p: PlayerStatistics) {
     if (this.active === 'runs') return p.wickets + ' wickets';
@@ -121,26 +106,13 @@ export class LeaderboardsComponent {
     return p.runs + ' runs · ' + p.wickets + ' wickets';
   }
   topBy(key: Board) {
-    const items =
-      key === 'economy'
-        ? this.players.filter((p) => p.wickets > 0 && Number.isFinite(Number(p.economy)))
-        : [...this.players];
-    return items.sort((a, b) =>
-      key === 'economy'
-        ? this.economyValue(a) - this.economyValue(b)
-        : this.value(b, key) - this.value(a, key),
-    )[0];
+    const items = key === 'economy'
+      ? this.players.filter((p) => p.wickets > 0 && Number.isFinite(Number(p.economy)))
+      : [...this.players];
+    return items.sort((a, b) => key === 'economy'
+      ? this.economyValue(a) - this.economyValue(b)
+      : this.value(b, key) - this.value(a, key))[0];
   }
-  initial(name: string) {
-    return (name || '?')
-      .trim()
-      .split(/\s+/)
-      .map((x) => x[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-  format(v: number | undefined) {
-    return Number(v || 0).toFixed(2);
-  }
+  initial(name: string) { return (name || '?').trim().split(/\s+/).map((x) => x[0]).slice(0, 2).join('').toUpperCase(); }
+  format(v: number | undefined) { return Number(v || 0).toFixed(2); }
 }
