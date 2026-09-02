@@ -25,10 +25,12 @@ jobs:
         run: |
           rm -f package-lock.json
           npm install --ignore-scripts
-      - name: Run Angular 21 migrations
-        run: npx ng update @angular/cli@^21 @angular/core@^21 --allow-dirty --migrate-only
-      - name: Refresh dependency lockfile
-        run: npm install --package-lock-only --ignore-scripts
+      - name: Run Angular core migrations
+        run: npx ng update @angular/core@^21 --allow-dirty --migrate-only
+      - name: Run Angular CLI migrations
+        run: npx ng update @angular/cli@^21 --allow-dirty --migrate-only
+      - name: Refresh dependency fixes
+        run: npm audit fix --package-lock-only --ignore-scripts
       - name: Verify high-severity dependency audit
         run: npm audit --audit-level=high
       - name: Commit dependency migration
