@@ -1,0 +1,9 @@
+/* Mobile shell safe-area contract.
+   The dashboard shell owns the scroll container while .mobile-nav is fixed.
+   Reserve real scroll space so child pages can never finish underneath it. */
+@media (max-width: 900px) {
+  .app-shell .page-content {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+}
