@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   refactor:
-    if: github.event.head_commit.message != 'refactor(api): centralize remaining frontend endpoints'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Replace hardcoded API endpoints
+      - name: Replace hardcoded API endpoints safely
         shell: bash
         run: |
           node <<'NODE'
@@ -35,20 +34,29 @@ jobs:
             });
           }
 
-          const root = 'src/app';
-          for (const file of walk(root).filter((name) => name.endsWith('.ts'))) {
-            let source = fs.readFileSync(file, 'utf8');
-            if (!source.includes('http://localhost:8080/api')) continue;
-            if (file.endsWith('src/app/core/config/api.config.ts')) continue;
+          const importLine = "import { API_BASE_URL } from '../../../../core/config/api.config';\n";
+          const files = walk('src/app').filter((name) => name.endsWith('.ts'));
 
-            source = source.replaceAll('http://localhost:8080/api', '${API_BASE_URL}');
-            if (!source.includes("from '../../../../core/config/api.config'")) {
-              source = "import { API_BASE_URL } from '../../../../core/config/api.config';\n" + source;
+          for (const file of files) {
+            if (file.endsWith('src/app/core/config/api.config.ts')) continue;
+            let source = fs.readFileSync(file, 'utf8');
+            const original = source;
+
+            source = source.replace(/([`'\"])http:\/\/localhost:8080\/api/g, (match, quote) =>
+              quote === '`' ? '${API_BASE_URL}' : '`' + '${API_BASE_URL}'
+            );
+            source = source.replace(/\$\{API_BASE_URL\}([^`'\"]*)(['"])/g, '`' + '${API_BASE_URL}' + '$1`');
+
+            if (source !== original && !source.includes("from '../../../../core/config/api.config'")) {
+              source = importLine + source;
             }
-            fs.writeFileSync(file, source);
+
+            if (source !== original) {
+              fs.writeFileSync(file, source);
+            }
           }
           NODE
-      - name: Format changed frontend files
+      - name: Format frontend sources
         run: npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}"
       - name: Verify no hardcoded endpoints remain
         run: |
@@ -56,9 +64,10 @@ jobs:
             echo 'Hardcoded API endpoints remain.'
             exit 1
           fi
-      - name: Commit refactor and remove one-time workflow
+      - name: Remove one-time workflow
+        run: rm .github/workflows/refactor-api-endpoints-once.yml
+      - name: Commit refactor and workflow removal
         run: |
-          rm .github/workflows/refactor-api-endpoints-once.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src .github/workflows/refactor-api-endpoints-once.yml
