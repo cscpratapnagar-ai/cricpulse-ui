@@ -58,7 +58,9 @@ export class BroadcastOverlayComponent {
       .get<Match>(`${API_ORIGIN}/api/matches/${this.matchId}`)
       .subscribe({ next: (match) => (this.match = match) });
     this.http
-      .get<CurrentInnings>(`${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`)
+      .get<CurrentInnings>(
+        `${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`,
+      )
       .subscribe({
         next: ({ inningsId }) => {
           this.score$ = this.liveScore.watch(inningsId).pipe(
