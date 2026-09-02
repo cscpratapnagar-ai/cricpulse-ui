@@ -91,11 +91,7 @@ export interface LiveScore {
   fallOfWickets?: LiveFallOfWicket[];
 }
 
-/**
- * A client-side command id must be created once per scoring intent and then
- * reused if the HTTP request is retried. The backend can therefore distinguish
- * a genuine retry from a second scoring action.
- */
+/** Stable id for one scoring intent. Reuse this id if the same request is retried. */
 export function createScoringCommandId(): string {
   return crypto.randomUUID();
 }
@@ -151,8 +147,11 @@ export class LiveScoreService {
               }
             },
             error: () => {
-              // Keep the socket alive; the next authoritative event/reconnect
-              // can trigger another reconciliation.
+              reconciling = false;
+              if (reconcileQueued) {
+                reconcileQueued = false;
+                reconcile();
+              }
             },
             complete: () => {
               reconciling = false;
@@ -164,7 +163,6 @@ export class LiveScoreService {
           });
       };
 
-      // Public viewer must never depend on scorer authentication.
       this.http
         .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
         .subscribe({
@@ -185,8 +183,7 @@ export class LiveScoreService {
         onConnect: () => {
           if (stopped) return;
           subscription?.unsubscribe();
-          // A reconnect can miss messages while the socket was down. Always
-          // reconcile before accepting the new stream as complete.
+          // Recovery first: reconnects may have missed one or more broadcasts.
           reconcile();
           subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
             try {
@@ -196,8 +193,8 @@ export class LiveScoreService {
               const version = score.eventVersion;
               if (typeof version === 'number' && Number.isFinite(version)) {
                 if (version <= lastEventVersion) return;
-                // A jump means at least one authoritative event was missed.
-                // REST is the source of truth; recover the complete projection.
+                // A version jump proves a missed authoritative event. Recover the
+                // complete state instead of applying a potentially partial frame.
                 if (version > lastEventVersion + 1) {
                   reconcile();
                   return;
@@ -205,8 +202,7 @@ export class LiveScoreService {
               }
               emitAuthoritative(score);
             } catch {
-              // A malformed realtime frame must not kill the authoritative
-              // viewer stream. REST reconciliation will recover the state.
+              // Never terminate a public viewer because of one malformed frame.
               reconcile();
             }
           });
