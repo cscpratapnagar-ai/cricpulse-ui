@@ -17,7 +17,6 @@ export class LiveScoreSocketService {
   private subscription?: { unsubscribe(): void };
   private connectionToken = 0;
   private lastEventVersion = 0;
-  private subscribedInningsId = '';
   private readonly stateSubject = new BehaviorSubject<LiveSocketState>('DISCONNECTED');
 
   readonly state$: Observable<LiveSocketState> = this.stateSubject.asObservable();
@@ -27,7 +26,6 @@ export class LiveScoreSocketService {
 
     const token = ++this.connectionToken;
     this.disconnect(false);
-    this.subscribedInningsId = inningsId;
     this.lastEventVersion = 0;
     this.stateSubject.next('CONNECTING');
 
@@ -82,7 +80,6 @@ export class LiveScoreSocketService {
     this.subscription = undefined;
     const client = this.client;
     this.client = undefined;
-    this.subscribedInningsId = '';
     this.lastEventVersion = 0;
     if (client) void client.deactivate();
     if (updateState) {
