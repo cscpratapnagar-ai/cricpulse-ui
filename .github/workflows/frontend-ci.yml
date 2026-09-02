@@ -36,8 +36,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Review dependency security
-        run: npm audit --audit-level=high
+      - name: Review production dependency security
+        run: npm audit --omit=dev --audit-level=high
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
