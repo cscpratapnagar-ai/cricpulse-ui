@@ -16,7 +16,7 @@ on:
       - ui
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
@@ -36,6 +36,21 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Normalize formatting
+        if: github.event_name == 'push'
+        run: npm run format
+      - name: Commit normalized formatting
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "Formatting already clean."
+          else
+            git add src scripts *.json
+            git commit -m "style: normalize frontend formatting"
+            git push
+          fi
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
