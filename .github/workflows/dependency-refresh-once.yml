@@ -26,9 +26,9 @@ jobs:
           rm -f package-lock.json
           npm install --ignore-scripts
       - name: Run Angular core migrations
-        run: npx ng update @angular/core@^21 --allow-dirty --migrate-only
+        run: npx -p @angular/cli@21.2.22 ng update @angular/core --allow-dirty --migrate-only --from 19.2.27 --to 21.2.22
       - name: Run Angular CLI migrations
-        run: npx ng update @angular/cli@^21 --allow-dirty --migrate-only
+        run: npx -p @angular/cli@21.2.22 ng update @angular/cli --allow-dirty --migrate-only --from 19.2.27 --to 21.2.22
       - name: Refresh dependency fixes
         run: npm audit fix --package-lock-only --ignore-scripts
       - name: Verify high-severity dependency audit
