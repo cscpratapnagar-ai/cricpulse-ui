@@ -42,16 +42,16 @@ jobs:
         run: npm run typecheck
       - name: Audit canonical component structure
         run: npm run component:audit
-
       - name: Audit route integrity
         run: npm run route:audit
-
       - name: Audit critical test inventory
         run: npm run test:inventory
-
+      - name: Audit security and API boundaries
+        run: npm run security:audit
+      - name: Audit feature integration boundaries
+        run: npm run feature:audit
       - name: Execute Angular unit tests
         run: npm run test
-
       - name: Audit legacy compatibility shims
         run: npm run legacy:audit
 
