@@ -21,8 +21,10 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - name: Install upgraded Angular toolchain
-        run: npm install --ignore-scripts
+      - name: Rebuild dependency lockfile for Angular 21
+        run: |
+          rm -f package-lock.json
+          npm install --ignore-scripts
       - name: Run Angular 21 migrations
         run: npx ng update @angular/cli@^21 @angular/core@^21 --allow-dirty --migrate-only
       - name: Refresh dependency lockfile
