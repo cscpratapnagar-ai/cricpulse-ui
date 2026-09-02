@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Replace hardcoded API endpoints safely
+      - name: Replace hardcoded API endpoints
         shell: bash
         run: |
           node <<'NODE'
@@ -38,14 +38,16 @@ jobs:
           const files = walk('src/app').filter((name) => name.endsWith('.ts'));
 
           for (const file of files) {
-            if (file.endsWith('src/app/core/config/api.config.ts')) continue;
+            if (file === 'src/app/core/config/api.config.ts') continue;
             let source = fs.readFileSync(file, 'utf8');
             const original = source;
 
-            source = source.replace(/([`'\"])http:\/\/localhost:8080\/api/g, (match, quote) =>
-              quote === '`' ? '${API_BASE_URL}' : '`' + '${API_BASE_URL}'
+            source = source.replace(/(['"])http:\/\/localhost:8080\/api([^'"]*)\1/g, (_, quote, suffix) =>
+              '`' + '${API_BASE_URL}' + suffix + '`'
             );
-            source = source.replace(/\$\{API_BASE_URL\}([^`'\"]*)(['"])/g, '`' + '${API_BASE_URL}' + '$1`');
+            source = source.replace(/`http:\/\/localhost:8080\/api([^`]*)`/g, (_, suffix) =>
+              '`' + '${API_BASE_URL}' + suffix + '`'
+            );
 
             if (source !== original && !source.includes("from '../../../../core/config/api.config'")) {
               source = importLine + source;
