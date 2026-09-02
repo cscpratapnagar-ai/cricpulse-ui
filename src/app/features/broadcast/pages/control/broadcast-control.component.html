@@ -1,28 +1,55 @@
 <main class="broadcast-control">
   <header>
-    <div><label>BROADCAST CONTROL</label><h1>Live production scenes</h1><p>Copy any scene URL into OBS or vMix as a Browser Source.</p></div>
+    <div>
+      <label>BROADCAST CONTROL</label>
+      <h1>Live production scenes</h1>
+      <p>Copy any scene URL into OBS or vMix as a Browser Source.</p>
+    </div>
     <span class="live-dot">LIVE READY</span>
   </header>
   <section class="scene-grid">
     @for (scene of scenes; track scene.mode) {
       <article>
-        <div class="scene-icon">{{ scene.mode === 'strip' ? '▰' : scene.mode === 'batter' ? '◉' : scene.mode === 'bowler' ? '◌' : '↔' }}</div>
+        <div class="scene-icon">
+          {{
+            scene.mode === 'strip'
+              ? '▰'
+              : scene.mode === 'batter'
+                ? '◉'
+                : scene.mode === 'bowler'
+                  ? '◌'
+                  : '↔'
+          }}
+        </div>
         <label>{{ scene.mode.toUpperCase() }} SCENE</label>
         <h2>{{ scene.title }}</h2>
         <p>{{ scene.description }}</p>
         <code>{{ url(scene.mode) }}</code>
         <footer>
-          <button type="button" (click)="copy(scene.mode)">{{ copied === scene.mode ? 'Copied!' : 'Copy URL' }}</button>
+          <button type="button" (click)="copy(scene.mode)">
+            {{ copied === scene.mode ? 'Copied!' : 'Copy URL' }}
+          </button>
           <button type="button" class="preview" (click)="open(scene.mode)">Preview ↗</button>
         </footer>
       </article>
     }
   </section>
   <section class="event-section">
-    <div class="event-head"><div><label>EVENT GRAPHICS</label><h2>Instant broadcast moments</h2></div><p>Open these URLs as dedicated OBS scenes for quick production switching.</p></div>
+    <div class="event-head">
+      <div>
+        <label>EVENT GRAPHICS</label>
+        <h2>Instant broadcast moments</h2>
+      </div>
+      <p>Open these URLs as dedicated OBS scenes for quick production switching.</p>
+    </div>
     <div class="event-grid">
       @for (event of events; track event.kind) {
-        <button type="button" class="event-trigger" [class]="event.kind.toLowerCase()" (click)="openEvent(event.kind)">
+        <button
+          type="button"
+          class="event-trigger"
+          [class]="event.kind.toLowerCase()"
+          (click)="openEvent(event.kind)"
+        >
           <span>{{ event.icon }}</span>
           <b>{{ event.title }}</b>
           <small>Open graphic ↗</small>

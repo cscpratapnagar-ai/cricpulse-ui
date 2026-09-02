@@ -20,7 +20,9 @@
         {{ score.runs }}<em>/{{ score.wickets }}</em>
       </div>
       <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
-      <div class="live-line"><i></i> SCORE UPDATES IN REAL TIME · EVENT {{ score.eventVersion ?? '—' }}</div>
+      <div class="live-line">
+        <i></i> SCORE UPDATES IN REAL TIME · EVENT {{ score.eventVersion ?? '—' }}
+      </div>
     </section>
     <section class="info-grid">
       <article>
@@ -38,9 +40,22 @@
         <div class="section-head"><span>RECENT DELIVERIES</span><small>LIVE EVENT FEED</small></div>
         <div class="balls">
           @for (ball of score.recentBalls; track ball.deliveryId) {
-            <div class="ball" [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6" [class.extra]="ball.extraType">
+            <div
+              class="ball"
+              [class.wicket]="ball.wicketType"
+              [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+              [class.extra]="ball.extraType"
+            >
               <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
-              <b>{{ ball.wicketType ? 'W' : ball.extraType === 'WIDE' ? 'Wd' : ball.extraType === 'NO_BALL' ? 'Nb' : ball.totalRuns }}</b>
+              <b>{{
+                ball.wicketType
+                  ? 'W'
+                  : ball.extraType === 'WIDE'
+                    ? 'Wd'
+                    : ball.extraType === 'NO_BALL'
+                      ? 'Nb'
+                      : ball.totalRuns
+              }}</b>
             </div>
           }
         </div>

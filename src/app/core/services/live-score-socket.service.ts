@@ -30,15 +30,18 @@ export class LiveScoreSocketService {
       onConnect: () => {
         if (token !== this.connectionToken) return;
         this.stateSubject.next('CONNECTED');
-        this.subscription = this.client?.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
-          if (token !== this.connectionToken) return;
-          try {
-            onScore(JSON.parse(message.body));
-          } catch {
-            // Keep the socket healthy when a malformed event is received.
-            // The REST reconciliation path remains the source of truth.
-          }
-        });
+        this.subscription = this.client?.subscribe(
+          `/topic/innings/${inningsId}`,
+          (message: IMessage) => {
+            if (token !== this.connectionToken) return;
+            try {
+              onScore(JSON.parse(message.body));
+            } catch {
+              // Keep the socket healthy when a malformed event is received.
+              // The REST reconciliation path remains the source of truth.
+            }
+          },
+        );
       },
       onStompError: () => {
         if (token === this.connectionToken) this.stateSubject.next('ERROR');

@@ -5,7 +5,10 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 import { LiveScore } from '../../../../core/services/live-score.service';
-import { LiveScoreSocketService, LiveSocketState } from '../../../../core/services/live-score-socket.service';
+import {
+  LiveScoreSocketService,
+  LiveSocketState,
+} from '../../../../core/services/live-score-socket.service';
 
 interface Match {
   id: string;
@@ -61,7 +64,11 @@ export class LiveScoringV2Component implements OnDestroy {
   loading = true;
   busy = false;
   message = '';
-  deliveryFeedback: { type: 'run' | 'four' | 'six' | 'wicket' | 'extra'; label: string; detail: string } | null = null;
+  deliveryFeedback: {
+    type: 'run' | 'four' | 'six' | 'wicket' | 'extra';
+    label: string;
+    detail: string;
+  } | null = null;
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'ERROR' = 'SYNCED';
@@ -156,7 +163,11 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   get hasValidBattingState() {
-    return !!this.score?.strikerId && !!this.score?.nonStrikerId && this.score.strikerId !== this.score.nonStrikerId;
+    return (
+      !!this.score?.strikerId &&
+      !!this.score?.nonStrikerId &&
+      this.score.strikerId !== this.score.nonStrikerId
+    );
   }
 
   get canDeliver() {
@@ -193,7 +204,10 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.canDeliver || !this.selectedExtraType) return false;
     if (!['WIDE', 'NO_BALL', 'BYE', 'LEG_BYE'].includes(this.selectedExtraType)) return false;
     if (!Number.isInteger(this.extraRuns) || this.extraRuns < 1 || this.extraRuns > 7) return false;
-    if (this.selectedExtraType === 'NO_BALL' && (!Number.isInteger(this.extraBatRuns) || this.extraBatRuns < 0 || this.extraBatRuns > 6))
+    if (
+      this.selectedExtraType === 'NO_BALL' &&
+      (!Number.isInteger(this.extraBatRuns) || this.extraBatRuns < 0 || this.extraBatRuns > 6)
+    )
       return false;
     if (this.selectedExtraType !== 'NO_BALL' && this.extraBatRuns !== 0) return false;
     return true;
@@ -205,7 +219,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.busy) return 'Saving the previous action…';
     if (this.targetReached) return 'Target reached. Scoring is locked.';
     if (this.oversComplete) return 'All allotted overs are complete.';
-    if (!this.hasValidBattingState) return 'Two different active batters are required before scoring.';
+    if (!this.hasValidBattingState)
+      return 'Two different active batters are required before scoring.';
     if (this.needsBowlerChange) return 'Select a new bowler to begin the next over.';
     if (!this.activeBowlerId) return 'Select an active bowler before scoring.';
     if (this.score.wickets >= 10) return 'All wickets are down. Scoring is locked.';
@@ -228,7 +243,8 @@ export class LiveScoringV2Component implements OnDestroy {
 
   get connectionHint() {
     if (this.connectionState === 'OFFLINE') return 'Waiting for an internet connection.';
-    if (this.connectionState === 'RECONNECTING') return 'Refreshing the authoritative innings state.';
+    if (this.connectionState === 'RECONNECTING')
+      return 'Refreshing the authoritative innings state.';
     return 'Polling is active while the live socket reconnects.';
   }
 
@@ -303,19 +319,27 @@ export class LiveScoringV2Component implements OnDestroy {
   get completionReasonText() {
     if (!this.score) return '';
     if (this.score.wickets >= 10) return 'All wickets are down. This innings is closed.';
-    if (this.score.targetRuns && this.requiredRuns === 0) return 'The target has been reached. Scoring is locked.';
+    if (this.score.targetRuns && this.requiredRuns === 0)
+      return 'The target has been reached. Scoring is locked.';
     if (this.ballsRemaining === 0) return 'The allotted overs have been completed.';
     return 'This innings has been completed and scoring is now locked.';
   }
 
   get canAdvanceInnings() {
-    return !!this.score && this.score.status === 'COMPLETED' && this.score.inningsNumber === 1 && !this.lifecycleBusy;
+    return (
+      !!this.score &&
+      this.score.status === 'COMPLETED' &&
+      this.score.inningsNumber === 1 &&
+      !this.lifecycleBusy
+    );
   }
 
   get resultOutcome() {
-    if (!this.score || this.score.status !== 'COMPLETED' || this.score.inningsNumber !== 2) return null;
+    if (!this.score || this.score.status !== 'COMPLETED' || this.score.inningsNumber !== 2)
+      return null;
     const target = this.score.targetRuns || 0;
-    if (!target) return { type: 'COMPLETE', headline: 'MATCH COMPLETE', detail: 'Final innings completed.' };
+    if (!target)
+      return { type: 'COMPLETE', headline: 'MATCH COMPLETE', detail: 'Final innings completed.' };
     if (this.score.runs >= target) {
       const wicketsLeft = Math.max(0, 10 - this.score.wickets);
       return {
@@ -325,7 +349,11 @@ export class LiveScoringV2Component implements OnDestroy {
       };
     }
     if (this.score.runs === target - 1) {
-      return { type: 'TIE', headline: 'MATCH TIED', detail: 'Both teams finished on the same score.' };
+      return {
+        type: 'TIE',
+        headline: 'MATCH TIED',
+        detail: 'Both teams finished on the same score.',
+      };
     }
     const margin = target - 1 - this.score.runs;
     return {
@@ -374,16 +402,20 @@ export class LiveScoringV2Component implements OnDestroy {
   get wicketValidationHint() {
     if (!this.wicketType) return 'Choose how the wicket fell.';
     if (!this.canDeliver) return this.validationHint;
-    if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId) return 'Choose which batter was dismissed.';
-    if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6) return 'Select a valid number of completed runs.';
-    if (this.score && this.score.wickets < 9 && !this.newBatterId) return 'Select the incoming batter.';
+    if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId)
+      return 'Choose which batter was dismissed.';
+    if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
+      return 'Select a valid number of completed runs.';
+    if (this.score && this.score.wickets < 9 && !this.newBatterId)
+      return 'Select the incoming batter.';
     return 'Wicket details are ready to record.';
   }
 
   get canConfirmWicket() {
     if (!this.canDeliver || !this.wicketType) return false;
     if (!this.wicketOptions.some((option) => option.value === this.wicketType)) return false;
-    if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6) return false;
+    if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
+      return false;
     if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId) return false;
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
@@ -452,7 +484,10 @@ export class LiveScoringV2Component implements OnDestroy {
       },
       error: (e) => {
         this.loading = false;
-        this.message = e?.status === 404 ? 'No current innings found.' : e?.error?.message || 'Unable to load current innings.';
+        this.message =
+          e?.status === 404
+            ? 'No current innings found.'
+            : e?.error?.message || 'Unable to load current innings.';
       },
     });
   }
@@ -460,9 +495,11 @@ export class LiveScoringV2Component implements OnDestroy {
   private normalizeTeamIds() {
     if (!this.match) return;
     if (!this.battingTeamId && this.bowlingTeamId)
-      this.battingTeamId = this.bowlingTeamId === this.match.teamAId ? this.match.teamBId : this.match.teamAId;
+      this.battingTeamId =
+        this.bowlingTeamId === this.match.teamAId ? this.match.teamBId : this.match.teamAId;
     if (!this.bowlingTeamId && this.battingTeamId)
-      this.bowlingTeamId = this.battingTeamId === this.match.teamAId ? this.match.teamBId : this.match.teamAId;
+      this.bowlingTeamId =
+        this.battingTeamId === this.match.teamAId ? this.match.teamBId : this.match.teamAId;
     if (!this.battingTeamId && this.inningsNumber === 1) {
       this.battingTeamId = this.match.teamAId;
       this.bowlingTeamId = this.match.teamBId;
@@ -532,7 +569,8 @@ export class LiveScoringV2Component implements OnDestroy {
     this.applyScore(s);
     this.lastSyncedAt = new Date();
     if (silent && hadScore && !this.busy) {
-      this.externalUpdateNotice = 'The scorer has been refreshed with the latest authoritative match state.';
+      this.externalUpdateNotice =
+        'The scorer has been refreshed with the latest authoritative match state.';
     }
     this.reconciling = false;
   }
@@ -574,13 +612,22 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private showDeliveryFeedback(body: any) {
-    let feedback: { type: 'run' | 'four' | 'six' | 'wicket' | 'extra'; label: string; detail: string };
+    let feedback: {
+      type: 'run' | 'four' | 'six' | 'wicket' | 'extra';
+      label: string;
+      detail: string;
+    };
     if (body.wicketType) {
       feedback = { type: 'wicket', label: 'WICKET', detail: body.wicketType.replace('_', ' ') };
     } else if (body.extraType) {
       feedback = {
         type: 'extra',
-        label: body.extraType === 'WIDE' ? 'WIDE' : body.extraType === 'NO_BALL' ? 'NO BALL' : body.extraType.replace('_', ' '),
+        label:
+          body.extraType === 'WIDE'
+            ? 'WIDE'
+            : body.extraType === 'NO_BALL'
+              ? 'NO BALL'
+              : body.extraType.replace('_', ' '),
         detail: `+${(body.extraRuns || 0) + (body.batRuns || 0)} RUNS`,
       };
     } else if (body.batRuns === 6) {
@@ -588,7 +635,11 @@ export class LiveScoringV2Component implements OnDestroy {
     } else if (body.batRuns === 4) {
       feedback = { type: 'four', label: 'FOUR', detail: 'Boundary scored' };
     } else {
-      feedback = { type: 'run', label: `${body.batRuns || 0} RUN${body.batRuns === 1 ? '' : 'S'}`, detail: 'Delivery recorded' };
+      feedback = {
+        type: 'run',
+        label: `${body.batRuns || 0} RUN${body.batRuns === 1 ? '' : 'S'}`,
+        detail: 'Delivery recorded',
+      };
     }
     this.deliveryFeedback = feedback;
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
@@ -598,13 +649,23 @@ export class LiveScoringV2Component implements OnDestroy {
   private deliveryValidationError(body: any): string | null {
     if (!this.score || !this.inningsId) return 'Live innings is not ready.';
     if (!this.canDeliver) return this.validationHint;
-    if (!Number.isInteger(body?.batRuns) || body.batRuns < 0 || body.batRuns > 6) return 'Bat runs must be a whole number from 0 to 6.';
-    if (!Number.isInteger(body?.extraRuns) || body.extraRuns < 0 || body.extraRuns > 7) return 'Extra runs must be a whole number from 0 to 7.';
-    if (body?.extraType && !['WIDE', 'NO_BALL', 'BYE', 'LEG_BYE'].includes(body.extraType)) return 'Unsupported extra type.';
-    if (body?.wicketType && !this.wicketOptions.some((option) => option.value === body.wicketType)) return 'Unsupported wicket type.';
-    if (body?.wicketType && body?.extraType) return 'A delivery cannot record an extra and wicket event together in this scorer flow.';
+    if (!Number.isInteger(body?.batRuns) || body.batRuns < 0 || body.batRuns > 6)
+      return 'Bat runs must be a whole number from 0 to 6.';
+    if (!Number.isInteger(body?.extraRuns) || body.extraRuns < 0 || body.extraRuns > 7)
+      return 'Extra runs must be a whole number from 0 to 7.';
+    if (body?.extraType && !['WIDE', 'NO_BALL', 'BYE', 'LEG_BYE'].includes(body.extraType))
+      return 'Unsupported extra type.';
+    if (body?.wicketType && !this.wicketOptions.some((option) => option.value === body.wicketType))
+      return 'Unsupported wicket type.';
+    if (body?.wicketType && body?.extraType)
+      return 'A delivery cannot record an extra and wicket event together in this scorer flow.';
     if (body?.wicketType && this.score.wickets >= 10) return 'All wickets are already down.';
-    if (body?.extraType === 'NO_BALL' && (!Number.isInteger(body.extraBatRuns ?? body.batRuns) || (body.extraBatRuns ?? body.batRuns) < 0 || (body.extraBatRuns ?? body.batRuns) > 6))
+    if (
+      body?.extraType === 'NO_BALL' &&
+      (!Number.isInteger(body.extraBatRuns ?? body.batRuns) ||
+        (body.extraBatRuns ?? body.batRuns) < 0 ||
+        (body.extraBatRuns ?? body.batRuns) > 6)
+    )
       return 'No-ball bat runs must be a whole number from 0 to 6.';
     return null;
   }
@@ -636,28 +697,30 @@ export class LiveScoringV2Component implements OnDestroy {
         : body.extraType
           ? `${body.extraType} recorded`
           : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
-    this.http.post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload).subscribe({
-      next: (s) => {
-        if (s && s.inningsId) {
-          this.applyScore(s);
-          this.showDeliveryFeedback(body);
+    this.http
+      .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload)
+      .subscribe({
+        next: (s) => {
+          if (s && s.inningsId) {
+            this.applyScore(s);
+            this.showDeliveryFeedback(body);
+            this.busy = false;
+            this.syncState = 'SYNCED';
+            this.message = '';
+            this.lastDeliveryPayload = null;
+          } else {
+            this.reloadScoreAfterDelivery();
+            this.busy = false;
+            this.syncState = 'SYNCED';
+            this.message = '';
+          }
+        },
+        error: (e) => {
           this.busy = false;
-          this.syncState = 'SYNCED';
-          this.message = '';
-          this.lastDeliveryPayload = null;
-        } else {
-          this.reloadScoreAfterDelivery();
-          this.busy = false;
-          this.syncState = 'SYNCED';
-          this.message = '';
-        }
-      },
-      error: (e) => {
-        this.busy = false;
-        this.syncState = 'ERROR';
-        this.message = e?.error?.message || 'Unable to record delivery. Please try again.';
-      },
-    });
+          this.syncState = 'ERROR';
+          this.message = e?.error?.message || 'Unable to record delivery. Please try again.';
+        },
+      });
   }
 
   recordRuns(r: number) {
@@ -716,14 +779,21 @@ export class LiveScoringV2Component implements OnDestroy {
       extraType: null,
       wicketType: this.wicketType,
       legalDelivery: this.wicketLegalDelivery,
-      dismissedPlayerId: this.wicketType === 'RUN_OUT' ? this.dismissedPlayerId : this.score.strikerId,
+      dismissedPlayerId:
+        this.wicketType === 'RUN_OUT' ? this.dismissedPlayerId : this.score.strikerId,
       newBatterId: ten ? null : this.newBatterId,
     });
     this.wicketOpen = false;
   }
 
   requestUndo() {
-    if (!this.inningsId || this.busy || this.score?.status !== 'LIVE' || !this.score?.recentBalls?.length) return;
+    if (
+      !this.inningsId ||
+      this.busy ||
+      this.score?.status !== 'LIVE' ||
+      !this.score?.recentBalls?.length
+    )
+      return;
     this.undoConfirmOpen = true;
   }
 
@@ -732,7 +802,13 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   undo() {
-    if (!this.inningsId || this.busy || this.score?.status !== 'LIVE' || !this.score?.recentBalls?.length) return;
+    if (
+      !this.inningsId ||
+      this.busy ||
+      this.score?.status !== 'LIVE' ||
+      !this.score?.recentBalls?.length
+    )
+      return;
     this.undoConfirmOpen = false;
     this.busy = true;
     this.syncState = 'SAVING';
@@ -775,7 +851,9 @@ export class LiveScoringV2Component implements OnDestroy {
 
   bowlerFigures(id?: string | null) {
     const b = this.score?.bowlers?.find((x) => x.playerId === id);
-    return b ? `${Math.floor(b.legalBalls / 6)}.${b.legalBalls % 6}-${b.runsConceded}-${b.wickets}` : '0.0-0-0';
+    return b
+      ? `${Math.floor(b.legalBalls / 6)}.${b.legalBalls % 6}-${b.runsConceded}-${b.wickets}`
+      : '0.0-0-0';
   }
 
   overs(balls: number) {

@@ -32,7 +32,11 @@
   } @else if (score) {
     <main class="scorer-shell">
       @if (deliveryFeedback) {
-        <div class="delivery-feedback" [class]="'delivery-feedback ' + deliveryFeedback.type" role="status">
+        <div
+          class="delivery-feedback"
+          [class]="'delivery-feedback ' + deliveryFeedback.type"
+          role="status"
+        >
           <div class="feedback-ring"></div>
           <strong>{{ deliveryFeedback.label }}</strong>
           <span>{{ deliveryFeedback.detail }}</span>
@@ -51,7 +55,9 @@
         <div class="score-hero-grid">
           <div class="score-block primary">
             <span class="eyebrow">CURRENT SCORE</span>
-            <strong>{{ score.runs }}<em>/{{ score.wickets }}</em></strong>
+            <strong
+              >{{ score.runs }}<em>/{{ score.wickets }}</em></strong
+            >
             <small>{{ overs(score.legalBalls) }} overs</small>
           </div>
 
@@ -65,7 +71,11 @@
             <span class="eyebrow">TARGET</span>
             <b>{{ score.targetRuns || '—' }}</b>
             <small>
-              @if (score.targetRuns) { {{ requiredRuns }} runs required } @else { No target set }
+              @if (score.targetRuns) {
+                {{ requiredRuns }} runs required
+              } @else {
+                No target set
+              }
             </small>
           </div>
 
@@ -84,12 +94,19 @@
           </div>
           <div class="completion-copy">
             <span class="eyebrow">{{ resultOutcome?.headline || completionTitle }}</span>
-            <h1>{{ score.runs }}/{{ score.wickets }} <small>({{ overs(score.legalBalls) }} overs)</small></h1>
+            <h1>
+              {{ score.runs }}/{{ score.wickets }}
+              <small>({{ overs(score.legalBalls) }} overs)</small>
+            </h1>
             <p>{{ resultOutcome?.detail || completionReasonText }}</p>
           </div>
           <div class="completion-actions">
             @if (score.inningsNumber === 1) {
-              <button class="primary-btn" [disabled]="!canAdvanceInnings" (click)="startSecondInnings()">
+              <button
+                class="primary-btn"
+                [disabled]="!canAdvanceInnings"
+                (click)="startSecondInnings()"
+              >
                 {{ lifecycleBusy ? 'Preparing…' : 'Set up 2nd innings' }}
               </button>
             } @else {
@@ -100,11 +117,23 @@
         </section>
       } @else {
         <section class="status-row">
-          <div class="sync-status" [class.offline]="connectionState === 'OFFLINE'" [class.reconnecting]="connectionState === 'RECONNECTING'">
+          <div
+            class="sync-status"
+            [class.offline]="connectionState === 'OFFLINE'"
+            [class.reconnecting]="connectionState === 'RECONNECTING'"
+          >
             <span class="status-dot"></span>
             <div>
-              <b>{{ socketState === 'CONNECTED' ? 'LIVE CONNECTION' : reconciling ? 'RECONCILING' : connectionLabel }}</b>
-              <small>{{ socketState === 'CONNECTED' ? 'Instant updates are active' : connectionHint }}</small>
+              <b>{{
+                socketState === 'CONNECTED'
+                  ? 'LIVE CONNECTION'
+                  : reconciling
+                    ? 'RECONCILING'
+                    : connectionLabel
+              }}</b>
+              <small>{{
+                socketState === 'CONNECTED' ? 'Instant updates are active' : connectionHint
+              }}</small>
             </div>
             @if (connectionState !== 'ONLINE') {
               <button type="button" (click)="handleReconnect()">Retry</button>
@@ -137,7 +166,11 @@
                 <h1>Score the next ball</h1>
                 <p>{{ message || validationHint }}</p>
               </div>
-              <span class="ready-pill" [class.ready]="canDeliver" [class.error]="syncState === 'ERROR'">
+              <span
+                class="ready-pill"
+                [class.ready]="canDeliver"
+                [class.error]="syncState === 'ERROR'"
+              >
                 <i></i>{{ syncState === 'ERROR' ? 'Attention' : canDeliver ? 'Ready' : 'Waiting' }}
               </span>
             </div>
@@ -146,12 +179,18 @@
               <article class="player-tile striker">
                 <span class="role">STRIKER</span>
                 <b>{{ playerName(score.strikerId) }}</b>
-                <small>{{ batterRuns(score.strikerId) }} <em>({{ batterBalls(score.strikerId) }})</em></small>
+                <small
+                  >{{ batterRuns(score.strikerId) }}
+                  <em>({{ batterBalls(score.strikerId) }})</em></small
+                >
               </article>
               <article class="player-tile">
                 <span class="role">NON-STRIKER</span>
                 <b>{{ playerName(score.nonStrikerId) }}</b>
-                <small>{{ batterRuns(score.nonStrikerId) }} <em>({{ batterBalls(score.nonStrikerId) }})</em></small>
+                <small
+                  >{{ batterRuns(score.nonStrikerId) }}
+                  <em>({{ batterBalls(score.nonStrikerId) }})</em></small
+                >
               </article>
               <article class="player-tile bowler">
                 <span class="role">BOWLER</span>
@@ -171,7 +210,8 @@
                     [class.boundary]="ball === '4' || ball === '6'"
                     [class.wicket]="ball === 'W'"
                     [class.extra]="ball === 'Wd' || ball === 'Nb'"
-                  >{{ ball }}</span>
+                    >{{ ball }}</span
+                  >
                 }
                 @if (!currentOverBalls.length) {
                   <small>Awaiting first delivery</small>
@@ -182,7 +222,9 @@
             @if (syncState === 'ERROR') {
               <div class="error-actions">
                 <span>{{ message }}</span>
-                <button type="button" (click)="retryLastAction()" [disabled]="busy">Retry action</button>
+                <button type="button" (click)="retryLastAction()" [disabled]="busy">
+                  Retry action
+                </button>
                 <button type="button" (click)="dismissError()">Dismiss</button>
               </div>
             }
@@ -191,7 +233,11 @@
               <div>
                 <span class="eyebrow">ACTIVE BOWLER</span>
                 <p>
-                  {{ needsBowlerChange ? 'New over — select the next bowler to continue.' : 'Bowler is locked for the current over.' }}
+                  {{
+                    needsBowlerChange
+                      ? 'New over — select the next bowler to continue.'
+                      : 'Bowler is locked for the current over.'
+                  }}
                 </p>
               </div>
               <app-select-field
@@ -209,11 +255,18 @@
                   <span class="eyebrow">BAT RUNS</span>
                   <small>Select runs from this delivery</small>
                 </div>
-                @if (!canDeliver) { <span class="lock-note">{{ validationHint }}</span> }
+                @if (!canDeliver) {
+                  <span class="lock-note">{{ validationHint }}</span>
+                }
               </div>
               <div class="run-grid">
                 @for (run of runs; track run) {
-                  <button type="button" [disabled]="!canDeliver" (click)="recordRuns(run)" [style.--run-delay]="$index">
+                  <button
+                    type="button"
+                    [disabled]="!canDeliver"
+                    (click)="recordRuns(run)"
+                    [style.--run-delay]="$index"
+                  >
                     <span>{{ run }}</span>
                   </button>
                 }
@@ -228,19 +281,64 @@
                 </div>
               </div>
               <div class="event-grid">
-                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('WIDE')"><b>WD</b><small>Wide</small></button>
-                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('NO_BALL')"><b>NB</b><small>No ball</small></button>
-                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('BYE')"><b>B</b><small>Bye</small></button>
-                <button type="button" class="event-action" [disabled]="!canDeliver" (click)="openExtra('LEG_BYE')"><b>LB</b><small>Leg bye</small></button>
-                <button type="button" class="danger-event" [disabled]="!canDeliver || score.wickets >= 10" (click)="openWicket()"><b>W</b><small>Wicket</small></button>
-                <button type="button" class="undo-event" [disabled]="busy || !score.recentBalls?.length" (click)="requestUndo()"><b>↶</b><small>Undo</small></button>
+                <button
+                  type="button"
+                  class="event-action"
+                  [disabled]="!canDeliver"
+                  (click)="openExtra('WIDE')"
+                >
+                  <b>WD</b><small>Wide</small>
+                </button>
+                <button
+                  type="button"
+                  class="event-action"
+                  [disabled]="!canDeliver"
+                  (click)="openExtra('NO_BALL')"
+                >
+                  <b>NB</b><small>No ball</small>
+                </button>
+                <button
+                  type="button"
+                  class="event-action"
+                  [disabled]="!canDeliver"
+                  (click)="openExtra('BYE')"
+                >
+                  <b>B</b><small>Bye</small>
+                </button>
+                <button
+                  type="button"
+                  class="event-action"
+                  [disabled]="!canDeliver"
+                  (click)="openExtra('LEG_BYE')"
+                >
+                  <b>LB</b><small>Leg bye</small>
+                </button>
+                <button
+                  type="button"
+                  class="danger-event"
+                  [disabled]="!canDeliver || score.wickets >= 10"
+                  (click)="openWicket()"
+                >
+                  <b>W</b><small>Wicket</small>
+                </button>
+                <button
+                  type="button"
+                  class="undo-event"
+                  [disabled]="busy || !score.recentBalls?.length"
+                  (click)="requestUndo()"
+                >
+                  <b>↶</b><small>Undo</small>
+                </button>
               </div>
             </section>
 
             @if (extraOpen) {
               <section class="drawer-card">
                 <div class="drawer-head">
-                  <div><span class="eyebrow">EXTRA DELIVERY</span><h3>{{ selectedExtraType.replace('_', ' ') }}</h3></div>
+                  <div>
+                    <span class="eyebrow">EXTRA DELIVERY</span>
+                    <h3>{{ selectedExtraType.replace('_', ' ') }}</h3>
+                  </div>
                   <button type="button" (click)="extraOpen = false">×</button>
                 </div>
                 <div class="drawer-grid">
@@ -248,7 +346,13 @@
                     <label>EXTRA RUNS</label>
                     <div class="mini-run-grid">
                       @for (run of [1, 2, 3, 4, 5, 6, 7]; track run) {
-                        <button type="button" [class.active]="extraRuns === run" (click)="extraRuns = run">{{ run }}</button>
+                        <button
+                          type="button"
+                          [class.active]="extraRuns === run"
+                          (click)="extraRuns = run"
+                        >
+                          {{ run }}
+                        </button>
                       }
                     </div>
                   </div>
@@ -257,30 +361,56 @@
                       <label>BAT RUNS</label>
                       <div class="mini-run-grid">
                         @for (run of [0, 1, 2, 3, 4, 5, 6]; track run) {
-                          <button type="button" [class.active]="extraBatRuns === run" (click)="extraBatRuns = run">{{ run }}</button>
+                          <button
+                            type="button"
+                            [class.active]="extraBatRuns === run"
+                            (click)="extraBatRuns = run"
+                          >
+                            {{ run }}
+                          </button>
                         }
                       </div>
                     </div>
                   }
                 </div>
                 <p class="drawer-summary">{{ extraSummary }}</p>
-                <button class="primary-btn" [disabled]="!canConfirmExtra" (click)="recordExtra()">Record extra</button>
+                <button class="primary-btn" [disabled]="!canConfirmExtra" (click)="recordExtra()">
+                  Record extra
+                </button>
               </section>
             }
 
             @if (wicketOpen) {
               <section class="drawer-card wicket-card">
                 <div class="drawer-head">
-                  <div><span class="eyebrow">DISMISSAL</span><h3>Confirm wicket</h3></div>
+                  <div>
+                    <span class="eyebrow">DISMISSAL</span>
+                    <h3>Confirm wicket</h3>
+                  </div>
                   <button type="button" (click)="wicketOpen = false">×</button>
                 </div>
                 <div class="wicket-grid">
-                  <app-select-field label="Dismissal type" placeholder="Select wicket type" [options]="wicketOptions" [(value)]="wicketType" />
+                  <app-select-field
+                    label="Dismissal type"
+                    placeholder="Select wicket type"
+                    [options]="wicketOptions"
+                    [(value)]="wicketType"
+                  />
                   @if (wicketType === 'RUN_OUT') {
-                    <app-select-field label="Dismissed player" placeholder="Select player" [options]="dismissedOptions" [(value)]="dismissedPlayerId" />
+                    <app-select-field
+                      label="Dismissed player"
+                      placeholder="Select player"
+                      [options]="dismissedOptions"
+                      [(value)]="dismissedPlayerId"
+                    />
                   }
                   @if (score.wickets < 9) {
-                    <app-select-field label="Incoming batter" placeholder="Select batter" [options]="newBatterOptions" [(value)]="newBatterId" />
+                    <app-select-field
+                      label="Incoming batter"
+                      placeholder="Select batter"
+                      [options]="newBatterOptions"
+                      [(value)]="newBatterId"
+                    />
                   }
                 </div>
                 <div class="drawer-grid wicket-runs">
@@ -288,13 +418,24 @@
                     <label>RUNS COMPLETED</label>
                     <div class="mini-run-grid">
                       @for (run of [0, 1, 2, 3, 4, 5, 6]; track run) {
-                        <button type="button" [class.active]="wicketRuns === run" (click)="wicketRuns = run">{{ run }}</button>
+                        <button
+                          type="button"
+                          [class.active]="wicketRuns === run"
+                          (click)="wicketRuns = run"
+                        >
+                          {{ run }}
+                        </button>
                       }
                     </div>
                   </div>
-                  <div class="rule-note"><b>{{ wicketType === 'RUN_OUT' ? 'Run-out context' : 'Delivery context' }}</b><small>{{ wicketValidationHint }}</small></div>
+                  <div class="rule-note">
+                    <b>{{ wicketType === 'RUN_OUT' ? 'Run-out context' : 'Delivery context' }}</b
+                    ><small>{{ wicketValidationHint }}</small>
+                  </div>
                 </div>
-                <button class="danger-btn" [disabled]="!canConfirmWicket" (click)="confirmWicket()">Confirm wicket</button>
+                <button class="danger-btn" [disabled]="!canConfirmWicket" (click)="confirmWicket()">
+                  Confirm wicket
+                </button>
               </section>
             }
           </section>
@@ -302,26 +443,42 @@
           <aside class="side-panel">
             <section class="side-card timeline-card">
               <div class="side-heading">
-                <div><span class="eyebrow">DELIVERY TIMELINE</span><small>Latest recorded events</small></div>
-                <button type="button" (click)="auditExpanded = !auditExpanded">{{ auditExpanded ? 'Less' : 'All' }}</button>
+                <div>
+                  <span class="eyebrow">DELIVERY TIMELINE</span
+                  ><small>Latest recorded events</small>
+                </div>
+                <button type="button" (click)="auditExpanded = !auditExpanded">
+                  {{ auditExpanded ? 'Less' : 'All' }}
+                </button>
               </div>
               <div class="timeline-list" [class.expanded]="auditExpanded">
                 @for (ball of score.recentBalls || []; track ball.deliveryId) {
-                  <button type="button" class="timeline-ball" [class]="ballSemantic(ball)" (click)="selectRecentBall(ball)">
+                  <button
+                    type="button"
+                    class="timeline-ball"
+                    [class]="ballSemantic(ball)"
+                    (click)="selectRecentBall(ball)"
+                  >
                     <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
                     <b>{{ ballToken(ball) }}</b>
                   </button>
                 }
-                @if (!(score.recentBalls?.length)) { <span class="empty-state">No deliveries yet</span> }
+                @if (!score.recentBalls?.length) {
+                  <span class="empty-state">No deliveries yet</span>
+                }
               </div>
               @if (selectedRecentBall) {
                 <div class="selected-ball">
                   <div>
-                    <span>{{ selectedRecentBall.overNumber }}.{{ selectedRecentBall.ballNumber }}</span>
+                    <span
+                      >{{ selectedRecentBall.overNumber }}.{{ selectedRecentBall.ballNumber }}</span
+                    >
                     <b>{{ ballToken(selectedRecentBall) }}</b>
                     <small>
                       {{ selectedRecentBall.legalDelivery ? 'Legal delivery' : 'Illegal delivery' }}
-                      · {{ selectedRecentBall.totalRuns }} run{{ selectedRecentBall.totalRuns === 1 ? '' : 's' }}
+                      · {{ selectedRecentBall.totalRuns }} run{{
+                        selectedRecentBall.totalRuns === 1 ? '' : 's'
+                      }}
                     </small>
                   </div>
                   <button type="button" (click)="dismissRecentBall()">×</button>
@@ -332,22 +489,40 @@
             <section class="side-card stats-card">
               <span class="eyebrow">MATCH SNAPSHOT</span>
               <div class="snapshot-grid">
-                <div><span>Partnership</span><b>{{ score.partnership?.runs || 0 }}</b><small>runs</small></div>
-                <div><span>Required</span><b>{{ score.targetRuns ? requiredRuns : '—' }}</b><small>runs</small></div>
-                <div><span>RRR</span><b>{{ score.targetRuns ? requiredRunRate.toFixed(2) : '—' }}</b><small>rate</small></div>
-                <div><span>Wickets</span><b>{{ score.wickets }}</b><small>down</small></div>
+                <div>
+                  <span>Partnership</span><b>{{ score.partnership?.runs || 0 }}</b
+                  ><small>runs</small>
+                </div>
+                <div>
+                  <span>Required</span><b>{{ score.targetRuns ? requiredRuns : '—' }}</b
+                  ><small>runs</small>
+                </div>
+                <div>
+                  <span>RRR</span><b>{{ score.targetRuns ? requiredRunRate.toFixed(2) : '—' }}</b
+                  ><small>rate</small>
+                </div>
+                <div>
+                  <span>Wickets</span><b>{{ score.wickets }}</b
+                  ><small>down</small>
+                </div>
               </div>
             </section>
 
             <section class="side-card fow-card">
-              <div class="side-heading"><span class="eyebrow">FALL OF WICKETS</span><b>{{ score.wickets }}</b></div>
+              <div class="side-heading">
+                <span class="eyebrow">FALL OF WICKETS</span><b>{{ score.wickets }}</b>
+              </div>
               @if (score.fallOfWickets?.length) {
                 <div class="fow-list">
                   @for (w of score.fallOfWickets; track w.wicketNumber) {
                     <div>
                       <span>{{ w.wicketNumber }}</span>
                       <b>{{ playerName(w.playerId) }}</b>
-                      <small>{{ w.runs }}/{{ w.wicketNumber }} · {{ w.overNumber }}.{{ w.ballNumber }}</small>
+                      <small
+                        >{{ w.runs }}/{{ w.wicketNumber }} · {{ w.overNumber }}.{{
+                          w.ballNumber
+                        }}</small
+                      >
                     </div>
                   }
                 </div>
@@ -356,7 +531,12 @@
               }
             </section>
 
-            <a class="public-link" [href]="publicScoreUrl" target="_blank" rel="noopener noreferrer">
+            <a
+              class="public-link"
+              [href]="publicScoreUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <span>PUBLIC SCOREBOARD</span>
               <b>Open live view ↗</b>
             </a>
@@ -370,7 +550,13 @@
 
   @if (undoConfirmOpen) {
     <div class="undo-backdrop" (click)="cancelUndo()">
-      <section class="undo-dialog" role="dialog" aria-modal="true" aria-labelledby="undo-title" (click)="$event.stopPropagation()">
+      <section
+        class="undo-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="undo-title"
+        (click)="$event.stopPropagation()"
+      >
         <div class="undo-icon">↶</div>
         <span class="eyebrow">REVIEW ACTION</span>
         <h3 id="undo-title">Undo last delivery?</h3>
