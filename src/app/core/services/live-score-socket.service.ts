@@ -9,12 +9,16 @@ export type LiveSocketState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'ERR
 export class LiveScoreSocketService {
   private client?: Client;
   private subscription?: { unsubscribe(): void };
+  private connectionToken = 0;
   private readonly stateSubject = new BehaviorSubject<LiveSocketState>('DISCONNECTED');
 
   readonly state$: Observable<LiveSocketState> = this.stateSubject.asObservable();
 
   connect(inningsId: string, onScore: (score: unknown) => void): void {
-    this.disconnect();
+    if (!inningsId) return;
+
+    const token = ++this.connectionToken;
+    this.disconnect(false);
     this.stateSubject.next('CONNECTING');
 
     this.client = new Client({
@@ -24,29 +28,44 @@ export class LiveScoreSocketService {
       heartbeatOutgoing: 10000,
       debug: () => undefined,
       onConnect: () => {
+        if (token !== this.connectionToken) return;
         this.stateSubject.next('CONNECTED');
         this.subscription = this.client?.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
+          if (token !== this.connectionToken) return;
           try {
             onScore(JSON.parse(message.body));
           } catch {
-            this.stateSubject.next('ERROR');
+            // Keep the socket healthy when a malformed event is received.
+            // The REST reconciliation path remains the source of truth.
           }
         });
       },
-      onStompError: () => this.stateSubject.next('ERROR'),
-      onWebSocketError: () => this.stateSubject.next('ERROR'),
+      onStompError: () => {
+        if (token === this.connectionToken) this.stateSubject.next('ERROR');
+      },
+      onWebSocketError: () => {
+        if (token === this.connectionToken) this.stateSubject.next('ERROR');
+      },
       onWebSocketClose: () => {
-        if (this.stateSubject.value !== 'ERROR') this.stateSubject.next('DISCONNECTED');
+        if (token !== this.connectionToken) return;
+        // STOMP will retry automatically. CONNECTING makes that lifecycle
+        // visible to the scorer instead of leaving the UI stuck on ERROR.
+        this.stateSubject.next('CONNECTING');
       },
     });
+
     this.client.activate();
   }
 
-  disconnect(): void {
+  disconnect(updateState = true): void {
     this.subscription?.unsubscribe();
     this.subscription = undefined;
-    if (this.client) this.client.deactivate();
+    const client = this.client;
     this.client = undefined;
-    if (this.stateSubject.value !== 'ERROR') this.stateSubject.next('DISCONNECTED');
+    if (client) void client.deactivate();
+    if (updateState) {
+      this.connectionToken++;
+      this.stateSubject.next('DISCONNECTED');
+    }
   }
 }
