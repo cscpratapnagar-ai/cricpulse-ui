@@ -15,6 +15,29 @@ interface Match {
   teamBName?: string;
 }
 
+interface MatchIntelligence {
+  inningsNumber: number;
+  battingTeam: string;
+  status: string;
+  runs: number;
+  wickets: number;
+  legalBalls: number;
+  totalOvers: number;
+  inningsRunRate: number;
+  recentRuns: number;
+  recentDeliveries: number;
+  recentDots: number;
+  recentFours: number;
+  recentSixes: number;
+  recentWickets: number;
+  recentRunRate: number;
+  momentum: string;
+  requiredRuns: number | null;
+  ballsRemaining: number | null;
+  requiredRate: number | null;
+  chasePressure: string;
+}
+
 @Component({
   selector: 'app-match-detail',
   standalone: true,
@@ -28,6 +51,8 @@ export class MatchDetailComponent {
   readonly api = API_BASE_URL;
   loading = true;
   error = '';
+  intelligenceLoading = false;
+  intelligence: MatchIntelligence | null = null;
   match: Match | null = null;
 
   constructor() {
@@ -40,11 +65,26 @@ export class MatchDetailComponent {
       next: (match) => {
         this.match = match;
         this.loading = false;
+        this.loadIntelligence(id);
       },
       error: () => {
         this.match = null;
         this.error = 'Match details could not be loaded. Please try again.';
         this.loading = false;
+      },
+    });
+  }
+
+  private loadIntelligence(matchId: string): void {
+    this.intelligenceLoading = true;
+    this.http.get<MatchIntelligence>(`${this.api}/matches/${matchId}/intelligence`).subscribe({
+      next: (value) => {
+        this.intelligence = value;
+        this.intelligenceLoading = false;
+      },
+      error: () => {
+        this.intelligence = null;
+        this.intelligenceLoading = false;
       },
     });
   }
