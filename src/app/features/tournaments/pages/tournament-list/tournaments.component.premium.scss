@@ -1,0 +1,377 @@
+@use './tournaments.component.scss';
+
+/* Premium tournament-card correction layer.
+   Keeps the existing tournament directory behavior while fixing action-button
+   collisions and establishing a stronger card hierarchy. */
+
+.tournament {
+  position: relative;
+  min-width: 0;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.tournament .card-link {
+  position: relative;
+  display: grid;
+  min-height: 334px;
+  overflow: hidden;
+  padding: 20px 20px 17px;
+  border: 1px solid var(--cp-card-border);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--cp-accent) 11%, transparent), transparent 27%),
+    linear-gradient(145deg, var(--cp-card-bg), color-mix(in srgb, var(--cp-accent) 3%, var(--cp-card-bg)));
+  color: var(--cp-text);
+  text-decoration: none;
+  box-shadow: var(--cp-shadow-sm);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s,
+    box-shadow 0.28s;
+}
+
+.tournament .card-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 25%, color-mix(in srgb, var(--cp-accent) 5%, transparent), transparent 68%);
+  transform: translateX(-100%);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tournament .card-link:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--cp-accent) 42%, var(--cp-card-border));
+  box-shadow: var(--cp-shadow-md), 0 18px 45px color-mix(in srgb, var(--cp-accent) 7%, transparent);
+}
+
+.tournament .card-link:hover::before {
+  transform: translateX(100%);
+}
+
+.tournament .top,
+.tournament .main,
+.tournament .progress-block,
+.tournament .meta,
+.tournament .footer {
+  position: relative;
+  z-index: 1;
+}
+
+.tournament .top {
+  min-height: 44px;
+  padding-right: 66px;
+}
+
+.tournament .trophy {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--cp-accent) 32%, var(--cp-border));
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cp-accent) 8%, var(--cp-surface));
+  color: var(--cp-accent);
+  font-size: 19px;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), background 0.28s;
+}
+
+.tournament .card-link:hover .trophy {
+  transform: translateY(-2px) rotate(-3deg);
+  background: color-mix(in srgb, var(--cp-accent) 13%, var(--cp-surface));
+}
+
+.tournament .status {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 27px;
+  padding: 0 9px;
+  border: 1px solid var(--cp-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cp-surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  color: var(--cp-text-muted);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+}
+
+.tournament .status i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tournament .status.live {
+  color: var(--cp-accent);
+  border-color: color-mix(in srgb, var(--cp-accent) 30%, var(--cp-border));
+  background: var(--cp-accent-soft);
+}
+
+.tournament .status.live i {
+  box-shadow: 0 0 9px currentColor;
+  animation: tournament-status-pulse 1.8s ease-in-out infinite;
+}
+
+.tournament .main {
+  margin-top: 19px;
+  padding-right: 4px;
+}
+
+.tournament .main h3 {
+  max-width: 100%;
+  margin: 0;
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.16;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+
+.tournament .main p {
+  margin: 8px 0 0;
+  color: var(--cp-text-muted);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.tournament .main p i {
+  color: var(--cp-border-strong);
+  font-style: normal;
+  margin: 0 4px;
+}
+
+.tournament .progress-block {
+  margin-top: 19px;
+  padding: 12px 13px 11px;
+  border: 1px solid var(--cp-border);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cp-surface) 72%, transparent);
+}
+
+.tournament .progress-block > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tournament .progress-block span {
+  color: var(--cp-text-muted);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.tournament .progress-block b {
+  color: var(--cp-accent);
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tournament .progress-track {
+  height: 5px;
+  margin-top: 8px;
+  background: var(--cp-border);
+}
+
+.tournament .progress-track i {
+  background: linear-gradient(90deg, var(--cp-accent), color-mix(in srgb, var(--cp-accent) 62%, white));
+  box-shadow: 0 0 11px color-mix(in srgb, var(--cp-accent) 28%, transparent);
+}
+
+.tournament .progress-block small {
+  display: block;
+  margin-top: 7px;
+  color: var(--cp-text-muted);
+  font-size: 6px;
+}
+
+.tournament .meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.tournament .meta div {
+  min-width: 0;
+}
+
+.tournament .meta span {
+  display: block;
+  color: var(--cp-text-muted);
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.tournament .meta b {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--cp-text);
+  font-size: 8px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tournament .footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 35px;
+  margin-top: auto;
+  padding: 13px 55px 0 0;
+  border-top: 1px solid var(--cp-border);
+}
+
+.tournament .footer span {
+  color: var(--cp-text-muted);
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.tournament .footer b {
+  position: absolute;
+  right: 3px;
+  color: var(--cp-accent);
+  font-size: 16px;
+  transition: transform 0.25s;
+}
+
+.tournament .card-link:hover .footer b {
+  transform: translateX(4px);
+}
+
+/* Action button is deliberately outside the navigation surface and never covers content. */
+.tournament > .more {
+  position: absolute;
+  z-index: 5;
+  right: 13px;
+  bottom: 13px;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cp-surface-raised) 92%, transparent);
+  backdrop-filter: blur(12px);
+  color: var(--cp-text-muted);
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--cp-shadow-sm);
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
+}
+
+.tournament > .more:hover,
+.tournament > .more[aria-expanded='true'] {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--cp-accent) 38%, var(--cp-border));
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+}
+
+.tournament > .context-menu {
+  position: absolute;
+  z-index: 20;
+  right: 13px;
+  bottom: 54px;
+  min-width: 155px;
+  padding: 6px;
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cp-surface) 96%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--cp-shadow-md), 0 14px 35px color-mix(in srgb, black 18%, transparent);
+  animation: tournament-menu-in 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tournament > .context-menu a,
+.tournament > .context-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cp-text);
+  text-decoration: none;
+  font: 750 9px inherit;
+  cursor: pointer;
+}
+
+.tournament > .context-menu a:hover,
+.tournament > .context-menu button:hover {
+  background: var(--cp-accent-soft);
+  color: var(--cp-accent);
+}
+
+@media (max-width: 700px) {
+  .tournament .card-link {
+    min-height: 320px;
+  }
+
+  .tournament .main h3 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tournament .card-link {
+    min-height: 0;
+    padding: 17px 17px 15px;
+  }
+
+  .tournament .meta {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .tournament .footer {
+    padding-right: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament .card-link,
+  .tournament .card-link::before,
+  .tournament .trophy,
+  .tournament .footer b,
+  .tournament > .more,
+  .tournament > .context-menu,
+  .tournament .status.live i {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes tournament-status-pulse {
+  0%,
+  100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.45); }
+}
+
+@keyframes tournament-menu-in {
+  from { opacity: 0; transform: translateY(5px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
