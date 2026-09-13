@@ -66,10 +66,12 @@
       <div class="panel-head"><div><span>REALTIME</span><h2>Match pulse</h2></div><a routerLink="/live">Open live center →</a></div>
       @if (dashboard.activeMatch(); as match) {
         <div class="empty-match"><div class="court"><i></i><i></i><b>●</b></div><div><h3>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</h3><p>{{ match.name }} · {{ match.format || 'Match' }} · Live now</p><a [routerLink]="['/matches', match.id, 'live']">Open live match <b>→</b></a></div></div>
-      } @else if (dashboard.nextMatch(); as next) {
-        <div class="empty-match"><div class="court"><i></i><i></i><b>+</b></div><div><h3>Next: {{ next.teamAName || 'Team A' }} vs {{ next.teamBName || 'Team B' }}</h3><p>{{ dashboard.formatDate(next.scheduledAt) }} · {{ dashboard.formatTime(next.scheduledAt) }} · {{ next.format || 'Match' }}</p><a [routerLink]="['/matches', next.id]">View match <b>→</b></a></div></div>
       } @else {
-        <div class="empty-match"><div class="court"><i></i><i></i><b>+</b></div><div><h3>No match in progress</h3><p>Create or schedule a match and it will appear here automatically.</p><a routerLink="/matches/new">Set up new match <b>→</b></a></div></div>
+        @if (dashboard.nextMatch(); as next) {
+          <div class="empty-match"><div class="court"><i></i><i></i><b>+</b></div><div><h3>Next: {{ next.teamAName || 'Team A' }} vs {{ next.teamBName || 'Team B' }}</h3><p>{{ dashboard.formatDate(next.scheduledAt) }} · {{ dashboard.formatTime(next.scheduledAt) }} · {{ next.format || 'Match' }}</p><a [routerLink]="['/matches', next.id]">View match <b>→</b></a></div></div>
+        } @else {
+          <div class="empty-match"><div class="court"><i></i><i></i><b>+</b></div><div><h3>No match in progress</h3><p>Create or schedule a match and it will appear here automatically.</p><a routerLink="/matches/new">Set up new match <b>→</b></a></div></div>
+        }
       }
     </article>
     <article class="panel activity">
