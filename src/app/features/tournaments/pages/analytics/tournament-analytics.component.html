@@ -16,7 +16,12 @@
           <span class="live-state"><i></i> LIVE ANALYTICS</span>
         </div>
         <h1>{{ t.name }}</h1>
-        <p>{{ t.format }} <b>·</b> {{ t.overs }} overs{{ t.location ? ' <span>·</span> ' + t.location : '' }}</p>
+        <p>
+          {{ t.format }} <b>·</b> {{ t.overs }} overs
+          @if (t.location) {
+            <b>·</b> {{ t.location }}
+          }
+        </p>
       </div>
       <div class="hero-mark" aria-hidden="true">
         <span></span><span></span><span></span>
