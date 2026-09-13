@@ -23,7 +23,7 @@ interface Tournament {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, CpDropdownComponent, StateViewComponent],
   templateUrl: './tournaments.component.html',
-  styleUrl: './tournaments.component.scss',
+  styleUrl: './tournaments.component.premium.scss',
 })
 export class TournamentsComponent {
   private readonly http = inject(HttpClient);
