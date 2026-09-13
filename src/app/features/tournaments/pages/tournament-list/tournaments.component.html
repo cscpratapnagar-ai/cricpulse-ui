@@ -183,23 +183,16 @@
                   <span>START</span><b>{{ t.startDate || 'To be scheduled' }}</b>
                 </div>
               </div>
-              <div class="footer"><span>Open command center</span><b>→</b></div>
+              <div class="footer"><span>Open command center</span></div>
             </a>
-            <button
-              class="more"
-              type="button"
-              (click)="toggleMenu(t.id); $event.stopPropagation()"
-              [attr.aria-expanded]="activeMenu === t.id"
-              aria-label="Tournament actions"
+            <a
+              class="more arrow-action"
+              [routerLink]="['/tournaments', t.id]"
+              [attr.aria-label]="'Open ' + t.name"
+              title="Open tournament"
             >
-              •••
-            </button>
-            @if (activeMenu === t.id) {
-              <div class="context-menu">
-                <a [routerLink]="['/tournaments', t.id]">Open details</a
-                ><button type="button" (click)="closeMenu()">Close menu</button>
-              </div>
-            }
+              <span aria-hidden="true">→</span>
+            </a>
           </article>
         }
       </div>
