@@ -66,8 +66,12 @@ export class HomeDashboardService {
     this.errorState.set(false);
 
     forkJoin({
-      matches: this.http.get<DashboardMatch[]>(`${API_BASE_URL}/matches`).pipe(catchError(() => of([]))),
-      teams: this.http.get<DashboardTeam[]>(`${API_BASE_URL}/teams/mine`).pipe(catchError(() => of([]))),
+      matches: this.http
+        .get<DashboardMatch[]>(`${API_BASE_URL}/matches`)
+        .pipe(catchError(() => of([]))),
+      teams: this.http
+        .get<DashboardTeam[]>(`${API_BASE_URL}/teams/mine`)
+        .pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ matches, teams }) => {
         this.matchesState.set(matches ?? []);
@@ -93,7 +97,9 @@ export class HomeDashboardService {
 
     forkJoin(
       teams.map((team) =>
-        this.http.get<TeamMember[]>(`${API_BASE_URL}/teams/${team.id}/players`).pipe(catchError(() => of([]))),
+        this.http
+          .get<TeamMember[]>(`${API_BASE_URL}/teams/${team.id}/players`)
+          .pipe(catchError(() => of([]))),
       ),
     ).subscribe((membersByTeam) => {
       const playerIds = new Set(membersByTeam.flat().map((member) => member.playerId));
@@ -113,14 +119,20 @@ export class HomeDashboardService {
     if (!value) return 'Time pending';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return 'Schedule set';
-    return new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit' }).format(date);
+    return new Intl.DateTimeFormat('en-IN', {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date);
   }
 
   formatDate(value?: string): string {
     if (!value) return 'Schedule pending';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
-    return new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short' }).format(date);
+    return new Intl.DateTimeFormat('en-IN', {
+      day: '2-digit',
+      month: 'short',
+    }).format(date);
   }
 
   private dateValue(value?: string): number {
