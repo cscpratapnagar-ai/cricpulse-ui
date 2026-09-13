@@ -82,9 +82,7 @@
       <div class="metric-top"><span>PLAYERS TRACKED</span><i>♙</i></div>
       <strong>{{ dashboard.playerCount() }}</strong>
       <p>
-        <b>{{ dashboard.teams().length }}</b> team{{
-          dashboard.teams().length === 1 ? '' : 's'
-        }}
+        <b>{{ dashboard.teams().length }}</b> team{{ dashboard.teams().length === 1 ? '' : 's' }}
         connected
       </p>
     </article>
