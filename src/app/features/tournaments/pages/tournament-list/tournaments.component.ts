@@ -35,7 +35,6 @@ export class TournamentsComponent {
   query = '';
   statusFilter = 'ALL';
   sortKey = 'newest';
-  activeMenu = '';
   readonly skeletonItems = [1, 2, 3, 4, 5, 6];
   statusOptions: CpDropdownOption[] = [
     { value: 'ALL', label: 'All statuses' },
@@ -106,13 +105,6 @@ export class TournamentsComponent {
     this.query = '';
     this.statusFilter = 'ALL';
     this.sortKey = 'newest';
-    this.activeMenu = '';
-  }
-  toggleMenu(id: string) {
-    this.activeMenu = this.activeMenu === id ? '' : id;
-  }
-  closeMenu() {
-    this.activeMenu = '';
   }
   isActive(status: string) {
     return this.statusKey(status) === 'ACTIVE';
@@ -157,12 +149,10 @@ export class TournamentsComponent {
       event.preventDefault();
       this.focusSearch();
     }
-    if (event.key === 'Escape') this.closeMenu();
   }
   load() {
     this.loading = true;
     this.loadError = false;
-    this.activeMenu = '';
     this.http.get<Tournament[]>(`${this.api}/tournaments/mine`).subscribe({
       next: (x) => {
         this.tournaments = x || [];
