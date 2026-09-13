@@ -64,7 +64,7 @@ interface GenerateResponse {
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, SelectFieldComponent],
   templateUrl: './tournament-detail.component.html',
-  styleUrl: './tournament-detail.component.scss',
+  styleUrl: './tournament-detail.component.premium.scss',
 })
 export class TournamentDetailComponent {
   private readonly http = inject(HttpClient);
