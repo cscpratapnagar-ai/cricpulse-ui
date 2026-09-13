@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { API_BASE_URL } from '../../../../core/config/api.config';
 import { Component, inject } from '@angular/core';
-import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 import { Router, RouterLink } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
+import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Team {
   id: string;
@@ -21,22 +21,30 @@ interface Team {
 export class TeamsComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+
+  readonly skeletonItems = Array.from({ length: 6 }, (_, index) => index);
   teams: Team[] = [];
   activeTeam: Team | null = null;
   activeTeamId: string | null = null;
   loading = true;
   error = false;
+
+  get uniqueCities(): number {
+    return new Set(this.teams.map((team) => team.city?.trim()).filter(Boolean)).size;
+  }
+
   constructor() {
     this.loadTeams();
   }
-  loadTeams() {
+
+  loadTeams(): void {
     this.loading = true;
     this.error = false;
     this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
       next: (teams) => {
         this.teams = teams;
         const saved = localStorage.getItem('cricketpulse_active_team_id');
-        this.activeTeam = teams.find((t) => t.id === saved) || teams[0] || null;
+        this.activeTeam = teams.find((team) => team.id === saved) || teams[0] || null;
         this.activeTeamId = this.activeTeam?.id || null;
         this.loading = false;
       },
@@ -49,16 +57,19 @@ export class TeamsComponent {
       },
     });
   }
-  createTeam() {
+
+  createTeam(): void {
     this.router.navigate(['/dashboard/teams/new']);
   }
-  selectTeam(t: Team) {
-    this.activeTeam = t;
-    this.activeTeamId = t.id;
-    localStorage.setItem('cricketpulse_active_team_id', t.id);
+
+  selectTeam(team: Team): void {
+    this.activeTeam = team;
+    this.activeTeamId = team.id;
+    localStorage.setItem('cricketpulse_active_team_id', team.id);
   }
-  openTeam(t: Team) {
-    this.selectTeam(t);
-    this.router.navigate(['/dashboard/teams', t.id]);
+
+  openTeam(team: Team): void {
+    this.selectTeam(team);
+    this.router.navigate(['/dashboard/teams', team.id]);
   }
 }
