@@ -69,7 +69,7 @@ interface Career {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './player-profile.component.html',
-  styleUrl: './player-profile.component.scss',
+  styleUrl: './player-profile-overview-premium.component.scss',
 })
 export class PlayerProfileComponent {
   private readonly http = inject(HttpClient);
