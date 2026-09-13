@@ -13,6 +13,8 @@
     <header class="profile-hero">
       <div class="hero-orbit orbit-one"></div>
       <div class="hero-orbit orbit-two"></div>
+      <div class="hero-sheen"></div>
+
       <div class="identity">
         <div class="avatar">
           @if (player.profilePhotoUrl) {
@@ -22,22 +24,34 @@
             <span>{{ initials }}</span>
           }
         </div>
-        <div>
-          <span class="eyebrow">PLAYER PROFILE</span>
+        <div class="identity-copy">
+          <span class="eyebrow">PLAYER PROFILE · CRICPULSE IDENTITY</span>
           <h1>{{ player.name }}</h1>
           <div class="identity-meta">
             <span>{{ roleLabel }}</span><i></i><span>{{ player.city || 'Cricket player' }}</span>
           </div>
           <p>{{ styleLabel(player.battingStyle) }} <b>·</b> {{ styleLabel(player.bowlingStyle) }}</p>
+          <div class="hero-metrics" aria-label="Player career snapshot">
+            <div><span>Matches</span><strong>{{ career.matches }}</strong></div>
+            <div><span>Runs</span><strong>{{ career.runs }}</strong></div>
+            <div><span>Wickets</span><strong>{{ career.wickets }}</strong></div>
+            <div><span>Strike rate</span><strong>{{ format(career.strikeRate) }}</strong></div>
+          </div>
         </div>
       </div>
-      <div class="jersey"><span>JERSEY</span><strong>#{{ player.jerseyNumber ?? '—' }}</strong></div>
-      <div class="hero-actions">
-        <a class="form-action" [routerLink]="['/players', playerId, 'form']">Form &amp; trends <b>↗</b></a>
-        <button type="button" class="share-btn" (click)="copyProfileLink()">{{ copied ? 'Link copied' : 'Share profile' }}</button>
+
+      <div class="hero-side">
+        <div class="hero-actions">
+          <a class="form-action" [routerLink]="['/players', playerId, 'form']"><span>Form &amp; trends</span><b>↗</b></a>
+          <button type="button" class="share-btn" (click)="copyProfileLink()">
+            <span class="share-icon">↗</span>{{ copied ? 'Link copied' : 'Share profile' }}
+          </button>
+        </div>
+        <div class="jersey"><span>JERSEY</span><strong>#{{ player.jerseyNumber ?? '—' }}</strong></div>
+        <div class="hero-status"><span class="pulse"></span><div><b>CAREER ACTIVE</b><small>Profile data synced</small></div></div>
       </div>
-      <div class="form-chip"><span class="pulse"></span> CAREER ACTIVE</div>
     </header>
+
     <nav class="profile-nav" role="tablist" aria-label="Player profile sections" (keydown)="onTabKeydown($event)">
       <button type="button" [class.active]="activeTab === 'overview'" (click)="setTab('overview')" role="tab" [attr.aria-selected]="activeTab === 'overview'">Overview</button>
       <button type="button" [class.active]="activeTab === 'analytics'" (click)="setTab('analytics')" role="tab" [attr.aria-selected]="activeTab === 'analytics'">Analytics</button>
