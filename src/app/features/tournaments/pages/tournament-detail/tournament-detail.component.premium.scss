@@ -21,6 +21,29 @@
 .quick-links { gap: 14px; }
 .bottom-actions { margin-top: 10px; }
 
+/* Restrained motion: the page should feel alive, never distracting. */
+.hero-main .trophy { animation: tournament-trophy-in .55s cubic-bezier(.22,1,.36,1) both; }
+.hero-main > div:last-child { animation: tournament-copy-in .45s ease-out both; }
+.hero-actions { animation: tournament-actions-in .5s .08s cubic-bezier(.22,1,.36,1) both; }
+.tabs { animation: tournament-fade-up .45s .12s ease-out both; }
+.metrics .metric-card { animation: tournament-fade-up .42s calc(.08s + var(--motion-index, 0) * .05s) both; }
+.metrics .metric-card:nth-child(1) { --motion-index: 0; }
+.metrics .metric-card:nth-child(2) { --motion-index: 1; }
+.metrics .metric-card:nth-child(3) { --motion-index: 2; }
+.metrics .metric-card:nth-child(4) { --motion-index: 3; }
+.command-card, .insight-card, .panel { animation: tournament-fade-up .5s .2s ease-out both; }
+.metric-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--cp-accent) 28%, var(--cp-card-border)); box-shadow: var(--cp-shadow-md); }
+.setup-row { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+.setup-row:hover { transform: translateX(2px); border-color: color-mix(in srgb, var(--cp-accent) 25%, var(--cp-border)); background: color-mix(in srgb, var(--cp-accent) 3%, var(--cp-surface-raised)); }
+.fixture-row { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+.fixture-row:hover { transform: translateX(3px); background: color-mix(in srgb, var(--cp-accent) 3%, var(--cp-card-bg)); }
+.tabs button { transition: color .2s ease, background .2s ease, transform .2s ease; }
+.tabs button:hover { transform: translateY(-1px); }
+.primary-cta, .ghost-btn, .icon-btn, .row-action { transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease; }
+.primary-cta:not(:disabled):hover, .row-action:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 10px 24px color-mix(in srgb, var(--cp-accent) 22%, transparent); }
+.ghost-btn:hover, .icon-btn:hover { transform: translateY(-2px); }
+.primary-cta:active:not(:disabled), .ghost-btn:active, .icon-btn:active, .row-action:active:not(:disabled) { transform: translateY(0) scale(.98); }
+
 @media (max-width: 900px) {
   .tournament-page { padding-inline: 24px; }
   .hero { align-items: flex-start; flex-direction: column; }
@@ -66,4 +89,21 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tournament-page * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+@keyframes tournament-trophy-in {
+  from { opacity: 0; transform: translateY(8px) scale(.92) rotate(-4deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tournament-copy-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tournament-actions-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tournament-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
