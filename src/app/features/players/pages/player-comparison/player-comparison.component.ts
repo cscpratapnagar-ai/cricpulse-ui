@@ -32,6 +32,14 @@ interface Comparison {
   left: Snapshot;
   right: Snapshot;
 }
+type MetricDirection = 'higher' | 'lower';
+interface ComparisonMetric {
+  label: string;
+  left: number;
+  right: number;
+  direction: MetricDirection;
+  suffix?: string;
+}
 
 @Component({
   selector: 'app-player-comparison',
@@ -104,26 +112,72 @@ export class PlayerComparisonComponent implements OnInit {
       .join('')
       .toUpperCase();
   }
-  get metrics() {
+  get metrics(): ComparisonMetric[] {
     if (!this.comparison) return [];
-    const a = this.comparison.left,
-      b = this.comparison.right;
+    const a = this.comparison.left;
+    const b = this.comparison.right;
     return [
-      { label: 'MATCHES', left: a.matches, right: b.matches },
-      { label: 'RUNS', left: a.runs, right: b.runs },
-      { label: 'AVERAGE', left: a.average, right: b.average },
-      { label: 'STRIKE RATE', left: a.strikeRate, right: b.strikeRate },
-      { label: 'WICKETS', left: a.wickets, right: b.wickets },
-      { label: 'ECONOMY', left: a.economy, right: b.economy },
+      { label: 'MATCHES', left: a.matches, right: b.matches, direction: 'higher' },
+      { label: 'RUNS', left: a.runs, right: b.runs, direction: 'higher' },
+      { label: 'AVERAGE', left: a.average, right: b.average, direction: 'higher' },
+      { label: 'STRIKE RATE', left: a.strikeRate, right: b.strikeRate, direction: 'higher' },
+      { label: 'WICKETS', left: a.wickets, right: b.wickets, direction: 'higher' },
+      { label: 'ECONOMY', left: a.economy, right: b.economy, direction: 'lower' },
     ];
+  }
+  get battingProfile() {
+    if (!this.comparison) return null;
+    return {
+      left: this.comparison.left.strikeRate,
+      right: this.comparison.right.strikeRate,
+      leftLabel: 'Scoring rate',
+      rightLabel: 'Scoring rate',
+    };
+  }
+  get boundaryProfile() {
+    if (!this.comparison) return null;
+    const a = this.comparison.left;
+    const b = this.comparison.right;
+    const left = a.runs > 0 ? ((a.fours * 4 + a.sixes * 6) / a.runs) * 100 : 0;
+    const right = b.runs > 0 ? ((b.fours * 4 + b.sixes * 6) / b.runs) * 100 : 0;
+    return { left: Math.min(100, left), right: Math.min(100, right) };
+  }
+  get edgeSummary() {
+    if (!this.comparison) return null;
+    const a = this.comparison.left;
+    const b = this.comparison.right;
+    const higherWins = (left: number, right: number) => (left === right ? 0 : left > right ? 1 : -1);
+    const scores = [
+      higherWins(a.runs, b.runs),
+      higherWins(a.average, b.average),
+      higherWins(a.strikeRate, b.strikeRate),
+      higherWins(a.wickets, b.wickets),
+      higherWins(b.economy, a.economy),
+    ];
+    const left = scores.filter((x) => x > 0).length;
+    const right = scores.filter((x) => x < 0).length;
+    if (left === right) return { label: 'Balanced profile', detail: 'The available career indicators are closely matched.', winner: '' };
+    const winner = left > right ? a : b;
+    return {
+      label: `${winner.name} has the broader career edge`,
+      detail: `${Math.max(left, right)} of 5 available core indicators currently favor this player.`,
+      winner: winner.name,
+    };
   }
   bar(v: number, o: number) {
     const max = Math.max(v, o, 1);
     return Math.max(6, (v / max) * 100);
   }
-  advantage(m: any) {
-    if (m.left === m.right) return 'Evenly matched';
-    const winner = m.left > m.right ? this.comparison!.left.name : this.comparison!.right.name;
-    return winner + ' leads in ' + m.label.toLowerCase();
+  metricWinner(m: ComparisonMetric) {
+    if (m.left === m.right) return '';
+    if (m.direction === 'lower') return m.left < m.right ? 'left' : 'right';
+    return m.left > m.right ? 'left' : 'right';
+  }
+  advantage(m: ComparisonMetric) {
+    const winner = this.metricWinner(m);
+    if (!winner) return 'Evenly matched';
+    const name = winner === 'left' ? this.comparison!.left.name : this.comparison!.right.name;
+    const label = m.label.toLowerCase();
+    return m.direction === 'lower' ? `${name} has the lower ${label}` : `${name} leads in ${label}`;
   }
 }
