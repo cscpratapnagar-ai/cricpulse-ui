@@ -4,8 +4,8 @@
       <div class="eyebrow">LIVE CENTER</div>
       <h1>Live scoring</h1>
       <p>
-        Choose a match, pick the batting side, and score every delivery with the same premium
-        control flow we use across the app.
+        Move from fixture selection to live innings control with a focused scoring workflow, realtime
+        score synchronization, and direct access to the complete match workspace.
       </p>
     </div>
     <a class="primary" routerLink="/matches">Back to matches</a>
@@ -21,9 +21,10 @@
     <section class="picker">
       <div class="panel-head">
         <div>
-          <span class="panel-label">Choose a match</span>
-          <h2>Pick the fixture you want to score</h2>
+          <span class="panel-label">MATCH RADAR</span>
+          <h2>Choose a fixture to enter live control</h2>
         </div>
+        <span class="chip live">LIVE WORKSPACE</span>
       </div>
 
       <div class="match-grid">
@@ -32,7 +33,10 @@
             <span class="status">{{ match.status }}</span>
             <strong>{{ match.name }}</strong>
             <small>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</small>
+            <small>{{ match.format }} · {{ displayDate(match.scheduledAt) }}</small>
           </a>
+        } @empty {
+          <p class="waiting">No matches are available for live scoring yet.</p>
         }
       </div>
     </section>
@@ -61,9 +65,10 @@
       <article class="panel panel-wide">
         <div class="panel-head">
           <div>
-            <span class="panel-label">Start innings</span>
-            <h2>Open the first batting phase</h2>
+            <span class="panel-label">INNINGS CONTROL</span>
+            <h2>Open the batting phase</h2>
           </div>
+          <span class="chip ghost">GUIDED SETUP</span>
         </div>
 
         <div class="setup-grid">
@@ -94,14 +99,14 @@
         </div>
 
         @if (error) {
-          <p class="error">{{ error }}</p>
+          <p class="error" role="alert">{{ error }}</p>
         }
       </article>
 
       <article class="panel">
         <div class="panel-head">
           <div>
-            <span class="panel-label">Live scoreboard</span>
+            <span class="panel-label">LIVE SCOREBOARD</span>
             <h2>Current score</h2>
           </div>
         </div>
@@ -127,7 +132,7 @@
       <article class="panel">
         <div class="panel-head">
           <div>
-            <span class="panel-label">Players</span>
+            <span class="panel-label">PLAYER CONTROL</span>
             <h2>Scoring inputs</h2>
           </div>
         </div>
@@ -159,7 +164,7 @@
       <article class="panel">
         <div class="panel-head">
           <div>
-            <span class="panel-label">Delivery console</span>
+            <span class="panel-label">DELIVERY ENGINE</span>
             <h2>Ball-by-ball scoring</h2>
           </div>
         </div>
@@ -179,22 +184,22 @@
         </div>
 
         @if (message) {
-          <p class="message">{{ message }}</p>
+          <p class="message" role="status">{{ message }}</p>
         }
       </article>
 
       <article class="panel panel-wide">
         <div class="panel-head">
           <div>
-            <span class="panel-label">Timeline</span>
-            <h2>What comes next</h2>
+            <span class="panel-label">SCORING WORKFLOW</span>
+            <h2>Operator flow</h2>
           </div>
         </div>
 
         <div class="timeline">
-          <div><b>01</b><span>Set the striker, non-striker, and bowler using dropdowns</span></div>
-          <div><b>02</b><span>Record each delivery and keep the score sync live</span></div>
-          <div><b>03</b><span>Expand into commentary, wickets, and over summaries</span></div>
+          <div><b>01</b><span>Configure innings and confirm the batting side before the first delivery.</span></div>
+          <div><b>02</b><span>Lock the three active players, then record every delivery through the scoring engine.</span></div>
+          <div><b>03</b><span>Keep the live state synchronized and move into match detail, scorecard, or deeper insights.</span></div>
         </div>
       </article>
     </section>
