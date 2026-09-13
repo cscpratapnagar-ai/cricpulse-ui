@@ -4,8 +4,8 @@
       <div class="eyebrow"><span class="eyebrow-dot"></span> LIVE OPERATIONS</div>
       <h1>Match Command Center</h1>
       <p>
-        A focused control room for live cricket. Select a fixture, prepare the innings, and move directly into
-        ball-by-ball scoring without leaving the match workspace.
+        A focused control room for live cricket. Select a fixture, prepare the innings, and move
+        directly into ball-by-ball scoring without leaving the match workspace.
       </p>
     </div>
 
@@ -107,7 +107,9 @@
         </div>
       </div>
       <div class="hero-actions">
-        <a class="secondary" [routerLink]="['/matches', activeMatch.id]">Match overview <span>→</span></a>
+        <a class="secondary" [routerLink]="['/matches', activeMatch.id]"
+          >Match overview <span>→</span></a
+        >
         <a class="secondary" routerLink="/matches">Change fixture <span>↗</span></a>
       </div>
     </section>
@@ -167,7 +169,9 @@
           @if (score) {
             <div class="scoreboard">
               <div class="score-team">{{ battingTeamName }}</div>
-              <div class="runs">{{ score.runs }}<small>/{{ score.wickets }}</small></div>
+              <div class="runs">
+                {{ score.runs }}<small>/{{ score.wickets }}</small>
+              </div>
               <div class="score-meta">
                 <span>{{ overs(score.legalBalls) }} OVERS</span>
                 <span>INNINGS {{ score.inningsNumber }}</span>
@@ -194,9 +198,24 @@
         </div>
 
         <div class="inputs">
-          <app-select-field label="Striker" placeholder="Select striker" [options]="battingPlayerOptions" [(value)]="strikerId" />
-          <app-select-field label="Non-striker" placeholder="Select non-striker" [options]="battingPlayerOptions" [(value)]="nonStrikerId" />
-          <app-select-field label="Bowler" placeholder="Select bowler" [options]="bowlingPlayerOptions" [(value)]="bowlerId" />
+          <app-select-field
+            label="Striker"
+            placeholder="Select striker"
+            [options]="battingPlayerOptions"
+            [(value)]="strikerId"
+          />
+          <app-select-field
+            label="Non-striker"
+            placeholder="Select non-striker"
+            [options]="battingPlayerOptions"
+            [(value)]="nonStrikerId"
+          />
+          <app-select-field
+            label="Bowler"
+            placeholder="Select bowler"
+            [options]="bowlingPlayerOptions"
+            [(value)]="bowlerId"
+          />
         </div>
       </article>
 
@@ -211,7 +230,12 @@
 
         <div class="run-grid">
           @for (run of runs; track run) {
-            <button class="run-action" (click)="record(run)"><strong>{{ run }}</strong><small>{{ run === 0 ? 'DOT' : run === 4 ? 'BOUNDARY' : run === 6 ? 'MAXIMUM' : 'RUNS' }}</small></button>
+            <button class="run-action" (click)="record(run)">
+              <strong>{{ run }}</strong
+              ><small>{{
+                run === 0 ? 'DOT' : run === 4 ? 'BOUNDARY' : run === 6 ? 'MAXIMUM' : 'RUNS'
+              }}</small>
+            </button>
           }
         </div>
         <div class="extra-row">
@@ -238,8 +262,13 @@
         </div>
         <div class="timeline">
           <div><b>01</b><span>Configure innings and confirm the batting side.</span></div>
-          <div><b>02</b><span>Set striker, non-striker, and bowler for the active delivery.</span></div>
-          <div><b>03</b><span>Record the event and let the scoring engine advance the live state.</span></div>
+          <div>
+            <b>02</b><span>Set striker, non-striker, and bowler for the active delivery.</span>
+          </div>
+          <div>
+            <b>03</b
+            ><span>Record the event and let the scoring engine advance the live state.</span>
+          </div>
         </div>
       </article>
     </section>

@@ -146,7 +146,8 @@ export class PlayerComparisonComponent implements OnInit {
     if (!this.comparison) return null;
     const a = this.comparison.left;
     const b = this.comparison.right;
-    const higherWins = (left: number, right: number) => (left === right ? 0 : left > right ? 1 : -1);
+    const higherWins = (left: number, right: number) =>
+      left === right ? 0 : left > right ? 1 : -1;
     const scores = [
       higherWins(a.runs, b.runs),
       higherWins(a.average, b.average),
@@ -156,7 +157,12 @@ export class PlayerComparisonComponent implements OnInit {
     ];
     const left = scores.filter((x) => x > 0).length;
     const right = scores.filter((x) => x < 0).length;
-    if (left === right) return { label: 'Balanced profile', detail: 'The available career indicators are closely matched.', winner: '' };
+    if (left === right)
+      return {
+        label: 'Balanced profile',
+        detail: 'The available career indicators are closely matched.',
+        winner: '',
+      };
     const winner = left > right ? a : b;
     return {
       label: `${winner.name} has the broader career edge`,

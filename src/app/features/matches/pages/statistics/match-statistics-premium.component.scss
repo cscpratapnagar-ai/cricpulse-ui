@@ -16,8 +16,16 @@
   pointer-events: none;
   z-index: -2;
   background:
-    radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--cp-accent) 7%, transparent), transparent 27%),
-    radial-gradient(circle at 8% 46%, color-mix(in srgb, var(--cp-info) 4%, transparent), transparent 24%);
+    radial-gradient(
+      circle at 82% 8%,
+      color-mix(in srgb, var(--cp-accent) 7%, transparent),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 8% 46%,
+      color-mix(in srgb, var(--cp-info) 4%, transparent),
+      transparent 24%
+    );
 }
 
 .page-header {
@@ -54,7 +62,12 @@
   content: '';
   position: absolute;
   inset: -80%;
-  background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, white 22%, transparent) 50%, transparent 58%);
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in srgb, white 22%, transparent) 50%,
+    transparent 58%
+  );
   transform: translateX(-28%) rotate(8deg);
   animation: intelligenceSweep 5.5s ease-in-out infinite;
 }
@@ -67,7 +80,11 @@
     var(--cp-shadow-md),
     inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
   background:
-    linear-gradient(112deg, color-mix(in srgb, var(--cp-accent) 12%, var(--cp-surface)) 0%, var(--cp-surface) 58%),
+    linear-gradient(
+      112deg,
+      color-mix(in srgb, var(--cp-accent) 12%, var(--cp-surface)) 0%,
+      var(--cp-surface) 58%
+    ),
     var(--cp-surface);
 }
 
@@ -75,7 +92,12 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-accent) 5%, transparent), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--cp-accent) 5%, transparent),
+    transparent
+  );
   transform: translateX(-100%);
   animation: cardSweep 8s ease-in-out infinite;
 }
@@ -140,7 +162,9 @@
 
 .leader-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--cp-shadow-md), inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+  box-shadow:
+    var(--cp-shadow-md),
+    inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
 }
 
 .leader-icon {
@@ -172,7 +196,12 @@
   left: 24px;
   right: 24px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-accent) 26%, transparent), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--cp-accent) 26%, transparent),
+    transparent
+  );
   opacity: 0.7;
   pointer-events: none;
 }
@@ -203,7 +232,9 @@ tbody tr:hover td:first-child {
 }
 
 .player-avatar {
-  transition: transform 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease;
 }
 
 tbody tr:hover .player-avatar {
@@ -214,7 +245,9 @@ tbody tr:hover .player-avatar {
 .boundary-stats div {
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .boundary-stats div::after {
@@ -263,13 +296,25 @@ tbody tr:hover .player-avatar {
 }
 
 @keyframes intelligenceSweep {
-  0%, 58%, 100% { transform: translateX(-38%) rotate(8deg); }
-  72% { transform: translateX(38%) rotate(8deg); }
+  0%,
+  58%,
+  100% {
+    transform: translateX(-38%) rotate(8deg);
+  }
+  72% {
+    transform: translateX(38%) rotate(8deg);
+  }
 }
 
 @keyframes cardSweep {
-  0%, 55%, 100% { transform: translateX(-100%); }
-  70% { transform: translateX(100%); }
+  0%,
+  55%,
+  100% {
+    transform: translateX(-100%);
+  }
+  70% {
+    transform: translateX(100%);
+  }
 }
 
 @media (max-width: 900px) {

@@ -49,14 +49,12 @@ describe('HomeDashboardService', () => {
       { id: 'team-2', name: 'Beta', city: 'Pune' },
     ]);
 
-    http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([
-      { playerId: 'player-1' },
-      { playerId: 'player-2' },
-    ]);
-    http.expectOne(`${API_BASE_URL}/teams/team-2/players`).flush([
-      { playerId: 'player-2' },
-      { playerId: 'player-3' },
-    ]);
+    http
+      .expectOne(`${API_BASE_URL}/teams/team-1/players`)
+      .flush([{ playerId: 'player-1' }, { playerId: 'player-2' }]);
+    http
+      .expectOne(`${API_BASE_URL}/teams/team-2/players`)
+      .flush([{ playerId: 'player-2' }, { playerId: 'player-3' }]);
 
     expect(service.liveMatches().length).toBe(1);
     expect(service.nextMatch()?.id).toBe('next-1');

@@ -192,7 +192,8 @@ export class TeamDetailComponent {
   get readinessMessage() {
     if (this.activePlayers >= 11) return 'Enough playing members are registered to form an XI.';
     const remaining = 11 - this.activePlayers;
-    if (remaining > 0) return `${remaining} more playing member${remaining === 1 ? '' : 's'} needed for an XI.`;
+    if (remaining > 0)
+      return `${remaining} more playing member${remaining === 1 ? '' : 's'} needed for an XI.`;
     return 'Add playing members to activate the squad.';
   }
   get leadershipLabel() {
@@ -206,7 +207,9 @@ export class TeamDetailComponent {
     const leaders = this.members.filter(
       (member) => member.role === 'CAPTAIN' || member.role === 'VICE_CAPTAIN',
     );
-    return leaders.length ? leaders.map((member) => member.fullName).join(' · ') : 'No leadership assigned';
+    return leaders.length
+      ? leaders.map((member) => member.fullName).join(' · ')
+      : 'No leadership assigned';
   }
   get managementLabel() {
     return this.count('MANAGER') > 0 ? `${this.count('MANAGER')} ACTIVE` : 'SELF-MANAGED';

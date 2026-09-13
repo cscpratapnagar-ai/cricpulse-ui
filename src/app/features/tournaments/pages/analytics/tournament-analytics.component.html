@@ -23,9 +23,7 @@
           }
         </p>
       </div>
-      <div class="hero-mark" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </div>
+      <div class="hero-mark" aria-hidden="true"><span></span><span></span><span></span></div>
     </header>
 
     <section class="metrics" aria-label="Tournament summary">
@@ -66,9 +64,18 @@
           <span>{{ completion }}% complete</span>
         </div>
         <div class="health-row">
-          <div><strong>{{ scheduled }}</strong><span>Scheduled</span></div>
-          <div><strong>{{ completed }}</strong><span>Completed</span></div>
-          <div><strong>{{ pending }}</strong><span>Pending</span></div>
+          <div>
+            <strong>{{ scheduled }}</strong
+            ><span>Scheduled</span>
+          </div>
+          <div>
+            <strong>{{ completed }}</strong
+            ><span>Completed</span>
+          </div>
+          <div>
+            <strong>{{ pending }}</strong
+            ><span>Pending</span>
+          </div>
         </div>
         <div class="next"><b>NEXT FIXTURE</b>{{ nextFixtureText }}</div>
       </section>

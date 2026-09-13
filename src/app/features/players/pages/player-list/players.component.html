@@ -6,7 +6,10 @@
         <span class="hero-signal"><i></i> LIVE DATA LAYER</span>
       </div>
       <h1>Know your <em>players.</em></h1>
-      <p>One operational view for squad depth, recorded performance, rankings and player intelligence.</p>
+      <p>
+        One operational view for squad depth, recorded performance, rankings and player
+        intelligence.
+      </p>
     </div>
     <div class="hero-actions">
       <a routerLink="/player/onboarding" class="primary">Add player <span>+</span></a>
@@ -26,27 +29,36 @@
     <section class="kpis" aria-label="Player intelligence summary">
       <article>
         <span>◉</span><small>ROSTER SIZE</small><strong>{{ players.length }}</strong>
-        <p>Players with profiles</p><b class="kpi-foot">SQUAD COVERAGE</b>
+        <p>Players with profiles</p>
+        <b class="kpi-foot">SQUAD COVERAGE</b>
       </article>
       <article>
         <span>↗</span><small>CAREER RUNS</small><strong>{{ totalRuns }}</strong>
-        <p>Across recorded matches</p><b class="kpi-foot">BATTING OUTPUT</b>
+        <p>Across recorded matches</p>
+        <b class="kpi-foot">BATTING OUTPUT</b>
       </article>
       <article>
         <span>✦</span><small>CAREER WICKETS</small><strong>{{ totalWickets }}</strong>
-        <p>Bowling impact recorded</p><b class="kpi-foot">BOWLING OUTPUT</b>
+        <p>Bowling impact recorded</p>
+        <b class="kpi-foot">BOWLING OUTPUT</b>
       </article>
       <article>
         <span>◎</span><small>ALL-ROUNDERS</small><strong>{{ allRounders }}</strong>
-        <p>Multi-discipline players</p><b class="kpi-foot">ROLE DEPTH</b>
+        <p>Multi-discipline players</p>
+        <b class="kpi-foot">ROLE DEPTH</b>
       </article>
     </section>
     <section class="directory">
       <header class="directory-head">
         <div class="directory-title">
-          <div class="section-status"><i></i> ROSTER INDEX <span>·</span> {{ players.length }} TRACKED</div>
+          <div class="section-status">
+            <i></i> ROSTER INDEX <span>·</span> {{ players.length }} TRACKED
+          </div>
           <h2>Player directory</h2>
-          <p>{{ filtered.length }} of {{ players.length }} players shown · select a player for the full intelligence profile</p>
+          <p>
+            {{ filtered.length }} of {{ players.length }} players shown · select a player for the
+            full intelligence profile
+          </p>
         </div>
         <div class="tools">
           <label class="search"
@@ -60,7 +72,8 @@
               (click)="roleOpen = !roleOpen"
               [attr.aria-expanded]="roleOpen"
             >
-              <span>{{ roleLabel }}</span><b class="chevron"></b>
+              <span>{{ roleLabel }}</span
+              ><b class="chevron"></b>
             </button>
             @if (roleOpen) {
               <div class="dropdown-menu" role="menu">
@@ -70,7 +83,8 @@
                     [class.selected]="roleFilter === option.value"
                     (click)="setRole(option.value)"
                   >
-                    <span>{{ option.icon }}</span>{{ option.label }}
+                    <span>{{ option.icon }}</span
+                    >{{ option.label }}
                     @if (roleFilter === option.value) {
                       <b>✓</b>
                     }
@@ -79,7 +93,14 @@
               </div>
             }
           </div>
-          <button class="sort-button" (click)="toggleSort()" title="Change sort direction" aria-label="Change sort direction">⇅</button>
+          <button
+            class="sort-button"
+            (click)="toggleSort()"
+            title="Change sort direction"
+            aria-label="Change sort direction"
+          >
+            ⇅
+          </button>
         </div>
       </header>
       <div class="table-wrap">
@@ -103,7 +124,10 @@
                   <a class="identity" [routerLink]="['/players', p.playerId]">
                     <span class="rank">{{ (page - 1) * pageSize + i + 1 | number }}</span>
                     <span class="avatar">{{ initial(p.playerName) }}</span>
-                    <span class="identity-copy"><strong>{{ p.playerName }}</strong><small>{{ playerType(p) }}</small></span>
+                    <span class="identity-copy"
+                      ><strong>{{ p.playerName }}</strong
+                      ><small>{{ playerType(p) }}</small></span
+                    >
                   </a>
                 </td>
                 <td>{{ p.matches }}</td>
@@ -112,24 +136,55 @@
                 <td>{{ format(p.strikeRate) }}</td>
                 <td class="accent">{{ p.wickets }}</td>
                 <td>{{ p.wickets > 0 ? format(p.economy) : '—' }}</td>
-                <td><a class="open" [routerLink]="['/players', p.playerId]">Profile <span>↗</span></a></td>
+                <td>
+                  <a class="open" [routerLink]="['/players', p.playerId]"
+                    >Profile <span>↗</span></a
+                  >
+                </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
       <footer class="pager">
-        <span><b>{{ filtered.length }}</b> players · Page {{ page }} of {{ totalPages }}</span>
+        <span
+          ><b>{{ filtered.length }}</b> players · Page {{ page }} of {{ totalPages }}</span
+        >
         <div>
-          <button [disabled]="page === 1" (click)="page = page - 1" aria-label="Previous page">←</button>
-          <button [disabled]="page === totalPages" (click)="page = page + 1" aria-label="Next page">→</button>
+          <button [disabled]="page === 1" (click)="page = page - 1" aria-label="Previous page">
+            ←
+          </button>
+          <button [disabled]="page === totalPages" (click)="page = page + 1" aria-label="Next page">
+            →
+          </button>
         </div>
       </footer>
     </section>
     <section class="quick">
-      <a routerLink="/players/compare"><span>⇄</span><div><small>PLAYER INTELLIGENCE</small><strong>Compare players head-to-head</strong><p>Evaluate career metrics side by side.</p></div><b>↗</b></a>
-      <a routerLink="/leaderboards"><span>♛</span><div><small>RANKINGS</small><strong>Explore performance leaders</strong><p>Find the strongest recorded performers.</p></div><b>↗</b></a>
-      <a routerLink="/players/statistics"><span>▦</span><div><small>DEEP DATA</small><strong>Open full statistics</strong><p>Every available career metric in one place.</p></div><b>↗</b></a>
+      <a routerLink="/players/compare"
+        ><span>⇄</span>
+        <div>
+          <small>PLAYER INTELLIGENCE</small><strong>Compare players head-to-head</strong>
+          <p>Evaluate career metrics side by side.</p>
+        </div>
+        <b>↗</b></a
+      >
+      <a routerLink="/leaderboards"
+        ><span>♛</span>
+        <div>
+          <small>RANKINGS</small><strong>Explore performance leaders</strong>
+          <p>Find the strongest recorded performers.</p>
+        </div>
+        <b>↗</b></a
+      >
+      <a routerLink="/players/statistics"
+        ><span>▦</span>
+        <div>
+          <small>DEEP DATA</small><strong>Open full statistics</strong>
+          <p>Every available career metric in one place.</p>
+        </div>
+        <b>↗</b></a
+      >
     </section>
   } @else {
     <app-state-view

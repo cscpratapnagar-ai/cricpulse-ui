@@ -286,7 +286,9 @@ h1 em {
   background: radial-gradient(circle, var(--cp-accent-soft), transparent 68%);
   opacity: 0;
   transform: scale(0.8);
-  transition: opacity 280ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    opacity 280ms ease,
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .team-card::after {
@@ -320,7 +322,11 @@ h1 em {
 }
 
 .team-card.active {
-  background: linear-gradient(145deg, color-mix(in srgb, var(--cp-accent-soft) 24%, var(--cp-surface-raised)), var(--cp-surface));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--cp-accent-soft) 24%, var(--cp-surface-raised)),
+    var(--cp-surface)
+  );
 }
 
 .team-top {
@@ -477,7 +483,12 @@ h1 em {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--cp-accent) 8%, transparent) 50%, transparent 80%);
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, var(--cp-accent) 8%, transparent) 50%,
+    transparent 80%
+  );
   transform: translateX(-120%);
   animation: scan 5s ease-in-out infinite;
   pointer-events: none;
@@ -549,83 +560,178 @@ h1 em {
   animation: shimmer 1.4s ease-in-out infinite alternate;
 }
 
-.skeleton-card span { width: 46px; height: 46px; border-radius: 13px; }
-.skeleton-card i { width: 62%; height: 14px; margin-top: 19px; }
-.skeleton-card b { width: 45%; height: 9px; margin-top: 10px; }
-.skeleton-card em { width: 100%; height: 34px; margin-top: 23px; }
+.skeleton-card span {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+}
+.skeleton-card i {
+  width: 62%;
+  height: 14px;
+  margin-top: 19px;
+}
+.skeleton-card b {
+  width: 45%;
+  height: 9px;
+  margin-top: 10px;
+}
+.skeleton-card em {
+  width: 100%;
+  height: 34px;
+  margin-top: 23px;
+}
 
 @keyframes page-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(14px) scale(0.985); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @keyframes scan {
-  0%, 55% { transform: translateX(-120%); }
-  100% { transform: translateX(140%); }
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(140%);
+  }
 }
 
 @keyframes breathe {
-  0%, 100% { opacity: 0.35; transform: scale(0.96); }
-  50% { opacity: 0.9; transform: scale(1.04); }
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
 }
 
 @keyframes shimmer {
-  from { opacity: 0.55; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .teams-page,
   .team-card,
-  .active-preview { animation: none; }
+  .active-preview {
+    animation: none;
+  }
   .card-glow,
   .preview-mark span,
   .active-preview::before,
   .skeleton-card span,
   .skeleton-card i,
   .skeleton-card b,
-  .skeleton-card em { animation: none; }
+  .skeleton-card em {
+    animation: none;
+  }
   .primary,
   .secondary,
   .open,
-  .team-logo { transition: none; }
+  .team-logo {
+    transition: none;
+  }
 }
 
 @media (max-width: 980px) {
-  .workspace-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .workspace-stat.featured { grid-column: 1 / -1; }
+  .workspace-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .workspace-stat.featured {
+    grid-column: 1 / -1;
+  }
   .team-grid,
-  .skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skeleton-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
-  .teams-page { padding: 26px 15px 68px; }
-  .page-head { align-items: stretch; flex-direction: column; }
-  .head-actions { align-items: stretch; flex-direction: column; }
-  .sync-state { justify-content: flex-start; }
-  .primary { width: 100%; }
-  .workspace-strip { grid-template-columns: 1fr 1fr; }
-  .workspace-stat.featured { grid-column: 1 / -1; }
+  .teams-page {
+    padding: 26px 15px 68px;
+  }
+  .page-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .head-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .sync-state {
+    justify-content: flex-start;
+  }
+  .primary {
+    width: 100%;
+  }
+  .workspace-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .workspace-stat.featured {
+    grid-column: 1 / -1;
+  }
   .team-grid,
-  .skeleton-grid { grid-template-columns: 1fr; }
-  .directory-head { align-items: flex-start; flex-direction: column; }
-  .active-preview { grid-template-columns: auto minmax(0, 1fr); }
-  .preview-actions { grid-column: 1 / -1; }
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+  .directory-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .active-preview {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .preview-actions {
+    grid-column: 1 / -1;
+  }
   .preview-actions .primary,
-  .preview-actions .secondary { flex: 1; }
+  .preview-actions .secondary {
+    flex: 1;
+  }
 }
 
 @media (max-width: 430px) {
-  .workspace-strip { grid-template-columns: 1fr; }
-  .workspace-stat.featured { grid-column: auto; }
-  .active-preview { grid-template-columns: 1fr; }
-  .preview-mark { display: none; }
-  .preview-actions { flex-direction: column; }
+  .workspace-strip {
+    grid-template-columns: 1fr;
+  }
+  .workspace-stat.featured {
+    grid-column: auto;
+  }
+  .active-preview {
+    grid-template-columns: 1fr;
+  }
+  .preview-mark {
+    display: none;
+  }
+  .preview-actions {
+    flex-direction: column;
+  }
   .preview-actions .primary,
-  .preview-actions .secondary { width: 100%; }
+  .preview-actions .secondary {
+    width: 100%;
+  }
 }

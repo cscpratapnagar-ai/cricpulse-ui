@@ -11,38 +11,217 @@
     </div>
   </header>
   <section class="selector-card">
-    <div class="selector-heading"><span class="eyebrow">COMPARISON BUILDER</span><strong>Select two players</strong><small>Choose different players to activate the intelligence view.</small></div>
-    <div class="select-player"><app-select-field label="PLAYER A" name="left-player" placeholder="Choose first player" [options]="leftOptions" [value]="leftId" (valueChange)="selectLeft($event)" /></div>
+    <div class="selector-heading">
+      <span class="eyebrow">COMPARISON BUILDER</span><strong>Select two players</strong
+      ><small>Choose different players to activate the intelligence view.</small>
+    </div>
+    <div class="select-player">
+      <app-select-field
+        label="PLAYER A"
+        name="left-player"
+        placeholder="Choose first player"
+        [options]="leftOptions"
+        [value]="leftId"
+        (valueChange)="selectLeft($event)"
+      />
+    </div>
     <div class="vs">VS</div>
-    <div class="select-player"><app-select-field label="PLAYER B" name="right-player" placeholder="Choose second player" [options]="rightOptions" [value]="rightId" (valueChange)="selectRight($event)" /></div>
+    <div class="select-player">
+      <app-select-field
+        label="PLAYER B"
+        name="right-player"
+        placeholder="Choose second player"
+        [options]="rightOptions"
+        [value]="rightId"
+        (valueChange)="selectRight($event)"
+      />
+    </div>
   </section>
   @if (loading) {
-    <section class="state-card"><div class="loader"></div><div><span class="eyebrow">INTELLIGENCE ENGINE</span><h2>Building head-to-head profile</h2><p>Loading the latest recorded career comparison.</p></div></section>
+    <section class="state-card">
+      <div class="loader"></div>
+      <div>
+        <span class="eyebrow">INTELLIGENCE ENGINE</span>
+        <h2>Building head-to-head profile</h2>
+        <p>Loading the latest recorded career comparison.</p>
+      </div>
+    </section>
   } @else if (comparison) {
     <section class="duel-hero">
-      <article><div class="player-badge">@if (comparison.left.profilePhotoUrl) { <img [src]="comparison.left.profilePhotoUrl" [alt]="comparison.left.name" /> } @else { <span>{{ initial(comparison.left.name) }}</span> }</div><div class="player-copy"><span>{{ comparison.left.role || 'PLAYER' }}</span><h2>{{ comparison.left.name }}</h2><p>{{ comparison.left.teamName || 'Independent player' }}</p></div></article>
-      <div class="duel-core"><span>HEAD TO HEAD</span><strong>VS</strong><small>Recorded career</small></div>
-      <article class="right"><div class="player-copy"><span>{{ comparison.right.role || 'PLAYER' }}</span><h2>{{ comparison.right.name }}</h2><p>{{ comparison.right.teamName || 'Independent player' }}</p></div><div class="player-badge">@if (comparison.right.profilePhotoUrl) { <img [src]="comparison.right.profilePhotoUrl" [alt]="comparison.right.name" /> } @else { <span>{{ initial(comparison.right.name) }}</span> }</div></article>
+      <article>
+        <div class="player-badge">
+          @if (comparison.left.profilePhotoUrl) {
+            <img [src]="comparison.left.profilePhotoUrl" [alt]="comparison.left.name" />
+          } @else {
+            <span>{{ initial(comparison.left.name) }}</span>
+          }
+        </div>
+        <div class="player-copy">
+          <span>{{ comparison.left.role || 'PLAYER' }}</span>
+          <h2>{{ comparison.left.name }}</h2>
+          <p>{{ comparison.left.teamName || 'Independent player' }}</p>
+        </div>
+      </article>
+      <div class="duel-core">
+        <span>HEAD TO HEAD</span><strong>VS</strong><small>Recorded career</small>
+      </div>
+      <article class="right">
+        <div class="player-copy">
+          <span>{{ comparison.right.role || 'PLAYER' }}</span>
+          <h2>{{ comparison.right.name }}</h2>
+          <p>{{ comparison.right.teamName || 'Independent player' }}</p>
+        </div>
+        <div class="player-badge">
+          @if (comparison.right.profilePhotoUrl) {
+            <img [src]="comparison.right.profilePhotoUrl" [alt]="comparison.right.name" />
+          } @else {
+            <span>{{ initial(comparison.right.name) }}</span>
+          }
+        </div>
+      </article>
     </section>
-    <section class="edge-card"><div class="edge-mark">✦</div><div class="edge-copy"><span class="eyebrow">CAREER EDGE</span><h2>{{ edgeSummary?.label }}</h2><p>{{ edgeSummary?.detail }}</p></div><span class="edge-note">5 core indicators</span></section>
+    <section class="edge-card">
+      <div class="edge-mark">✦</div>
+      <div class="edge-copy">
+        <span class="eyebrow">CAREER EDGE</span>
+        <h2>{{ edgeSummary?.label }}</h2>
+        <p>{{ edgeSummary?.detail }}</p>
+      </div>
+      <span class="edge-note">5 core indicators</span>
+    </section>
     <section class="comparison-card">
-      <header class="section-head"><div><span class="eyebrow">CORE PERFORMANCE MATRIX</span><h2>Where each player leads</h2><p>Higher is better except economy, where a lower rate leads.</p></div><span class="matrix-tag">CAREER</span></header>
+      <header class="section-head">
+        <div>
+          <span class="eyebrow">CORE PERFORMANCE MATRIX</span>
+          <h2>Where each player leads</h2>
+          <p>Higher is better except economy, where a lower rate leads.</p>
+        </div>
+        <span class="matrix-tag">CAREER</span>
+      </header>
       <div class="matrix">
         @for (metric of metrics; track metric.label) {
-          <article class="metric"><div class="metric-values"><strong [class.winner]="metricWinner(metric) === 'left'">{{ metric.left | number:'1.0-2' }}</strong><span>{{ metric.label }}</span><strong [class.winner]="metricWinner(metric) === 'right'">{{ metric.right | number:'1.0-2' }}</strong></div><div class="race"><i class="left-bar" [class.leading]="metricWinner(metric) === 'left'" [style.width.%]="bar(metric.left, metric.right)"></i><i class="right-bar" [class.leading]="metricWinner(metric) === 'right'" [style.width.%]="bar(metric.right, metric.left)"></i></div><div class="advantage"><b>{{ advantage(metric) }}</b><span>{{ metric.direction === 'lower' ? 'Lower is better' : 'Higher is better' }}</span></div></article>
+          <article class="metric">
+            <div class="metric-values">
+              <strong [class.winner]="metricWinner(metric) === 'left'">{{
+                metric.left | number: '1.0-2'
+              }}</strong
+              ><span>{{ metric.label }}</span
+              ><strong [class.winner]="metricWinner(metric) === 'right'">{{
+                metric.right | number: '1.0-2'
+              }}</strong>
+            </div>
+            <div class="race">
+              <i
+                class="left-bar"
+                [class.leading]="metricWinner(metric) === 'left'"
+                [style.width.%]="bar(metric.left, metric.right)"
+              ></i
+              ><i
+                class="right-bar"
+                [class.leading]="metricWinner(metric) === 'right'"
+                [style.width.%]="bar(metric.right, metric.left)"
+              ></i>
+            </div>
+            <div class="advantage">
+              <b>{{ advantage(metric) }}</b
+              ><span>{{
+                metric.direction === 'lower' ? 'Lower is better' : 'Higher is better'
+              }}</span>
+            </div>
+          </article>
         }
       </div>
     </section>
     <section class="profile-grid">
-      <article class="profile-card"><header><span class="eyebrow">BATTING PROFILE</span><h2>Scoring characteristics</h2></header><div class="profile-row"><span>Scoring rate</span><b>{{ comparison.left.strikeRate | number:'1.0-2' }}</b><div class="dual-bar"><i [style.width.%]="bar(comparison.left.strikeRate, comparison.right.strikeRate)"></i></div><b>{{ comparison.right.strikeRate | number:'1.0-2' }}</b></div><div class="profile-row"><span>Boundary share</span><b>{{ boundaryProfile?.left | number:'1.0-1' }}%</b><div class="dual-bar"><i [style.width.%]="bar(boundaryProfile?.left || 0, boundaryProfile?.right || 0)"></i></div><b>{{ boundaryProfile?.right | number:'1.0-1' }}%</b></div><div class="profile-labels"><span>{{ comparison.left.name }}</span><span>{{ comparison.right.name }}</span></div></article>
-      <article class="profile-card records-card"><header><span class="eyebrow">RECORD MARKERS</span><h2>Career bests</h2></header><div class="record-grid"><div><span>BEST SCORE</span><strong>{{ comparison.left.bestScore || '—' }}</strong><small>{{ comparison.left.name }}</small></div><div><span>BEST SCORE</span><strong>{{ comparison.right.bestScore || '—' }}</strong><small>{{ comparison.right.name }}</small></div><div><span>BEST BOWLING</span><strong>{{ comparison.left.bestBowling || '—' }}</strong><small>{{ comparison.left.name }}</small></div><div><span>BEST BOWLING</span><strong>{{ comparison.right.bestBowling || '—' }}</strong><small>{{ comparison.right.name }}</small></div></div></article>
+      <article class="profile-card">
+        <header>
+          <span class="eyebrow">BATTING PROFILE</span>
+          <h2>Scoring characteristics</h2>
+        </header>
+        <div class="profile-row">
+          <span>Scoring rate</span><b>{{ comparison.left.strikeRate | number: '1.0-2' }}</b>
+          <div class="dual-bar">
+            <i [style.width.%]="bar(comparison.left.strikeRate, comparison.right.strikeRate)"></i>
+          </div>
+          <b>{{ comparison.right.strikeRate | number: '1.0-2' }}</b>
+        </div>
+        <div class="profile-row">
+          <span>Boundary share</span><b>{{ boundaryProfile?.left | number: '1.0-1' }}%</b>
+          <div class="dual-bar">
+            <i [style.width.%]="bar(boundaryProfile?.left || 0, boundaryProfile?.right || 0)"></i>
+          </div>
+          <b>{{ boundaryProfile?.right | number: '1.0-1' }}%</b>
+        </div>
+        <div class="profile-labels">
+          <span>{{ comparison.left.name }}</span
+          ><span>{{ comparison.right.name }}</span>
+        </div>
+      </article>
+      <article class="profile-card records-card">
+        <header>
+          <span class="eyebrow">RECORD MARKERS</span>
+          <h2>Career bests</h2>
+        </header>
+        <div class="record-grid">
+          <div>
+            <span>BEST SCORE</span><strong>{{ comparison.left.bestScore || '—' }}</strong
+            ><small>{{ comparison.left.name }}</small>
+          </div>
+          <div>
+            <span>BEST SCORE</span><strong>{{ comparison.right.bestScore || '—' }}</strong
+            ><small>{{ comparison.right.name }}</small>
+          </div>
+          <div>
+            <span>BEST BOWLING</span><strong>{{ comparison.left.bestBowling || '—' }}</strong
+            ><small>{{ comparison.left.name }}</small>
+          </div>
+          <div>
+            <span>BEST BOWLING</span><strong>{{ comparison.right.bestBowling || '—' }}</strong
+            ><small>{{ comparison.right.name }}</small>
+          </div>
+        </div>
+      </article>
     </section>
     <section class="context-grid">
-      <article><span class="context-icon">◈</span><div><span class="eyebrow">MATCH CONTEXT</span><h3>Phase analysis</h3><p>Not available yet — phase-level delivery data is required for a defensible comparison.</p></div><b>DATA GAP</b></article>
-      <article><span class="context-icon">⌁</span><div><span class="eyebrow">MATCHUP INTELLIGENCE</span><h3>Opponent & venue splits</h3><p>Not available yet — matchup and venue dimensions require richer historical records.</p></div><b>DATA GAP</b></article>
-      <article><span class="context-icon">◷</span><div><span class="eyebrow">RECENT FORM</span><h3>Rolling form</h3><p>Available through the player's profile trend view once completed-match history is recorded.</p></div><a [routerLink]="['/players', comparison.left.playerId, 'form']">Open form →</a></article>
+      <article>
+        <span class="context-icon">◈</span>
+        <div>
+          <span class="eyebrow">MATCH CONTEXT</span>
+          <h3>Phase analysis</h3>
+          <p>
+            Not available yet — phase-level delivery data is required for a defensible comparison.
+          </p>
+        </div>
+        <b>DATA GAP</b>
+      </article>
+      <article>
+        <span class="context-icon">⌁</span>
+        <div>
+          <span class="eyebrow">MATCHUP INTELLIGENCE</span>
+          <h3>Opponent & venue splits</h3>
+          <p>Not available yet — matchup and venue dimensions require richer historical records.</p>
+        </div>
+        <b>DATA GAP</b>
+      </article>
+      <article>
+        <span class="context-icon">◷</span>
+        <div>
+          <span class="eyebrow">RECENT FORM</span>
+          <h3>Rolling form</h3>
+          <p>
+            Available through the player's profile trend view once completed-match history is
+            recorded.
+          </p>
+        </div>
+        <a [routerLink]="['/players', comparison.left.playerId, 'form']">Open form →</a>
+      </article>
     </section>
   } @else {
-    <section class="empty-state"><div class="empty-mark">VS</div><span class="eyebrow">READY FOR COMPARISON</span><h2>Select two players</h2><p>Choose players above to generate a real career comparison from recorded statistics.</p></section>
+    <section class="empty-state">
+      <div class="empty-mark">VS</div>
+      <span class="eyebrow">READY FOR COMPARISON</span>
+      <h2>Select two players</h2>
+      <p>Choose players above to generate a real career comparison from recorded statistics.</p>
+    </section>
   }
 </div>

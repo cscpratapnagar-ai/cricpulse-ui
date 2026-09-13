@@ -16,7 +16,9 @@
         <span class="eyebrow">PLAYER INTELLIGENCE / FORM</span>
         <h1>{{ career.playerName }}</h1>
         <p>Performance signal derived from CricPulse recorded career output.</p>
-        <div class="data-line"><i></i> VERIFIED RECORDED DATA <span>•</span> {{ career.matches }} matches</div>
+        <div class="data-line">
+          <i></i> VERIFIED RECORDED DATA <span>•</span> {{ career.matches }} matches
+        </div>
       </div>
       <div class="hero-signal">
         <span>CAREER SIGNAL</span>
@@ -58,10 +60,16 @@
           <span class="status-pill">{{ formLabel }}</span>
         </header>
         <div class="pulse">
-          <div class="pulse-ring"><strong>{{ formScore }}</strong><span>/ 100</span></div>
+          <div class="pulse-ring">
+            <strong>{{ formScore }}</strong
+            ><span>/ 100</span>
+          </div>
           <div class="pulse-copy">
             <h3>{{ insight }}</h3>
-            <p>Calculated from the available recorded batting and bowling output. It should not be interpreted as recent-match form until match-history data is available.</p>
+            <p>
+              Calculated from the available recorded batting and bowling output. It should not be
+              interpreted as recent-match form until match-history data is available.
+            </p>
           </div>
         </div>
         <div class="signal-track"><i [style.width.%]="formScore"></i></div>
@@ -81,7 +89,10 @@
           <div class="trend-axis"><span>LAST MATCH</span><span>RECENT MATCH HISTORY</span></div>
         </div>
         <h3>Recent match trend is not yet available</h3>
-        <p>CricPulse needs completed-match event history to calculate rolling runs, wickets, strike rate, consistency and direction without inventing data.</p>
+        <p>
+          CricPulse needs completed-match event history to calculate rolling runs, wickets, strike
+          rate, consistency and direction without inventing data.
+        </p>
       </article>
     </section>
 
@@ -95,12 +106,36 @@
           <span class="panel-tag">{{ career.battingInnings }} innings</span>
         </header>
         <div class="bars">
-          <div class="bar-item"><strong>{{ career.runs }}</strong><div class="bar" [style.height.px]="runBar"></div><span>RUNS</span></div>
-          <div class="bar-item"><strong>{{ career.fours }}</strong><div class="bar" [style.height.px]="fourBar"></div><span>4s</span></div>
-          <div class="bar-item"><strong>{{ career.sixes }}</strong><div class="bar" [style.height.px]="sixBar"></div><span>6s</span></div>
-          <div class="bar-item"><strong>{{ format(career.strikeRate) }}</strong><div class="bar" [style.height.px]="strikeBar"></div><span>SR</span></div>
+          <div class="bar-item">
+            <strong>{{ career.runs }}</strong>
+            <div class="bar" [style.height.px]="runBar"></div>
+            <span>RUNS</span>
+          </div>
+          <div class="bar-item">
+            <strong>{{ career.fours }}</strong>
+            <div class="bar" [style.height.px]="fourBar"></div>
+            <span>4s</span>
+          </div>
+          <div class="bar-item">
+            <strong>{{ career.sixes }}</strong>
+            <div class="bar" [style.height.px]="sixBar"></div>
+            <span>6s</span>
+          </div>
+          <div class="bar-item">
+            <strong>{{ format(career.strikeRate) }}</strong>
+            <div class="bar" [style.height.px]="strikeBar"></div>
+            <span>SR</span>
+          </div>
         </div>
-        <div class="metric-strip"><span>AVERAGE <b>{{ format(career.battingAverage) }}</b></span><span>BALLS <b>{{ career.battingBalls }}</b></span><span>DISMISSALS <b>{{ career.dismissals }}</b></span></div>
+        <div class="metric-strip">
+          <span
+            >AVERAGE <b>{{ format(career.battingAverage) }}</b></span
+          ><span
+            >BALLS <b>{{ career.battingBalls }}</b></span
+          ><span
+            >DISMISSALS <b>{{ career.dismissals }}</b></span
+          >
+        </div>
       </article>
 
       <article class="card panel">
@@ -112,11 +147,31 @@
           <span class="panel-tag">{{ overs(career.bowlingBalls) }} overs</span>
         </header>
         <div class="bars">
-          <div class="bar-item"><strong>{{ career.wickets }}</strong><div class="bar wicket-bar" [style.height.px]="wicketBar"></div><span>WICKETS</span></div>
-          <div class="bar-item"><strong>{{ career.bestWickets }}</strong><div class="bar wicket-bar" [style.height.px]="bestWicketBar"></div><span>BEST</span></div>
-          <div class="bar-item"><strong>{{ format(career.economy) }}</strong><div class="bar wicket-bar" [style.height.px]="economyBar"></div><span>ECON</span></div>
+          <div class="bar-item">
+            <strong>{{ career.wickets }}</strong>
+            <div class="bar wicket-bar" [style.height.px]="wicketBar"></div>
+            <span>WICKETS</span>
+          </div>
+          <div class="bar-item">
+            <strong>{{ career.bestWickets }}</strong>
+            <div class="bar wicket-bar" [style.height.px]="bestWicketBar"></div>
+            <span>BEST</span>
+          </div>
+          <div class="bar-item">
+            <strong>{{ format(career.economy) }}</strong>
+            <div class="bar wicket-bar" [style.height.px]="economyBar"></div>
+            <span>ECON</span>
+          </div>
         </div>
-        <div class="metric-strip"><span>CONCEDED <b>{{ career.runsConceded }}</b></span><span>BALLS <b>{{ career.bowlingBalls }}</b></span><span>BEST <b>{{ career.bestWickets }}</b></span></div>
+        <div class="metric-strip">
+          <span
+            >CONCEDED <b>{{ career.runsConceded }}</b></span
+          ><span
+            >BALLS <b>{{ career.bowlingBalls }}</b></span
+          ><span
+            >BEST <b>{{ career.bestWickets }}</b></span
+          >
+        </div>
       </article>
     </section>
 
@@ -130,27 +185,82 @@
       </header>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>METRIC</th><th>VALUE</th><th>CONTEXT</th></tr></thead>
+          <thead>
+            <tr>
+              <th>METRIC</th>
+              <th>VALUE</th>
+              <th>CONTEXT</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td>Matches</td><td>{{ career.matches }}</td><td>Recorded career matches</td></tr>
-            <tr><td>Batting Average</td><td>{{ format(career.battingAverage) }}</td><td>{{ career.dismissals }} dismissals</td></tr>
-            <tr><td>Strike Rate</td><td>{{ format(career.strikeRate) }}</td><td>{{ career.battingBalls }} balls faced</td></tr>
-            <tr><td>Wickets</td><td>{{ career.wickets }}</td><td>Best {{ career.bestWickets }} in an innings</td></tr>
-            <tr><td>Economy</td><td>{{ format(career.economy) }}</td><td>{{ overs(career.bowlingBalls) }} overs bowled</td></tr>
+            <tr>
+              <td>Matches</td>
+              <td>{{ career.matches }}</td>
+              <td>Recorded career matches</td>
+            </tr>
+            <tr>
+              <td>Batting Average</td>
+              <td>{{ format(career.battingAverage) }}</td>
+              <td>{{ career.dismissals }} dismissals</td>
+            </tr>
+            <tr>
+              <td>Strike Rate</td>
+              <td>{{ format(career.strikeRate) }}</td>
+              <td>{{ career.battingBalls }} balls faced</td>
+            </tr>
+            <tr>
+              <td>Wickets</td>
+              <td>{{ career.wickets }}</td>
+              <td>Best {{ career.bestWickets }} in an innings</td>
+            </tr>
+            <tr>
+              <td>Economy</td>
+              <td>{{ format(career.economy) }}</td>
+              <td>{{ overs(career.bowlingBalls) }} overs bowled</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
 
     <section class="context-grid">
-      <article class="card context-card"><span class="context-icon">◷</span><div><span class="eyebrow">NEXT DATA LAYER</span><h3>Rolling 5 / 10 match form</h3><p>Will activate when completed-match history is exposed to the player form API.</p></div><b>NOT YET AVAILABLE</b></article>
-      <article class="card context-card"><span class="context-icon">⌁</span><div><span class="eyebrow">NEXT DATA LAYER</span><h3>Opponent & venue splits</h3><p>Requires delivery-level opponent and venue dimensions for defensible analysis.</p></div><b>NOT YET AVAILABLE</b></article>
-      <article class="card context-card"><span class="context-icon">↗</span><div><span class="eyebrow">AVAILABLE NOW</span><h3>Career comparison</h3><p>Compare this recorded career profile against another player.</p></div><a routerLink="/players/compare">Compare players →</a></article>
+      <article class="card context-card">
+        <span class="context-icon">◷</span>
+        <div>
+          <span class="eyebrow">NEXT DATA LAYER</span>
+          <h3>Rolling 5 / 10 match form</h3>
+          <p>Will activate when completed-match history is exposed to the player form API.</p>
+        </div>
+        <b>NOT YET AVAILABLE</b>
+      </article>
+      <article class="card context-card">
+        <span class="context-icon">⌁</span>
+        <div>
+          <span class="eyebrow">NEXT DATA LAYER</span>
+          <h3>Opponent & venue splits</h3>
+          <p>Requires delivery-level opponent and venue dimensions for defensible analysis.</p>
+        </div>
+        <b>NOT YET AVAILABLE</b>
+      </article>
+      <article class="card context-card">
+        <span class="context-icon">↗</span>
+        <div>
+          <span class="eyebrow">AVAILABLE NOW</span>
+          <h3>Career comparison</h3>
+          <p>Compare this recorded career profile against another player.</p>
+        </div>
+        <a routerLink="/players/compare">Compare players →</a>
+      </article>
     </section>
   } @else {
     <section class="state-card card">
       <div class="empty-mark">?</div>
-      <div><span class="eyebrow">PLAYER INTELLIGENCE</span><h2>Player form unavailable</h2><p>No recorded career statistics were returned for this player.</p><a routerLink="/players/statistics">Back to player statistics →</a></div>
+      <div>
+        <span class="eyebrow">PLAYER INTELLIGENCE</span>
+        <h2>Player form unavailable</h2>
+        <p>No recorded career statistics were returned for this player.</p>
+        <a routerLink="/players/statistics">Back to player statistics →</a>
+      </div>
     </section>
   }
 </section>

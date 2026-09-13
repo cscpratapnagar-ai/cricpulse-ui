@@ -22,28 +22,36 @@
   } @else if (players.length) {
     <section class="summary-grid" aria-label="Career totals">
       <article class="summary-card roster">
-        <div class="summary-top"><span class="metric-code">01</span><span class="summary-icon">P</span></div>
+        <div class="summary-top">
+          <span class="metric-code">01</span><span class="summary-icon">P</span>
+        </div>
         <span>PLAYERS TRACKED</span>
         <strong>{{ players.length }}</strong>
         <small>Players with recorded performance</small>
         <div class="summary-line"><i></i><b>ROSTER DATA</b></div>
       </article>
       <article class="summary-card runs">
-        <div class="summary-top"><span class="metric-code">02</span><span class="summary-icon">R</span></div>
+        <div class="summary-top">
+          <span class="metric-code">02</span><span class="summary-icon">R</span>
+        </div>
         <span>TOTAL RUNS</span>
         <strong>{{ totalRuns }}</strong>
         <small>Across all recorded innings</small>
         <div class="summary-line"><i></i><b>BATTING OUTPUT</b></div>
       </article>
       <article class="summary-card wickets">
-        <div class="summary-top"><span class="metric-code">03</span><span class="summary-icon">W</span></div>
+        <div class="summary-top">
+          <span class="metric-code">03</span><span class="summary-icon">W</span>
+        </div>
         <span>TOTAL WICKETS</span>
         <strong>{{ totalWickets }}</strong>
         <small>Across recorded bowling spells</small>
         <div class="summary-line"><i></i><b>BOWLING IMPACT</b></div>
       </article>
       <article class="summary-card sixes">
-        <div class="summary-top"><span class="metric-code">04</span><span class="summary-icon">6</span></div>
+        <div class="summary-top">
+          <span class="metric-code">04</span><span class="summary-icon">6</span>
+        </div>
         <span>TOTAL SIXES</span>
         <strong>{{ totalSixes }}</strong>
         <small>Maximum scoring shots recorded</small>
@@ -87,7 +95,9 @@
               <tr>
                 <td>
                   <a class="player-link" [routerLink]="['/players', p.playerId]">
-                    <span class="rank" [class.top-three]="i < 3">{{ (i + 1).toString().padStart(2, '0') }}</span>
+                    <span class="rank" [class.top-three]="i < 3">{{
+                      (i + 1).toString().padStart(2, '0')
+                    }}</span>
                     <span class="avatar">{{ p.playerName.charAt(0).toUpperCase() }}</span>
                     <span class="player-info">
                       <strong>{{ p.playerName }}</strong>
@@ -118,17 +128,28 @@
     <section class="intelligence-strip">
       <article>
         <div class="strip-icon">↗</div>
-        <div><span class="eyebrow">BATTER INTELLIGENCE</span><strong>Scoring efficiency</strong><p>Average and strike rate expose how consistently each batter converts opportunities.</p></div>
+        <div>
+          <span class="eyebrow">BATTER INTELLIGENCE</span><strong>Scoring efficiency</strong>
+          <p>Average and strike rate expose how consistently each batter converts opportunities.</p>
+        </div>
         <a routerLink="/players">Explore players →</a>
       </article>
       <article>
         <div class="strip-icon">◉</div>
-        <div><span class="eyebrow">BOWLER INTELLIGENCE</span><strong>Wicket + economy profile</strong><p>Wickets and economy keep bowling impact grounded in recorded match output.</p></div>
+        <div>
+          <span class="eyebrow">BOWLER INTELLIGENCE</span><strong>Wicket + economy profile</strong>
+          <p>Wickets and economy keep bowling impact grounded in recorded match output.</p>
+        </div>
         <a routerLink="/players">Open profiles →</a>
       </article>
       <article>
         <div class="strip-icon">⇄</div>
-        <div><span class="eyebrow">PLAYER INTELLIGENCE</span><strong>Head-to-head comparison</strong><p>Move from the matrix into a direct player comparison when deeper evaluation is needed.</p></div>
+        <div>
+          <span class="eyebrow">PLAYER INTELLIGENCE</span><strong>Head-to-head comparison</strong>
+          <p>
+            Move from the matrix into a direct player comparison when deeper evaluation is needed.
+          </p>
+        </div>
         <a routerLink="/players/compare">Compare players →</a>
       </article>
     </section>
@@ -138,7 +159,11 @@
       <div>
         <span class="eyebrow">STATISTICS ENGINE / SOURCE OF TRUTH</span>
         <h2>Every number starts with a recorded match event.</h2>
-        <p>Figures are calculated from completed innings batting and bowling data. CricPulse keeps this statistics layer independent from live scoring workflows so career records remain traceable and consistent.</p>
+        <p>
+          Figures are calculated from completed innings batting and bowling data. CricPulse keeps
+          this statistics layer independent from live scoring workflows so career records remain
+          traceable and consistent.
+        </p>
       </div>
       <span class="integrity">DATA INTEGRITY</span>
     </section>
