@@ -48,9 +48,11 @@ export class MatchesComponent {
   get liveCount(): number {
     return this.matches.filter((m) => this.normalizeStatus(m.status) === 'LIVE').length;
   }
+
   get scheduledCount(): number {
     return this.matches.filter((m) => this.normalizeStatus(m.status) === 'SCHEDULED').length;
   }
+
   get completedCount(): number {
     return this.matches.filter((m) => this.normalizeStatus(m.status) === 'COMPLETED').length;
   }
@@ -87,8 +89,19 @@ export class MatchesComponent {
   setFilter(filter: Filter): void {
     this.activeFilter = filter;
   }
+
   onSearch(event: Event): void {
     this.query = (event.target as HTMLInputElement).value;
+  }
+
+  clearSearch(): void {
+    this.query = '';
+  }
+
+  handleEmptyAction(): void {
+    if (this.query) {
+      this.clearSearch();
+    }
   }
 
   countFor(filter: Filter): number {
@@ -96,7 +109,7 @@ export class MatchesComponent {
     return this.matches.filter((m) => this.normalizeStatus(m.status) === filter).length;
   }
 
-  normalizeStatus(status?: string): string {
+  normalizeStatus(status?: string): Filter | string {
     const value = (status || 'SCHEDULED').trim().toUpperCase();
     if (['UPCOMING', 'CREATED', 'READY'].includes(value)) return 'SCHEDULED';
     if (['FINISHED', 'RESULT'].includes(value)) return 'COMPLETED';
