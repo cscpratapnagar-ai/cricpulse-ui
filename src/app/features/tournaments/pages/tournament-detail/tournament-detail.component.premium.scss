@@ -1,0 +1,69 @@
+@use './tournament-detail.component.scss';
+
+/* Focused usability layer: improve hierarchy without adding new end-user controls. */
+.tournament-page { max-width: 1280px; padding: 26px 4vw 72px; }
+.back { margin-bottom: 12px; }
+.hero { align-items: flex-end; padding: 22px 0 18px; }
+.hero-main { min-width: 0; }
+.hero-main > div:last-child { min-width: 0; }
+.hero h1 { max-width: 760px; font-size: clamp(28px, 3.6vw, 46px); line-height: 1.05; overflow-wrap: anywhere; }
+.hero-actions { flex: 0 0 auto; }
+.primary-cta, .ghost-btn, .icon-btn { min-height: 38px; }
+.tabs { margin: 14px 0; }
+.tabs button { flex: 0 0 auto; min-width: 118px; }
+.metrics { gap: 10px; }
+.metric-card { min-height: 104px; padding: 15px; }
+.command-grid, .content-grid { gap: 12px; }
+.command-card, .insight-card, .panel { border-radius: 16px; }
+.command-card, .insight-card, .panel { padding: 18px; }
+.section-head h2 { font-size: 17px; }
+.setup-row { grid-template-columns: 36px minmax(120px, 1fr) minmax(170px, 1.2fr) auto; }
+.quick-links { gap: 14px; }
+.bottom-actions { margin-top: 10px; }
+
+@media (max-width: 900px) {
+  .tournament-page { padding-inline: 24px; }
+  .hero { align-items: flex-start; flex-direction: column; }
+  .hero-actions { width: 100%; }
+  .command-grid, .content-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .tournament-page { padding: 18px 16px 58px; }
+  .hero { padding-top: 14px; }
+  .hero-main { align-items: flex-start; gap: 12px; }
+  .trophy { width: 48px; height: 48px; flex: 0 0 48px; font-size: 22px; border-radius: 14px; }
+  .hero h1 { font-size: 27px; letter-spacing: -1.1px; }
+  .hero-actions { display: grid; grid-template-columns: auto 1fr; }
+  .hero-actions .primary-cta { grid-column: 1 / -1; width: 100%; }
+  .tabs { margin: 10px 0 12px; }
+  .tabs button { min-width: 104px; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .metric-card { min-height: 96px; padding: 13px; }
+  .metric-card strong { font-size: 22px; }
+  .command-card, .insight-card, .panel { padding: 14px; }
+  .setup-row { grid-template-columns: 34px 1fr auto; }
+  .setup-row app-select-field { grid-column: 2 / -1; }
+  .setup-row .row-action { grid-column: 3; grid-row: 1; }
+  .quick-links { display: grid; gap: 9px; }
+  .donut-wrap { gap: 13px; }
+  .donut { width: 88px; height: 88px; flex-basis: 88px; }
+  .donut > div { width: 68px; height: 68px; }
+  .health-row { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+@media (max-width: 420px) {
+  .metrics { grid-template-columns: 1fr; }
+  .hero-actions { grid-template-columns: 1fr 1fr; }
+  .hero-actions .primary-cta { grid-column: 1 / -1; }
+  .tabs button { min-width: 96px; padding-inline: 10px; }
+  .setup-row { grid-template-columns: 32px 1fr; }
+  .setup-row app-select-field { grid-column: 1 / -1; }
+  .setup-row .row-action { grid-column: 2; grid-row: auto; justify-self: end; }
+  .health-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament-page * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
