@@ -51,7 +51,7 @@ interface PlayerStat {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './match-statistics.component.html',
-  styleUrl: './match-statistics.component.scss',
+  styleUrl: './match-statistics-premium.component.scss',
 })
 export class MatchStatisticsComponent {
   private readonly http = inject(HttpClient);
