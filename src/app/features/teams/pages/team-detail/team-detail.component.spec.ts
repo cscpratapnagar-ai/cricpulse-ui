@@ -87,6 +87,55 @@ describe('TeamDetailComponent', () => {
     expect(component.filteredMembers.map((member) => member.playerId)).toEqual(['p1']);
   });
 
+  it('derives XI readiness without inventing match statistics', () => {
+    component.members = Array.from({ length: 11 }, (_, index) => ({
+      teamId: 'team-1',
+      playerId: `p${index}`,
+      userId: `u${index}`,
+      fullName: `Player ${index}`,
+      email: `player${index}@example.com`,
+      role: 'PLAYER',
+    }));
+
+    expect(component.activePlayers).toBe(11);
+    expect(component.squadHealth).toBe(100);
+    expect(component.readinessLabel).toBe('XI READY');
+    expect(component.readinessMessage).toContain('Enough playing members');
+  });
+
+  it('derives leadership and management coverage from roster roles', () => {
+    component.members = [
+      {
+        teamId: 'team-1',
+        playerId: 'captain',
+        userId: 'u1',
+        fullName: 'Captain One',
+        email: 'captain@example.com',
+        role: 'CAPTAIN',
+      },
+      {
+        teamId: 'team-1',
+        playerId: 'vice',
+        userId: 'u2',
+        fullName: 'Vice Captain',
+        email: 'vice@example.com',
+        role: 'VICE_CAPTAIN',
+      },
+      {
+        teamId: 'team-1',
+        playerId: 'manager',
+        userId: 'u3',
+        fullName: 'Manager One',
+        email: 'manager@example.com',
+        role: 'MANAGER',
+      },
+    ];
+
+    expect(component.leadershipLabel).toBe('COMPLETE');
+    expect(component.leadershipNames).toBe('Captain One · Vice Captain');
+    expect(component.managementLabel).toBe('1 ACTIVE');
+  });
+
   it('adds a member and resets the add form after success', () => {
     const http = (component as any).http;
     component.team = { id: 'team-1', name: 'Cricket Club', ownerId: 'owner-1' };
