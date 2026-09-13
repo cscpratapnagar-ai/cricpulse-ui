@@ -40,13 +40,15 @@ describe('MatchesComponent', () => {
 
     expect(component.displayDate()).toBe('Schedule pending');
     expect(component.displayDate('not-a-date')).toBe('not-a-date');
-    expect(component.timeHint({
-      id: '1',
-      name: 'Test',
-      format: 'T20',
-      status: 'SCHEDULED',
-      teamAId: 'a',
-      teamBId: 'b',
-    })).toBe('Time pending');
+    expect(
+      component.timeHint({
+        id: '1',
+        name: 'Test',
+        format: 'T20',
+        status: 'SCHEDULED',
+        teamAId: 'a',
+        teamBId: 'b',
+      }),
+    ).toBe('Time pending');
   });
 });
