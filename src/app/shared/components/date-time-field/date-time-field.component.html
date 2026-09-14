@@ -1,0 +1,69 @@
+<label class="field"
+  ><span>{{ label }}</span
+  ><button
+    type="button"
+    class="trigger"
+    [class.open]="open"
+    [attr.aria-expanded]="open"
+    (click)="toggle()"
+  >
+    <span [class.muted]="!selectedDate">{{ displayValue }}</span
+    ><b>⌄</b>
+  </button>
+  @if (open) {
+    <div
+      class="picker"
+      [class.up]="openUp"
+      [class.align-right]="alignRight"
+      role="dialog"
+      aria-label="Calendar"
+    >
+      <div class="picker-head">
+        <button type="button" aria-label="Previous month" (click)="previousMonth()">‹</button
+        ><strong>{{ monthLabel }}</strong
+        ><button type="button" aria-label="Next month" (click)="nextMonth()">›</button>
+      </div>
+      <div class="weekdays">
+        @for (day of weekdays; track day) {
+          <span>{{ day }}</span>
+        }
+      </div>
+      <div class="calendar">
+        @for (day of calendarDays; track day.date.getTime()) {
+          <button
+            type="button"
+            [class.muted-day]="!day.currentMonth"
+            [class.today]="day.today"
+            [class.selected]="day.selected"
+            [attr.aria-selected]="day.selected"
+            (click)="selectDay(day)"
+          >
+            {{ day.number }}
+          </button>
+        }
+      </div>
+      @if (includeTime) {
+        <div class="time-row">
+          <span>TIME</span
+          ><select [value]="hour" (change)="hour = $any($event.target).value; emitValue()">
+            @for (item of hours; track item) {
+              <option [value]="item">{{ item }}</option>
+            }</select
+          ><b>:</b
+          ><select [value]="minute" (change)="minute = $any($event.target).value; emitValue()">
+            @for (item of minutes; track item) {
+              <option [value]="item">{{ item }}</option>
+            }</select
+          ><select [value]="period" (change)="period = $any($event.target).value; emitValue()">
+            <option>AM</option>
+            <option>PM</option>
+          </select>
+        </div>
+      }
+      <div class="picker-foot">
+        <button type="button" (click)="clear()">Clear</button
+        ><button type="button" (click)="today()">Today</button>
+      </div>
+    </div>
+  }
+</label>

@@ -1,0 +1,21 @@
+name: Format Verification
+
+on:
+  push:
+    branches: [ui]
+  pull_request:
+    branches: [ui]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prettier:
+    name: Prettier check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all source and config formatting
+        run: |
+          npm run format:check

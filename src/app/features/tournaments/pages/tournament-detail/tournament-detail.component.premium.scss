@@ -1,0 +1,405 @@
+@use './tournament-detail.component.scss';
+
+/* Premium visual layer: hierarchy, depth and purposeful motion only. */
+.tournament-page {
+  max-width: 1280px;
+  padding: 26px 4vw 72px;
+  position: relative;
+  isolation: isolate;
+}
+.tournament-page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 10px;
+  right: 4%;
+  width: 420px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--cp-accent) 8%, transparent),
+    transparent 68%
+  );
+  filter: blur(18px);
+  pointer-events: none;
+}
+.back {
+  margin-bottom: 12px;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+  animation: tournament-fade-in 0.4s ease both;
+}
+.back:hover {
+  transform: translateX(-3px);
+}
+.hero {
+  position: relative;
+  align-items: flex-end;
+  padding: 22px 0 20px;
+  animation: tournament-hero-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cp-accent), var(--cp-border), transparent 82%);
+  opacity: 0.5;
+}
+.hero-main {
+  min-width: 0;
+}
+.hero-main > div:last-child {
+  min-width: 0;
+}
+.hero h1 {
+  max-width: 760px;
+  font-size: clamp(28px, 3.6vw, 46px);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.hero-actions {
+  flex: 0 0 auto;
+  animation: tournament-actions-in 0.45s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.trophy {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease;
+}
+.trophy:hover {
+  transform: translateY(-3px) scale(1.025);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--cp-accent) 13%, transparent);
+}
+.primary-cta,
+.ghost-btn,
+.icon-btn {
+  min-height: 38px;
+}
+.primary-cta,
+.ghost-btn,
+.icon-btn,
+.row-action {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+.primary-cta:not(:disabled):hover,
+.row-action:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--cp-accent) 22%, transparent);
+}
+.ghost-btn:hover,
+.icon-btn:hover {
+  transform: translateY(-2px);
+}
+.primary-cta:active:not(:disabled),
+.ghost-btn:active,
+.icon-btn:active,
+.row-action:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.tabs {
+  margin: 14px 0;
+  animation: tournament-fade-up 0.45s 0.12s ease-out both;
+}
+.tabs button {
+  flex: 0 0 auto;
+  min-width: 118px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.tabs button:hover {
+  transform: translateY(-1px);
+}
+.metrics {
+  gap: 10px;
+}
+.metric-card,
+.command-card,
+.insight-card,
+.panel {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+.metric-card {
+  min-height: 104px;
+  padding: 15px;
+  animation: tournament-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.metrics .metric-card:nth-child(1) {
+  animation-delay: 0.06s;
+}
+.metrics .metric-card:nth-child(2) {
+  animation-delay: 0.11s;
+}
+.metrics .metric-card:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.metrics .metric-card:nth-child(4) {
+  animation-delay: 0.21s;
+}
+.metric-card:hover,
+.command-card:hover,
+.insight-card:hover,
+.panel:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--cp-accent) 22%, var(--cp-card-border));
+  box-shadow: var(--cp-shadow-md);
+}
+.metric-icon {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.25s ease;
+}
+.metric-card:hover .metric-icon {
+  transform: scale(1.05);
+  background: var(--cp-accent-soft);
+}
+.command-grid,
+.content-grid {
+  gap: 12px;
+}
+.command-card,
+.insight-card,
+.panel {
+  border-radius: 16px;
+  padding: 18px;
+  animation: tournament-fade-up 0.5s 0.2s ease-out both;
+}
+.section-head h2 {
+  font-size: 17px;
+}
+.setup-row {
+  grid-template-columns: 36px minmax(120px, 1fr) minmax(170px, 1.2fr) auto;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+.setup-row:hover {
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--cp-accent) 25%, var(--cp-border));
+  background: color-mix(in srgb, var(--cp-accent) 3%, var(--cp-surface-raised));
+}
+.quick-links {
+  gap: 14px;
+}
+.quick-links a {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+.quick-links a:hover {
+  transform: translateX(3px);
+}
+.bottom-actions {
+  margin-top: 10px;
+}
+.fixture-row {
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+.fixture-row:hover {
+  transform: translateX(3px);
+  background: color-mix(in srgb, var(--cp-accent) 3%, var(--cp-card-bg));
+}
+.arrow {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fixture-row:hover .arrow {
+  transform: translateX(3px);
+}
+
+@media (max-width: 900px) {
+  .tournament-page {
+    padding-inline: 24px;
+  }
+  .hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .hero-actions {
+    width: 100%;
+  }
+  .command-grid,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 620px) {
+  .tournament-page {
+    padding: 18px 16px 58px;
+  }
+  .tournament-page::before {
+    width: 260px;
+    height: 180px;
+    right: -30px;
+  }
+  .hero {
+    padding-top: 14px;
+  }
+  .hero-main {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .trophy {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    font-size: 22px;
+    border-radius: 14px;
+  }
+  .hero h1 {
+    font-size: 27px;
+    letter-spacing: -1.1px;
+  }
+  .hero-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+  .hero-actions .primary-cta {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .tabs {
+    margin: 10px 0 12px;
+  }
+  .tabs button {
+    min-width: 104px;
+  }
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+  .metric-card {
+    min-height: 96px;
+    padding: 13px;
+  }
+  .metric-card strong {
+    font-size: 22px;
+  }
+  .command-card,
+  .insight-card,
+  .panel {
+    padding: 14px;
+  }
+  .setup-row {
+    grid-template-columns: 34px 1fr auto;
+  }
+  .setup-row app-select-field {
+    grid-column: 2 / -1;
+  }
+  .setup-row .row-action {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .quick-links {
+    display: grid;
+    gap: 9px;
+  }
+  .donut-wrap {
+    gap: 13px;
+  }
+  .donut {
+    width: 88px;
+    height: 88px;
+    flex-basis: 88px;
+  }
+  .donut > div {
+    width: 68px;
+    height: 68px;
+  }
+  .health-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (max-width: 420px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+  .hero-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hero-actions .primary-cta {
+    grid-column: 1 / -1;
+  }
+  .tabs button {
+    min-width: 96px;
+    padding-inline: 10px;
+  }
+  .setup-row {
+    grid-template-columns: 32px 1fr;
+  }
+  .setup-row app-select-field {
+    grid-column: 1 / -1;
+  }
+  .setup-row .row-action {
+    grid-column: 2;
+    grid-row: auto;
+    justify-self: end;
+  }
+  .health-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tournament-page *,
+  .tournament-page::before {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@keyframes tournament-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes tournament-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tournament-actions-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tournament-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

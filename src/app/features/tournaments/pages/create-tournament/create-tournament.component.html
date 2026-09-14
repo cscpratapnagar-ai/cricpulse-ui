@@ -1,0 +1,228 @@
+<section class="page">
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a routerLink="/tournaments">Tournaments</a><span>›</span><b>Create tournament</b>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <div class="eyebrow-row">
+        <i></i><span class="eyebrow">COMPETITION SETUP</span><span class="draft-badge">DRAFT</span>
+      </div>
+      <h1>Create tournament<span>.</span></h1>
+      <p>
+        Build the competition foundation with a guided setup. You can manage teams, fixtures and
+        live operations after creation.
+      </p>
+    </div>
+    <div class="hero-actions">
+      <button class="ghost" type="button" (click)="reset()" [disabled]="saving">Reset</button>
+      <a class="ghost link-button" routerLink="/tournaments">Cancel</a>
+    </div>
+  </header>
+
+  <section class="stepper card" aria-label="Tournament setup progress">
+    @for (item of steps; track item.id) {
+      <button
+        type="button"
+        [class.active]="step === item.id"
+        [class.done]="step > item.id"
+        (click)="goTo(item.id)"
+        [disabled]="saving"
+      >
+        <span class="step-index">
+          @if (step > item.id) {
+            ✓
+          } @else {
+            0{{ item.id }}
+          }
+        </span>
+        <span
+          ><b>{{ item.title }}</b
+          ><small>{{ item.copy }}</small></span
+        >
+      </button>
+      @if (item.id < 3) {
+        <i class="step-line" [class.done]="step > item.id"></i>
+      }
+    }
+  </section>
+
+  <div class="layout">
+    <section class="card setup-panel">
+      @if (step === 1) {
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">STEP 01 · IDENTITY</span>
+            <h2>Competition basics</h2>
+            <p>Give the tournament a clear identity and match format.</p>
+          </div>
+          <span class="step-count">01 / 03</span>
+        </div>
+        <div class="form basics">
+          <label class="field wide"
+            ><span>Tournament name <b>*</b></span
+            ><input
+              #nameInput
+              [(ngModel)]="draft.name"
+              name="name"
+              maxlength="90"
+              placeholder="e.g. Pratapnagar Premier League"
+              (ngModelChange)="clearFieldError('name')"
+            /><small>{{ draft.name.length }} / 90 characters</small></label
+          >
+          <cp-dropdown
+            label="Match format"
+            name="format"
+            [options]="formatOptions"
+            [value]="draft.format"
+            (valueChange)="draft.format = $event || 'T20'"
+          ></cp-dropdown>
+          <label class="field"
+            ><span>Overs <b>*</b></span
+            ><input
+              type="number"
+              min="1"
+              max="100"
+              [(ngModel)]="draft.overs"
+              name="overs"
+              (ngModelChange)="clearFieldError('overs')"
+            /><small>1–100 overs</small></label
+          >
+        </div>
+      } @else if (step === 2) {
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">STEP 02 · SCHEDULE</span>
+            <h2>When and where</h2>
+            <p>
+              Add operational details now, or complete them later from the tournament command
+              center.
+            </p>
+          </div>
+          <span class="step-count">02 / 03</span>
+        </div>
+        <div class="form schedule">
+          <app-date-time-field
+            label="Start date"
+            name="startDate"
+            [includeTime]="false"
+            [(value)]="draft.startDate"
+          ></app-date-time-field>
+          <label class="field"
+            ><span>Location</span
+            ><input
+              [(ngModel)]="draft.location"
+              name="location"
+              maxlength="100"
+              placeholder="Venue or city"
+            /><small>Optional · can be updated later</small></label
+          >
+          <div class="info-card">
+            <i>⌁</i>
+            <div>
+              <b>Flexible setup</b>
+              <p>
+                Teams and fixtures are intentionally configured after the tournament shell is
+                created.
+              </p>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">STEP 03 · REVIEW</span>
+            <h2>Ready to launch</h2>
+            <p>Review the competition foundation before creating the tournament.</p>
+          </div>
+          <span class="step-count">03 / 03</span>
+        </div>
+        <div class="review">
+          <div class="review-main">
+            <span>TOURNAMENT</span>
+            <h3>{{ draft.name || 'Untitled tournament' }}</h3>
+            <p>{{ draft.format }} <i>·</i> {{ draft.overs || 0 }} overs</p>
+          </div>
+          <div class="review-grid">
+            <div>
+              <span>START DATE</span><b>{{ draft.startDate || 'To be scheduled' }}</b>
+            </div>
+            <div>
+              <span>LOCATION</span><b>{{ draft.location || 'Not assigned' }}</b>
+            </div>
+            <div><span>INITIAL STATUS</span><b class="ready">Upcoming</b></div>
+            <div><span>NEXT STEP</span><b>Add teams</b></div>
+          </div>
+          <div class="launch-note">
+            <i></i
+            ><span
+              >Creating the tournament does not publish fixtures or start live scoring. Those remain
+              controlled in the next setup stages.</span
+            >
+          </div>
+        </div>
+      }
+
+      @if (error) {
+        <div class="notice" role="alert">
+          <b>Setup needs attention</b><span>{{ error }}</span>
+        </div>
+      }
+
+      <footer class="panel-footer">
+        <div class="autosave">
+          <i></i><span>Draft stays in this setup until you create or reset it.</span>
+        </div>
+        <div class="actions">
+          @if (step > 1) {
+            <button class="text" type="button" (click)="previous()" [disabled]="saving">
+              Back
+            </button>
+          }
+          @if (step < 3) {
+            <button class="primary" type="button" (click)="next()">Continue <b>→</b></button>
+          }
+          @if (step === 3) {
+            <button class="primary launch" type="button" (click)="create()" [disabled]="saving">
+              {{ saving ? 'Creating tournament…' : 'Create tournament' }} <b>→</b>
+            </button>
+          }
+        </div>
+      </footer>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card preview">
+        <div class="preview-head">
+          <span class="eyebrow">LIVE PREVIEW</span><span class="pulse"><i></i> READY</span>
+        </div>
+        <div class="preview-icon">{{ formatIcon }}</div>
+        <h3>{{ draft.name || 'Tournament name' }}</h3>
+        <p>{{ draft.format }} <i>·</i> {{ draft.overs || 0 }} overs</p>
+        <div class="preview-meta">
+          <div>
+            <span>START</span><b>{{ draft.startDate || 'TBD' }}</b>
+          </div>
+          <div>
+            <span>VENUE</span><b>{{ draft.location || 'Not assigned' }}</b>
+          </div>
+        </div>
+      </section>
+      <section class="card checklist">
+        <span class="eyebrow">SETUP CHECKLIST</span>
+        <div [class.complete]="!!draft.name">
+          <i>{{ draft.name ? '✓' : '1' }}</i
+          ><span>Name the competition</span>
+        </div>
+        <div [class.complete]="!!draft.format && draft.overs > 0">
+          <i>{{ draft.format && draft.overs > 0 ? '✓' : '2' }}</i
+          ><span>Choose format and overs</span>
+        </div>
+        <div [class.complete]="step === 3">
+          <i>{{ step === 3 ? '✓' : '3' }}</i
+          ><span>Review and create</span>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>

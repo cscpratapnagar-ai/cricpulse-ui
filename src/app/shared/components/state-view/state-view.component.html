@@ -1,0 +1,54 @@
+@if (state === 'loading') {
+  <div class="state loading" [class.compact]="compact">
+    <div class="skeleton-icon"></div>
+    <div class="lines"><i></i><i></i><i></i></div>
+    <span>{{ loadingLabel }}</span>
+  </div>
+}
+@if (state === 'empty') {
+  <section class="state-card empty">
+    <div class="illustration empty-icon"><span>◇</span></div>
+    <div>
+      <span class="eyebrow">NOTHING HERE YET</span>
+      <h3>{{ title || 'No data found' }}</h3>
+      <p>
+        {{
+          message ||
+            'There is nothing to show right now. Try adjusting your filters or create something new.'
+        }}
+      </p>
+      @if (actionLabel) {
+        <button type="button" (click)="action.emit()">{{ actionLabel }} <b>→</b></button>
+      }
+    </div>
+  </section>
+}
+@if (state === 'error') {
+  <section class="state-card error">
+    <div class="illustration"><span>!</span></div>
+    <div>
+      <span class="eyebrow">SOMETHING WENT WRONG</span>
+      <h3>{{ title || 'Unable to load this data' }}</h3>
+      <p>
+        {{ message || 'We could not complete your request. Check your connection and try again.' }}
+      </p>
+      <div class="actions">
+        <button type="button" (click)="retry.emit()">Try again <b>↻</b></button>
+        @if (actionLabel) {
+          <button class="secondary" type="button" (click)="action.emit()">{{ actionLabel }}</button>
+        }
+      </div>
+    </div>
+  </section>
+}
+@if (state === 'offline') {
+  <section class="state-card offline">
+    <div class="illustration"><span>⌁</span></div>
+    <div>
+      <span class="eyebrow">CONNECTION LOST</span>
+      <h3>{{ title || 'You appear to be offline' }}</h3>
+      <p>{{ message || 'Reconnect to continue syncing live CricPulse data.' }}</p>
+      <button type="button" (click)="retry.emit()">Check connection <b>↻</b></button>
+    </div>
+  </section>
+}

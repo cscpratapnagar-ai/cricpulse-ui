@@ -1,0 +1,206 @@
+<section class="command-center">
+  <div class="experience-grid"></div>
+  <div class="cursor-glow" [style.left.px]="cursorX()" [style.top.px]="cursorY()"></div>
+  <header class="page-intro" (mousemove)="trackPointer($event)">
+    <div>
+      <span class="eyebrow"><i></i> CricPulse command center</span>
+      <h1>
+        {{ greeting }}, <em>{{ currentUser.displayName() }}.</em>
+      </h1>
+      <p>Your cricket workspace is healthy and ready for action.</p>
+    </div>
+    <div class="intro-actions">
+      <a routerLink="/live" class="ghost"><i></i> Live center</a>
+      <a routerLink="/matches/new" class="primary">Create match <b>→</b></a>
+    </div>
+  </header>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <section class="overview">
+    <div class="signal-card">
+      <div class="signal-status">
+        <span><i></i> SYSTEM STATUS</span><b><u></u> All systems operational</b>
+      </div>
+      <div class="signal-main">
+        <div class="pulse-mark">
+          <span></span><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span
+          ><strong>CP</strong>
+        </div>
+        <div>
+          <small>REALTIME SCORING ENGINE</small>
+          @if (dashboard.activeMatch(); as match) {
+            <h2>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</h2>
+            <p>Live match detected. Open Live Center to continue scoring.</p>
+          } @else {
+            <h2>Ready for the next match</h2>
+            <p>No match is currently live. Your scoring workspace is standing by.</p>
+          }
+        </div>
+      </div>
+      <div class="signal-meta">
+        <div><small>ENGINE</small><b>Ready</b></div>
+        <div><small>CONNECTION</small><b class="accent">Realtime</b></div>
+        <div>
+          <small>LIVE MATCHES</small><b>{{ dashboard.liveMatches().length }}</b>
+        </div>
+      </div>
+    </div>
+    <div class="quick-status">
+      <div class="quick-head"><span>WORKSPACE SNAPSHOT</span><b>Live data</b></div>
+      <div class="snapshot">
+        <div>
+          <strong>{{ dashboard.liveMatches().length }}</strong
+          ><small>Live matches</small>
+        </div>
+        <div>
+          <strong>{{ dashboard.playerCount() }}</strong
+          ><small>Players tracked</small>
+        </div>
+        <div>
+          <strong>{{ dashboard.teams().length }}</strong
+          ><small>My teams</small>
+        </div>
+      </div>
+      <div class="micro-chart">
+        <span class="chart-glow"></span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+    </div>
+  </section>
+  <div class="section-divider reveal"><span>LIVE WORKSPACE OVERVIEW</span><i></i></div>
+  <section class="metrics reveal">
+    <article>
+      <div class="metric-top"><span>LIVE MATCHES</span><i>◉</i></div>
+      <strong>{{ dashboard.liveMatches().length }}</strong>
+      <p><b>Realtime</b> scoring activity</p>
+    </article>
+    <article>
+      <div class="metric-top"><span>TOTAL MATCHES</span><i>◌</i></div>
+      <strong>{{ dashboard.matches().length }}</strong>
+      <p><b>Tracked</b> in CricPulse</p>
+    </article>
+    <article>
+      <div class="metric-top"><span>PLAYERS TRACKED</span><i>♙</i></div>
+      <strong>{{ dashboard.playerCount() }}</strong>
+      <p>
+        <b>{{ dashboard.teams().length }}</b> team{{ dashboard.teams().length === 1 ? '' : 's' }}
+        connected
+      </p>
+    </article>
+    <article>
+      <div class="metric-top"><span>NEXT MATCH</span><i>◷</i></div>
+      @if (dashboard.nextMatch(); as next) {
+        <strong>{{ dashboard.formatTime(next.scheduledAt) }}</strong>
+        <p>{{ next.teamAName || 'Team A' }} vs {{ next.teamBName || 'Team B' }}</p>
+      } @else {
+        <strong>—</strong>
+        <p>No upcoming match scheduled</p>
+      }
+    </article>
+  </section>
+  <section class="content-grid reveal">
+    <article class="panel match-panel">
+      <div class="panel-head">
+        <div>
+          <span>REALTIME</span>
+          <h2>Match pulse</h2>
+        </div>
+        <a routerLink="/live">Open live center →</a>
+      </div>
+      @if (dashboard.activeMatch(); as match) {
+        <div class="empty-match">
+          <div class="court"><i></i><i></i><b>●</b></div>
+          <div>
+            <h3>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</h3>
+            <p>{{ match.name }} · {{ match.format || 'Match' }} · Live now</p>
+            <a [routerLink]="['/matches', match.id, 'live']">Open live match <b>→</b></a>
+          </div>
+        </div>
+      } @else {
+        @if (dashboard.nextMatch(); as next) {
+          <div class="empty-match">
+            <div class="court"><i></i><i></i><b>+</b></div>
+            <div>
+              <h3>Next: {{ next.teamAName || 'Team A' }} vs {{ next.teamBName || 'Team B' }}</h3>
+              <p>
+                {{ dashboard.formatDate(next.scheduledAt) }} ·
+                {{ dashboard.formatTime(next.scheduledAt) }} · {{ next.format || 'Match' }}
+              </p>
+              <a [routerLink]="['/matches', next.id]">View match <b>→</b></a>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-match">
+            <div class="court"><i></i><i></i><b>+</b></div>
+            <div>
+              <h3>No match in progress</h3>
+              <p>Create or schedule a match and it will appear here automatically.</p>
+              <a routerLink="/matches/new">Set up new match <b>→</b></a>
+            </div>
+          </div>
+        }
+      }
+    </article>
+    <article class="panel activity">
+      <div class="panel-head">
+        <div>
+          <span>INTELLIGENCE FEED</span>
+          <h2>Recent activity</h2>
+        </div>
+        <a routerLink="/matches">View all →</a>
+      </div>
+      <div class="feed">
+        @for (match of dashboard.recentMatches(); track match.id; let i = $index) {
+          <div>
+            <i [class.green]="i === 0" [class.blue]="i === 1" [class.gold]="i === 2"></i>
+            <article>
+              <b>{{ match.teamAName || 'Team A' }} vs {{ match.teamBName || 'Team B' }}</b>
+              <p>{{ match.name }} · {{ match.format || 'Match' }} · {{ match.status }}</p>
+              <small>{{ dashboard.formatDate(match.scheduledAt) }}</small>
+            </article>
+          </div>
+        } @empty {
+          <div>
+            <i class="green"></i>
+            <article>
+              <b>Workspace ready</b>
+              <p>Completed matches will appear here as your cricket history grows.</p>
+              <small>Waiting for match data</small>
+            </article>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+  <section class="action-section reveal">
+    <div class="section-label">
+      <span>QUICK ACTIONS</span>
+      <p>Jump directly into your most important workflows.</p>
+    </div>
+    <div class="action-grid">
+      <a routerLink="/matches/new" class="action featured"
+        ><i>◉</i>
+        <div>
+          <h3>Create match</h3>
+          <p>Set up the next game.</p>
+        </div>
+        <b>→</b></a
+      >
+      <a routerLink="/teams" class="action"
+        ><i>◇</i>
+        <div>
+          <h3>Manage teams</h3>
+          <p>Organize your squads.</p>
+        </div>
+        <b>→</b></a
+      >
+      <a routerLink="/analytics" class="action"
+        ><i>✦</i>
+        <div>
+          <h3>Explore insights</h3>
+          <p>Analyze performance.</p>
+        </div>
+        <b>→</b></a
+      >
+    </div>
+  </section>
+</section>

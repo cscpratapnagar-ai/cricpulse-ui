@@ -1,0 +1,147 @@
+<section class="matches-page">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span></span> Match operations</div>
+      <h1>Your <em>matchday</em><br />command center.</h1>
+      <p>Monitor every fixture, jump into live action, and keep your cricket workspace moving.</p>
+    </div>
+    <div class="hero-actions">
+      <button class="icon-action" type="button" (click)="load()" title="Refresh">↻</button>
+      <a class="create-btn" routerLink="/matches/new"><span>＋</span> Create match</a>
+    </div>
+  </header>
+
+  <section class="intel-strip">
+    <div class="intel-card">
+      <div class="intel-icon live-icon">◉</div>
+      <div>
+        <b>{{ liveCount }}</b
+        ><span>Live now</span>
+      </div>
+      <i></i>
+    </div>
+    <div class="intel-card">
+      <div class="intel-icon">◷</div>
+      <div>
+        <b>{{ scheduledCount }}</b
+        ><span>Upcoming</span>
+      </div>
+    </div>
+    <div class="intel-card">
+      <div class="intel-icon">✓</div>
+      <div>
+        <b>{{ completedCount }}</b
+        ><span>Completed</span>
+      </div>
+    </div>
+    <div class="intel-card total">
+      <div>
+        <small>Workspace total</small><b>{{ matches.length }} <span>matches</span></b>
+      </div>
+      <div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="control-bar">
+    <div class="tabs">
+      @for (item of filterOptions; track item.value) {
+        <button
+          type="button"
+          [class.active]="activeFilter === item.value"
+          (click)="setFilter(item.value)"
+        >
+          {{ item.label }} <span>{{ countFor(item.value) }}</span>
+        </button>
+      }
+    </div>
+    <label class="search-box">
+      <span>⌕</span>
+      <input [(value)]="query" (input)="onSearch($event)" placeholder="Search matches, teams..." />
+      @if (query) {
+        <button type="button" (click)="query = ''">×</button>
+      }
+    </label>
+  </section>
+
+  @if (loading) {
+    <app-state-view state="loading" loadingLabel="Loading match operations..."></app-state-view>
+  } @else if (error) {
+    <app-state-view
+      state="error"
+      title="Couldn’t load your matches"
+      message="The workspace connection needs another try."
+      (retry)="load()"
+    ></app-state-view>
+  } @else if (filteredMatches.length) {
+    <div class="list-header">
+      <span
+        >{{ filteredMatches.length }} Match{{
+          filteredMatches.length === 1 ? '' : 'ES'
+        }}
+        FOUND</span
+      ><small>Updated just now</small>
+    </div>
+    <div class="match-grid">
+      @for (match of filteredMatches; track match.id; let index = $index) {
+        <article
+          class="match-card"
+          [class.live-card]="normalizeStatus(match.status) === 'LIVE'"
+          [style.--delay]="index * 55 + 'ms'"
+        >
+          <div class="card-no">0{{ index + 1 }}</div>
+          <div class="card-top">
+            <span class="status" [attr.data-status]="normalizeStatus(match.status)">
+              <i></i>{{ statusLabel(match.status) }}
+            </span>
+            <button class="more" type="button">•••</button>
+          </div>
+
+          <div class="match-title">
+            <span class="format">{{ match.format || 'CRICKET' }}</span>
+            <h2>{{ match.name || 'Untitled Match' }}</h2>
+            <p>{{ displayDate(match.scheduledAt) }}</p>
+          </div>
+
+          <div class="versus-zone">
+            <div class="club">
+              <div class="crest">{{ initials(match.teamAName || 'Team A') }}</div>
+              <strong>{{ match.teamAName || 'Team A' }}</strong>
+              <small>HOME</small>
+            </div>
+            <div class="vs"><span>VS</span><i></i></div>
+            <div class="club away">
+              <div class="crest alt">{{ initials(match.teamBName || 'Team B') }}</div>
+              <strong>{{ match.teamBName || 'Team B' }}</strong>
+              <small>AWAY</small>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="match-meta">
+              <span>◷ {{ timeHint(match) }}</span>
+              @if (normalizeStatus(match.status) === 'LIVE') {
+                <span class="pulse-meta">● LIVE DATA</span>
+              }
+            </div>
+            <a [routerLink]="['/matches', match.id]">Open workspace <b>→</b></a>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <app-state-view
+      state="empty"
+      [title]="query ? 'No matches found' : 'No matches in view'"
+      [message]="
+        query
+          ? 'Try a different search or switch filters.'
+          : 'Your matchday workspace is ready for its first fixture.'
+      "
+      [actionLabel]="query ? 'Clear search' : 'Create your first match'"
+      (action)="handleEmptyAction()"
+    ></app-state-view>
+  }
+</section>

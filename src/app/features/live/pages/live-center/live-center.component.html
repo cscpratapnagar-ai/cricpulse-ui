@@ -1,0 +1,276 @@
+<section class="live-page">
+  <header class="command-header">
+    <div class="command-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> LIVE OPERATIONS</div>
+      <h1>Match Command Center</h1>
+      <p>
+        A focused control room for live cricket. Select a fixture, prepare the innings, and move
+        directly into ball-by-ball scoring without leaving the match workspace.
+      </p>
+    </div>
+
+    <div class="command-status" aria-label="Live operations status">
+      <div class="status-orbit"><span></span></div>
+      <div>
+        <span class="status-kicker">SCORING ENGINE</span>
+        <strong>Ready for live control</strong>
+      </div>
+    </div>
+  </header>
+
+  @if (loadingMatch) {
+    <section class="command-skeleton" aria-label="Loading live workspace">
+      <div class="skeleton-bar skeleton-kicker"></div>
+      <div class="skeleton-bar skeleton-title"></div>
+      <div class="skeleton-bar skeleton-copy"></div>
+      <div class="skeleton-grid">
+        @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+          <div class="skeleton-card"></div>
+        }
+      </div>
+    </section>
+  } @else if (!activeMatch) {
+    <section class="fixture-command" aria-labelledby="fixture-heading">
+      <div class="fixture-command-head">
+        <div>
+          <div class="section-kicker">MATCH RADAR</div>
+          <div class="fixture-title-row">
+            <div>
+              <h2 id="fixture-heading">Choose your live fixture</h2>
+              <p>Select a match to open its dedicated scoring workspace.</p>
+            </div>
+            <div class="fixture-count" aria-label="Available fixtures">
+              <strong>{{ matches.length }}</strong>
+              <span>fixtures</span>
+            </div>
+          </div>
+        </div>
+        <span class="workspace-pill"><span></span> OPERATOR MODE</span>
+      </div>
+
+      <div class="radar-line" aria-hidden="true">
+        <span></span>
+      </div>
+
+      <div class="match-grid">
+        @for (match of matches; track match.id) {
+          <a
+            class="match-card"
+            [class.match-card-live]="match.status.toUpperCase() === 'LIVE'"
+            [routerLink]="['/matches', match.id, 'live']"
+            [attr.aria-label]="'Open live workspace for ' + match.name"
+          >
+            <div class="match-card-top">
+              <span class="match-status"><i></i>{{ match.status }}</span>
+              <span class="match-format">{{ match.format }}</span>
+            </div>
+
+            <div class="match-card-body">
+              <span class="match-number">MATCH CONTROL</span>
+              <strong>{{ match.name }}</strong>
+              <div class="teams-line">
+                <span>{{ match.teamAName || 'Team A' }}</span>
+                <b>VS</b>
+                <span>{{ match.teamBName || 'Team B' }}</span>
+              </div>
+            </div>
+
+            <div class="match-card-bottom">
+              <small>{{ displayDate(match.scheduledAt) }}</small>
+              <span class="open-arrow" aria-hidden="true">↗</span>
+            </div>
+          </a>
+        } @empty {
+          <div class="empty-radar">
+            <div class="empty-icon">◎</div>
+            <strong>No fixtures available</strong>
+            <span>Create or schedule a match before opening live scoring.</span>
+            <a class="secondary" routerLink="/matches">Go to matches</a>
+          </div>
+        }
+      </div>
+    </section>
+  } @else {
+    <section class="match-command-hero">
+      <div class="match-command-main">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> MATCH CONTROL</div>
+        <h1>{{ activeMatch.name }}</h1>
+        <div class="hero-teams">
+          <span>{{ activeMatch.teamAName || 'Team A' }}</span>
+          <b>VS</b>
+          <span>{{ activeMatch.teamBName || 'Team B' }}</span>
+        </div>
+        <div class="hero-meta">
+          <span class="chip live"><i></i>{{ activeMatch.status }}</span>
+          <span class="chip ghost">{{ activeMatch.format }}</span>
+          <span class="chip ghost">{{ displayDate(activeMatch.scheduledAt) }}</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a class="secondary" [routerLink]="['/matches', activeMatch.id]"
+          >Match overview <span>→</span></a
+        >
+        <a class="secondary" routerLink="/matches">Change fixture <span>↗</span></a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel panel-wide innings-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-label">01 · INNINGS CONTROL</span>
+            <h2>Prepare the batting phase</h2>
+            <p>Set the innings and batting side before the first delivery.</p>
+          </div>
+          <span class="panel-index">SETUP</span>
+        </div>
+
+        <div class="setup-grid">
+          <app-select-field
+            label="Innings"
+            placeholder="Select innings"
+            [options]="inningsOptions"
+            [(value)]="inningsNumberValue"
+          />
+
+          <app-select-field
+            label="Batting team"
+            placeholder="Select batting side"
+            [options]="teamOptions"
+            [value]="battingTeamId"
+            (valueChange)="onBattingTeamChange($event)"
+          />
+
+          <div class="start-box">
+            <div class="start-state"><span></span><b>Ready to start</b></div>
+            <small>{{ battingTeamName }} is selected to bat</small>
+            <button class="primary" (click)="startInnings()" [disabled]="starting">
+              {{ starting ? 'Starting...' : 'Start innings' }}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+
+        @if (error) {
+          <p class="error" role="alert">{{ error }}</p>
+        }
+      </article>
+
+      <article class="panel scoreboard-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-label">02 · LIVE SCOREBOARD</span>
+            <h2>Current score</h2>
+          </div>
+          <span class="signal-badge"><i></i> LIVE</span>
+        </div>
+
+        @if (score$ | async; as score) {
+          @if (score) {
+            <div class="scoreboard">
+              <div class="score-team">{{ battingTeamName }}</div>
+              <div class="runs">
+                {{ score.runs }}<small>/{{ score.wickets }}</small>
+              </div>
+              <div class="score-meta">
+                <span>{{ overs(score.legalBalls) }} OVERS</span>
+                <span>INNINGS {{ score.inningsNumber }}</span>
+                <span class="synced"><i></i> SYNCED</span>
+              </div>
+            </div>
+          } @else {
+            <div class="waiting-state">
+              <span class="waiting-ring"></span>
+              <strong>Scoreboard waiting</strong>
+              <p>Start an innings to connect the live score stream.</p>
+            </div>
+          }
+        }
+      </article>
+
+      <article class="panel player-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-label">03 · PLAYER CONTROL</span>
+            <h2>Active players</h2>
+          </div>
+          <span class="panel-index">3 ROLES</span>
+        </div>
+
+        <div class="inputs">
+          <app-select-field
+            label="Striker"
+            placeholder="Select striker"
+            [options]="battingPlayerOptions"
+            [(value)]="strikerId"
+          />
+          <app-select-field
+            label="Non-striker"
+            placeholder="Select non-striker"
+            [options]="battingPlayerOptions"
+            [(value)]="nonStrikerId"
+          />
+          <app-select-field
+            label="Bowler"
+            placeholder="Select bowler"
+            [options]="bowlingPlayerOptions"
+            [(value)]="bowlerId"
+          />
+        </div>
+      </article>
+
+      <article class="panel delivery-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-label">04 · DELIVERY ENGINE</span>
+            <h2>Record delivery</h2>
+          </div>
+          <span class="panel-index">BALL BY BALL</span>
+        </div>
+
+        <div class="run-grid">
+          @for (run of runs; track run) {
+            <button class="run-action" (click)="record(run)">
+              <strong>{{ run }}</strong
+              ><small>{{
+                run === 0 ? 'DOT' : run === 4 ? 'BOUNDARY' : run === 6 ? 'MAXIMUM' : 'RUNS'
+              }}</small>
+            </button>
+          }
+        </div>
+        <div class="extra-row">
+          <button class="action" (click)="recordExtra('WIDE')">Wide</button>
+          <button class="action" (click)="recordExtra('NO_BALL')">No ball</button>
+          <button class="action" (click)="recordExtra('BYE')">Bye</button>
+          <button class="action" (click)="recordExtra('LEG_BYE')">Leg bye</button>
+          <button class="action danger" (click)="recordWicket()">Wicket</button>
+          <button class="action ghost" (click)="undo()">Undo</button>
+        </div>
+
+        @if (message) {
+          <p class="message" role="status">{{ message }}</p>
+        }
+      </article>
+
+      <article class="panel panel-wide workflow-panel">
+        <div class="panel-head">
+          <div>
+            <span class="panel-label">OPERATOR WORKFLOW</span>
+            <h2>From setup to the next delivery</h2>
+          </div>
+          <span class="panel-index">CONTROL LOOP</span>
+        </div>
+        <div class="timeline">
+          <div><b>01</b><span>Configure innings and confirm the batting side.</span></div>
+          <div>
+            <b>02</b><span>Set striker, non-striker, and bowler for the active delivery.</span>
+          </div>
+          <div>
+            <b>03</b
+            ><span>Record the event and let the scoring engine advance the live state.</span>
+          </div>
+        </div>
+      </article>
+    </section>
+  }
+</section>

@@ -1,0 +1,133 @@
+<section class="teams-page">
+  <header class="page-head">
+    <div class="page-copy">
+      <span class="eyebrow"><i></i> Team operations</span>
+      <h1>Team <em>workspace</em></h1>
+      <p>Manage your cricket teams, squad entry points and active workspace from one place.</p>
+    </div>
+    <div class="head-actions">
+      <span class="sync-state"><i></i> Workspace synced</span>
+      <button class="primary" type="button" (click)="createTeam()">
+        <span>+</span> Create team <b>→</b>
+      </button>
+    </div>
+  </header>
+
+  <section class="workspace-strip" aria-label="Team workspace summary">
+    <div class="workspace-stat featured">
+      <span class="stat-icon">◈</span>
+      <div>
+        <small>ACTIVE WORKSPACE</small><strong>{{ activeTeam?.name || 'Not selected' }}</strong>
+        <p>{{ activeTeam?.city || 'Choose a team to begin' }}</p>
+      </div>
+    </div>
+    <div class="workspace-stat">
+      <small>TEAMS</small><strong>{{ teams.length }}</strong>
+      <p>Available to manage</p>
+    </div>
+    <div class="workspace-stat">
+      <small>LOCATIONS</small><strong>{{ uniqueCities }}</strong>
+      <p>Team locations</p>
+    </div>
+    <div class="workspace-stat">
+      <small>STATUS</small><strong>Ready</strong>
+      <p>Team operations online</p>
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="skeleton-grid" aria-label="Loading teams">
+      @for (item of skeletonItems; track item) {
+        <article class="skeleton-card"><span></span><i></i><b></b><em></em></article>
+      }
+    </div>
+  } @else if (error) {
+    <app-state-view
+      state="error"
+      title="Unable to load teams"
+      message="We couldn't retrieve your team workspace. Check the connection and try again."
+      actionLabel="Retry"
+      (retry)="loadTeams()"
+    ></app-state-view>
+  } @else if (teams.length) {
+    <section class="directory">
+      <header class="directory-head">
+        <div>
+          <span class="eyebrow">TEAM DIRECTORY</span>
+          <h2>Your teams</h2>
+          <p>{{ teams.length }} team{{ teams.length === 1 ? '' : 's' }} in your workspace.</p>
+        </div>
+        <span class="directory-meta"><i></i> {{ teams.length }} available</span>
+      </header>
+
+      <div class="team-grid">
+        @for (t of teams; track t.id; let i = $index) {
+          <article
+            class="team-card"
+            [style.--i]="i"
+            [class.active]="t.id === activeTeamId"
+            (click)="selectTeam(t)"
+          >
+            <div class="card-glow"></div>
+            <div class="team-top">
+              <div class="team-identity">
+                <div class="team-logo" aria-hidden="true">{{ t.name.charAt(0).toUpperCase() }}</div>
+                <div>
+                  <span class="team-index">TEAM {{ (i + 1).toString().padStart(2, '0') }}</span
+                  ><strong>{{ t.name }}</strong>
+                </div>
+              </div>
+              <span class="badge"><i></i>{{ t.id === activeTeamId ? 'ACTIVE' : 'OWNER' }}</span>
+            </div>
+
+            <div class="team-location">
+              <span>⌖</span>
+              <div>
+                <small>HOME LOCATION</small><strong>{{ t.city || 'Location not set' }}</strong>
+              </div>
+            </div>
+
+            <div class="team-footer">
+              <span>Workspace team</span>
+              <button type="button" class="open" (click)="openTeam(t); $event.stopPropagation()">
+                Open team <b>→</b>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (activeTeam) {
+      <section class="active-preview">
+        <div class="preview-mark">
+          <span></span><strong>{{ activeTeam.name.charAt(0).toUpperCase() }}</strong>
+        </div>
+        <div class="preview-copy">
+          <span class="eyebrow">ACTIVE TEAM</span>
+          <h2>{{ activeTeam.name }}</h2>
+          <p>
+            {{ activeTeam.city || 'Location not set' }} <i>·</i> Ready for squad and match
+            operations.
+          </p>
+        </div>
+        <div class="preview-actions">
+          <button type="button" class="secondary" (click)="openTeam(activeTeam)">
+            Manage team
+          </button>
+          <button type="button" class="primary" (click)="openTeam(activeTeam)">
+            Open workspace <b>→</b>
+          </button>
+        </div>
+      </section>
+    }
+  } @else {
+    <app-state-view
+      state="empty"
+      title="Your team workspace starts here"
+      message="Create your first team to organize squads and start managing matches."
+      actionLabel="Create team"
+      (action)="createTeam()"
+    ></app-state-view>
+  }
+</section>

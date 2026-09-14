@@ -1,0 +1,229 @@
+<section class="opening-page premium-motion">
+  <a class="back-link" [routerLink]="['/matches', matchId, inningsNumber === 1 ? 'toss' : 'live']">
+    <span aria-hidden="true">←</span> Match command center
+  </a>
+
+  @if (loading) {
+    <section class="loading-shell">
+      <div class="loading-mark"></div>
+      <div>
+        <strong>Preparing the innings</strong><span>Loading match and Playing XI details…</span>
+      </div>
+    </section>
+  } @else if (match) {
+    <section class="hero-card reveal reveal-1">
+      <div class="hero-copy">
+        <div class="eyebrow"><i></i> Matchday setup · Step 4 of 4</div>
+        <h1>Opening players</h1>
+        <p>Choose the two opening batters and the first bowler before live scoring begins.</p>
+      </div>
+      <div class="hero-status"><span class="status-dot"></span>{{ match.status | titlecase }}</div>
+
+      <div class="fixture-strip">
+        <div class="fixture-team home">
+          <div class="team-mark">A</div>
+          <div>
+            <small>Batting first</small><strong>{{ battingName }}</strong>
+          </div>
+        </div>
+        <div class="fixture-middle">
+          <b>{{ match.format || 'Match' }}</b>
+          <span>vs</span>
+          <small>Innings {{ inningsNumber }}</small>
+        </div>
+        <div class="fixture-team away">
+          <div>
+            <small>Opening bowling</small><strong>{{ bowlingName }}</strong>
+          </div>
+          <div class="team-mark alt">B</div>
+        </div>
+      </div>
+    </section>
+
+    @if (error) {
+      <div class="error-state">
+        <span>!</span>
+        <div>
+          <strong>Something needs attention</strong>
+          <p>{{ error }}</p>
+        </div>
+      </div>
+    }
+
+    @if (existingInnings && existingInnings.status === 'LIVE') {
+      <section class="resume-panel">
+        <div class="resume-main">
+          <div class="resume-icon">▶</div>
+          <div>
+            <div class="section-label">Live innings detected</div>
+            <h2>Resume where you left off</h2>
+            <p>
+              {{ battingName }} are currently {{ existingInnings.runs }}/{{
+                existingInnings.wickets
+              }}
+              after {{ overs(existingInnings.legalBalls) }} overs.
+            </p>
+          </div>
+        </div>
+        <div class="resume-stats">
+          <div>
+            <span>Score</span
+            ><strong>{{ existingInnings.runs }}/{{ existingInnings.wickets }}</strong>
+          </div>
+          <div>
+            <span>Overs</span><strong>{{ overs(existingInnings.legalBalls) }}</strong>
+          </div>
+          <div>
+            <span>Innings</span><strong>{{ existingInnings.inningsNumber }}</strong>
+          </div>
+        </div>
+        <button class="primary-action" [disabled]="resuming" (click)="resumeInnings()">
+          {{ resuming ? 'Opening…' : 'Resume innings' }} <b>→</b>
+        </button>
+      </section>
+    } @else if (!error) {
+      <section class="selection-progress reveal reveal-2">
+        <div class="progress-leading">
+          <div class="progress-step">04</div>
+          <div><span>Final setup</span><strong>Select all three roles</strong></div>
+        </div>
+        <div class="progress-track"><i [style.width.%]="selectionProgress"></i></div>
+        <div class="progress-count">{{ selectedCount }} of 3 selected</div>
+      </section>
+
+      <section class="selection-workspace reveal reveal-3">
+        <div class="workspace-head">
+          <div>
+            <div class="section-label">Innings {{ inningsNumber }}</div>
+            <h2>Set the opening combination</h2>
+            <p>
+              Select two different batters from {{ battingName }} and one bowler from
+              {{ bowlingName }}.
+            </p>
+          </div>
+          <div class="autosave"><i></i> Ready to start</div>
+        </div>
+
+        <div class="role-grid">
+          <article class="role-card reveal-card" [class.complete]="strikerId">
+            <div class="role-number">01</div>
+            <div class="role-head">
+              <div class="role-icon">S</div>
+              <div>
+                <span>Opening batter</span>
+                <h3>Striker</h3>
+              </div>
+            </div>
+            <p>Faces the first delivery of the innings.</p>
+            <app-select-field
+              label="Select striker"
+              name="striker"
+              placeholder="Choose a player"
+              [options]="battingOptions"
+              [(value)]="strikerId"
+            />
+          </article>
+
+          <article
+            class="role-card reveal-card"
+            [class.complete]="nonStrikerId"
+            [class.invalid]="strikerId && strikerId === nonStrikerId"
+          >
+            <div class="role-number">02</div>
+            <div class="role-head">
+              <div class="role-icon">NS</div>
+              <div>
+                <span>Opening batter</span>
+                <h3>Non-striker</h3>
+              </div>
+            </div>
+            <p>Starts at the opposite end of the pitch.</p>
+            <app-select-field
+              label="Select non-striker"
+              name="nonStriker"
+              placeholder="Choose a different player"
+              [options]="battingOptions"
+              [(value)]="nonStrikerId"
+            />
+          </article>
+
+          <article class="role-card bowler reveal-card" [class.complete]="bowlerId">
+            <div class="role-number">03</div>
+            <div class="role-head">
+              <div class="role-icon">B</div>
+              <div>
+                <span>Opening bowler</span>
+                <h3>First over</h3>
+              </div>
+            </div>
+            <p>Delivers the first ball for {{ bowlingName }}.</p>
+            <app-select-field
+              label="Select bowler"
+              name="bowler"
+              placeholder="Choose a player"
+              [options]="bowlingOptions"
+              [(value)]="bowlerId"
+            />
+          </article>
+        </div>
+
+        <section class="selection-preview reveal-card" aria-label="Opening combination preview">
+          <div class="preview-head">
+            <div>
+              <div class="section-label">Live selection</div>
+              <h3>Opening combination</h3>
+            </div>
+            <span class="preview-state" [class.ready]="canStart"
+              ><i></i>{{ canStart ? 'Ready for live scoring' : 'Waiting for selections' }}</span
+            >
+          </div>
+          <div class="preview-lineup">
+            <div class="preview-player" [class.active]="strikerId">
+              <span class="preview-role">Striker</span>
+              <div class="preview-person">
+                <div class="player-orb">{{ playerInitials(strikerId) }}</div>
+                <strong>{{ playerName(strikerId) || 'Not selected' }}</strong>
+              </div>
+            </div>
+            <div class="preview-divider"><span>Opening pair</span></div>
+            <div class="preview-player" [class.active]="nonStrikerId">
+              <span class="preview-role">Non-striker</span>
+              <div class="preview-person">
+                <div class="player-orb">{{ playerInitials(nonStrikerId) }}</div>
+                <strong>{{ playerName(nonStrikerId) || 'Not selected' }}</strong>
+              </div>
+            </div>
+            <div class="preview-bowler" [class.active]="bowlerId">
+              <span class="preview-role">Opening bowler</span>
+              <div class="preview-person">
+                <div class="player-orb bowl">{{ playerInitials(bowlerId) }}</div>
+                <strong>{{ playerName(bowlerId) || 'Not selected' }}</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        @if (strikerId && strikerId === nonStrikerId) {
+          <div class="inline-warning">
+            <span>!</span> Striker and non-striker must be different players.
+          </div>
+        }
+
+        <div class="action-bar">
+          <a [routerLink]="['/matches', matchId, 'toss']">← Back to toss</a>
+          <div class="action-copy">
+            <span>All selections are required</span
+            ><strong>{{ selectedCount }} / 3 complete</strong>
+          </div>
+          <button
+            class="primary-action"
+            [disabled]="!canStart || starting"
+            (click)="startInnings()"
+          >
+            {{ starting ? 'Starting innings…' : 'Start live scoring' }} <b>→</b>
+          </button>
+        </div>
+      </section>
+    }
+  }
+</section>

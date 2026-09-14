@@ -1,0 +1,241 @@
+<section class="statistics-page">
+  @if (loading) {
+    <section class="state-card">
+      <div class="loader"></div>
+      <div>
+        <span class="eyebrow">MATCH ANALYTICS</span>
+        <h2>Preparing performance insights</h2>
+        <p>Loading player contributions and match leaders.</p>
+      </div>
+    </section>
+  } @else if (scorecards.length) {
+    <a class="back" [routerLink]="['/matches', matchId, 'result']"><span>←</span> Back to result</a>
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">MATCH ANALYTICS</span>
+        <h1>Match statistics</h1>
+        <p>Compare the standout batting, bowling and boundary performances.</p>
+      </div>
+      <div class="analytics-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 19V10M10 19V5M16 19v-7M22 19V8"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+          <path d="M3 19h20" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+      </div>
+    </header>
+
+    <section class="impact-card">
+      <div class="impact-glow"></div>
+      <div class="impact-player">
+        <span class="eyebrow">PLAYER OF THE MATCH</span>
+        <div class="impact-name">
+          <div class="champion-avatar">{{ playerOfMatch?.playerName?.charAt(0) || '—' }}</div>
+          <div>
+            <h2>{{ playerOfMatch?.playerName || '—' }}</h2>
+            <p>{{ playerOfMatch?.teamName || 'Performance leader' }}</p>
+          </div>
+        </div>
+        <small>Highest overall impact across batting and bowling.</small>
+      </div>
+      @if (playerOfMatch) {
+        <div class="impact-numbers">
+          <div>
+            <b>{{ playerOfMatch.runs }}</b
+            ><span>RUNS</span>
+          </div>
+          <i></i>
+          <div>
+            <b>{{ playerOfMatch.wickets }}</b
+            ><span>WICKETS</span>
+          </div>
+          <i></i>
+          <div>
+            <b>{{ playerOfMatch.fours + playerOfMatch.sixes }}</b
+            ><span>BOUNDARIES</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="leader-grid">
+      <article class="leader-card">
+        <div class="leader-icon runs">R</div>
+        <span>TOP RUN SCORER</span><strong>{{ topRunScorer?.runs || 0 }}</strong>
+        <div class="leader-person">
+          <b>{{ topRunScorer?.playerName || '—' }}</b
+          ><small
+            >{{ topRunScorer?.teamName || '' }} ·
+            {{ topRunScorer ? format(topRunScorer.strikeRate) : '0.00' }} SR</small
+          >
+        </div>
+      </article>
+      <article class="leader-card">
+        <div class="leader-icon wickets">W</div>
+        <span>TOP WICKET TAKER</span><strong>{{ topWicketTaker?.wickets || 0 }}</strong>
+        <div class="leader-person">
+          <b>{{ topWicketTaker?.playerName || '—' }}</b
+          ><small
+            >{{ topWicketTaker?.teamName || '' }} ·
+            {{ topWicketTaker ? format(topWicketTaker.economy) : '0.00' }} Econ</small
+          >
+        </div>
+      </article>
+      <article class="leader-card">
+        <div class="leader-icon sixes">6</div>
+        <span>MOST SIXES</span><strong>{{ topSixHitter?.sixes || 0 }}</strong>
+        <div class="leader-person">
+          <b>{{ topSixHitter?.playerName || '—' }}</b
+          ><small>{{ topSixHitter?.teamName || '' }} · Boundary power</small>
+        </div>
+      </article>
+      <article class="leader-card">
+        <div class="leader-icon economy">E</div>
+        <span>BEST ECONOMY</span
+        ><strong>{{ bestEconomy ? format(bestEconomy.economy) : '0.00' }}</strong>
+        <div class="leader-person">
+          <b>{{ bestEconomy?.playerName || '—' }}</b
+          ><small>{{ bestEconomy?.teamName || '' }} · Bowling control</small>
+        </div>
+      </article>
+    </section>
+
+    <section class="analytics-layout">
+      <div class="main-stack">
+        <section class="data-card">
+          <header class="section-head">
+            <div class="section-icon batting">↗</div>
+            <div>
+              <span class="eyebrow">BATTING LEADERS</span>
+              <h2>Batting leaders</h2>
+              <p>Ranked by runs and overall scoring impact</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="batting-table">
+              <thead>
+                <tr>
+                  <th>PLAYER</th>
+                  <th>TEAM</th>
+                  <th>R</th>
+                  <th>B</th>
+                  <th>4s</th>
+                  <th>6s</th>
+                  <th>SR</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of battingLeaders; track p.playerId) {
+                  <tr>
+                    <td>
+                      <div class="player-cell">
+                        <span class="player-avatar">{{ p.playerName.charAt(0) }}</span
+                        ><strong>{{ p.playerName }}</strong>
+                      </div>
+                    </td>
+                    <td class="team">{{ p.teamName }}</td>
+                    <td class="num highlight">{{ p.runs }}</td>
+                    <td class="num">{{ p.balls }}</td>
+                    <td class="num">{{ p.fours }}</td>
+                    <td class="num">{{ p.sixes }}</td>
+                    <td class="num rate">{{ format(p.strikeRate) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="data-card">
+          <header class="section-head">
+            <div class="section-icon bowling">◉</div>
+            <div>
+              <span class="eyebrow">BOWLING LEADERS</span>
+              <h2>Bowling leaders</h2>
+              <p>Best wicket-taking and economy performances</p>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table class="bowling-table">
+              <thead>
+                <tr>
+                  <th>PLAYER</th>
+                  <th>TEAM</th>
+                  <th>O</th>
+                  <th>R</th>
+                  <th>W</th>
+                  <th>ECON</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of bowlingLeaders; track p.playerId) {
+                  <tr>
+                    <td>
+                      <div class="player-cell">
+                        <span class="player-avatar">{{ p.playerName.charAt(0) }}</span
+                        ><strong>{{ p.playerName }}</strong>
+                      </div>
+                    </td>
+                    <td class="team">{{ p.teamName }}</td>
+                    <td class="num">{{ overs(p.legalBalls) }}</td>
+                    <td class="num">{{ p.runsConceded }}</td>
+                    <td class="num wicket">{{ p.wickets }}</td>
+                    <td class="num rate">{{ format(p.economy) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <aside class="insight-rail">
+        <section class="insight-card boundary-card">
+          <span class="eyebrow">BOUNDARY IMPACT</span>
+          <h2>Boundary impact</h2>
+          <div class="boundary-stats">
+            <div>
+              <strong>{{ totalFours }}</strong
+              ><span>FOURS</span>
+            </div>
+            <div>
+              <strong>{{ totalSixes }}</strong
+              ><span>SIXES</span>
+            </div>
+          </div>
+          <div class="boundary-total">
+            <span>Total boundaries</span><b>{{ totalFours + totalSixes }}</b>
+          </div>
+        </section>
+        <section class="insight-card mini-leader">
+          <span class="eyebrow">MOST FOURS</span>
+          <div class="mini-person">
+            <span>{{ mostFours?.playerName?.charAt(0) || '—' }}</span>
+            <div>
+              <b>{{ mostFours?.playerName || '—' }}</b
+              ><small>{{ mostFours?.fours || 0 }} fours in the match</small>
+            </div>
+          </div>
+        </section>
+        <section class="insight-card quick-nav">
+          <span class="eyebrow">MATCH DATA</span
+          ><a [routerLink]="['/matches', matchId, 'scorecard']"
+            ><span>Full scorecard</span><b>→</b></a
+          ><a [routerLink]="['/matches', matchId, 'overview']"><span>Match centre</span><b>→</b></a
+          ><a [routerLink]="['/players', 'statistics']"><span>Player statistics</span><b>→</b></a>
+        </section>
+      </aside>
+    </section>
+  } @else {
+    <section class="state-card empty-state">
+      <div class="empty-icon">!</div>
+      <span class="eyebrow">STATISTICS UNAVAILABLE</span>
+      <h2>No completed innings data found</h2>
+      <p>Complete the match innings to unlock performance insights.</p>
+      <a [routerLink]="['/matches', matchId, 'result']">Back to result</a>
+    </section>
+  }
+</section>

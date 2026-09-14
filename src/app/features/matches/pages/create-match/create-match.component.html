@@ -1,0 +1,122 @@
+<section class="create-page">
+  <div class="ambient a1"></div>
+  <div class="ambient a2"></div>
+  <a class="back" routerLink="/matches"><span>←</span> Match workspace</a>
+  <header class="hero">
+    <div>
+      <div class="eyebrow"><i></i> New match setup</div>
+      <h1>Build the next<br /><em>matchday.</em></h1>
+      <p>Set the essentials now. Lineups, toss and live scoring follow in a guided workflow.</p>
+    </div>
+    <div class="hero-orbit">
+      <span>01</span><small>Setup<br />of 3</small>
+    </div>
+  </header>
+  <form (ngSubmit)="submit()" #matchForm="ngForm">
+    <div class="form-shell">
+      <div class="shell-top">
+        <div>
+          <span class="step-tag">Step 1 of 3</span>
+          <h2>Match configuration</h2>
+          <p>Define the fixture and its playing conditions.</p>
+        </div>
+        <div class="progress"><span class="active"></span><span></span><span></span></div>
+      </div>
+      <div class="form-grid">
+        <label class="field wide"
+          ><span>Match identity <b>Required</b></span>
+          <div class="input-wrap">
+            <i>⌕</i
+            ><input
+              name="name"
+              [(ngModel)]="form.name"
+              placeholder="e.g. Sunday League Final"
+              required
+            />
+          </div>
+          <small>Give this fixture a clear, recognizable name.</small></label
+        >
+        <div class="field-group">
+          <app-select-field
+            label="Match format"
+            name="format"
+            [options]="formatOptions"
+            [(value)]="form.format"
+          /><small>Controls the match structure.</small>
+        </div>
+        <label class="field"
+          ><span>Overs per innings</span>
+          <div class="input-wrap">
+            <input name="overs" type="number" min="1" [(ngModel)]="form.overs" /><em>Overs</em>
+          </div>
+          <small>Can be adjusted for custom formats.</small></label
+        >
+        <div class="team-section wide">
+          <div class="section-label">
+            <span><i></i> The contest</span>
+            <p>Select the two sides entering this fixture.</p>
+          </div>
+          <div class="team-grid">
+            <div class="team-slot">
+              <span class="slot-no">A</span
+              ><app-select-field
+                label="Home / your team"
+                name="teamAId"
+                placeholder="Select team"
+                [options]="teamOptions"
+                [(value)]="form.teamAId"
+              />
+            </div>
+            <div class="versus">vs</div>
+            <div class="team-slot">
+              <span class="slot-no away">B</span
+              ><app-select-field
+                label="Opponent team"
+                name="teamBId"
+                placeholder="Select opponent"
+                [options]="teamOptions"
+                [(value)]="form.teamBId"
+              />
+            </div>
+          </div>
+        </div>
+        <app-date-time-field
+          label="Scheduled date & time"
+          name="scheduledAt"
+          [(value)]="form.scheduledAt"
+        />
+        <label class="field"
+          ><span>Venue <b>Optional</b></span>
+          <div class="input-wrap">
+            <i>⌖</i
+            ><input name="venue" [(ngModel)]="form.venue" placeholder="Ground or venue name" /></div
+        ></label>
+      </div>
+      <div class="advanced">
+        <div class="advanced-copy">
+          <div class="advanced-icon">✦</div>
+          <div>
+            <span>EXTENDED RULESET</span>
+            <h3>Advanced settings</h3>
+            <p>
+              Powerplay, super over and rain rules can be configured after the fixture is created.
+            </p>
+          </div>
+        </div>
+        <div class="chips"><span>POWERPLAY</span><span>SUPER OVER</span><span>DLS READY</span></div>
+      </div>
+    </div>
+    @if (error) {
+      <div class="error"><i>!</i>{{ error }}</div>
+    }
+    <footer class="actions">
+      <a routerLink="/matches">Discard changes</a>
+      <div class="action-right">
+        <span>All changes are validated</span
+        ><button [disabled]="loading">
+          {{ loading ? 'Creating match...' : 'Create match' }} <b>→</b>
+        </button>
+      </div>
+    </footer>
+  </form>
+</section>

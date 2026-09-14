@@ -14,32 +14,67 @@
     </header>
 
     <section class="metrics">
-      <article class="card metric"><span>TEAMS</span><strong>{{ teams.length }}</strong><small>Registered</small></article>
-      <article class="card metric"><span>FIXTURES</span><strong>{{ fixtures.length }}</strong><small>{{ completed }} completed</small></article>
-      <article class="card metric"><span>COMPLETION</span><strong>{{ completion }}%</strong><small>League schedule</small></article>
-      <article class="card metric"><span>POINTS LEADER</span><strong class="leader">{{ leader?.teamName || '—' }}</strong><small>{{ leader ? leader.points + ' points' : 'No completed match' }}</small></article>
+      <article class="card metric">
+        <span>TEAMS</span><strong>{{ teams.length }}</strong
+        ><small>Registered</small>
+      </article>
+      <article class="card metric">
+        <span>FIXTURES</span><strong>{{ fixtures.length }}</strong
+        ><small>{{ completed }} completed</small>
+      </article>
+      <article class="card metric">
+        <span>COMPLETION</span><strong>{{ completion }}%</strong><small>League schedule</small>
+      </article>
+      <article class="card metric">
+        <span>POINTS LEADER</span><strong class="leader">{{ leader?.teamName || '—' }}</strong
+        ><small>{{ leader ? leader.points + ' points' : 'No completed match' }}</small>
+      </article>
     </section>
 
     <section class="grid">
       <section class="card panel">
-        <div class="head"><div><span class="eyebrow">COMPETITION HEALTH</span><h2>Fixture pipeline</h2></div></div>
+        <div class="head">
+          <div>
+            <span class="eyebrow">COMPETITION HEALTH</span>
+            <h2>Fixture pipeline</h2>
+          </div>
+        </div>
         <div class="progress"><div [style.width.%]="completion"></div></div>
         <div class="health-row">
-          <div><strong>{{ scheduled }}</strong><span>Scheduled</span></div>
-          <div><strong>{{ completed }}</strong><span>Completed</span></div>
-          <div><strong>{{ pending }}</strong><span>Pending</span></div>
+          <div>
+            <strong>{{ scheduled }}</strong
+            ><span>Scheduled</span>
+          </div>
+          <div>
+            <strong>{{ completed }}</strong
+            ><span>Completed</span>
+          </div>
+          <div>
+            <strong>{{ pending }}</strong
+            ><span>Pending</span>
+          </div>
         </div>
         <div class="next">{{ nextFixtureText }}</div>
       </section>
 
       <section class="card panel">
-        <div class="head"><div><span class="eyebrow">TEAM PERFORMANCE</span><h2>Current leaders</h2></div></div>
+        <div class="head">
+          <div>
+            <span class="eyebrow">TEAM PERFORMANCE</span>
+            <h2>Current leaders</h2>
+          </div>
+        </div>
         @if (points.length) {
           <div class="leader-list">
             @for (p of topTeams; track p.teamId; let i = $index) {
               <div class="row">
                 <span class="rank">#{{ i + 1 }}</span>
-                <div><strong>{{ p.teamName }}</strong><small>{{ p.wins }}W · {{ p.played }}P · NRR {{ p.nrr | number:'1.3-3' }}</small></div>
+                <div>
+                  <strong>{{ p.teamName }}</strong
+                  ><small
+                    >{{ p.wins }}W · {{ p.played }}P · NRR {{ p.nrr | number: '1.3-3' }}</small
+                  >
+                </div>
                 <b>{{ p.points }} PTS</b>
               </div>
             }
@@ -51,13 +86,25 @@
     </section>
 
     <section class="card panel">
-      <div class="head"><div><span class="eyebrow">RUN PRODUCTION</span><h2>Runs for vs runs against</h2></div><span class="hint">Based on completed fixtures</span></div>
+      <div class="head">
+        <div>
+          <span class="eyebrow">RUN PRODUCTION</span>
+          <h2>Runs for vs runs against</h2>
+        </div>
+        <span class="hint">Based on completed fixtures</span>
+      </div>
       @if (points.length) {
         <div class="bars">
           @for (p of topRuns; track p.teamId) {
             <div class="bar-row">
-              <div class="bar-label"><strong>{{ p.teamName }}</strong><span>{{ p.runsFor }} / {{ p.runsAgainst }}</span></div>
-              <div class="bar-track"><i [style.width.%]="barWidth(p.runsFor)"></i><em [style.width.%]="barWidth(p.runsAgainst)"></em></div>
+              <div class="bar-label">
+                <strong>{{ p.teamName }}</strong
+                ><span>{{ p.runsFor }} / {{ p.runsAgainst }}</span>
+              </div>
+              <div class="bar-track">
+                <i [style.width.%]="barWidth(p.runsFor)"></i
+                ><em [style.width.%]="barWidth(p.runsAgainst)"></em>
+              </div>
             </div>
           }
         </div>
