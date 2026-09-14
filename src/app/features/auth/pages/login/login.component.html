@@ -1,23 +1,89 @@
 <main class="auth-page">
   <div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span></div>
   <header class="auth-nav">
-    <a routerLink="/" class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a>
-    <div class="nav-actions"><span class="nav-note">THE CRICKET OPERATING SYSTEM</span><button type="button" class="theme" (click)="toggleTheme()" [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"><span>{{ dark ? '☀' : '◐' }}</span></button></div>
+    <a routerLink="/" class="brand"
+      ><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
+    >
+    <div class="nav-actions">
+      <span class="nav-note">THE CRICKET OPERATING SYSTEM</span
+      ><button
+        type="button"
+        class="theme"
+        (click)="toggleTheme()"
+        [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"
+      >
+        <span>{{ dark ? '☀' : '◐' }}</span>
+      </button>
+    </div>
   </header>
   <section class="auth-content">
-    <div class="auth-intro"><span class="eyebrow"><i></i> WELCOME BACK</span><h1>Every ball.<br /><em>One connected game.</em></h1><p>Sign in to continue to your cricket workspace, live matches and player intelligence.</p><div class="event-line" aria-hidden="true"><span>SCORING</span><b>→</b><span>LIVE</span><b>→</b><span>INTELLIGENCE</span><b>→</b><span>BROADCAST</span></div></div>
+    <div class="auth-intro">
+      <span class="eyebrow"><i></i> WELCOME BACK</span>
+      <h1>Every ball.<br /><em>One connected game.</em></h1>
+      <p>Sign in to continue to your cricket workspace, live matches and player intelligence.</p>
+      <div class="event-line" aria-hidden="true">
+        <span>SCORING</span><b>→</b><span>LIVE</span><b>→</b><span>INTELLIGENCE</span><b>→</b
+        ><span>BROADCAST</span>
+      </div>
+    </div>
     <div class="auth-card">
-      <div class="card-top"><div><span class="card-kicker">SECURE ACCESS</span><h2>Sign in</h2></div><span class="live-status"><i></i> READY</span></div>
+      <div class="card-top">
+        <div>
+          <span class="card-kicker">SECURE ACCESS</span>
+          <h2>Sign in</h2>
+        </div>
+        <span class="live-status"><i></i> READY</span>
+      </div>
       <form (ngSubmit)="submit()" novalidate>
-        <label><span>Email address</span><div class="field"><span class="field-icon email-icon"></span><input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" autocomplete="email" required /></div></label>
-        <label><span>Password</span><div class="field"><span class="field-icon lock-icon"></span><input name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Enter your password" autocomplete="current-password" required /><button type="button" class="eye" (click)="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button></div></label>
-        <div class="form-row"><label class="check"><input type="checkbox" [(ngModel)]="remember" name="remember" /><span>Keep me signed in</span></label><a href="/login">Forgot password?</a></div>
-        <button class="submit" type="submit" [disabled]="loading"><span>{{ loading ? 'Signing you in...' : 'Sign in to CricPulse' }}</span><b>→</b></button>
+        <label
+          ><span>Email address</span>
+          <div class="field">
+            <span class="field-icon email-icon"></span
+            ><input
+              name="email"
+              type="email"
+              [(ngModel)]="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            /></div
+        ></label>
+        <label
+          ><span>Password</span>
+          <div class="field">
+            <span class="field-icon lock-icon"></span
+            ><input
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            /><button type="button" class="eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div></label
+        >
+        <div class="form-row">
+          <label class="check"
+            ><input type="checkbox" [(ngModel)]="remember" name="remember" /><span
+              >Keep me signed in</span
+            ></label
+          ><a href="/login">Forgot password?</a>
+        </div>
+        <button class="submit" type="submit" [disabled]="loading">
+          <span>{{ loading ? 'Signing you in...' : 'Sign in to CricPulse' }}</span
+          ><b>→</b>
+        </button>
       </form>
-      @if (message) { <div class="notice" role="alert"><i></i>{{ message }}</div> }
+      @if (message) {
+        <div class="notice" role="alert"><i></i>{{ message }}</div>
+      }
       <div class="divider"><span></span><small>NEW TO CRICPULSE?</small><span></span></div>
       <a routerLink="/signup" class="secondary-action">Create your free account <b>→</b></a>
     </div>
   </section>
-  <footer class="auth-footer"><span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span></footer>
+  <footer class="auth-footer">
+    <span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span>
+  </footer>
 </main>
