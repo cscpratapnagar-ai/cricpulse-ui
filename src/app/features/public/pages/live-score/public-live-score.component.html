@@ -3,6 +3,7 @@
     <a class="brand" routerLink="/">CRICPULSE <span>LIVE</span></a>
     <div class="status"><i></i> LIVE SCORE <span>REAL-TIME</span></div>
   </header>
+
   <section class="hero">
     <div class="eyebrow">LIVE MATCH CENTRE</div>
     <h1>{{ match?.name || 'Live Cricket Match' }}</h1>
@@ -11,78 +12,105 @@
       {{ match?.format || 'CRICKET' }}
     </p>
   </section>
+
   @if (score$ | async; as score) {
-    <section class="score-card">
-      <div class="team">
-        {{ match?.teamAName || 'Batting Team' }} <small>INNINGS {{ score.inningsNumber }}</small>
-      </div>
-      <div class="score">
-        {{ score.runs }}<em>/{{ score.wickets }}</em>
-      </div>
-      <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
-      <div class="live-line">
-        <i></i> SCORE UPDATES IN REAL TIME · EVENT {{ score.eventVersion ?? '—' }}
-      </div>
-    </section>
-    <section class="info-grid">
-      <article>
-        <span>LEGAL BALLS</span><strong>{{ score.legalBalls }}</strong>
-      </article>
-      <article>
-        <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
-      </article>
-      <article>
-        <span>STATUS</span><strong>{{ score.status || 'LIVE' }}</strong>
-      </article>
-    </section>
-    @if (score.recentBalls?.length) {
-      <section class="recent-over">
-        <div class="section-head"><span>RECENT DELIVERIES</span><small>LIVE EVENT FEED</small></div>
-        <div class="balls">
-          @for (ball of score.recentBalls; track ball.deliveryId) {
-            <div
-              class="ball"
-              [class.wicket]="ball.wicketType"
-              [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
-              [class.extra]="ball.extraType"
-            >
-              <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
-              <b>{{
-                ball.wicketType
-                  ? 'W'
-                  : ball.extraType === 'WIDE'
-                    ? 'Wd'
-                    : ball.extraType === 'NO_BALL'
-                      ? 'Nb'
-                      : ball.totalRuns
-              }}</b>
-            </div>
-          }
+    @if (score) {
+      <section class="score-card">
+        <div class="score-context">
+          <div class="team">
+            {{ battingTeamName() }} <small>INNINGS {{ score.inningsNumber }}</small>
+          </div>
+          <span class="live-badge"><i></i>{{ statusLabel(score) }}</span>
+        </div>
+
+        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
+
+        @if (score.targetRuns && score.targetRuns > score.runs) {
+          <div class="chase-line">
+            <span>TARGET {{ score.targetRuns }}</span>
+            <b>{{ score.targetRuns - score.runs }} RUNS NEEDED</b>
+          </div>
+        }
+
+        <div class="live-line">
+          <i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}
         </div>
       </section>
-    }
-    @if (score.partnership) {
-      <section class="info-grid partnership-grid">
+
+      <section class="info-grid">
         <article>
-          <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
+          <span>OVERS</span><strong>{{ overs(score.legalBalls) }}</strong>
         </article>
         <article>
-          <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
+          <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
         </article>
         <article>
-          <span>WICKETS</span><strong>{{ score.wickets }}</strong>
+          <span>STATUS</span><strong>{{ statusLabel(score) }}</strong>
         </article>
+      </section>
+
+      @if (score.recentBalls?.length) {
+        <section class="recent-over">
+          <div class="section-head">
+            <span>RECENT DELIVERIES</span><small>LIVE EVENT FEED</small>
+          </div>
+          <div class="balls">
+            @for (ball of score.recentBalls; track ball.deliveryId) {
+              <div
+                class="ball"
+                [class.wicket]="ball.wicketType"
+                [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+                [class.extra]="ball.extraType"
+              >
+                <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
+                <b>{{
+                  ball.wicketType
+                    ? 'W'
+                    : ball.extraType === 'WIDE'
+                      ? 'Wd'
+                      : ball.extraType === 'NO_BALL'
+                        ? 'Nb'
+                        : ball.totalRuns
+                }}</b>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (score.partnership) {
+        <section class="info-grid partnership-grid">
+          <article>
+            <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
+          </article>
+          <article>
+            <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
+          </article>
+          <article>
+            <span>WICKETS</span><strong>{{ score.wickets }}</strong>
+          </article>
+        </section>
+      }
+    } @else {
+      <section class="score-card loading error-state">
+        <div>
+          <strong>Live score unavailable</strong>
+          <span>The match may not have started yet or the live feed is temporarily unavailable.</span>
+        </div>
       </section>
     }
   } @else {
     <section class="score-card loading">
       <div>
-        <span>Loading saved live score…</span><small>Waiting for the current innings</small>
+        <strong>Loading live score…</strong>
+        <span>Connecting to the current innings</span>
       </div>
     </section>
   }
+
   <footer>
-    <span>Powered by <b>CricPulse</b></span
-    ><a [routerLink]="['/matches', matchId, 'scorer']">Scorer Login →</a>
+    <span>Powered by <b>CricPulse</b></span>
+    <a [routerLink]="['/matches', matchId, 'scorer']">Scorer Login →</a>
   </footer>
 </main>
