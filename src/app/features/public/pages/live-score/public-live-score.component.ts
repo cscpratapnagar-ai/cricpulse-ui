@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, of, timer, switchMap, distinctUntilChanged } from 'rxjs';
+import { catchError, distinctUntilChanged, of, switchMap, tap, timer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { API_ORIGIN } from '../../../../core/config/api.config';
@@ -11,9 +11,12 @@ interface Match {
   name: string;
   format: string;
   status: string;
+  teamAId?: string;
+  teamBId?: string;
   teamAName?: string;
   teamBName?: string;
 }
+
 interface CurrentInnings {
   inningsId: string;
   matchId?: string;
@@ -42,44 +45,54 @@ export class PublicLiveScoreComponent {
   private readonly liveScore = inject(LiveScoreService);
   private readonly api = `${API_ORIGIN}/api`;
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
+
   match: Match | null = null;
+  currentInnings: CurrentInnings | null = null;
   score$ = of<LiveScore | null>(null);
-  lastEventVersion = 0;
+  loadError = false;
 
   constructor() {
-    if (!this.matchId) return;
+    if (!this.matchId) {
+      this.loadError = true;
+      return;
+    }
+
     this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({
-      next: (m) => (this.match = m),
-      error: (e) => console.error('[PublicLive] match load failed', e),
+      next: (match) => (this.match = match),
+      error: (error) => {
+        this.loadError = true;
+        console.error('[PublicLive] match load failed', error);
+      },
     });
-    this.http
-      .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
-      .subscribe({
-        next: (innings) => {
-          const inningsId = innings.inningsId;
-          if (!inningsId) return;
-          this.score$ = this.liveScore.watch(inningsId).pipe(
-            distinctUntilChanged((a, b) => a.eventVersion === b.eventVersion),
-            switchMap((score) => {
-              this.lastEventVersion = Math.max(this.lastEventVersion, score.eventVersion ?? 0);
-              return of(score);
-            }),
-            catchError((e) => {
-              console.error('[PublicLive] score failed', e);
-              return of<LiveScore | null>(null);
-            }),
-          );
-        },
-        error: (e) => {
-          console.error('[PublicLive] current innings failed', e);
-          this.score$ = of(null);
-        },
-      });
+
+    this.score$ = timer(0, 5000).pipe(
+      switchMap(() => this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)),
+      tap((innings) => (this.currentInnings = innings)),
+      distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
+      switchMap((innings) => this.liveScore.watch(innings.inningsId)),
+      catchError((error) => {
+        this.loadError = true;
+        console.error('[PublicLive] score failed', error);
+        return of<LiveScore | null>(null);
+      }),
+    );
   }
-  overs(balls: number) {
+
+  battingTeamName(): string {
+    const battingTeamId = this.currentInnings?.battingTeamId;
+    if (battingTeamId && battingTeamId === this.match?.teamBId) return this.match?.teamBName || 'Team B';
+    return this.match?.teamAName || 'Batting Team';
+  }
+
+  overs(balls: number): string {
     return `${Math.floor(balls / 6)}.${balls % 6}`;
   }
-  runRate(score: LiveScore) {
+
+  runRate(score: LiveScore): string {
     return score.legalBalls ? (score.runs / (score.legalBalls / 6)).toFixed(2) : '0.00';
+  }
+
+  statusLabel(score: LiveScore): string {
+    return score.status || this.match?.status || 'LIVE';
   }
 }
