@@ -1,26 +1,138 @@
 <main class="auth-page">
   <div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span></div>
   <header class="auth-nav">
-    <a routerLink="/" class="brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a>
-    <div class="nav-actions"><span class="nav-note">THE CRICKET OPERATING SYSTEM</span><button type="button" class="theme" (click)="toggleTheme()" [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"><span>{{ dark ? '☀' : '◐' }}</span></button></div>
+    <a routerLink="/" class="brand"
+      ><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
+    >
+    <div class="nav-actions">
+      <span class="nav-note">THE CRICKET OPERATING SYSTEM</span
+      ><button
+        type="button"
+        class="theme"
+        (click)="toggleTheme()"
+        [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"
+      >
+        <span>{{ dark ? '☀' : '◐' }}</span>
+      </button>
+    </div>
   </header>
   <section class="auth-content signup-content">
-    <div class="auth-intro"><span class="eyebrow"><i></i> START YOUR WORKSPACE</span><h1>Build it.<br /><em>Play it. Know it.</em></h1><p>Create one CricPulse account for teams, tournaments, live scoring, player history and cricket intelligence.</p><div class="event-line" aria-hidden="true"><span>WORKSPACE</span><b>→</b><span>SCORING</span><b>→</b><span>INTELLIGENCE</span></div></div>
+    <div class="auth-intro">
+      <span class="eyebrow"><i></i> START YOUR WORKSPACE</span>
+      <h1>Build it.<br /><em>Play it. Know it.</em></h1>
+      <p>
+        Create one CricPulse account for teams, tournaments, live scoring, player history and
+        cricket intelligence.
+      </p>
+      <div class="event-line" aria-hidden="true">
+        <span>WORKSPACE</span><b>→</b><span>SCORING</span><b>→</b><span>INTELLIGENCE</span>
+      </div>
+    </div>
     <div class="auth-card">
-      <div class="card-top"><div><span class="card-kicker">CREATE ACCOUNT</span><h2>Join CricPulse</h2></div><span class="live-status"><i></i> READY</span></div>
+      <div class="card-top">
+        <div>
+          <span class="card-kicker">CREATE ACCOUNT</span>
+          <h2>Join CricPulse</h2>
+        </div>
+        <span class="live-status"><i></i> READY</span>
+      </div>
       <div class="progress" aria-hidden="true"><i></i><i></i><i></i></div>
       <form (ngSubmit)="submit()" novalidate>
-        <label><span>Full name</span><div class="field"><span class="field-icon person-icon"></span><input name="fullName" [(ngModel)]="fullName" placeholder="Your full name" autocomplete="name" required /></div></label>
-        <div class="two"><label><span>Email address</span><div class="field"><span class="field-icon email-icon"></span><input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" autocomplete="email" required /></div></label><label><span>Mobile number</span><div class="field"><span class="field-icon phone-icon"></span><input name="phone" type="tel" [(ngModel)]="phone" placeholder="+91 98765 43210" autocomplete="tel" required /></div></label></div>
-        <label><span>Password</span><div class="field"><span class="field-icon lock-icon"></span><input name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Minimum 8 characters" autocomplete="new-password" required /><button type="button" class="eye" (click)="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button></div></label>
-        <div class="strength" aria-live="polite"><span [class.on]="password.length > 0"></span><span [class.on]="password.length >= 8"></span><span [class.on]="password.length >= 12"></span><small>{{ password.length ? 'Use a strong, unique password' : 'At least 8 characters' }}</small></div>
-        <label><span>Confirm password</span><div class="field"><span class="field-icon check-icon">✓</span><input name="confirmPassword" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required /></div></label>
-        <button class="submit" type="submit" [disabled]="loading"><span>{{ loading ? 'Creating your account...' : 'Create your CricPulse account' }}</span><b>→</b></button>
+        <label
+          ><span>Full name</span>
+          <div class="field">
+            <span class="field-icon person-icon"></span
+            ><input
+              name="fullName"
+              [(ngModel)]="fullName"
+              placeholder="Your full name"
+              autocomplete="name"
+              required
+            /></div
+        ></label>
+        <div class="two">
+          <label
+            ><span>Email address</span>
+            <div class="field">
+              <span class="field-icon email-icon"></span
+              ><input
+                name="email"
+                type="email"
+                [(ngModel)]="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              /></div></label
+          ><label
+            ><span>Mobile number</span>
+            <div class="field">
+              <span class="field-icon phone-icon"></span
+              ><input
+                name="phone"
+                type="tel"
+                [(ngModel)]="phone"
+                placeholder="+91 98765 43210"
+                autocomplete="tel"
+                required
+              /></div
+          ></label>
+        </div>
+        <label
+          ><span>Password</span>
+          <div class="field">
+            <span class="field-icon lock-icon"></span
+            ><input
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Minimum 8 characters"
+              autocomplete="new-password"
+              required
+            /><button type="button" class="eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div></label
+        >
+        <div class="strength" aria-live="polite">
+          <span [class.on]="password.length > 0"></span
+          ><span [class.on]="password.length >= 8"></span
+          ><span [class.on]="password.length >= 12"></span
+          ><small>{{
+            password.length ? 'Use a strong, unique password' : 'At least 8 characters'
+          }}</small>
+        </div>
+        <label
+          ><span>Confirm password</span>
+          <div class="field">
+            <span class="field-icon check-icon">✓</span
+            ><input
+              name="confirmPassword"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+              required
+            /></div
+        ></label>
+        <button class="submit" type="submit" [disabled]="loading">
+          <span>{{ loading ? 'Creating your account...' : 'Create your CricPulse account' }}</span
+          ><b>→</b>
+        </button>
       </form>
-      @if (toast) { <div class="notice" role="status" [class.success]="toastType === 'success'"><i></i><span><b>{{ toastTitle }}</b>{{ toast }}</span></div> }
+      @if (toast) {
+        <div class="notice" role="status" [class.success]="toastType === 'success'">
+          <i></i
+          ><span
+            ><b>{{ toastTitle }}</b
+            >{{ toast }}</span
+          >
+        </div>
+      }
       <div class="divider"><span></span><small>ALREADY HAVE AN ACCOUNT?</small><span></span></div>
       <a routerLink="/login" class="secondary-action">Sign in to CricPulse <b>→</b></a>
     </div>
   </section>
-  <footer class="auth-footer"><span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span></footer>
+  <footer class="auth-footer">
+    <span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span>
+  </footer>
 </main>
