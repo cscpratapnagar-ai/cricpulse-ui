@@ -23,7 +23,9 @@
           <span class="live-badge"><i></i>{{ statusLabel(score) }}</span>
         </div>
 
-        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="score">
+          {{ score.runs }}<em>/{{ score.wickets }}</em>
+        </div>
         <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
 
         @if (score.targetRuns && score.targetRuns > score.runs) {
@@ -33,9 +35,7 @@
           </div>
         }
 
-        <div class="live-line">
-          <i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}
-        </div>
+        <div class="live-line"><i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}</div>
       </section>
 
       <section class="info-grid">
@@ -96,7 +96,9 @@
       <section class="score-card loading error-state">
         <div>
           <strong>Live score unavailable</strong>
-          <span>The match may not have started yet or the live feed is temporarily unavailable.</span>
+          <span
+            >The match may not have started yet or the live feed is temporarily unavailable.</span
+          >
         </div>
       </section>
     }
