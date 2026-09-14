@@ -29,8 +29,10 @@ export class LiveScoreSocketService {
     this.lastEventVersion = 0;
     this.stateSubject.next('CONNECTING');
 
+    const accessToken = localStorage.getItem('cricketpulse_access_token');
     this.client = new Client({
       brokerURL: `${WS_ORIGIN}/ws`,
+      connectHeaders: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       reconnectDelay: 3000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
