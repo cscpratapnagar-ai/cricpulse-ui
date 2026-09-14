@@ -66,7 +66,9 @@ export class PublicLiveScoreComponent {
     });
 
     this.score$ = timer(0, 5000).pipe(
-      switchMap(() => this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)),
+      switchMap(() =>
+        this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`),
+      ),
       tap((innings) => (this.currentInnings = innings)),
       distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
       switchMap((innings) => this.liveScore.watch(innings.inningsId)),
@@ -80,7 +82,8 @@ export class PublicLiveScoreComponent {
 
   battingTeamName(): string {
     const battingTeamId = this.currentInnings?.battingTeamId;
-    if (battingTeamId && battingTeamId === this.match?.teamBId) return this.match?.teamBName || 'Team B';
+    if (battingTeamId && battingTeamId === this.match?.teamBId)
+      return this.match?.teamBName || 'Team B';
     return this.match?.teamAName || 'Batting Team';
   }
 
