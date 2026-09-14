@@ -1,99 +1,82 @@
-<main class="auth-page">
-  <div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span></div>
-  <header class="auth-nav">
-    <a routerLink="/" class="brand"
-      ><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
-    >
-    <div class="nav-actions">
-      <span class="nav-note">THE CRICKET OPERATING SYSTEM</span
-      ><button
-        type="button"
-        class="theme"
-        (click)="toggleTheme()"
-        [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"
-      >
-        <span>{{ dark ? '☀' : '◐' }}</span>
-      </button>
+<main class="auth-shell">
+  <aside class="brand-panel">
+    <a class="brand" routerLink="/"><span class="brand-mark">C</span>CricketPulse</a>
+    <div class="brand-copy">
+      <span class="eyebrow">BUILD YOUR CRICKET HOME</span>
+      <h1>Start your<br /><em>next chapter.</em></h1>
+      <p>Create one workspace for every team, tournament, player and unforgettable moment.</p>
     </div>
-  </header>
-  <section class="auth-content signup-content">
-    <div class="auth-intro">
-      <span class="eyebrow"><i></i> START YOUR WORKSPACE</span>
-      <h1>Build it.<br /><em>Play it. Know it.</em></h1>
-      <p>
-        Create one CricPulse account for teams, tournaments, live scoring, player history and
-        cricket intelligence.
-      </p>
-      <div class="event-line" aria-hidden="true">
-        <span>WORKSPACE</span><b>→</b><span>SCORING</span><b>→</b><span>INTELLIGENCE</span>
-      </div>
+    <div class="promise">
+      <span>01</span><span>Teams & players</span><span>02</span><span>Live scoring</span
+      ><span>03</span><span>Insights</span>
     </div>
-    <div class="auth-card">
-      <div class="card-top">
-        <div>
-          <span class="card-kicker">CREATE ACCOUNT</span>
-          <h2>Join CricPulse</h2>
-        </div>
-        <span class="live-status"><i></i> READY</span>
+    <div class="orbit o1"></div>
+    <div class="orbit o2"></div>
+  </aside>
+  <section class="auth-panel">
+    <div class="auth-top">
+      <span class="step">CREATE ACCOUNT</span
+      ><button class="theme" type="button" (click)="toggleTheme()">{{ dark ? '☀' : '◐' }}</button>
+    </div>
+    <div class="form-wrap">
+      <div class="heading">
+        <h2>Join CricketPulse</h2>
+        <p>Set up your account. You can build your workspace next.</p>
       </div>
-      <div class="progress" aria-hidden="true"><i></i><i></i><i></i></div>
-      <form (ngSubmit)="submit()" novalidate>
+      <div class="progress"><i></i><i></i><i></i></div>
+      <form (ngSubmit)="submit()">
         <label
-          ><span>Full name</span>
+          >Full name
           <div class="field">
-            <span class="field-icon person-icon"></span
+            <span>◉</span
             ><input
               name="fullName"
               [(ngModel)]="fullName"
               placeholder="Your full name"
-              autocomplete="name"
               required
             /></div
         ></label>
         <div class="two">
           <label
-            ><span>Email address</span>
+            >Email address
             <div class="field">
-              <span class="field-icon email-icon"></span
+              <span>✉</span
               ><input
                 name="email"
                 type="email"
                 [(ngModel)]="email"
                 placeholder="you@example.com"
-                autocomplete="email"
                 required
               /></div></label
           ><label
-            ><span>Mobile number</span>
+            >Mobile number
             <div class="field">
-              <span class="field-icon phone-icon"></span
+              <span>⌁</span
               ><input
                 name="phone"
                 type="tel"
                 [(ngModel)]="phone"
                 placeholder="+91 98765 43210"
-                autocomplete="tel"
                 required
               /></div
           ></label>
         </div>
         <label
-          ><span>Password</span>
+          >Password
           <div class="field">
-            <span class="field-icon lock-icon"></span
+            <span>◌</span
             ><input
               name="password"
               [type]="showPassword ? 'text' : 'password'"
               [(ngModel)]="password"
               placeholder="Minimum 8 characters"
-              autocomplete="new-password"
               required
             /><button type="button" class="eye" (click)="showPassword = !showPassword">
               {{ showPassword ? 'Hide' : 'Show' }}
             </button>
           </div></label
         >
-        <div class="strength" aria-live="polite">
+        <div class="strength">
           <span [class.on]="password.length > 0"></span
           ><span [class.on]="password.length >= 8"></span
           ><span [class.on]="password.length >= 12"></span
@@ -102,37 +85,29 @@
           }}</small>
         </div>
         <label
-          ><span>Confirm password</span>
+          >Confirm password
           <div class="field">
-            <span class="field-icon check-icon">✓</span
+            <span>✓</span
             ><input
               name="confirmPassword"
               [type]="showPassword ? 'text' : 'password'"
               [(ngModel)]="confirmPassword"
               placeholder="Repeat your password"
-              autocomplete="new-password"
               required
-            /></div
-        ></label>
-        <button class="submit" type="submit" [disabled]="loading">
-          <span>{{ loading ? 'Creating your account...' : 'Create your CricPulse account' }}</span
+            /></div></label
+        ><button class="submit" [disabled]="loading">
+          <span>{{ loading ? 'Creating your account...' : 'Create free account' }}</span
           ><b>→</b>
         </button>
       </form>
-      @if (toast) {
-        <div class="notice" role="status" [class.success]="toastType === 'success'">
-          <i></i
-          ><span
-            ><b>{{ toastTitle }}</b
-            >{{ toast }}</span
-          >
-        </div>
-      }
-      <div class="divider"><span></span><small>ALREADY HAVE AN ACCOUNT?</small><span></span></div>
-      <a routerLink="/login" class="secondary-action">Sign in to CricPulse <b>→</b></a>
+      <p class="switch">Already part of CricketPulse? <a routerLink="/login">Sign in</a></p>
     </div>
+    <p class="legal">By creating an account, you agree to our Terms and Privacy Policy.</p>
+    @if (toast) {
+      <div class="toast" [class.success]="toastType === 'success'">
+        <b>{{ toastTitle }}</b
+        ><span>{{ toast }}</span>
+      </div>
+    }
   </section>
-  <footer class="auth-footer">
-    <span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span>
-  </footer>
 </main>

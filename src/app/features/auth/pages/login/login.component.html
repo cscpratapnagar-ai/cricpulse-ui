@@ -1,44 +1,41 @@
-<main class="auth-page">
-  <div class="auth-bg" aria-hidden="true"><span></span><span></span><span></span></div>
-  <header class="auth-nav">
-    <a routerLink="/" class="brand"
-      ><span class="brand-mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
-    >
-    <div class="nav-actions">
-      <span class="nav-note">THE CRICKET OPERATING SYSTEM</span
+<main class="auth-shell">
+  <aside class="brand-panel">
+    <a class="brand" routerLink="/"><span class="brand-mark">C</span><span>CricketPulse</span></a>
+    <div class="brand-copy">
+      <span class="eyebrow">ONE PLATFORM · EVERY DELIVERY</span>
+      <h1>Run cricket.<br /><em>Beautifully.</em></h1>
+      <p>A calmer command center for teams, tournaments and every ball that matters.</p>
+    </div>
+    <div class="signal">
+      <i></i>
+      <div><b>Realtime by design</b><span>Scoring sync · Live insights · Anywhere</span></div>
+    </div>
+    <div class="orbit o1"></div>
+    <div class="orbit o2"></div>
+    <div class="ball">◉</div>
+  </aside>
+  <section class="auth-panel">
+    <div class="auth-top">
+      <span class="step">WELCOME BACK</span
       ><button
-        type="button"
         class="theme"
+        type="button"
         (click)="toggleTheme()"
         [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"
       >
-        <span>{{ dark ? '☀' : '◐' }}</span>
+        {{ dark ? '☀' : '◐' }}
       </button>
     </div>
-  </header>
-  <section class="auth-content">
-    <div class="auth-intro">
-      <span class="eyebrow"><i></i> WELCOME BACK</span>
-      <h1>Every ball.<br /><em>One connected game.</em></h1>
-      <p>Sign in to continue to your cricket workspace, live matches and player intelligence.</p>
-      <div class="event-line" aria-hidden="true">
-        <span>SCORING</span><b>→</b><span>LIVE</span><b>→</b><span>INTELLIGENCE</span><b>→</b
-        ><span>BROADCAST</span>
+    <div class="form-wrap">
+      <div class="heading">
+        <h2>Sign in</h2>
+        <p>Continue to your CricketPulse workspace.</p>
       </div>
-    </div>
-    <div class="auth-card">
-      <div class="card-top">
-        <div>
-          <span class="card-kicker">SECURE ACCESS</span>
-          <h2>Sign in</h2>
-        </div>
-        <span class="live-status"><i></i> READY</span>
-      </div>
-      <form (ngSubmit)="submit()" novalidate>
+      <form (ngSubmit)="submit()">
         <label
-          ><span>Email address</span>
+          >Email address
           <div class="field">
-            <span class="field-icon email-icon"></span
+            <span>✉</span
             ><input
               name="email"
               type="email"
@@ -46,12 +43,11 @@
               placeholder="you@example.com"
               autocomplete="email"
               required
-            /></div
-        ></label>
-        <label
-          ><span>Password</span>
+            /></div></label
+        ><label
+          >Password
           <div class="field">
-            <span class="field-icon lock-icon"></span
+            <span>◌</span
             ><input
               name="password"
               [type]="showPassword ? 'text' : 'password'"
@@ -71,19 +67,17 @@
             ></label
           ><a href="/login">Forgot password?</a>
         </div>
-        <button class="submit" type="submit" [disabled]="loading">
-          <span>{{ loading ? 'Signing you in...' : 'Sign in to CricPulse' }}</span
+        <button class="submit" [disabled]="loading">
+          <span>{{ loading ? 'Signing you in...' : 'Sign in to CricketPulse' }}</span
           ><b>→</b>
         </button>
       </form>
+      <div class="divider"><span></span><small>NEW TO CRICKETPULSE?</small><span></span></div>
+      <a class="create" routerLink="/signup">Create your free account <b>→</b></a>
       @if (message) {
-        <div class="notice" role="alert"><i></i>{{ message }}</div>
+        <div class="notice">{{ message }}</div>
       }
-      <div class="divider"><span></span><small>NEW TO CRICPULSE?</small><span></span></div>
-      <a routerLink="/signup" class="secondary-action">Create your free account <b>→</b></a>
     </div>
+    <p class="legal">By continuing, you agree to our Terms and Privacy Policy.</p>
   </section>
-  <footer class="auth-footer">
-    <span>ONE EVENT · ONE SOURCE OF TRUTH</span><span>Secure account access · Terms · Privacy</span>
-  </footer>
 </main>
