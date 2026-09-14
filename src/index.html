@@ -1,26 +1,10 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <title>CricketPulse</title>
-    <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#07130f" />
-    <script>
-      (function () {
-        try {
-          var preference = localStorage.getItem('cricpulse-theme') || 'system';
-          var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var resolved = preference === 'system' ? (dark ? 'dark' : 'light') : preference;
-          document.documentElement.dataset.theme = resolved;
-          document.documentElement.style.colorScheme = resolved;
-          document.documentElement.classList.add('theme-' + resolved);
-          document
-            .querySelector('meta[name="theme-color"]')
-            .setAttribute('content', resolved === 'dark' ? '#07130f' : '#f4f7f5');
-        } catch (_) {}
-      })();
-    </script>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
     <app-root></app-root>
