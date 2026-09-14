@@ -13,12 +13,19 @@
       </div>
 
       <div class="nav-actions">
-        <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="lightMode ? 'Switch to dark mode' : 'Switch to light mode'">
+        <button
+          class="theme-toggle"
+          type="button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="lightMode ? 'Switch to dark mode' : 'Switch to light mode'"
+        >
           <span class="theme-dot" aria-hidden="true"></span>
           <span>{{ lightMode ? 'Dark' : 'Light' }}</span>
         </button>
         <a routerLink="/login" class="signin">Sign in</a>
-        <a routerLink="/signup" class="button button-small">Get started <span aria-hidden="true">→</span></a>
+        <a routerLink="/signup" class="button button-small"
+          >Get started <span aria-hidden="true">→</span></a
+        >
       </div>
     </nav>
   </header>
@@ -28,10 +35,13 @@
       <div class="eyebrow"><span></span>THE CRICKET OPERATING SYSTEM</div>
       <h1>Everything cricket.<br /><em>Connected.</em></h1>
       <p class="hero-lede">
-        CricPulse brings scoring, teams, tournaments, player records, live experiences and cricket intelligence into one connected platform.
+        CricPulse brings scoring, teams, tournaments, player records, live experiences and cricket
+        intelligence into one connected platform.
       </p>
       <div class="hero-actions">
-        <a routerLink="/signup" class="button">Start with CricPulse <span aria-hidden="true">→</span></a>
+        <a routerLink="/signup" class="button"
+          >Start with CricPulse <span aria-hidden="true">→</span></a
+        >
         <a href="#platform" class="text-link">See the platform <span aria-hidden="true">↓</span></a>
       </div>
       <div class="trust-row">
@@ -43,7 +53,9 @@
     <div class="hero-product" aria-label="CricPulse live match product preview">
       <div class="product-window">
         <div class="window-bar">
-          <div class="window-brand"><span class="mini-mark"><i></i><i></i><i></i></span> CRICPULSE</div>
+          <div class="window-brand">
+            <span class="mini-mark"><i></i><i></i><i></i></span> CRICPULSE
+          </div>
           <span class="live-badge"><i></i> LIVE</span>
         </div>
         <div class="match-heading">
@@ -77,27 +89,40 @@
           <b>Realtime engine</b>
         </div>
       </div>
-      <div class="float-card float-one"><span>PLAYER FORM</span><strong>Recent performance</strong><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="float-card float-two"><span>CONNECTED</span><strong>Every ball has a story.</strong></div>
+      <div class="float-card float-one">
+        <span>PLAYER FORM</span><strong>Recent performance</strong><i></i><i></i><i></i><i></i
+        ><i></i>
+      </div>
+      <div class="float-card float-two">
+        <span>CONNECTED</span><strong>Every ball has a story.</strong>
+      </div>
     </div>
   </section>
 
   <section class="proof-strip">
     <div class="container proof-inner">
-      <span>ONE PLATFORM</span><b>Live scoring</b><i></i><b>Tournaments</b><i></i><b>Player history</b><i></i><b>Analytics</b><i></i><b>Broadcast</b>
+      <span>ONE PLATFORM</span><b>Live scoring</b><i></i><b>Tournaments</b><i></i
+      ><b>Player history</b><i></i><b>Analytics</b><i></i><b>Broadcast</b>
     </div>
   </section>
 
   <section id="platform" class="platform section container">
     <div class="section-intro">
-      <div><span class="section-index">01</span><span class="section-label">THE PLATFORM</span></div>
+      <div>
+        <span class="section-index">01</span><span class="section-label">THE PLATFORM</span>
+      </div>
       <h2>One source of truth<br /><em>for the whole game.</em></h2>
-      <p>Capture the game once. Let the same trusted cricket data power every experience around it.</p>
+      <p>
+        Capture the game once. Let the same trusted cricket data power every experience around it.
+      </p>
     </div>
     <div class="capability-grid">
       @for (node of ecosystemNodes; track node.title; let i = $index) {
         <article class="capability">
-          <div class="capability-top"><span>0{{ i + 1 }}</span><span class="capability-arrow" aria-hidden="true">↗</span></div>
+          <div class="capability-top">
+            <span>0{{ i + 1 }}</span
+            ><span class="capability-arrow" aria-hidden="true">↗</span>
+          </div>
           <div class="capability-icon" aria-hidden="true"><i></i><i></i><i></i></div>
           <h3>{{ node.title }}</h3>
           <p>{{ node.description }}</p>
@@ -112,36 +137,60 @@
         <span class="section-label">02 · CRICKET INTELLIGENCE</span>
         <h2>From raw events<br /><em>to useful understanding.</em></h2>
         <p>
-          A match is more than a score. CricPulse is designed to turn reliable ball-by-ball events into context that players, teams, organizers and viewers can actually use.
+          A match is more than a score. CricPulse is designed to turn reliable ball-by-ball events
+          into context that players, teams, organizers and viewers can actually use.
         </p>
         <div class="insight-list">
-          <div><span>01</span><b>Match momentum</b><small>See where the game is changing.</small></div>
-          <div><span>02</span><b>Player trends</b><small>Understand form from real match history.</small></div>
-          <div><span>03</span><b>Tournament picture</b><small>Follow qualification, standings and performance.</small></div>
+          <div>
+            <span>01</span><b>Match momentum</b><small>See where the game is changing.</small>
+          </div>
+          <div>
+            <span>02</span><b>Player trends</b
+            ><small>Understand form from real match history.</small>
+          </div>
+          <div>
+            <span>03</span><b>Tournament picture</b
+            ><small>Follow qualification, standings and performance.</small>
+          </div>
         </div>
       </div>
       <div class="analytics-card">
         <div class="analytics-head"><span>MATCH INTELLIGENCE</span><b>REALTIME</b></div>
-        <div class="momentum-title"><div><small>MOMENTUM</small><strong>Rising</strong></div><span>+12%</span></div>
-        <div class="momentum-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><b></b></div>
+        <div class="momentum-title">
+          <div><small>MOMENTUM</small><strong>Rising</strong></div>
+          <span>+12%</span>
+        </div>
+        <div class="momentum-chart" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span
+          ><span></span><span></span><span></span><b></b>
+        </div>
         <div class="analytics-stats">
           <div><span>RUN RATE</span><strong>8.19</strong></div>
           <div><span>RECENT RR</span><strong>10.50</strong></div>
           <div><span>PRESSURE</span><strong>Medium</strong></div>
         </div>
-        <div class="insight-callout"><span></span><p>Recent scoring has accelerated while wickets remain under control.</p></div>
+        <div class="insight-callout">
+          <span></span>
+          <p>Recent scoring has accelerated while wickets remain under control.</p>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="ecosystem" class="ecosystem-section section container">
     <div class="section-intro compact">
-      <div><span class="section-index">03</span><span class="section-label">ONE ECOSYSTEM</span></div>
+      <div>
+        <span class="section-index">03</span><span class="section-label">ONE ECOSYSTEM</span>
+      </div>
       <h2>Made for everyone<br /><em>around the game.</em></h2>
     </div>
     <div class="audience-grid">
       @for (audience of audiences; track audience; let i = $index) {
-        <div><span>0{{ i + 1 }}</span><strong>{{ audience }}</strong><b aria-hidden="true">→</b></div>
+        <div>
+          <span>0{{ i + 1 }}</span
+          ><strong>{{ audience }}</strong
+          ><b aria-hidden="true">→</b>
+        </div>
       }
     </div>
   </section>
@@ -153,7 +202,11 @@
     </div>
     <div class="principle-grid">
       @for (pillar of pillars; track pillar.title; let i = $index) {
-        <article><span>0{{ i + 1 }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.copy }}</p></article>
+        <article>
+          <span>0{{ i + 1 }}</span>
+          <h3>{{ pillar.title }}</h3>
+          <p>{{ pillar.copy }}</p>
+        </article>
       }
     </div>
   </section>
@@ -163,13 +216,18 @@
       <span class="section-label">THE NEXT MATCH STARTS HERE</span>
       <h2>Bring your cricket<br /><em>into one connected place.</em></h2>
       <p>Start building your teams, matches and cricket history with CricPulse.</p>
-      <a routerLink="/signup" class="button">Create your CricPulse account <span aria-hidden="true">→</span></a>
+      <a routerLink="/signup" class="button"
+        >Create your CricPulse account <span aria-hidden="true">→</span></a
+      >
     </div>
     <div class="cta-mark" aria-hidden="true"><span></span><span></span><span></span></div>
   </section>
 
   <footer class="footer container">
-    <a routerLink="/" class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a>
+    <a routerLink="/" class="brand"
+      ><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span
+      ><span>Cric<span>Pulse</span></span></a
+    >
     <p>Cricket, connected.</p>
     <small>© {{ year }} CricPulse</small>
   </footer>
