@@ -2,12 +2,17 @@
   <div class="auth-ambient" aria-hidden="true"><span></span><span></span><span></span></div>
 
   <aside class="brand-panel">
-    <a class="brand" routerLink="/" aria-label="CricPulse home"><span class="brand-mark">C</span><span>CricPulse</span></a>
+    <a class="brand" routerLink="/" aria-label="CricPulse home"
+      ><span class="brand-mark">C</span><span>CricPulse</span></a
+    >
 
     <div class="brand-copy">
       <span class="eyebrow">YOUR CRICKET WORKSPACE</span>
       <h1>Build it.<br /><em>Play it. Know it.</em></h1>
-      <p>Create one account for teams, tournaments, live scoring, player performance and the cricket intelligence built around every delivery.</p>
+      <p>
+        Create one account for teams, tournaments, live scoring, player performance and the cricket
+        intelligence built around every delivery.
+      </p>
     </div>
 
     <div class="journey" aria-hidden="true">
@@ -18,19 +23,31 @@
     </div>
 
     <div class="system-card" aria-hidden="true">
-      <div class="system-head"><span><i></i> CRICPULSE ENGINE</span><b>READY</b></div>
-      <div class="system-flow"><span>SCORER</span><i>→</i><span>ENGINE</span><i>→</i><span>LIVE</span></div>
+      <div class="system-head">
+        <span><i></i> CRICPULSE ENGINE</span><b>READY</b>
+      </div>
+      <div class="system-flow">
+        <span>SCORER</span><i>→</i><span>ENGINE</span><i>→</i><span>LIVE</span>
+      </div>
       <div class="system-note"><span>One delivery</span><b>One source of truth</b></div>
     </div>
 
-    <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+    <div class="orbit orbit-one"></div>
+    <div class="orbit orbit-two"></div>
     <div class="cricket-ball" aria-hidden="true"><span></span></div>
   </aside>
 
   <section class="auth-panel">
     <div class="auth-top">
       <span class="step"><i></i> CREATE ACCOUNT</span>
-      <button class="theme" type="button" (click)="toggleTheme()" [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'">{{ dark ? '☀' : '◐' }}</button>
+      <button
+        class="theme"
+        type="button"
+        (click)="toggleTheme()"
+        [attr.aria-label]="dark ? 'Use light mode' : 'Use dark mode'"
+      >
+        {{ dark ? '☀' : '◐' }}
+      </button>
     </div>
 
     <div class="form-wrap">
@@ -43,28 +60,105 @@
       <div class="progress" aria-hidden="true"><i></i><i></i><i></i></div>
 
       <form (ngSubmit)="submit()" novalidate>
-        <label><span>Full name</span><div class="field"><span class="field-icon">A</span><input name="fullName" [(ngModel)]="fullName" placeholder="Your full name" autocomplete="name" required /></div></label>
+        <label
+          ><span>Full name</span>
+          <div class="field">
+            <span class="field-icon">A</span
+            ><input
+              name="fullName"
+              [(ngModel)]="fullName"
+              placeholder="Your full name"
+              autocomplete="name"
+              required
+            /></div
+        ></label>
 
         <div class="two">
-          <label><span>Email address</span><div class="field"><span class="field-icon">&#64;</span><input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" autocomplete="email" required /></div></label>
-          <label><span>Mobile number</span><div class="field"><span class="field-icon phone-icon"></span><input name="phone" type="tel" [(ngModel)]="phone" placeholder="+91 98765 43210" autocomplete="tel" required /></div></label>
+          <label
+            ><span>Email address</span>
+            <div class="field">
+              <span class="field-icon">&#64;</span
+              ><input
+                name="email"
+                type="email"
+                [(ngModel)]="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              /></div
+          ></label>
+          <label
+            ><span>Mobile number</span>
+            <div class="field">
+              <span class="field-icon phone-icon"></span
+              ><input
+                name="phone"
+                type="tel"
+                [(ngModel)]="phone"
+                placeholder="+91 98765 43210"
+                autocomplete="tel"
+                required
+              /></div
+          ></label>
         </div>
 
-        <label><span>Password</span><div class="field"><span class="field-icon lock-icon"></span><input name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Minimum 8 characters" autocomplete="new-password" required /><button type="button" class="eye" (click)="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button></div></label>
+        <label
+          ><span>Password</span>
+          <div class="field">
+            <span class="field-icon lock-icon"></span
+            ><input
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              placeholder="Minimum 8 characters"
+              autocomplete="new-password"
+              required
+            /><button type="button" class="eye" (click)="showPassword = !showPassword">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div></label
+        >
 
-        <div class="strength" aria-live="polite"><span [class.on]="password.length > 0"></span><span [class.on]="password.length >= 8"></span><span [class.on]="password.length >= 12"></span><small>{{ password.length ? 'Use a strong, unique password' : 'At least 8 characters' }}</small></div>
+        <div class="strength" aria-live="polite">
+          <span [class.on]="password.length > 0"></span
+          ><span [class.on]="password.length >= 8"></span
+          ><span [class.on]="password.length >= 12"></span
+          ><small>{{
+            password.length ? 'Use a strong, unique password' : 'At least 8 characters'
+          }}</small>
+        </div>
 
-        <label><span>Confirm password</span><div class="field"><span class="field-icon check-icon">✓</span><input name="confirmPassword" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required /></div></label>
+        <label
+          ><span>Confirm password</span>
+          <div class="field">
+            <span class="field-icon check-icon">✓</span
+            ><input
+              name="confirmPassword"
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+              required
+            /></div
+        ></label>
 
-        <button class="submit" type="submit" [disabled]="loading"><span>{{ loading ? 'Creating your account...' : 'Create free account' }}</span><b aria-hidden="true">→</b></button>
+        <button class="submit" type="submit" [disabled]="loading">
+          <span>{{ loading ? 'Creating your account...' : 'Create free account' }}</span
+          ><b aria-hidden="true">→</b>
+        </button>
       </form>
 
-      <p class="switch">Already part of CricPulse? <a routerLink="/login">Sign in <b>→</b></a></p>
+      <p class="switch">
+        Already part of CricPulse? <a routerLink="/login">Sign in <b>→</b></a>
+      </p>
     </div>
 
     <p class="legal">Secure account access · Terms · Privacy</p>
     @if (toast) {
-      <div class="toast" role="status" [class.success]="toastType === 'success'"><b>{{ toastTitle }}</b><span>{{ toast }}</span></div>
+      <div class="toast" role="status" [class.success]="toastType === 'success'">
+        <b>{{ toastTitle }}</b
+        ><span>{{ toast }}</span>
+      </div>
     }
   </section>
 </main>

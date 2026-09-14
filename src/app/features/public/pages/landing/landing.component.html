@@ -7,14 +7,23 @@
         <span>Cric<span>Pulse</span></span>
       </a>
       <div class="nav-links">
-        <a href="#platform">Platform</a><a href="#intelligence">Intelligence</a><a href="#ecosystem">Ecosystem</a>
+        <a href="#platform">Platform</a><a href="#intelligence">Intelligence</a
+        ><a href="#ecosystem">Ecosystem</a>
       </div>
       <div class="nav-actions">
-        <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="lightMode ? 'Switch to dark mode' : 'Switch to light mode'">
-          <span class="theme-dot" aria-hidden="true"></span><span>{{ lightMode ? 'Dark' : 'Light' }}</span>
+        <button
+          class="theme-toggle"
+          type="button"
+          (click)="toggleTheme()"
+          [attr.aria-label]="lightMode ? 'Switch to dark mode' : 'Switch to light mode'"
+        >
+          <span class="theme-dot" aria-hidden="true"></span
+          ><span>{{ lightMode ? 'Dark' : 'Light' }}</span>
         </button>
         <a routerLink="/login" class="signin">Sign in</a>
-        <a routerLink="/signup" class="button button-small">Get started <span aria-hidden="true">→</span></a>
+        <a routerLink="/signup" class="button button-small"
+          >Get started <span aria-hidden="true">→</span></a
+        >
       </div>
     </nav>
   </header>
@@ -23,72 +32,262 @@
     <div class="hero-copy">
       <div class="eyebrow"><span></span>THE CRICKET OPERATING SYSTEM</div>
       <h1>Every ball.<br /><em>One connected game.</em></h1>
-      <p class="hero-lede">CricPulse connects live scoring, teams, tournaments, player history, analytics and broadcast into one cricket platform built around a single source of truth.</p>
+      <p class="hero-lede">
+        CricPulse connects live scoring, teams, tournaments, player history, analytics and broadcast
+        into one cricket platform built around a single source of truth.
+      </p>
       <div class="hero-actions">
-        <a routerLink="/signup" class="button">Start with CricPulse <span aria-hidden="true">→</span></a>
-        <a href="#platform" class="text-link">Explore the system <span aria-hidden="true">↓</span></a>
+        <a routerLink="/signup" class="button"
+          >Start with CricPulse <span aria-hidden="true">→</span></a
+        >
+        <a href="#platform" class="text-link"
+          >Explore the system <span aria-hidden="true">↓</span></a
+        >
       </div>
-      <div class="trust-row"><span class="live-dot"></span><span>From scorer input to viewer experience — in real time.</span></div>
+      <div class="trust-row">
+        <span class="live-dot"></span
+        ><span>From scorer input to viewer experience — in real time.</span>
+      </div>
       <div class="hero-proof">
-        <div><strong>01</strong><span>Score once</span></div><i></i><div><strong>02</strong><span>Sync everywhere</span></div><i></i><div><strong>03</strong><span>Understand the game</span></div>
+        <div><strong>01</strong><span>Score once</span></div>
+        <i></i>
+        <div><strong>02</strong><span>Sync everywhere</span></div>
+        <i></i>
+        <div><strong>03</strong><span>Understand the game</span></div>
       </div>
     </div>
 
     <div class="hero-product" aria-label="Animated CricPulse product preview">
-      <div class="connection connection-one"></div><div class="connection connection-two"></div><div class="connection connection-three"></div>
+      <div class="connection connection-one"></div>
+      <div class="connection connection-two"></div>
+      <div class="connection connection-three"></div>
       <div class="product-window">
-        <div class="window-bar"><div class="window-brand"><span class="mini-mark"><i></i><i></i><i></i></span> CRICPULSE</div><span class="live-badge"><i></i> LIVE ENGINE</span></div>
-        <div class="match-heading"><div><span>LOCAL LEAGUE · FINAL</span><strong>Live Match Center</strong></div><span class="match-state">17.2 overs</span></div>
-        <div class="scoreboard">
-          <div class="team-block"><span>RIVERSIDE CC</span><strong>142<small>/ 4</small></strong><em>Current innings</em></div><div class="vs">VS</div>
-          <div class="team-block align-right"><span>CITY XI</span><strong>138<small>/ 7</small></strong><em>Target 143</em></div>
+        <div class="window-bar">
+          <div class="window-brand">
+            <span class="mini-mark"><i></i><i></i><i></i></span> CRICPULSE
+          </div>
+          <span class="live-badge"><i></i> LIVE ENGINE</span>
         </div>
-        <div class="match-meta"><span><b>RUN RATE</b>8.19</span><span><b>PARTNERSHIP</b>36 (24)</span><span><b>REQUIRED</b>6.00</span></div>
-        <div class="recent-ball"><span>LIVE BALL STREAM</span><div><i>1</i><i class="four">4</i><i>0</i><i>1</i><i class="event">W</i><i>2</i></div></div>
-        <div class="event-feed"><span class="feed-live"></span><b>Event received</b><span>Scorecard · Analytics · Broadcast synced</span></div>
+        <div class="match-heading">
+          <div><span>LOCAL LEAGUE · FINAL</span><strong>Live Match Center</strong></div>
+          <span class="match-state">17.2 overs</span>
+        </div>
+        <div class="scoreboard">
+          <div class="team-block">
+            <span>RIVERSIDE CC</span><strong>142<small>/ 4</small></strong
+            ><em>Current innings</em>
+          </div>
+          <div class="vs">VS</div>
+          <div class="team-block align-right">
+            <span>CITY XI</span><strong>138<small>/ 7</small></strong
+            ><em>Target 143</em>
+          </div>
+        </div>
+        <div class="match-meta">
+          <span><b>RUN RATE</b>8.19</span><span><b>PARTNERSHIP</b>36 (24)</span
+          ><span><b>REQUIRED</b>6.00</span>
+        </div>
+        <div class="recent-ball">
+          <span>LIVE BALL STREAM</span>
+          <div><i>1</i><i class="four">4</i><i>0</i><i>1</i><i class="event">W</i><i>2</i></div>
+        </div>
+        <div class="event-feed">
+          <span class="feed-live"></span><b>Event received</b
+          ><span>Scorecard · Analytics · Broadcast synced</span>
+        </div>
         <div class="product-footer"><span>One event → every experience</span><b>REALTIME</b></div>
       </div>
-      <div class="float-card float-one"><span>PLAYER INTELLIGENCE</span><strong>Form · trends · history</strong><div class="mini-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-      <div class="float-card float-two"><span>BROADCAST</span><strong>Overlay synchronized</strong><i class="signal-bars"></i></div>
+      <div class="float-card float-one">
+        <span>PLAYER INTELLIGENCE</span><strong>Form · trends · history</strong>
+        <div class="mini-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="float-card float-two">
+        <span>BROADCAST</span><strong>Overlay synchronized</strong><i class="signal-bars"></i>
+      </div>
       <div class="floating-ball" aria-hidden="true"></div>
     </div>
   </section>
 
-  <section class="proof-strip"><div class="container proof-inner"><span>ONE EVENT</span><b>Live Score</b><i></i><b>Scorecard</b><i></i><b>Analytics</b><i></i><b>Player History</b><i></i><b>Broadcast</b></div></section>
+  <section class="proof-strip">
+    <div class="container proof-inner">
+      <span>ONE EVENT</span><b>Live Score</b><i></i><b>Scorecard</b><i></i><b>Analytics</b><i></i
+      ><b>Player History</b><i></i><b>Broadcast</b>
+    </div>
+  </section>
 
   <section id="platform" class="platform section container">
-    <div class="section-intro"><div><span class="section-index">01</span><span class="section-label">THE PLATFORM</span></div><h2>One source of truth<br /><em>for the whole game.</em></h2><p>Record a cricket event once. CricPulse is designed to carry that trusted data through every layer of the experience.</p></div>
+    <div class="section-intro">
+      <div>
+        <span class="section-index">01</span><span class="section-label">THE PLATFORM</span>
+      </div>
+      <h2>One source of truth<br /><em>for the whole game.</em></h2>
+      <p>
+        Record a cricket event once. CricPulse is designed to carry that trusted data through every
+        layer of the experience.
+      </p>
+    </div>
     <div class="capability-grid">
       @for (node of ecosystemNodes; track node.title; let i = $index) {
-        <article class="capability"><div class="capability-top"><span>0{{ i + 1 }}</span><span class="capability-arrow" aria-hidden="true">↗</span></div><div class="capability-icon" aria-hidden="true"><i></i><i></i><i></i></div><h3>{{ node.title }}</h3><p>{{ node.description }}</p><div class="capability-line"></div></article>
+        <article class="capability">
+          <div class="capability-top">
+            <span>0{{ i + 1 }}</span
+            ><span class="capability-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="capability-icon" aria-hidden="true"><i></i><i></i><i></i></div>
+          <h3>{{ node.title }}</h3>
+          <p>{{ node.description }}</p>
+          <div class="capability-line"></div>
+        </article>
       }
     </div>
     <div class="event-pipeline" aria-label="CricPulse event pipeline">
       <div class="pipeline-label">ONE CRICKET EVENT</div>
-      <div class="pipeline-flow"><span>Scorer</span><b>→</b><span class="active">CricPulse Engine</span><b>→</b><span>Live Center</span><b>→</b><span>Analytics</span><b>→</b><span>Broadcast</span></div>
+      <div class="pipeline-flow">
+        <span>Scorer</span><b>→</b><span class="active">CricPulse Engine</span><b>→</b
+        ><span>Live Center</span><b>→</b><span>Analytics</span><b>→</b><span>Broadcast</span>
+      </div>
       <div class="pipeline-pulse"></div>
     </div>
   </section>
 
   <section id="intelligence" class="intelligence section">
     <div class="container intelligence-grid">
-      <div class="intelligence-copy"><span class="section-label">02 · CRICKET INTELLIGENCE</span><h2>From raw events<br /><em>to useful understanding.</em></h2><p>A score is the beginning. Structured match events can reveal momentum, pressure, player trends and the tournament picture — without inventing data.</p>
-        <div class="insight-list"><div><span>01</span><b>Match momentum</b><small>See where the game is changing.</small></div><div><span>02</span><b>Player trends</b><small>Understand form from real match history.</small></div><div><span>03</span><b>Tournament picture</b><small>Follow standings, qualification and performance.</small></div></div>
+      <div class="intelligence-copy">
+        <span class="section-label">02 · CRICKET INTELLIGENCE</span>
+        <h2>From raw events<br /><em>to useful understanding.</em></h2>
+        <p>
+          A score is the beginning. Structured match events can reveal momentum, pressure, player
+          trends and the tournament picture — without inventing data.
+        </p>
+        <div class="insight-list">
+          <div>
+            <span>01</span><b>Match momentum</b><small>See where the game is changing.</small>
+          </div>
+          <div>
+            <span>02</span><b>Player trends</b
+            ><small>Understand form from real match history.</small>
+          </div>
+          <div>
+            <span>03</span><b>Tournament picture</b
+            ><small>Follow standings, qualification and performance.</small>
+          </div>
+        </div>
       </div>
-      <div class="analytics-card"><div class="analytics-head"><span>MATCH INTELLIGENCE</span><b>LIVE DATA</b></div><div class="momentum-title"><div><small>MOMENTUM</small><strong>Rising</strong></div><span>LIVE</span></div><div class="momentum-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><b></b></div><div class="analytics-stats"><div><span>RUN RATE</span><strong>8.19</strong></div><div><span>RECENT RR</span><strong>10.50</strong></div><div><span>PRESSURE</span><strong>Medium</strong></div></div><div class="insight-callout"><span></span><p>Explainable match signals built from actual scoring events.</p></div></div>
+      <div class="analytics-card">
+        <div class="analytics-head"><span>MATCH INTELLIGENCE</span><b>LIVE DATA</b></div>
+        <div class="momentum-title">
+          <div><small>MOMENTUM</small><strong>Rising</strong></div>
+          <span>LIVE</span>
+        </div>
+        <div class="momentum-chart" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span
+          ><span></span><span></span><span></span><b></b>
+        </div>
+        <div class="analytics-stats">
+          <div><span>RUN RATE</span><strong>8.19</strong></div>
+          <div><span>RECENT RR</span><strong>10.50</strong></div>
+          <div><span>PRESSURE</span><strong>Medium</strong></div>
+        </div>
+        <div class="insight-callout">
+          <span></span>
+          <p>Explainable match signals built from actual scoring events.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <section id="ecosystem" class="ecosystem-section section container">
-    <div class="section-intro compact"><div><span class="section-index">03</span><span class="section-label">ONE ECOSYSTEM</span></div><h2>One game.<br /><em>Many experiences.</em></h2></div>
-    <div class="audience-grid">@for (audience of audiences; track audience; let i = $index) {<div><span>0{{ i + 1 }}</span><strong>{{ audience }}</strong><b aria-hidden="true">→</b></div>}</div>
+    <div class="section-intro compact">
+      <div>
+        <span class="section-index">03</span><span class="section-label">ONE ECOSYSTEM</span>
+      </div>
+      <h2>One game.<br /><em>Many experiences.</em></h2>
+    </div>
+    <div class="audience-grid">
+      @for (audience of audiences; track audience; let i = $index) {
+        <div>
+          <span>0{{ i + 1 }}</span
+          ><strong>{{ audience }}</strong
+          ><b aria-hidden="true">→</b>
+        </div>
+      }
+    </div>
   </section>
 
-  <section class="capability-story section"><div class="container story-grid"><div><span class="section-label">04 · BUILT FOR MATCH DAY</span><h2>Designed around<br /><em>how cricket actually moves.</em></h2><p>Prepare the match. Toss. Set the playing XI. Score ball by ball. Complete the innings. Publish the result. Keep the history forever.</p></div><div class="match-flow"><div class="flow-item done"><span>01</span><div><b>Match setup</b><small>Teams · players · fixture</small></div></div><div class="flow-item done"><span>02</span><div><b>Toss & Playing XI</b><small>Match lifecycle controls</small></div></div><div class="flow-item live"><span>03</span><div><b>Live scoring</b><small>Every delivery becomes an event</small></div></div><div class="flow-item"><span>04</span><div><b>Result & scorecard</b><small>Canonical match outcome</small></div></div><div class="flow-item"><span>05</span><div><b>History & intelligence</b><small>Performance continues after the match</small></div></div></div></div></section>
+  <section class="capability-story section">
+    <div class="container story-grid">
+      <div>
+        <span class="section-label">04 · BUILT FOR MATCH DAY</span>
+        <h2>Designed around<br /><em>how cricket actually moves.</em></h2>
+        <p>
+          Prepare the match. Toss. Set the playing XI. Score ball by ball. Complete the innings.
+          Publish the result. Keep the history forever.
+        </p>
+      </div>
+      <div class="match-flow">
+        <div class="flow-item done">
+          <span>01</span>
+          <div><b>Match setup</b><small>Teams · players · fixture</small></div>
+        </div>
+        <div class="flow-item done">
+          <span>02</span>
+          <div><b>Toss & Playing XI</b><small>Match lifecycle controls</small></div>
+        </div>
+        <div class="flow-item live">
+          <span>03</span>
+          <div><b>Live scoring</b><small>Every delivery becomes an event</small></div>
+        </div>
+        <div class="flow-item">
+          <span>04</span>
+          <div><b>Result & scorecard</b><small>Canonical match outcome</small></div>
+        </div>
+        <div class="flow-item">
+          <span>05</span>
+          <div>
+            <b>History & intelligence</b><small>Performance continues after the match</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <section class="principles section container"><div class="principles-heading"><span class="section-label">05 · WHY CRICPULSE</span><h2>Simple where it matters.<br /><em>Powerful where it counts.</em></h2></div><div class="principle-grid">@for (pillar of pillars; track pillar.title; let i = $index) {<article><span>0{{ i + 1 }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.copy }}</p></article>}</div></section>
+  <section class="principles section container">
+    <div class="principles-heading">
+      <span class="section-label">05 · WHY CRICPULSE</span>
+      <h2>Simple where it matters.<br /><em>Powerful where it counts.</em></h2>
+    </div>
+    <div class="principle-grid">
+      @for (pillar of pillars; track pillar.title; let i = $index) {
+        <article>
+          <span>0{{ i + 1 }}</span>
+          <h3>{{ pillar.title }}</h3>
+          <p>{{ pillar.copy }}</p>
+        </article>
+      }
+    </div>
+  </section>
 
-  <section class="final-cta container"><div class="cta-content"><span class="section-label">THE NEXT MATCH STARTS HERE</span><h2>Bring your cricket<br /><em>into one connected place.</em></h2><p>Build teams. Run matches. Capture every ball. Grow cricket history with CricPulse.</p><a routerLink="/signup" class="button">Create your CricPulse account <span aria-hidden="true">→</span></a></div><div class="cta-visual" aria-hidden="true"><div class="cta-orbit"></div><div class="cta-core"><span></span><b>CP</b></div></div></section>
+  <section class="final-cta container">
+    <div class="cta-content">
+      <span class="section-label">THE NEXT MATCH STARTS HERE</span>
+      <h2>Bring your cricket<br /><em>into one connected place.</em></h2>
+      <p>Build teams. Run matches. Capture every ball. Grow cricket history with CricPulse.</p>
+      <a routerLink="/signup" class="button"
+        >Create your CricPulse account <span aria-hidden="true">→</span></a
+      >
+    </div>
+    <div class="cta-visual" aria-hidden="true">
+      <div class="cta-orbit"></div>
+      <div class="cta-core"><span></span><b>CP</b></div>
+    </div>
+  </section>
 
-  <footer class="footer container"><a routerLink="/" class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a><p>Cricket, connected.</p><small>© {{ year }} CricPulse</small></footer>
+  <footer class="footer container">
+    <a routerLink="/" class="brand"
+      ><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span
+      ><span>Cric<span>Pulse</span></span></a
+    >
+    <p>Cricket, connected.</p>
+    <small>© {{ year }} CricPulse</small>
+  </footer>
 </main>
