@@ -1,186 +1,176 @@
 <main class="landing" [class.light]="lightMode">
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a routerLink="/" class="brand" aria-label="CricPulse home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Cric<span>Pulse</span></span>
+      </a>
 
-  <nav class="nav container">
-    <a routerLink="/" class="brand"
-      ><span class="mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
-    >
-    <div class="nav-links">
-      <a href="#platform">Platform</a><a href="#vision">Vision</a><a href="#people">For everyone</a>
-    </div>
-    <div class="nav-actions">
-      <button
-        class="theme"
-        (click)="toggleTheme()"
-        [attr.aria-label]="lightMode ? 'Dark mode' : 'Light mode'"
-      >
-        {{ lightMode ? '☀' : '◐' }}
-      </button>
-      <a routerLink="/login">Sign in</a
-      ><a routerLink="/signup" class="nav-cta">Enter CricPulse <b>↗</b></a>
-    </div>
-  </nav>
+      <div class="nav-links">
+        <a href="#platform">Platform</a>
+        <a href="#intelligence">Intelligence</a>
+        <a href="#ecosystem">Ecosystem</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="lightMode ? 'Switch to dark mode' : 'Switch to light mode'">
+          <span class="theme-dot" aria-hidden="true"></span>
+          <span>{{ lightMode ? 'Dark' : 'Light' }}</span>
+        </button>
+        <a routerLink="/login" class="signin">Sign in</a>
+        <a routerLink="/signup" class="button button-small">Get started <span aria-hidden="true">→</span></a>
+      </div>
+    </nav>
+  </header>
 
   <section class="hero container">
     <div class="hero-copy">
-      <div class="eyebrow"><span></span> CRICKET, CONNECTED</div>
-      <h1>One platform.<br /><em>Every side of cricket.</em></h1>
-      <p>
-        CricPulse is building a connected digital foundation for the people, communities and
-        experiences that make cricket move.
+      <div class="eyebrow"><span></span>THE CRICKET OPERATING SYSTEM</div>
+      <h1>Everything cricket.<br /><em>Connected.</em></h1>
+      <p class="hero-lede">
+        CricPulse brings scoring, teams, tournaments, player records, live experiences and cricket intelligence into one connected platform.
       </p>
       <div class="hero-actions">
-        <a routerLink="/signup" class="primary">Explore the platform <b>→</b></a
-        ><a href="#platform" class="secondary">Discover how it works <b>↓</b></a>
+        <a routerLink="/signup" class="button">Start with CricPulse <span aria-hidden="true">→</span></a>
+        <a href="#platform" class="text-link">See the platform <span aria-hidden="true">↓</span></a>
       </div>
-      <div class="hero-note">
-        <i></i><span>Designed as an ecosystem — not another collection of tools.</span>
+      <div class="trust-row">
+        <span class="live-dot"></span>
+        <span>Built for live cricket, from the scorer to the viewer.</span>
       </div>
     </div>
 
-    <div class="hero-visual" aria-label="CricPulse connected ecosystem visualization">
-      <div class="halo halo-a"></div>
-      <div class="halo halo-b"></div>
-      <div class="orbit orbit-a"></div>
-      <div class="orbit orbit-b"></div>
-      <div class="signal-line"></div>
-      <div class="core">
-        <span class="core-ring"></span>
-        <div class="core-logo"><i></i><i></i><i></i></div>
-        <strong>CRICPULSE</strong><small>CONNECTED CRICKET</small>
+    <div class="hero-product" aria-label="CricPulse live match product preview">
+      <div class="product-window">
+        <div class="window-bar">
+          <div class="window-brand"><span class="mini-mark"><i></i><i></i><i></i></span> CRICPULSE</div>
+          <span class="live-badge"><i></i> LIVE</span>
+        </div>
+        <div class="match-heading">
+          <div><span>LOCAL LEAGUE · FINAL</span><strong>Match Center</strong></div>
+          <span class="match-state">In progress</span>
+        </div>
+        <div class="scoreboard">
+          <div class="team-block">
+            <span>RIVERSIDE CC</span>
+            <strong>142<small>/ 4</small></strong>
+            <em>17.2 overs</em>
+          </div>
+          <div class="vs">VS</div>
+          <div class="team-block align-right">
+            <span>CITY XI</span>
+            <strong>138<small>/ 7</small></strong>
+            <em>20.0 overs</em>
+          </div>
+        </div>
+        <div class="match-meta">
+          <span><b>RR</b> 8.19</span>
+          <span><b>PARTNERSHIP</b> 36 (24)</span>
+          <span><b>REQUIRED</b> 6.00</span>
+        </div>
+        <div class="recent-ball">
+          <span>LAST OVER</span>
+          <div><i>1</i><i>4</i><i>0</i><i>1</i><i class="event">W</i><i>2</i></div>
+        </div>
+        <div class="product-footer">
+          <span>One event → live score → insight → broadcast</span>
+          <b>Realtime engine</b>
+        </div>
       </div>
-      <div class="node node-top"><b>◌</b><span>LIVE</span></div>
-      <div class="node node-right"><b>✦</b><span>INSIGHT</span></div>
-      <div class="node node-bottom"><b>⌁</b><span>COMMUNITY</span></div>
-      <div class="node node-left"><b>↗</b><span>GROWTH</span></div>
-      <div class="data-card card-one">
-        <small>SYSTEM STATUS</small><strong>Always connected</strong>
-        <div><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="data-card card-two">
-        <small>ONE GAME</small><strong>Infinite possibilities</strong>
-      </div>
+      <div class="float-card float-one"><span>PLAYER FORM</span><strong>Recent performance</strong><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="float-card float-two"><span>CONNECTED</span><strong>Every ball has a story.</strong></div>
     </div>
   </section>
 
-  <section class="manifesto">
-    <div class="container">
-      <p class="manifesto-kicker">NOT JUST ABOUT WHAT HAPPENS ON THE FIELD</p>
-      <h2>Cricket creates moments.<br /><em>We connect what comes next.</em></h2>
+  <section class="proof-strip">
+    <div class="container proof-inner">
+      <span>ONE PLATFORM</span><b>Live scoring</b><i></i><b>Tournaments</b><i></i><b>Player history</b><i></i><b>Analytics</b><i></i><b>Broadcast</b>
     </div>
   </section>
 
-  <section id="platform" class="platform container">
-    <div class="section-top">
-      <div><span class="number">01</span><span class="label">THE CRICPULSE PLATFORM</span></div>
-      <p>
-        A universal product foundation designed to connect the many layers of modern cricket without
-        forcing them into separate worlds.
-      </p>
+  <section id="platform" class="platform section container">
+    <div class="section-intro">
+      <div><span class="section-index">01</span><span class="section-label">THE PLATFORM</span></div>
+      <h2>One source of truth<br /><em>for the whole game.</em></h2>
+      <p>Capture the game once. Let the same trusted cricket data power every experience around it.</p>
     </div>
-    <div class="ecosystem">
-      @for (node of ecosystemNodes; track node.title) {
-        <article>
-          <span class="node-number">{{ node.eyebrow }}</span>
-          <div class="node-icon">{{ node.icon }}</div>
+    <div class="capability-grid">
+      @for (node of ecosystemNodes; track node.title; let i = $index) {
+        <article class="capability">
+          <div class="capability-top"><span>0{{ i + 1 }}</span><span class="capability-arrow" aria-hidden="true">↗</span></div>
+          <div class="capability-icon" aria-hidden="true"><i></i><i></i><i></i></div>
           <h3>{{ node.title }}</h3>
           <p>{{ node.description }}</p>
-          <span class="line"></span>
         </article>
       }
     </div>
   </section>
 
-  <section id="vision" class="vision container">
-    <div class="vision-copy">
-      <span class="number">02</span><span class="label">BEYOND SCORING</span>
-      <h2>A game happens once.<br /><em>Its story should keep moving.</em></h2>
-      <p>
-        Every action in cricket can become context. Context can become history. History can become
-        intelligence. CricPulse is designed around that continuity.
-      </p>
-    </div>
-    <div class="journey">
-      <div class="journey-line"></div>
-      <article>
-        <span>01</span>
-        <div><b>A moment happens</b><small>Something worth recording begins.</small></div>
-      </article>
-      <article>
-        <span>02</span>
-        <div>
-          <b>A digital record forms</b><small>Information becomes structured and connected.</small>
+  <section id="intelligence" class="intelligence section">
+    <div class="container intelligence-grid">
+      <div class="intelligence-copy">
+        <span class="section-label">02 · CRICKET INTELLIGENCE</span>
+        <h2>From raw events<br /><em>to useful understanding.</em></h2>
+        <p>
+          A match is more than a score. CricPulse is designed to turn reliable ball-by-ball events into context that players, teams, organizers and viewers can actually use.
+        </p>
+        <div class="insight-list">
+          <div><span>01</span><b>Match momentum</b><small>See where the game is changing.</small></div>
+          <div><span>02</span><b>Player trends</b><small>Understand form from real match history.</small></div>
+          <div><span>03</span><b>Tournament picture</b><small>Follow qualification, standings and performance.</small></div>
         </div>
-      </article>
-      <article>
-        <span>03</span>
-        <div>
-          <b>Identity and history grow</b><small>People and organizations build continuity.</small>
-        </div>
-      </article>
-      <article>
-        <span>04</span>
-        <div><b>Intelligence emerges</b><small>Patterns become useful understanding.</small></div>
-      </article>
-      <article>
-        <span>05</span>
-        <div><b>The ecosystem grows</b><small>More possibilities become possible.</small></div>
-      </article>
-    </div>
-  </section>
-
-  <section class="pillars">
-    <div class="container">
-      <div class="section-head">
-        <span class="number">03</span><span class="label">PRODUCT PRINCIPLES</span>
-        <h2>Built like infrastructure.<br /><em>Felt like a product.</em></h2>
       </div>
-      <div class="pillar-grid">
-        @for (pillar of pillars; track pillar.title) {
-          <article>
-            <span>✦</span>
-            <h3>{{ pillar.title }}</h3>
-            <p>{{ pillar.copy }}</p>
-          </article>
-        }
+      <div class="analytics-card">
+        <div class="analytics-head"><span>MATCH INTELLIGENCE</span><b>REALTIME</b></div>
+        <div class="momentum-title"><div><small>MOMENTUM</small><strong>Rising</strong></div><span>+12%</span></div>
+        <div class="momentum-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><b></b></div>
+        <div class="analytics-stats">
+          <div><span>RUN RATE</span><strong>8.19</strong></div>
+          <div><span>RECENT RR</span><strong>10.50</strong></div>
+          <div><span>PRESSURE</span><strong>Medium</strong></div>
+        </div>
+        <div class="insight-callout"><span></span><p>Recent scoring has accelerated while wickets remain under control.</p></div>
       </div>
     </div>
   </section>
 
-  <section id="people" class="people container">
-    <div class="people-copy">
-      <span class="number">04</span><span class="label">ONE ECOSYSTEM, MANY PERSPECTIVES</span>
-      <h2>Built around the people<br /><em>who make cricket happen.</em></h2>
-      <p>
-        Different roles. Different needs. One connected environment that can grow without losing its
-        center.
-      </p>
+  <section id="ecosystem" class="ecosystem-section section container">
+    <div class="section-intro compact">
+      <div><span class="section-index">03</span><span class="section-label">ONE ECOSYSTEM</span></div>
+      <h2>Made for everyone<br /><em>around the game.</em></h2>
     </div>
-    <div class="audience-cloud">
-      @for (audience of audiences; track audience) {
-        <span>{{ audience }}</span>
+    <div class="audience-grid">
+      @for (audience of audiences; track audience; let i = $index) {
+        <div><span>0{{ i + 1 }}</span><strong>{{ audience }}</strong><b aria-hidden="true">→</b></div>
       }
     </div>
   </section>
 
-  <section class="future container">
-    <div class="future-grid"></div>
-    <div class="future-orbit"></div>
-    <span class="label">THE NEXT ERA OF CRICKET</span>
-    <h2>Built for every possibility<br /><em>the game hasn't discovered yet.</em></h2>
-    <p>
-      CricPulse is a long-term platform vision: modular, connected and ready for the next chapter of
-      cricket.
-    </p>
-    <a routerLink="/signup" class="primary">Step into CricPulse <b>→</b></a>
+  <section class="principles section container">
+    <div class="principles-heading">
+      <span class="section-label">04 · WHY CRICPULSE</span>
+      <h2>Simple where it matters.<br /><em>Powerful where it counts.</em></h2>
+    </div>
+    <div class="principle-grid">
+      @for (pillar of pillars; track pillar.title; let i = $index) {
+        <article><span>0{{ i + 1 }}</span><h3>{{ pillar.title }}</h3><p>{{ pillar.copy }}</p></article>
+      }
+    </div>
+  </section>
+
+  <section class="final-cta container">
+    <div class="cta-content">
+      <span class="section-label">THE NEXT MATCH STARTS HERE</span>
+      <h2>Bring your cricket<br /><em>into one connected place.</em></h2>
+      <p>Start building your teams, matches and cricket history with CricPulse.</p>
+      <a routerLink="/signup" class="button">Create your CricPulse account <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="cta-mark" aria-hidden="true"><span></span><span></span><span></span></div>
   </section>
 
   <footer class="footer container">
-    <a routerLink="/" class="brand"
-      ><span class="mark"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a
-    >
-    <p>Cricket, with more connected possibilities.</p>
+    <a routerLink="/" class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Cric<span>Pulse</span></span></a>
+    <p>Cricket, connected.</p>
     <small>© {{ year }} CricPulse</small>
   </footer>
 </main>
