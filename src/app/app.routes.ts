@@ -1,130 +1,45 @@
 import { Routes } from '@angular/router';
-
-import { AccountProfileComponent } from './features/account/pages/profile/account-profile.component';
-import { AnalyticsComponent } from './features/analytics/pages/analytics/analytics.component';
-import { LeaderboardsComponent } from './features/analytics/pages/leaderboards/leaderboards.component';
-import { LoginComponent } from './features/auth/pages/login/login.component';
-import { SignupComponent } from './features/auth/pages/signup/signup.component';
-import { LiveCenterComponent } from './features/live/pages/live-center/live-center.component';
-import { LiveMatchEntryComponent } from './features/live/pages/live-match-entry/live-match-entry.component';
-import { LiveScoringV2Component } from './features/live/pages/live-scoring/live-scoring.component';
-import { OpeningPlayersComponent } from './features/live/pages/opening-players/opening-players.component';
-import { PlayingXiV2Component } from './features/live/pages/playing-xi/playing-xi.component';
-import { TossComponent } from './features/live/pages/toss/toss.component';
-import { CreateMatchComponent } from './features/matches/pages/create-match/create-match.component';
-import { MatchDetailComponent } from './features/matches/pages/match-detail/match-detail.component';
-import { MatchesComponent } from './features/matches/pages/match-list/matches.component';
-import { MatchResultComponent } from './features/matches/pages/result/match-result.component';
-import { MatchScorecardComponent } from './features/matches/pages/scorecard/match-scorecard.component';
-import { MatchStatisticsComponent } from './features/matches/pages/statistics/match-statistics.component';
-import { PlayerOnboardingComponent } from './features/players/pages/onboarding/player-onboarding.component';
-import { PlayerComparisonComponent } from './features/players/pages/player-comparison/player-comparison.component';
-import { PlayerFormComponent } from './features/players/pages/player-form/player-form.component';
-import { PlayersComponent } from './features/players/pages/player-list/players.component';
-import { PlayerProfileComponent } from './features/players/pages/player-profile/player-profile.component';
-import { PlayerStatisticsComponent } from './features/players/pages/player-statistics/player-statistics.component';
-import { HomeComponent } from './features/public/pages/home/home.component';
-import { LandingComponent } from './features/public/pages/landing/landing.component';
-import { PublicLiveScoreComponent } from './features/public/pages/live-score/public-live-score.component';
-import { BroadcastOverlayComponent } from './features/broadcast/pages/overlay/broadcast-overlay.component';
-import { BroadcastControlComponent } from './features/broadcast/pages/control/broadcast-control.component';
-import { SettingsComponent } from './features/settings/pages/settings/settings.component';
-import { NotFoundComponent } from './features/system/pages/not-found/not-found.component';
-import { NotificationsComponent } from './features/system/pages/notifications/notifications.component';
-import { StateGalleryComponent } from './features/system/pages/ui-states/state-gallery.component';
-import { BulkTeamPlayersV2Component } from './features/teams/pages/bulk-players/bulk-team-players.component';
-import { CreateTeamComponent } from './features/teams/pages/create-team/create-team.component';
-import { TeamDetailComponent } from './features/teams/pages/team-detail/team-detail.component';
-import { TeamsComponent } from './features/teams/pages/team-list/teams.component';
-import { TournamentAnalyticsComponent } from './features/tournaments/pages/analytics/tournament-analytics.component';
-import { CreateTournamentComponent } from './features/tournaments/pages/create-tournament/create-tournament.component';
-import { TournamentQualificationComponent } from './features/tournaments/pages/qualification/tournament-qualification.component';
-import { TournamentScheduleComponent } from './features/tournaments/pages/schedule/tournament-schedule.component';
-import { TournamentDetailComponent } from './features/tournaments/pages/tournament-detail/tournament-detail.component';
-import { TournamentsComponent } from './features/tournaments/pages/tournament-list/tournaments.component';
-import { authGuard } from './core/auth/auth';
-import {
-  canAccessLiveScoring,
-  canAccessMatchOpening,
-  canAccessMatchToss,
-} from './core/routing/match-lifecycle.guard';
-import { DashboardComponent } from './layout/dashboard/dashboard.component';
-
-const dashboardChildren: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'matches', component: MatchesComponent },
-  { path: 'matches/new', component: CreateMatchComponent },
-  { path: 'matches/:id/playing-xi', component: PlayingXiV2Component },
-  {
-    path: 'matches/:id/toss',
-    component: TossComponent,
-    canActivate: [canAccessMatchToss],
-  },
-  {
-    path: 'matches/:id/opening-players',
-    component: OpeningPlayersComponent,
-    canActivate: [canAccessMatchOpening],
-  },
-  {
-    path: 'matches/:id/live-scoring',
-    component: LiveScoringV2Component,
-    canActivate: [canAccessLiveScoring],
-  },
-  { path: 'matches/:id/result', component: MatchResultComponent },
-  { path: 'matches/:id/scorecard', component: MatchScorecardComponent },
-  { path: 'matches/:id/statistics', component: MatchStatisticsComponent },
-  { path: 'matches/:id/live', component: LiveMatchEntryComponent },
-  { path: 'matches/:id/scorer', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
-  { path: 'matches/:id/overview', component: MatchDetailComponent },
-  { path: 'matches/:id', component: MatchDetailComponent },
-  { path: 'teams', component: TeamsComponent },
-  { path: 'teams/new', component: CreateTeamComponent },
-  { path: 'teams/:id/players/bulk', component: BulkTeamPlayersV2Component },
-  { path: 'teams/:id', component: TeamDetailComponent },
-  { path: 'players/statistics', component: PlayerStatisticsComponent },
-  { path: 'players/compare', component: PlayerComparisonComponent },
-  { path: 'players/:id/form', component: PlayerFormComponent },
-  { path: 'players/:id', component: PlayerProfileComponent },
-  { path: 'players', component: PlayersComponent },
-  { path: 'player/onboarding', component: PlayerOnboardingComponent },
-  { path: 'tournaments/new', component: CreateTournamentComponent },
-  { path: 'tournaments/:id/qualification', component: TournamentQualificationComponent },
-  { path: 'tournaments/:id/schedule', component: TournamentScheduleComponent },
-  { path: 'tournaments/:id/analytics', component: TournamentAnalyticsComponent },
-  { path: 'tournaments/:id', component: TournamentDetailComponent },
-  { path: 'tournaments', component: TournamentsComponent },
-  { path: 'live', component: LiveCenterComponent },
-  { path: 'scorer', redirectTo: 'live', pathMatch: 'full' },
-  { path: 'analytics', component: AnalyticsComponent },
-  { path: 'leaderboards', component: LeaderboardsComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'notifications', component: NotificationsComponent },
-  { path: 'account', component: AccountProfileComponent },
-  { path: 'ui-states', component: StateGalleryComponent },
-];
-
-const dashboardRoute = (children: Routes = dashboardChildren) => ({
-  component: DashboardComponent,
-  canActivate: [authGuard],
-  children,
-});
-
+import { LandingComponent } from './landing.component';
+import { LoginComponent } from './login.component';
+import { SignupComponent } from './signup.component';
+import { DashboardComponent } from './dashboard.component';
+import { HomeComponent } from './home.component';
+import { authGuard } from './auth';
+import { CreateTeamComponent } from './create-team.component';
+import { PlayerOnboardingComponent } from './player-onboarding.component';
+import { ModulePageComponent } from './module-page.component';
+import { MatchesComponent } from './matches.component';
+import { MatchDetailComponent } from './match-detail.component';
+import { LiveCenterComponent } from './live-center.component';
+import { LiveMatchEntryComponent } from './live-match-entry.component';
+import { ScorerComponent } from './scorer.component';
+import { LiveScoringV2Component } from './live-scoring-v2.component';
+import { TeamsComponent } from './teams.component';
+import { CreateMatchComponent } from './create-match.component';
+import { PublicLiveScoreComponent } from './public-live-score.component';
+import { TeamDetailComponent } from './team-detail.component';
+import { PlayingXiV2Component } from './playing-xi-v2.component';
+import { BulkTeamPlayersV2Component } from './bulk-team-players-v2.component';
+import { TossComponent } from './toss.component';
+import { OpeningPlayersComponent } from './opening-players.component';
+import { MatchResultComponent } from './match-result.component';
+import { MatchScorecardComponent } from './match-scorecard.component';
+import { MatchStatisticsComponent } from './match-statistics.component';
+import { PlayerStatisticsComponent } from './player-statistics.component';
+import { PlayerProfileComponent } from './player-profile.component';
+import { PlayerFormComponent } from './player-form.component';
+import { TournamentsComponent } from './tournaments.component';
+import { TournamentDetailComponent } from './tournament-detail.component';
+import { TournamentScheduleComponent } from './tournament-schedule.component';
+import { TournamentQualificationComponent } from './tournament-qualification.component';
+import { TournamentAnalyticsComponent } from './tournament-analytics.component';
+const modulePage = (title: string, description: string) => ({ component: ModulePageComponent, data: { title, description } });
 export const routes: Routes = [
-  { path: '', component: LandingComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
-  { path: 'live/:id', component: PublicLiveScoreComponent },
-  { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
-  { path: 'broadcast/:id/control', component: BroadcastControlComponent },
-  { path: 'dashboard', ...dashboardRoute() },
-  // Legacy scoring URLs remain as compatibility redirects; all new navigation uses the canonical match lifecycle route.
-  { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
-  { path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
-  ...dashboardChildren
-    .filter((route) => route.path)
-    .map((route) => ({
-      path: route.path,
-      ...dashboardRoute([{ ...route, path: '' }]),
-    })),
-  { path: '**', component: NotFoundComponent },
+  { path: '', component: LandingComponent }, { path: 'login', component: LoginComponent }, { path: 'signup', component: SignupComponent }, { path: 'live/:id', component: PublicLiveScoreComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard], children: [
+    { path: '', component: HomeComponent }, { path: 'matches', component: MatchesComponent }, { path: 'matches/new', component: CreateMatchComponent }, { path: 'matches/:id/playing-xi', component: PlayingXiV2Component }, { path: 'matches/:id/toss', component: TossComponent }, { path: 'matches/:id/opening-players', component: OpeningPlayersComponent }, { path: 'matches/:id/live-scoring', component: LiveScoringV2Component }, { path: 'matches/:id/result', component: MatchResultComponent }, { path: 'matches/:id/scorecard', component: MatchScorecardComponent }, { path: 'matches/:id/statistics', component: MatchStatisticsComponent }, { path: 'matches/:id/live', component: LiveMatchEntryComponent }, { path: 'matches/:id/scorer', component: ScorerComponent }, { path: 'matches/:id/overview', component: MatchDetailComponent }, { path: 'matches/:id', component: MatchDetailComponent },
+    { path: 'teams', component: TeamsComponent }, { path: 'teams/new', component: CreateTeamComponent }, { path: 'teams/:id/players/bulk', component: BulkTeamPlayersV2Component }, { path: 'teams/:id', component: TeamDetailComponent }, { path: 'players/statistics', component: PlayerStatisticsComponent }, { path: 'players/:id/form', component: PlayerFormComponent }, { path: 'players/:id', component: PlayerProfileComponent }, { path: 'players', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') }, { path: 'tournaments/:id/qualification', component: TournamentQualificationComponent }, { path: 'tournaments/:id/schedule', component: TournamentScheduleComponent }, { path: 'tournaments/:id/analytics', component: TournamentAnalyticsComponent }, { path: 'tournaments/:id', component: TournamentDetailComponent }, { path: 'tournaments', component: TournamentsComponent }, { path: 'analytics', ...modulePage('Analytics', 'Turn score into performance insights for players and teams.') }, { path: 'leaderboards', ...modulePage('Leaderboards', 'Compare form, batting, bowling, and tournament performance.') }, { path: 'settings', ...modulePage('Settings', 'Manage your profile, workspace preferences, and notifications.') }, { path: 'player/onboarding', component: PlayerOnboardingComponent }
+  ]},
+  { path: 'matches', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchesComponent }] }, { path: 'matches/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateMatchComponent }] }, { path: 'matches/:id/playing-xi', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayingXiV2Component }] }, { path: 'matches/:id/toss', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TossComponent }] }, { path: 'matches/:id/opening-players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: OpeningPlayersComponent }] }, { path: 'matches/:id/live-scoring', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveScoringV2Component }] }, { path: 'matches/:id/result', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchResultComponent }] }, { path: 'matches/:id/scorecard', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchScorecardComponent }] }, { path: 'matches/:id/statistics', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchStatisticsComponent }] }, { path: 'matches/:id/live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveMatchEntryComponent }] }, { path: 'matches/:id/scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] }, { path: 'matches/:id/overview', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] }, { path: 'matches/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: MatchDetailComponent }] },
+  { path: 'players/statistics', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayerStatisticsComponent }] }, { path: 'players/:id/form', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayerFormComponent }] }, { path: 'players/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayerProfileComponent }] }, { path: 'tournaments/:id/qualification', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TournamentQualificationComponent }] }, { path: 'tournaments/:id/schedule', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TournamentScheduleComponent }] }, { path: 'tournaments/:id/analytics', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TournamentAnalyticsComponent }] }, { path: 'tournaments/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TournamentDetailComponent }] }, { path: 'tournaments', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TournamentsComponent }] }, { path: 'live', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: LiveCenterComponent }] }, { path: 'scorer', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: ScorerComponent }] }, { path: 'teams', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamsComponent }] }, { path: 'teams/new', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: CreateTeamComponent }] }, { path: 'teams/:id/players/bulk', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: BulkTeamPlayersV2Component }] }, { path: 'teams/:id', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: TeamDetailComponent }] }, { path: 'players', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Players', 'Build player profiles, track roles, and manage team membership.') }] }, { path: 'analytics', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Analytics', 'Turn score into performance insights for players and teams.') }] }, { path: 'leaderboards', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Leaderboards', 'Compare form, batting, bowling, and tournament performance.') }] }, { path: 'settings', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', ...modulePage('Settings', 'Manage your profile, workspace preferences, and notifications.') }] }, { path: 'player/onboarding', component: DashboardComponent, canActivate: [authGuard], children: [{ path: '', component: PlayerOnboardingComponent }] }, { path: '**', redirectTo: '' }
 ];

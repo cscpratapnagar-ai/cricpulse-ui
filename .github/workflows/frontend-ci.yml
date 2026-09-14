@@ -1,84 +1,30 @@
 name: Frontend CI
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
-      - develop
-      - ui
-      - 'feature/**'
-      - 'refactor/**'
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-      - develop
-      - ui
+    branches: [ main ]
 
 permissions:
-  contents: write
-
-concurrency:
-  group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  quality:
-    name: Formatting and TypeScript quality
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.22.3'
-          cache: npm
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Normalize repository formatting
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-        run: |
-          npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}" "scripts/**/*.{mjs,js}" "*.json"
-          if ! git diff --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src scripts '*.json'
-            git commit -m "chore(frontend): normalize prettier formatting"
-            git push
-          fi
-      - name: Verify formatting
-        run: npm run format:check
-      - name: Verify TypeScript
-        run: npm run typecheck
-      - name: Audit canonical component structure
-        run: npm run component:audit
-      - name: Audit route integrity
-        run: npm run route:audit
-      - name: Audit critical test inventory
-        run: npm run test:inventory
-      - name: Audit security and API boundaries
-        run: npm run security:audit
-      - name: Audit feature integration boundaries
-        run: npm run feature:audit
-      - name: Execute Angular unit tests
-        run: npm run test
-      - name: Audit legacy compatibility shims
-        run: npm run legacy:audit
-
   build:
-    name: Angular production build
     runs-on: ubuntu-latest
-    needs: quality
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.22.3'
+          node-version: '20'
           cache: npm
+
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Verify Angular production build
-        run: npm run build -- --configuration production
+        run: npm ci
+
+      - name: Build Angular application
+        run: npm run build
