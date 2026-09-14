@@ -93,7 +93,9 @@ export class TournamentAnalyticsComponent {
       this.http.get<Team[]>(`${this.api}/tournaments/${this.id}/teams`).toPromise(),
       this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`).toPromise(),
       this.http.get<Point[]>(`${this.api}/tournaments/${this.id}/points-table`).toPromise(),
-      this.http.get<TournamentAnalytics>(`${this.api}/tournaments/${this.id}/analytics`).toPromise(),
+      this.http
+        .get<TournamentAnalytics>(`${this.api}/tournaments/${this.id}/analytics`)
+        .toPromise(),
     ])
       .then(([teams, fixtures, points, analytics]) => {
         this.teams = teams || [];
@@ -106,17 +108,33 @@ export class TournamentAnalyticsComponent {
   }
 
   get completed() {
-    return this.analytics?.completedFixtures ?? this.fixtures.filter((f) => f.status === 'COMPLETED').length;
+    return (
+      this.analytics?.completedFixtures ??
+      this.fixtures.filter((f) => f.status === 'COMPLETED').length
+    );
   }
   get scheduled() {
-    return this.analytics?.scheduledFixtures ?? this.fixtures.filter((f) => f.status === 'SCHEDULED').length;
+    return (
+      this.analytics?.scheduledFixtures ??
+      this.fixtures.filter((f) => f.status === 'SCHEDULED').length
+    );
   }
   get pending() {
-    if (this.analytics) return Math.max(0, this.analytics.totalFixtures - this.analytics.completedFixtures - this.analytics.scheduledFixtures - this.analytics.liveFixtures);
+    if (this.analytics)
+      return Math.max(
+        0,
+        this.analytics.totalFixtures -
+          this.analytics.completedFixtures -
+          this.analytics.scheduledFixtures -
+          this.analytics.liveFixtures,
+      );
     return this.fixtures.filter((f) => f.status !== 'COMPLETED' && f.status !== 'SCHEDULED').length;
   }
   get completion() {
-    return this.analytics?.completionPercentage ?? (this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0);
+    return (
+      this.analytics?.completionPercentage ??
+      (this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0)
+    );
   }
   get leader() {
     return this.points[0];
