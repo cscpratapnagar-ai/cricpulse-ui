@@ -185,27 +185,30 @@ export class LiveScoreService {
           subscription?.unsubscribe();
           // Recovery first: reconnects may have missed one or more broadcasts.
           reconcile();
-          subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
-            try {
-              const score = JSON.parse(message.body) as LiveScore;
-              if (score?.inningsId !== inningsId) return;
+          subscription = client.subscribe(
+            `/topic/public/innings/${inningsId}`,
+            (message: IMessage) => {
+              try {
+                const score = JSON.parse(message.body) as LiveScore;
+                if (score?.inningsId !== inningsId) return;
 
-              const version = score.eventVersion;
-              if (typeof version === 'number' && Number.isFinite(version)) {
-                if (version <= lastEventVersion) return;
-                // A version jump proves a missed authoritative event. Recover the
-                // complete state instead of applying a potentially partial frame.
-                if (version > lastEventVersion + 1) {
-                  reconcile();
-                  return;
+                const version = score.eventVersion;
+                if (typeof version === 'number' && Number.isFinite(version)) {
+                  if (version <= lastEventVersion) return;
+                  // A version jump proves a missed authoritative event. Recover the
+                  // complete state instead of applying a potentially partial frame.
+                  if (version > lastEventVersion + 1) {
+                    reconcile();
+                    return;
+                  }
                 }
+                emitAuthoritative(score);
+              } catch {
+                // Never terminate a public viewer because of one malformed frame.
+                reconcile();
               }
-              emitAuthoritative(score);
-            } catch {
-              // Never terminate a public viewer because of one malformed frame.
-              reconcile();
-            }
-          });
+            },
+          );
         },
         onStompError: () => {
           if (!stopped) reconcile();
