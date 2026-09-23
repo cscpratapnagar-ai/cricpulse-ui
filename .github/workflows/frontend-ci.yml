@@ -82,3 +82,5 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Verify Angular production build
         run: npm run build -- --configuration production
+      - name: Build production container
+        run: docker build --tag cricpulse-ui:ci .
