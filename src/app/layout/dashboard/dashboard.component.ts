@@ -90,7 +90,7 @@ export class DashboardComponent {
         ? this.commandItems
         : this.commandItems.filter(
             (x) =>
-              (!this.hasWorkspaceAccess && !['Dashboard', 'Teams', 'Settings'].includes(x.label)) ||
+              (this.hasWorkspaceAccess || ['Dashboard', 'Teams', 'Settings'].includes(x.label)) &&
               (x.label + ' ' + x.group).toLowerCase().includes(q),
           ),
     );
