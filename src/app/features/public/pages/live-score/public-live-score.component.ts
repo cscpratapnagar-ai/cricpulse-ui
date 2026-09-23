@@ -68,7 +68,7 @@ interface CurrentInnings {
   wickets: number;
   legalBalls: number;
   status: string;
-  strikerId?: string;
+  strikerId?: string;\n  strikerName?: string;\n  nonStrikerName?: string;\n  currentBowlerName?: string;
   nonStrikerId?: string;
   currentBowlerId?: string;
 }
