@@ -1,291 +1,327 @@
 <main class="public-live">
   <header class="header">
     <a class="brand" routerLink="/">CRICPULSE <span>LIVE</span></a>
-    <div class="status"><i></i> LIVE SCORE <span>REAL-TIME</span></div>
+    <div class="header-actions">
+      @if (isLive) {
+        <div class="status"><i></i> LIVE SCORE <span>REAL-TIME</span></div>
+      } @else if (isScheduled) {
+        <div class="status scheduled">SCHEDULED</div>
+      } @else if (isCompleted) {
+        <div class="status completed">COMPLETED</div>
+      }
+      <button class="share-button" type="button" (click)="shareMatch()" aria-label="Share match">
+        SHARE
+      </button>
+    </div>
   </header>
 
   <section class="hero">
-    <div class="eyebrow">LIVE MATCH CENTRE</div>
-    <h1>{{ match?.name || 'Live Cricket Match' }}</h1>
+    <div class="eyebrow">{{ isLive ? 'LIVE MATCH CENTRE' : 'MATCH CENTRE' }}</div>
+    <h1>{{ match?.name || 'Cricket Match' }}</h1>
     <p>
       {{ match?.teamAName || 'Team A' }} <b>vs</b> {{ match?.teamBName || 'Team B' }} ·
       {{ match?.format || 'CRICKET' }}
     </p>
+    @if (shareMessage) {
+      <div class="share-message">{{ shareMessage }}</div>
+    }
   </section>
 
-  @if (scorecards.length && match?.status === 'COMPLETED') {
-    <section class="score-card result-summary">
-      <div class="score-context">
-        <div class="team">MATCH RESULT <small>COMPLETED</small></div>
-        <span class="live-badge">{{ matchStatusLabel() }}</span>
+  @if (loadError) {
+    <section class="score-card loading error-state">
+      <div>
+        <strong>Match unavailable</strong>
+        <span>This match link is invalid or the public match data is temporarily unavailable.</span>
       </div>
-      @for (innings of scorecards; track innings.inningsNumber) {
-        <div class="completed-innings">
-          <strong>{{ innings.teamName }}</strong>
-          <b>{{ innings.runs }}/{{ innings.wickets }}</b>
-          <span>{{ inningsOvers(innings) }} OVERS</span>
-        </div>
-      }
     </section>
-
-    <section class="public-scorecard">
-      <div class="section-head">
-        <span>FULL SCORECARD</span>
-        <small>{{ scorecards.length }} INNINGS</small>
-      </div>
-
-      @for (innings of scorecards; track innings.inningsId) {
-        <article class="innings-card">
-          <header class="innings-header">
-            <div>
-              <span>INNINGS {{ innings.inningsNumber }}</span>
-              <h2>{{ innings.teamName }}</h2>
-            </div>
-            <div class="innings-total">
-              <strong>{{ innings.runs }}/{{ innings.wickets }}</strong>
-              <small>{{ inningsOvers(innings) }} OV · {{ innings.extras }} EXTRAS</small>
-            </div>
-          </header>
-
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>BATTER</th>
-                  <th>R</th>
-                  <th>B</th>
-                  <th>4s</th>
-                  <th>6s</th>
-                  <th>SR</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (batter of innings.batting; track batter.playerName) {
-                  <tr>
-                    <td>
-                      <strong>{{ batter.playerName }}</strong>
-                      @if (batter.out) {
-                        <small>{{ batter.dismissal || 'OUT' }}</small>
-                      } @else {
-                        <small>NOT OUT</small>
-                      }
-                    </td>
-                    <td>
-                      <b>{{ batter.runs }}</b>
-                    </td>
-                    <td>{{ batter.balls }}</td>
-                    <td>{{ batter.fours }}</td>
-                    <td>{{ batter.sixes }}</td>
-                    <td>{{ batter.strikeRate | number: '1.2-2' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+  } @else if (isScheduled) {
+    <section class="score-card state-card scheduled-card">
+      <div class="state-icon">◷</div>
+      <div class="team">MATCH SCHEDULED <small>UPCOMING FIXTURE</small></div>
+      <h2>{{ scheduledLabel() }}</h2>
+      <p>Live scoring will appear here automatically when the match starts.</p>
+      <button type="button" class="primary-share" (click)="shareMatch()">SHARE MATCH LINK</button>
+    </section>
+  } @else if (isCompleted) {
+    @if (scorecards.length) {
+      <section class="score-card result-summary">
+        <div class="score-context">
+          <div class="team">MATCH RESULT <small>COMPLETED</small></div>
+          <span class="live-badge completed-badge">{{ matchStatusLabel() }}</span>
+        </div>
+        @for (innings of scorecards; track innings.inningsNumber) {
+          <div class="completed-innings">
+            <strong>{{ innings.teamName }}</strong>
+            <b>{{ innings.runs }}/{{ innings.wickets }}</b>
+            <span>{{ inningsOvers(innings) }} OVERS</span>
           </div>
+        }
+      </section>
 
-          @if (innings.bowling.length) {
-            <div class="table-scroll bowling-table">
+      <section class="public-scorecard">
+        <div class="section-head">
+          <span>FULL SCORECARD</span>
+          <small>{{ scorecards.length }} INNINGS</small>
+        </div>
+
+        @for (innings of scorecards; track innings.inningsId) {
+          <article class="innings-card">
+            <header class="innings-header">
+              <div>
+                <span>INNINGS {{ innings.inningsNumber }}</span>
+                <h2>{{ innings.teamName }}</h2>
+              </div>
+              <div class="innings-total">
+                <strong>{{ innings.runs }}/{{ innings.wickets }}</strong>
+                <small>{{ inningsOvers(innings) }} OV · {{ innings.extras }} EXTRAS</small>
+              </div>
+            </header>
+
+            <div class="table-scroll">
               <table>
                 <thead>
                   <tr>
-                    <th>BOWLER</th>
-                    <th>O</th>
+                    <th>BATTER</th>
                     <th>R</th>
-                    <th>W</th>
-                    <th>ECO</th>
+                    <th>B</th>
+                    <th>4s</th>
+                    <th>6s</th>
+                    <th>SR</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (bowler of innings.bowling; track bowler.playerName) {
+                  @for (batter of innings.batting; track batter.playerName) {
                     <tr>
                       <td>
-                        <strong>{{ bowler.playerName }}</strong>
+                        <strong>{{ batter.playerName }}</strong>
+                        @if (batter.out) {
+                          <small>{{ batter.dismissal || 'OUT' }}</small>
+                        } @else {
+                          <small>NOT OUT</small>
+                        }
                       </td>
-                      <td>{{ overs(bowler.legalBalls) }}</td>
-                      <td>{{ bowler.runs }}</td>
                       <td>
-                        <b>{{ bowler.wickets }}</b>
+                        <b>{{ batter.runs }}</b>
                       </td>
-                      <td>{{ bowler.economy | number: '1.2-2' }}</td>
+                      <td>{{ batter.balls }}</td>
+                      <td>{{ batter.fours }}</td>
+                      <td>{{ batter.sixes }}</td>
+                      <td>{{ batter.strikeRate | number: '1.2-2' }}</td>
                     </tr>
                   }
                 </tbody>
               </table>
             </div>
-          }
 
-          @if (innings.fallOfWickets.length) {
-            <div class="fow">
-              <span>FALL OF WICKETS</span>
-              <div>
-                @for (wicket of innings.fallOfWickets; track wicket.wicketNumber) {
-                  <b
-                    >{{ wicket.wicketNumber }} · {{ wicket.playerName }} {{ wicket.runs }} ({{
-                      wicket.overNumber
-                    }}.{{ wicket.ballNumber }})</b
-                  >
-                }
+            @if (innings.bowling.length) {
+              <div class="table-scroll bowling-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>BOWLER</th>
+                      <th>O</th>
+                      <th>R</th>
+                      <th>W</th>
+                      <th>ECO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (bowler of innings.bowling; track bowler.playerName) {
+                      <tr>
+                        <td>
+                          <strong>{{ bowler.playerName }}</strong>
+                        </td>
+                        <td>{{ overs(bowler.legalBalls) }}</td>
+                        <td>{{ bowler.runs }}</td>
+                        <td>
+                          <b>{{ bowler.wickets }}</b>
+                        </td>
+                        <td>{{ bowler.economy | number: '1.2-2' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
-            </div>
-          }
-        </article>
-      }
-    </section>
-  }
+            }
 
-  @if (score$ | async; as score) {
-    @if (score) {
-      <section class="score-card">
-        <div class="score-context">
-          <div class="team">
-            {{ battingTeamName() }} <small>INNINGS {{ score.inningsNumber }}</small>
-          </div>
-          <span class="live-badge"><i></i>{{ statusLabel(score) }}</span>
-        </div>
-
-        <div class="score">
-          {{ score.runs }}<em>/{{ score.wickets }}</em>
-        </div>
-        <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
-
-        @if (score.targetRuns && score.targetRuns > score.runs) {
-          <div class="chase-line">
-            <span>TARGET {{ score.targetRuns }}</span>
-            <b>{{ score.targetRuns - score.runs }} RUNS NEEDED</b>
-          </div>
+            @if (innings.fallOfWickets.length) {
+              <div class="fow">
+                <span>FALL OF WICKETS</span>
+                <div>
+                  @for (wicket of innings.fallOfWickets; track wicket.wicketNumber) {
+                    <b
+                      >{{ wicket.wicketNumber }} · {{ wicket.playerName }} {{ wicket.runs }} ({{
+                        wicket.overNumber
+                      }}.{{ wicket.ballNumber }})</b
+                    >
+                  }
+                </div>
+              </div>
+            }
+          </article>
         }
-
-        <div class="live-line"><i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}</div>
-
-        <section class="live-players">
-          <article class="player-card striker">
-            <div class="player-role">STRIKER</div>
-            <strong>{{ score.strikerName || 'Striker' }}</strong>
-            @if (score.batters?.length) {
-              @for (batter of score.batters; track batter.playerId) {
-                @if (batter.playerId === score.strikerId) {
-                  <span>
-                    {{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 ·
-                    {{ batter.sixes }}x6
-                  </span>
-                }
-              }
-            }
-          </article>
-          <article class="player-card">
-            <div class="player-role">NON-STRIKER</div>
-            <strong>{{ score.nonStrikerName || 'Non-Striker' }}</strong>
-            @if (score.batters?.length) {
-              @for (batter of score.batters; track batter.playerId) {
-                @if (batter.playerId === score.nonStrikerId) {
-                  <span
-                    >{{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 ·
-                    {{ batter.sixes }}x6</span
-                  >
-                }
-              }
-            }
-          </article>
-          <article class="player-card bowler">
-            <div class="player-role">CURRENT BOWLER</div>
-            <strong>{{ score.currentBowlerName || 'Bowler' }}</strong>
-            @if (score.bowlers?.length) {
-              @for (bowler of score.bowlers; track bowler.playerId) {
-                @if (bowler.playerId === score.currentBowlerId) {
-                  <span>
-                    {{ overs(bowler.legalBalls) }} · {{ bowler.runsConceded }} R ·
-                    {{ bowler.wickets }} W · {{ bowler.economy | number: '1.2-2' }} ECO
-                  </span>
-                }
-              }
-            }
-          </article>
-        </section>
-      </section>
-
-      <section class="info-grid">
-        <article>
-          <span>OVERS</span><strong>{{ overs(score.legalBalls) }}</strong>
-        </article>
-        <article>
-          <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
-        </article>
-        <article>
-          <span>STATUS</span><strong>{{ statusLabel(score) }}</strong>
-        </article>
-      </section>
-
-      @if (score.recentBalls?.length) {
-        <section class="recent-over">
-          <div class="section-head">
-            <span>RECENT DELIVERIES</span><small>LIVE EVENT FEED</small>
-          </div>
-          <div class="balls">
-            @for (ball of score.recentBalls; track ball.deliveryId) {
-              <div
-                class="ball"
-                [title]="(ball.strikerName || 'Striker') + ' · ' + (ball.bowlerName || 'Bowler')"
-                [class.wicket]="ball.wicketType"
-                [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
-                [class.extra]="ball.extraType"
-              >
-                <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
-                <b>{{
-                  ball.wicketType
-                    ? 'W'
-                    : ball.extraType === 'WIDE'
-                      ? 'Wd'
-                      : ball.extraType === 'NO_BALL'
-                        ? 'Nb'
-                        : ball.totalRuns
-                }}</b>
-              </div>
-            }
-          </div>
-        </section>
-      }
-
-      @if (score.partnership) {
-        <section class="info-grid partnership-grid">
-          <article>
-            <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
-          </article>
-          <article>
-            <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
-          </article>
-          <article>
-            <span>WICKETS</span><strong>{{ score.wickets }}</strong>
-          </article>
-        </section>
-      }
-    } @else if (match?.status === 'SCHEDULED') {
-      <section class="score-card loading">
-        <div>
-          <strong>Match scheduled</strong>
-          <span>Live scoring will appear here as soon as the innings starts.</span>
-        </div>
       </section>
     } @else {
-      <section class="score-card loading error-state">
+      <section class="score-card loading">
         <div>
-          <strong>Live score unavailable</strong>
-          <span
-            >The match may not have started yet or the live feed is temporarily unavailable.</span
-          >
+          <strong>Match completed</strong>
+          <span>The final scorecard is not available yet.</span>
+        </div>
+      </section>
+    }
+  } @else if (isLive) {
+    @if (score$ | async; as score) {
+      @if (score) {
+        <section class="score-card">
+          <div class="score-context">
+            <div class="team">
+              {{ battingTeamName() }} <small>INNINGS {{ score.inningsNumber }}</small>
+            </div>
+            <span class="live-badge"><i></i>{{ statusLabel(score) }}</span>
+          </div>
+
+          <div class="score">
+            {{ score.runs }}<em>/{{ score.wickets }}</em>
+          </div>
+          <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
+
+          @if (score.targetRuns && score.targetRuns > score.runs) {
+            <div class="chase-line">
+              <span>TARGET {{ score.targetRuns }}</span>
+              <b>{{ score.targetRuns - score.runs }} RUNS NEEDED</b>
+            </div>
+          }
+
+          <div class="live-line"><i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}</div>
+
+          <section class="live-players">
+            <article class="player-card striker">
+              <div class="player-role">STRIKER</div>
+              <strong>{{ score.strikerName || 'Striker' }}</strong>
+              @if (score.batters?.length) {
+                @for (batter of score.batters; track batter.playerId) {
+                  @if (batter.playerId === score.strikerId) {
+                    <span>
+                      {{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 ·
+                      {{ batter.sixes }}x6
+                    </span>
+                  }
+                }
+              }
+            </article>
+            <article class="player-card">
+              <div class="player-role">NON-STRIKER</div>
+              <strong>{{ score.nonStrikerName || 'Non-Striker' }}</strong>
+              @if (score.batters?.length) {
+                @for (batter of score.batters; track batter.playerId) {
+                  @if (batter.playerId === score.nonStrikerId) {
+                    <span
+                      >{{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 ·
+                      {{ batter.sixes }}x6</span
+                    >
+                  }
+                }
+              }
+            </article>
+            <article class="player-card bowler">
+              <div class="player-role">CURRENT BOWLER</div>
+              <strong>{{ score.currentBowlerName || 'Bowler' }}</strong>
+              @if (score.bowlers?.length) {
+                @for (bowler of score.bowlers; track bowler.playerId) {
+                  @if (bowler.playerId === score.currentBowlerId) {
+                    <span>
+                      {{ overs(bowler.legalBalls) }} · {{ bowler.runsConceded }} R ·
+                      {{ bowler.wickets }} W · {{ bowler.economy | number: '1.2-2' }} ECO
+                    </span>
+                  }
+                }
+              }
+            </article>
+          </section>
+        </section>
+
+        <section class="info-grid">
+          <article>
+            <span>OVERS</span><strong>{{ overs(score.legalBalls) }}</strong>
+          </article>
+          <article>
+            <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
+          </article>
+          <article>
+            <span>STATUS</span><strong>{{ statusLabel(score) }}</strong>
+          </article>
+        </section>
+
+        @if (score.recentBalls?.length) {
+          <section class="recent-over">
+            <div class="section-head">
+              <span>RECENT DELIVERIES</span><small>LIVE EVENT FEED</small>
+            </div>
+            <div class="balls">
+              @for (ball of score.recentBalls; track ball.deliveryId) {
+                <div
+                  class="ball"
+                  [title]="(ball.strikerName || 'Striker') + ' · ' + (ball.bowlerName || 'Bowler')"
+                  [class.wicket]="ball.wicketType"
+                  [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+                  [class.extra]="ball.extraType"
+                >
+                  <small>{{ ball.overNumber }}.{{ ball.ballNumber }}</small>
+                  <b>{{
+                    ball.wicketType
+                      ? 'W'
+                      : ball.extraType === 'WIDE'
+                        ? 'Wd'
+                        : ball.extraType === 'NO_BALL'
+                          ? 'Nb'
+                          : ball.totalRuns
+                  }}</b>
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        @if (score.partnership) {
+          <section class="info-grid partnership-grid">
+            <article>
+              <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
+            </article>
+            <article>
+              <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
+            </article>
+            <article>
+              <span>WICKETS</span><strong>{{ score.wickets }}</strong>
+            </article>
+          </section>
+        }
+      } @else {
+        <section class="score-card loading error-state">
+          <div>
+            <strong>Live score unavailable</strong>
+            <span>The live feed is temporarily unavailable. Retrying automatically.</span>
+          </div>
+        </section>
+      }
+    } @else {
+      <section class="score-card loading">
+        <div>
+          <strong>Loading live score…</strong>
+          <span>Connecting to the current innings</span>
         </div>
       </section>
     }
   } @else {
     <section class="score-card loading">
       <div>
-        <strong>Loading live score…</strong>
-        <span>Connecting to the current innings</span>
+        <strong>Match status: {{ match?.status || 'UNKNOWN' }}</strong>
+        <span>Public match data is available from the match centre.</span>
       </div>
     </section>
   }
 
   <footer>
     <span>Powered by <b>CricPulse</b></span>
-    <a [routerLink]="['/matches', matchId, 'scorer']">Scorer Login →</a>
+    <button type="button" class="footer-share" (click)="shareMatch()">Share match</button>
   </footer>
 </main>

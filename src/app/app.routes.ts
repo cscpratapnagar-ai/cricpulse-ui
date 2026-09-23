@@ -113,11 +113,11 @@ export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'live/:id', component: PublicLiveScoreComponent },
+  { path: 'match/:id', component: PublicLiveScoreComponent },
+  { path: 'live/:id', redirectTo: 'match/:id', pathMatch: 'full' },
   { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
   { path: 'broadcast/:id/control', component: BroadcastControlComponent, canActivate: [authGuard] },
   { path: 'dashboard', ...dashboardRoute() },
-  // Legacy scoring URLs remain as compatibility redirects; all new navigation uses the canonical match lifecycle route.
   { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   { path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   ...dashboardChildren
