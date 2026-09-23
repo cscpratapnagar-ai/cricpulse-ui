@@ -54,21 +54,25 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           ><i>⌂</i><span>Overview</span></a
-        ><a routerLink="/matches" routerLinkActive="active"><i>◉</i><span>Matches</span></a
-        ><a routerLink="/live" routerLinkActive="active"
-          ><i class="live-dot">●</i><span>Live Center</span><em>LIVE</em></a
-        >
+        >@if (hasWorkspaceAccess) {
+          <a routerLink="/matches" routerLinkActive="active"><i>◉</i><span>Matches</span></a
+          ><a routerLink="/live" routerLinkActive="active"
+            ><i class="live-dot">●</i><span>Live Center</span><em>LIVE</em></a
+          >
+        }
         <div class="nav-label"><span>MANAGEMENT</span></div>
         <a routerLink="/teams" routerLinkActive="active"
           ><i>◇</i><span>Teams</span><b class="count">01</b></a
         ><a routerLink="/players" routerLinkActive="active"><i>♙</i><span>Players</span></a
         ><a routerLink="/tournaments" routerLinkActive="active"><i>♜</i><span>Tournaments</span></a>
         <div class="nav-label"><span>INTELLIGENCE</span></div>
-        <a routerLink="/analytics" routerLinkActive="active"
-          ><i>✦</i><span>Analytics</span><b class="new">NEW</b></a
-        ><a routerLink="/leaderboards" routerLinkActive="active"
-          ><i>↗</i><span>Leaderboards</span></a
-        >
+        @if (hasWorkspaceAccess) {
+          <a routerLink="/analytics" routerLinkActive="active"
+            ><i>✦</i><span>Analytics</span><b class="new">NEW</b></a
+          ><a routerLink="/leaderboards" routerLinkActive="active"
+            ><i>↗</i><span>Leaderboards</span></a
+          >
+        }
       </nav>
     </div>
     <div class="sidebar-footer">
@@ -163,10 +167,14 @@
     }
     <nav class="mobile-nav">
       <a routerLink="/dashboard" routerLinkActive="active">⌂<small>Home</small></a
-      ><a routerLink="/matches" routerLinkActive="active">◉<small>Matches</small></a
-      ><a routerLink="/live" routerLinkActive="active">●<small>Live</small></a
+      >@if (hasWorkspaceAccess) {
+        <a routerLink="/matches" routerLinkActive="active">◉<small>Matches</small></a
+        ><a routerLink="/live" routerLinkActive="active">●<small>Live</small></a
+      }
       ><a routerLink="/teams" routerLinkActive="active">◇<small>Teams</small></a
-      ><a routerLink="/players" routerLinkActive="active">♙<small>Players</small></a>
+      >@if (hasWorkspaceAccess) {
+        <a routerLink="/players" routerLinkActive="active">♙<small>Players</small></a>
+      }
     </nav>
   </section>
 </main>
