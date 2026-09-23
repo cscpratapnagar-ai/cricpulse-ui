@@ -100,7 +100,9 @@
                           <small>NOT OUT</small>
                         }
                       </td>
-                      <td><b>{{ batter.runs }}</b></td>
+                      <td>
+                        <b>{{ batter.runs }}</b>
+                      </td>
                       <td>{{ batter.balls }}</td>
                       <td>{{ batter.fours }}</td>
                       <td>{{ batter.sixes }}</td>
@@ -126,10 +128,14 @@
                   <tbody>
                     @for (bowler of innings.bowling; track bowler.playerName) {
                       <tr>
-                        <td><strong>{{ bowler.playerName }}</strong></td>
+                        <td>
+                          <strong>{{ bowler.playerName }}</strong>
+                        </td>
                         <td>{{ overs(bowler.legalBalls) }}</td>
                         <td>{{ bowler.runs }}</td>
-                        <td><b>{{ bowler.wickets }}</b></td>
+                        <td>
+                          <b>{{ bowler.wickets }}</b>
+                        </td>
                         <td>{{ bowler.economy | number: '1.2-2' }}</td>
                       </tr>
                     }
@@ -174,7 +180,9 @@
             <span class="live-badge"><i></i>{{ statusLabel(score) }}</span>
           </div>
 
-          <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+          <div class="score">
+            {{ score.runs }}<em>/{{ score.wickets }}</em>
+          </div>
           <div class="overs">{{ overs(score.legalBalls) }} <span>OVERS</span></div>
 
           @if (score.targetRuns && score.targetRuns > score.runs) {
@@ -233,9 +241,15 @@
         </section>
 
         <section class="info-grid">
-          <article><span>OVERS</span><strong>{{ overs(score.legalBalls) }}</strong></article>
-          <article><span>RUN RATE</span><strong>{{ runRate(score) }}</strong></article>
-          <article><span>STATUS</span><strong>{{ statusLabel(score) }}</strong></article>
+          <article>
+            <span>OVERS</span><strong>{{ overs(score.legalBalls) }}</strong>
+          </article>
+          <article>
+            <span>RUN RATE</span><strong>{{ runRate(score) }}</strong>
+          </article>
+          <article>
+            <span>STATUS</span><strong>{{ statusLabel(score) }}</strong>
+          </article>
         </section>
 
         @if (score.recentBalls?.length) {
@@ -270,11 +284,15 @@
 
         @if (score.partnership) {
           <section class="info-grid partnership-grid">
-            <article><span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong></article>
+            <article>
+              <span>PARTNERSHIP</span><strong>{{ score.partnership.runs }}</strong>
+            </article>
             <article>
               <span>PARTNERSHIP BALLS</span><strong>{{ score.partnership.balls }}</strong>
             </article>
-            <article><span>WICKETS</span><strong>{{ score.wickets }}</strong></article>
+            <article>
+              <span>WICKETS</span><strong>{{ score.wickets }}</strong>
+            </article>
           </section>
         }
       } @else {
