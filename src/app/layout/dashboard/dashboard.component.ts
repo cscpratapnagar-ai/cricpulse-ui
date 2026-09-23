@@ -74,7 +74,9 @@ export class DashboardComponent {
     this.commandResults.set(
       this.hasWorkspaceAccess
         ? this.commandItems
-        : this.commandItems.filter((item) => ['Dashboard', 'Teams', 'Settings'].includes(item.label)),
+        : this.commandItems.filter((item) =>
+            ['Dashboard', 'Teams', 'Settings'].includes(item.label),
+          ),
     );
     this.commandOpen.set(true);
   }

@@ -54,7 +54,8 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           ><i>⌂</i><span>Overview</span></a
-        >@if (hasWorkspaceAccess) {
+        >
+        @if (hasWorkspaceAccess) {
           <a routerLink="/matches" routerLinkActive="active"><i>◉</i><span>Matches</span></a
           ><a routerLink="/live" routerLinkActive="active"
             ><i class="live-dot">●</i><span>Live Center</span><em>LIVE</em></a
@@ -166,14 +167,12 @@
       </div>
     }
     <nav class="mobile-nav">
-      <a routerLink="/dashboard" routerLinkActive="active">⌂<small>Home</small></a
-      >
-        @if (hasWorkspaceAccess) {
-          <a routerLink="/matches" routerLinkActive="active">◉<small>Matches</small></a
-          ><a routerLink="/live" routerLinkActive="active">●<small>Live</small></a>
-        }
-      ><a routerLink="/teams" routerLinkActive="active">◇<small>Teams</small></a
-      >
+      <a routerLink="/dashboard" routerLinkActive="active">⌂<small>Home</small></a>
+      @if (hasWorkspaceAccess) {
+        <a routerLink="/matches" routerLinkActive="active">◉<small>Matches</small></a
+        ><a routerLink="/live" routerLinkActive="active">●<small>Live</small></a>
+      }
+      ><a routerLink="/teams" routerLinkActive="active">◇<small>Teams</small></a>
       @if (hasWorkspaceAccess) {
         <a routerLink="/players" routerLinkActive="active">♙<small>Players</small></a>
       }
