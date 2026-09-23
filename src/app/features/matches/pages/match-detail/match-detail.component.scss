@@ -331,7 +331,11 @@
   border: 1px solid var(--line);
   border-radius: 15px;
   background:
-    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--accent) 8%, transparent), transparent 45%),
+    radial-gradient(
+      circle at 100% 0,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 45%
+    ),
     color-mix(in srgb, var(--cp-text) 2%, transparent);
   transition:
     transform 0.22s ease,
