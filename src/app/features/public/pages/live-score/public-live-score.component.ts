@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, distinctUntilChanged, of, switchMap, tap, timer } from 'rxjs';
@@ -76,7 +76,7 @@ interface CurrentInnings {
 @Component({
   selector: 'app-public-live-score',
   standalone: true,
-  imports: [AsyncPipe, RouterLink],
+  imports: [AsyncPipe, DecimalPipe, RouterLink],
   templateUrl: './public-live-score.component.html',
   styleUrl: './public-live-score.component.scss',
 })
