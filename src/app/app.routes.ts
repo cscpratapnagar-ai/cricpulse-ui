@@ -49,6 +49,7 @@ import {
   canAccessMatchToss,
 } from './core/routing/match-lifecycle.guard';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
+import { canAccessBroadcastControl } from './core/routing/broadcast-control.guard';
 
 const dashboardChildren: Routes = [
   { path: '', component: HomeComponent },
@@ -116,7 +117,11 @@ export const routes: Routes = [
   { path: 'match/:id', component: PublicLiveScoreComponent },
   { path: 'live/:id', redirectTo: 'match/:id', pathMatch: 'full' },
   { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
-  { path: 'broadcast/:id/control', component: BroadcastControlComponent, canActivate: [authGuard] },
+  {
+    path: 'broadcast/:id/control',
+    component: BroadcastControlComponent,
+    canActivate: [authGuard, canAccessBroadcastControl],
+  },
   { path: 'dashboard', ...dashboardRoute() },
   { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   { path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
