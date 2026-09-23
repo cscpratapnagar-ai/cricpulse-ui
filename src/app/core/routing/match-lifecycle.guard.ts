@@ -80,3 +80,20 @@ function guardStep(step: LifecycleStep): CanActivateFn {
 export const canAccessMatchToss = guardStep('toss');
 export const canAccessMatchOpening = guardStep('opening');
 export const canAccessLiveScoring = guardStep('live');
+
+export const canAccessBroadcastControl: CanActivateFn = (route) => {
+  const http = inject(HttpClient);
+  const router = inject(Router);
+  const matchId = route.paramMap.get('id');
+
+  if (!matchId) return router.createUrlTree(['/matches']);
+
+  return http
+    .get<{ matchId: string; allowed: boolean }>(
+      `${API_BASE_URL}/matches/${matchId}/broadcast-access`,
+    )
+    .pipe(
+      map((access) => (access.allowed ? true : router.createUrlTree(['/matches', matchId]))),
+      catchError(() => of(router.createUrlTree(['/matches', matchId]))),
+    );
+};
