@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Normalize repository formatting
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.event_name == 'push'
         run: |
           npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}" "scripts/**/*.{mjs,js}" "*.json"
           if ! git diff --quiet; then
