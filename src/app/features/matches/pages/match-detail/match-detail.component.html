@@ -183,50 +183,73 @@
               ><small>{{ intelligence.recentRuns }} runs in recent phase</small>
             </div>
           </div>
+          <div class="intelligence-headline">
+            <div>
+              <span class="signal-dot"></span>
+              <span>LIVE INTELLIGENCE ENGINE</span>
+            </div>
+            <small>Derived from recorded match events</small>
+          </div>
           <div class="intel-advanced">
-            <div class="advanced-card">
-              <div class="advanced-head">
-                <span>MOMENTUM SCORE</span><b>{{ intelligence.momentumScore | number: '1.0-1' }}</b>
+            <article class="advanced-card momentum-card">
+              <div class="advanced-top">
+                <div>
+                  <span class="metric-label">MOMENTUM</span>
+                  <strong>{{ intelligence.momentum }}</strong>
+                </div>
+                <div class="gauge" [style.--value.%]="intelligence.momentumScore">
+                  <span>{{ intelligence.momentumScore | number: '1.0-1' }}</span>
+                </div>
               </div>
-              <div class="meter">
-                <i
-                  [class]="momentumTone(intelligence.momentum)"
-                  [style.width.%]="intelligence.momentumScore"
-                ></i>
+              <div class="metric-track"><i [class]="momentumTone(intelligence.momentum)" [style.width.%]="intelligence.momentumScore"></i></div>
+              <small>Recent phase vs innings baseline</small>
+            </article>
+
+            <article class="advanced-card projection-card">
+              <div class="metric-label">PROJECTED SCORE</div>
+              <div class="projection-value">
+                <strong>{{ intelligence.projectedScore ?? '—' }}</strong>
+                <span>RUNS</span>
               </div>
-              <small [class]="momentumTone(intelligence.momentum)">{{
-                intelligence.momentum
-              }}</small>
-            </div>
-            <div class="advanced-card">
-              <div class="advanced-head">
-                <span>PROJECTED SCORE</span><b>{{ intelligence.projectedScore ?? '—' }}</b>
+              <div class="projection-line">
+                <span>At recent RR {{ intelligence.recentRunRate }}</span>
+                <span>{{ intelligence.legalBalls }} balls</span>
               </div>
-              <div class="advanced-copy">Projected at recent scoring rate</div>
-            </div>
-            <div class="advanced-card">
-              <div class="advanced-head">
-                <span>PRESSURE INDEX</span><b>{{ intelligence.pressureIndex }}</b>
+            </article>
+
+            <article class="advanced-card pressure-card">
+              <div class="advanced-top">
+                <div>
+                  <span class="metric-label">PRESSURE</span>
+                  <strong>{{ intelligence.pressureIndex }}<em>/100</em></strong>
+                </div>
+                <span class="risk-badge" [class]="intelligenceTone(intelligence.pressureIndex)">
+                  {{ intelligence.pressureIndex >= 70 ? 'HIGH' : intelligence.pressureIndex >= 45 ? 'WATCH' : 'LOW' }}
+                </span>
               </div>
-              <div class="meter">
-                <i
-                  [class]="intelligenceTone(intelligence.pressureIndex)"
-                  [style.width.%]="intelligence.pressureIndex"
-                ></i>
+              <div class="metric-track"><i [class]="intelligenceTone(intelligence.pressureIndex)" [style.width.%]="intelligence.pressureIndex"></i></div>
+              <small>Chase, dots and wicket pressure</small>
+            </article>
+
+            <article class="advanced-card collapse-card">
+              <div class="advanced-top">
+                <div>
+                  <span class="metric-label">COLLAPSE RISK</span>
+                  <strong>{{ intelligence.collapseRisk }}<em>/100</em></strong>
+                </div>
+                <span class="risk-badge" [class]="intelligenceTone(intelligence.collapseRisk)">
+                  {{ intelligence.collapseRisk >= 70 ? 'CRITICAL' : intelligence.collapseRisk >= 45 ? 'WATCH' : 'STABLE' }}
+                </span>
               </div>
-              <small>Live match pressure</small>
-            </div>
-            <div class="advanced-card">
-              <div class="advanced-head">
-                <span>COLLAPSE RISK</span><b>{{ intelligence.collapseRisk }}</b>
-              </div>
-              <div class="meter">
-                <i
-                  [class]="intelligenceTone(intelligence.collapseRisk)"
-                  [style.width.%]="intelligence.collapseRisk"
-                ></i>
-              </div>
-              <small>Recent wickets &amp; dot-ball pattern</small>
+              <div class="metric-track"><i [class]="intelligenceTone(intelligence.collapseRisk)" [style.width.%]="intelligence.collapseRisk"></i></div>
+              <small>Wickets and dot-ball concentration</small>
+            </article>
+          </div>
+          <div class="intelligence-signal">
+            <span class="signal-icon">✦</span>
+            <div>
+              <b>Match signal</b>
+              <p>{{ intelligenceSignal() }}</p>
             </div>
           </div>
           @if (intelligence.requiredRuns !== null) {
