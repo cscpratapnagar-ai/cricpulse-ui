@@ -334,6 +334,165 @@
   border-color: #ff726722;
 }
 
+
+.result-summary {
+  margin-bottom: 16px;
+}
+
+.completed-innings {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #ffffff06;
+  text-align: left;
+}
+
+.completed-innings b {
+  font-size: 24px;
+}
+
+.completed-innings span {
+  color: #789386;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  font-weight: 900;
+}
+
+.public-scorecard {
+  margin-top: 16px;
+}
+
+.public-scorecard > .section-head {
+  padding: 0 4px 10px;
+}
+
+.innings-card {
+  margin-bottom: 16px;
+  padding: 22px;
+  border: 1px solid #ffffff12;
+  border-radius: 20px;
+  background: #ffffff05;
+  overflow: hidden;
+}
+
+.innings-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #ffffff0d;
+}
+
+.innings-header > div:first-child > span {
+  color: #789386;
+  font-size: 8px;
+  letter-spacing: 2px;
+  font-weight: 900;
+}
+
+.innings-header h2 {
+  margin: 5px 0 0;
+  font-size: 20px;
+}
+
+.innings-total {
+  text-align: right;
+}
+
+.innings-total strong {
+  display: block;
+  font-size: 28px;
+}
+
+.innings-total small {
+  color: #789386;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+th,
+td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #ffffff09;
+  text-align: right;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+  width: 45%;
+}
+
+th {
+  color: #789386;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  font-weight: 900;
+}
+
+td strong {
+  display: block;
+}
+
+td small {
+  display: block;
+  margin-top: 3px;
+  color: #789386;
+  font-size: 8px;
+}
+
+.bowling-table {
+  margin-top: 22px;
+}
+
+.bowling-table table {
+  min-width: 460px;
+}
+
+.fow {
+  margin-top: 22px;
+}
+
+.fow > span {
+  color: #789386;
+  font-size: 8px;
+  letter-spacing: 1.7px;
+  font-weight: 900;
+}
+
+.fow > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fow b {
+  padding: 7px 9px;
+  border: 1px solid #ffffff10;
+  border-radius: 9px;
+  background: #ffffff05;
+  color: #a7bcb2;
+  font-size: 9px;
+}
+
 .public-live footer {
   display: flex;
   justify-content: space-between;
