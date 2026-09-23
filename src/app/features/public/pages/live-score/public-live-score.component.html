@@ -108,6 +108,13 @@
           </article>
         </section>
       }
+    } @else if (match?.status === 'SCHEDULED') {
+      <section class="score-card loading">
+        <div>
+          <strong>Match scheduled</strong>
+          <span>Live scoring will appear here as soon as the innings starts.</span>
+        </div>
+      </section>
     } @else {
       <section class="score-card loading error-state">
         <div>
