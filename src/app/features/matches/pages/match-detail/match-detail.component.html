@@ -185,23 +185,49 @@
           </div>
           <div class="intel-advanced">
             <div class="advanced-card">
-              <div class="advanced-head"><span>MOMENTUM SCORE</span><b>{{ intelligence.momentumScore | number:'1.0-1' }}</b></div>
-              <div class="meter"><i [class]="momentumTone(intelligence.momentum)" [style.width.%]="intelligence.momentumScore"></i></div>
-              <small [class]="momentumTone(intelligence.momentum)">{{ intelligence.momentum }}</small>
+              <div class="advanced-head">
+                <span>MOMENTUM SCORE</span
+                ><b>{{ intelligence.momentumScore | number: '1.0-1' }}</b>
+              </div>
+              <div class="meter">
+                <i
+                  [class]="momentumTone(intelligence.momentum)"
+                  [style.width.%]="intelligence.momentumScore"
+                ></i>
+              </div>
+              <small [class]="momentumTone(intelligence.momentum)">{{
+                intelligence.momentum
+              }}</small>
             </div>
             <div class="advanced-card">
-              <div class="advanced-head"><span>PROJECTED SCORE</span><b>{{ intelligence.projectedScore ?? '—' }}</b></div>
+              <div class="advanced-head">
+                <span>PROJECTED SCORE</span><b>{{ intelligence.projectedScore ?? '—' }}</b>
+              </div>
               <div class="advanced-copy">Projected at recent scoring rate</div>
             </div>
             <div class="advanced-card">
-              <div class="advanced-head"><span>PRESSURE INDEX</span><b>{{ intelligence.pressureIndex }}</b></div>
-              <div class="meter"><i [class]="intelligenceTone(intelligence.pressureIndex)" [style.width.%]="intelligence.pressureIndex"></i></div>
+              <div class="advanced-head">
+                <span>PRESSURE INDEX</span><b>{{ intelligence.pressureIndex }}</b>
+              </div>
+              <div class="meter">
+                <i
+                  [class]="intelligenceTone(intelligence.pressureIndex)"
+                  [style.width.%]="intelligence.pressureIndex"
+                ></i>
+              </div>
               <small>Live match pressure</small>
             </div>
             <div class="advanced-card">
-              <div class="advanced-head"><span>COLLAPSE RISK</span><b>{{ intelligence.collapseRisk }}</b></div>
-              <div class="meter"><i [class]="intelligenceTone(intelligence.collapseRisk)" [style.width.%]="intelligence.collapseRisk"></i></div>
-              <small>Recent wickets & dot-ball pattern</small>
+              <div class="advanced-head">
+                <span>COLLAPSE RISK</span><b>{{ intelligence.collapseRisk }}</b>
+              </div>
+              <div class="meter">
+                <i
+                  [class]="intelligenceTone(intelligence.collapseRisk)"
+                  [style.width.%]="intelligence.collapseRisk"
+                ></i>
+              </div>
+              <small>Recent wickets &amp; dot-ball pattern</small>
             </div>
           </div>
           @if (intelligence.requiredRuns !== null) {
