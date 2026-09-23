@@ -69,7 +69,9 @@ export class PublicLiveScoreComponent {
     this.http.get<Match>(`${this.api}/public/matches/${this.matchId}`).subscribe({
       next: (match) => {
         this.match = match;
-        this.http.get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`).subscribe({
+        this.http
+          .get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`)
+          .subscribe({
           next: (scorecards) => (this.scorecards = scorecards || []),
           error: () => (this.scorecards = []),
         });
@@ -82,7 +84,9 @@ export class PublicLiveScoreComponent {
 
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
-        this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`),
+        this.http.get<CurrentInnings>(
+          `${this.api}/public/matches/${this.matchId}/current-innings`,
+        ),
       ),
       tap((innings) => (this.currentInnings = innings)),
       distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
@@ -97,8 +101,9 @@ export class PublicLiveScoreComponent {
 
   battingTeamName(): string {
     const battingTeamId = this.currentInnings?.battingTeamId;
-    if (battingTeamId && battingTeamId === this.match?.teamBId)
+    if (battingTeamId && battingTeamId === this.match?.teamBId) {
       return this.match?.teamBName || 'Team B';
+    }
     return this.match?.teamAName || 'Batting Team';
   }
 
