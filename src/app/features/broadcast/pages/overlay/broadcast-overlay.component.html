@@ -89,7 +89,7 @@
     @if (isBatter) {
       <section class="player-card">
         <label>ON STRIKE · BATTER</label>
-        <h2>{{ score.strikerId || 'CURRENT BATTER' }}</h2>
+        <h2>{{ batterName(score) }}</h2>
         <div class="hero-stat">{{ batterRuns(score) }} <small>RUNS</small></div>
         <div class="sub-stat">{{ batterBalls(score) }} BALLS</div>
       </section>
@@ -97,7 +97,7 @@
     @if (isBowler) {
       <section class="player-card">
         <label>CURRENT BOWLER</label>
-        <h2>{{ score.currentBowlerId || 'CURRENT BOWLER' }}</h2>
+        <h2>{{ bowlerName(score) }}</h2>
         <div class="hero-stat">{{ bowlerWickets(score) }}<small>WKTS</small></div>
         <div class="sub-stat">{{ bowlerRuns(score) }} RUNS · {{ bowlerOvers(score) }} OV</div>
       </section>
@@ -106,8 +106,13 @@
       <section class="player-card partnership-card">
         <label>PARTNERSHIP</label>
         <h2>
-          {{ score.partnership?.batterOneId || score.strikerId || 'BATTER 1' }} <i>+</i>
-          {{ score.partnership?.batterTwoId || score.nonStrikerId || 'BATTER 2' }}
+          {{
+            partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1')
+          }}
+          <i>+</i>
+          {{
+            partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2')
+          }}
         </h2>
         <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
         <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
