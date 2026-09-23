@@ -72,9 +72,9 @@ export class PublicLiveScoreComponent {
         this.http
           .get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`)
           .subscribe({
-          next: (scorecards) => (this.scorecards = scorecards || []),
-          error: () => (this.scorecards = []),
-        });
+            next: (scorecards) => (this.scorecards = scorecards || []),
+            error: () => (this.scorecards = []),
+          });
       },
       error: (error) => {
         this.loadError = true;
