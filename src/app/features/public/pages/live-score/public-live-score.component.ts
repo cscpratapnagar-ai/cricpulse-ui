@@ -17,6 +17,14 @@ interface Match {
   teamBName?: string;
 }
 
+interface PublicScorecard {
+  inningsNumber: number;
+  teamName: string;
+  runs: number;
+  wickets: number;
+  legalBalls: number;
+}
+
 interface CurrentInnings {
   inningsId: string;
   matchId?: string;
@@ -50,6 +58,7 @@ export class PublicLiveScoreComponent {
   currentInnings: CurrentInnings | null = null;
   score$ = of<LiveScore | null>(null);
   loadError = false;
+  scorecards: PublicScorecard[] = [];
 
   constructor() {
     if (!this.matchId) {
@@ -57,8 +66,16 @@ export class PublicLiveScoreComponent {
       return;
     }
 
-    this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({
-      next: (match) => (this.match = match),
+    this.http.get<Match>(`${this.api}/public/matches/${this.matchId}`).subscribe({
+      next: (match) => {
+        this.match = match;
+        this.http
+          .get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`)
+          .subscribe({
+            next: (scorecards) => (this.scorecards = scorecards || []),
+            error: () => (this.scorecards = []),
+          });
+      },
       error: (error) => {
         this.loadError = true;
         console.error('[PublicLive] match load failed', error);
@@ -82,8 +99,9 @@ export class PublicLiveScoreComponent {
 
   battingTeamName(): string {
     const battingTeamId = this.currentInnings?.battingTeamId;
-    if (battingTeamId && battingTeamId === this.match?.teamBId)
+    if (battingTeamId && battingTeamId === this.match?.teamBId) {
       return this.match?.teamBName || 'Team B';
+    }
     return this.match?.teamAName || 'Batting Team';
   }
 

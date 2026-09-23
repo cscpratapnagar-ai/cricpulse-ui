@@ -13,6 +13,22 @@
     </p>
   </section>
 
+  @if (scorecards.length && match?.status === 'COMPLETED') {
+    <section class="score-card">
+      <div class="score-context">
+        <div class="team">MATCH RESULT <small>COMPLETED</small></div>
+        <span class="live-badge">{{ matchStatusLabel() }}</span>
+      </div>
+      @for (innings of scorecards; track innings.inningsNumber) {
+        <div class="completed-innings">
+          <strong>{{ innings.teamName }}</strong>
+          <b>{{ innings.runs }}/{{ innings.wickets }}</b>
+          <span>{{ overs(innings.legalBalls) }} OVERS</span>
+        </div>
+      }
+    </section>
+  }
+
   @if (score$ | async; as score) {
     @if (score) {
       <section class="score-card">
@@ -92,6 +108,13 @@
           </article>
         </section>
       }
+    } @else if (match?.status === 'SCHEDULED') {
+      <section class="score-card loading">
+        <div>
+          <strong>Match scheduled</strong>
+          <span>Live scoring will appear here as soon as the innings starts.</span>
+        </div>
+      </section>
     } @else {
       <section class="score-card loading error-state">
         <div>
