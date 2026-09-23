@@ -95,6 +95,7 @@ export class PublicLiveScoreComponent {
   score$ = of<LiveScore | null>(null);
   loadError = false;
   scorecards: PublicScorecard[] = [];
+  shareMessage = '';
 
   constructor() {
     if (!this.matchId) {
@@ -111,22 +112,41 @@ export class PublicLiveScoreComponent {
             next: (scorecards) => (this.scorecards = scorecards || []),
             error: () => (this.scorecards = []),
           });
+
+        if (this.isLive) {
+          this.startLiveFeed();
+        }
       },
       error: (error) => {
         this.loadError = true;
         console.error('[PublicLive] match load failed', error);
       },
     });
+  }
 
+  get isLive(): boolean {
+    return this.match?.status === 'LIVE';
+  }
+
+  get isScheduled(): boolean {
+    return this.match?.status === 'SCHEDULED';
+  }
+
+  get isCompleted(): boolean {
+    return this.match?.status === 'COMPLETED';
+  }
+
+  startLiveFeed(): void {
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
-        this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`),
+        this.http.get<CurrentInnings>(
+          `${this.api}/public/matches/${this.matchId}/current-innings`,
+        ),
       ),
       tap((innings) => (this.currentInnings = innings)),
       distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
       switchMap((innings) => this.liveScore.watch(innings.inningsId)),
       catchError((error) => {
-        this.loadError = true;
         console.error('[PublicLive] score failed', error);
         return of<LiveScore | null>(null);
       }),
@@ -145,6 +165,10 @@ export class PublicLiveScoreComponent {
     return `${Math.floor(balls / 6)}.${balls % 6}`;
   }
 
+  inningsOvers(innings: PublicScorecard): string {
+    return this.overs(innings.legalBalls);
+  }
+
   runRate(score: LiveScore): string {
     return score.legalBalls ? (score.runs / (score.legalBalls / 6)).toFixed(2) : '0.00';
   }
@@ -154,6 +178,36 @@ export class PublicLiveScoreComponent {
   }
 
   matchStatusLabel(): string {
-    return this.match?.status || 'COMPLETED';
+    return this.match?.status || 'MATCH';
+  }
+
+  scheduledLabel(): string {
+    if (!this.match?.scheduledAt) {
+      return 'Schedule to be announced';
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(this.match.scheduledAt));
+  }
+
+  async shareMatch(): Promise<void> {
+    const url = window.location.href;
+    const title = this.match?.name || 'CricPulse Match Centre';
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text: `${title} · CricPulse Match Centre`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      this.shareMessage = 'Match link copied';
+      window.setTimeout(() => (this.shareMessage = ''), 2200);
+    } catch (error) {
+      if ((error as DOMException)?.name !== 'AbortError') {
+        this.shareMessage = 'Unable to share this match';
+        window.setTimeout(() => (this.shareMessage = ''), 2200);
+      }
+    }
   }
 }
