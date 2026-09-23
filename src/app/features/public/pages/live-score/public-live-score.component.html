@@ -165,7 +165,8 @@
               @for (batter of score.batters; track batter.playerId) {
                 @if (batter.playerId === score.strikerId) {
                   <span>
-                    {{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 · {{ batter.sixes }}x6
+                    {{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 ·
+                    {{ batter.sixes }}x6
                   </span>
                 }
               }
