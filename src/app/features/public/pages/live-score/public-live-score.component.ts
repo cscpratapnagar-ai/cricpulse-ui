@@ -17,7 +17,7 @@ interface Match {
   teamBName?: string;
 }
 
-interface CurrentInnings {
+interface PublicScorecard {\n  inningsNumber: number;\n  teamName: string;\n  runs: number;\n  wickets: number;\n  legalBalls: number;\n}\n\ninterface CurrentInnings {
   inningsId: string;
   matchId?: string;
   inningsNumber: number;
@@ -49,7 +49,7 @@ export class PublicLiveScoreComponent {
   match: Match | null = null;
   currentInnings: CurrentInnings | null = null;
   score$ = of<LiveScore | null>(null);
-  loadError = false;
+  loadError = false;\n  scorecards: PublicScorecard[] = [];
 
   constructor() {
     if (!this.matchId) {
@@ -58,7 +58,7 @@ export class PublicLiveScoreComponent {
     }
 
     this.http.get<Match>(`${this.api}/public/matches/${this.matchId}`).subscribe({
-      next: (match) => (this.match = match),
+      next: (match) => {\n        this.match = match;\n        this.http.get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`).subscribe({\n          next: (scorecards) => (this.scorecards = scorecards || []),\n          error: () => (this.scorecards = []),\n        });\n      },
       error: (error) => {
         this.loadError = true;
         console.error('[PublicLive] match load failed', error);
