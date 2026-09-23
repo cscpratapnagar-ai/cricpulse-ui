@@ -100,6 +100,18 @@ export class MatchDetailComponent {
     return 'low';
   }
 
+  pressureLabel(value: number): string {
+    if (value >= 70) return 'HIGH';
+    if (value >= 45) return 'WATCH';
+    return 'LOW';
+  }
+
+  collapseLabel(value: number): string {
+    if (value >= 70) return 'CRITICAL';
+    if (value >= 45) return 'WATCH';
+    return 'STABLE';
+  }
+
   momentumTone(value: string): string {
     return value.toLowerCase();
   }
