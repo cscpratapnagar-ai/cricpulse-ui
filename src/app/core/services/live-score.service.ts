@@ -100,6 +100,16 @@ export function withCommandId(commandId: string): { 'X-Command-Id': string } {
   return { 'X-Command-Id': commandId };
 }
 
+export type LiveScoreFrameDecision = 'accept' | 'ignore' | 'reconcile';
+
+/** Decide how a websocket frame should be handled against the last authoritative version. */
+export function decideLiveScoreFrame(version: number | undefined, lastEventVersion: number): LiveScoreFrameDecision {
+  if (typeof version !== 'number' || !Number.isFinite(version)) return 'accept';
+  if (version <= lastEventVersion) return 'ignore';
+  if (version > lastEventVersion + 1) return 'reconcile';
+  return 'accept';
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
@@ -192,15 +202,13 @@ export class LiveScoreService {
                 const score = JSON.parse(message.body) as LiveScore;
                 if (score?.inningsId !== inningsId) return;
 
-                const version = score.eventVersion;
-                if (typeof version === 'number' && Number.isFinite(version)) {
-                  if (version <= lastEventVersion) return;
-                  // A version jump proves a missed authoritative event. Recover the
-                  // complete state instead of applying a potentially partial frame.
-                  if (version > lastEventVersion + 1) {
-                    reconcile();
-                    return;
-                  }
+                const decision = decideLiveScoreFrame(score.eventVersion, lastEventVersion);
+                if (decision === 'ignore') return;
+                // A version jump proves a missed authoritative event. Recover the
+                // complete state instead of applying a potentially partial frame.
+                if (decision === 'reconcile') {
+                  reconcile();
+                  return;
                 }
                 emitAuthoritative(score);
               } catch {
