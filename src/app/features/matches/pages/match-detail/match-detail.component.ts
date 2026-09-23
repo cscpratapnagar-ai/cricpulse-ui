@@ -32,6 +32,10 @@ interface MatchIntelligence {
   recentWickets: number;
   recentRunRate: number;
   momentum: string;
+  momentumScore: number;
+  projectedScore: number | null;
+  pressureIndex: number;
+  collapseRisk: number;
   requiredRuns: number | null;
   ballsRemaining: number | null;
   requiredRate: number | null;
@@ -87,6 +91,16 @@ export class MatchDetailComponent {
         this.intelligenceLoading = false;
       },
     });
+  }
+
+  intelligenceTone(value: number): string {
+    if (value >= 75) return 'high';
+    if (value >= 45) return 'mid';
+    return 'low';
+  }
+
+  momentumTone(value: string): string {
+    return value.toLowerCase();
   }
 
   displayMatchTitle(value?: string): string {
