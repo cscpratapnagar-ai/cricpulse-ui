@@ -106,8 +106,13 @@
       <section class="player-card partnership-card">
         <label>PARTNERSHIP</label>
         <h2>
-          {{ partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1') }} <i>+</i>
-          {{ partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2') }}
+          {{
+            partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1')
+          }}
+          <i>+</i>
+          {{
+            partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2')
+          }}
         </h2>
         <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
         <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
