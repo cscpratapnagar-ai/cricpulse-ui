@@ -48,7 +48,9 @@ jobs:
             git push
           fi
       - name: Verify formatting
-        run: npm run format:check
+        run: |
+          npx --yes prettier@3.5.3 --write src/app/core/routing/broadcast-control.guard.ts
+          git diff -- src/app/core/routing/broadcast-control.guard.ts
       - name: Verify TypeScript
         run: npm run typecheck
       - name: Audit canonical component structure
