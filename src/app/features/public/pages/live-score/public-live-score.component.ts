@@ -84,9 +84,7 @@ export class PublicLiveScoreComponent {
 
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
-        this.http.get<CurrentInnings>(
-          `${this.api}/public/matches/${this.matchId}/current-innings`,
-        ),
+        this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`),
       ),
       tap((innings) => (this.currentInnings = innings)),
       distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
@@ -119,4 +117,3 @@ export class PublicLiveScoreComponent {
     return score.status || this.match?.status || 'LIVE';
   }
 }
-
