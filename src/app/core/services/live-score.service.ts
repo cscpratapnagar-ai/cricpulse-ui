@@ -6,6 +6,7 @@ import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
 
 export interface LiveBatter {
   playerId: string;
+  playerName?: string | null;
   runs: number;
   ballsFaced: number;
   fours: number;
@@ -16,6 +17,7 @@ export interface LiveBatter {
 }
 export interface LiveBowler {
   playerId: string;
+  playerName?: string | null;
   legalBalls: number;
   runsConceded: number;
   wickets: number;
@@ -28,8 +30,11 @@ export interface LiveRecentBall {
   overNumber: number;
   ballNumber: number;
   strikerId: string;
+  strikerName?: string | null;
   nonStrikerId: string;
+  nonStrikerName?: string | null;
   bowlerId: string;
+  bowlerName?: string | null; string;
   batRuns: number;
   extraRuns: number;
   extraType?: string | null;
@@ -76,8 +81,11 @@ export interface LiveScore {
   currentOver?: number;
   currentBall?: number;
   strikerId?: string | null;
+  strikerName?: string | null;
   nonStrikerId?: string | null;
+  nonStrikerName?: string | null;
   currentBowlerId?: string | null;
+  currentBowlerName?: string | null;
   overBalls?: string[];
   eventVersion?: number;
   eventType?: string;
