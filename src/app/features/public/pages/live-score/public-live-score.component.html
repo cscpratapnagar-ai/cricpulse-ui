@@ -14,7 +14,7 @@
   </section>
 
   @if (scorecards.length && match?.status === 'COMPLETED') {
-    <section class="score-card">
+    <section class="score-card result-summary">
       <div class="score-context">
         <div class="team">MATCH RESULT <small>COMPLETED</small></div>
         <span class="live-badge">{{ matchStatusLabel() }}</span>
@@ -23,8 +23,112 @@
         <div class="completed-innings">
           <strong>{{ innings.teamName }}</strong>
           <b>{{ innings.runs }}/{{ innings.wickets }}</b>
-          <span>{{ overs(innings.legalBalls) }} OVERS</span>
+          <span>{{ inningsOvers(innings) }} OVERS</span>
         </div>
+      }
+    </section>
+
+    <section class="public-scorecard">
+      <div class="section-head">
+        <span>FULL SCORECARD</span>
+        <small>{{ scorecards.length }} INNINGS</small>
+      </div>
+
+      @for (innings of scorecards; track innings.inningsId) {
+        <article class="innings-card">
+          <header class="innings-header">
+            <div>
+              <span>INNINGS {{ innings.inningsNumber }}</span>
+              <h2>{{ innings.teamName }}</h2>
+            </div>
+            <div class="innings-total">
+              <strong>{{ innings.runs }}/{{ innings.wickets }}</strong>
+              <small>{{ inningsOvers(innings) }} OV · {{ innings.extras }} EXTRAS</small>
+            </div>
+          </header>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>BATTER</th>
+                  <th>R</th>
+                  <th>B</th>
+                  <th>4s</th>
+                  <th>6s</th>
+                  <th>SR</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (batter of innings.batting; track batter.playerName) {
+                  <tr>
+                    <td>
+                      <strong>{{ batter.playerName }}</strong>
+                      @if (batter.out) {
+                        <small>{{ batter.dismissal || 'OUT' }}</small>
+                      } @else {
+                        <small>NOT OUT</small>
+                      }
+                    </td>
+                    <td>
+                      <b>{{ batter.runs }}</b>
+                    </td>
+                    <td>{{ batter.balls }}</td>
+                    <td>{{ batter.fours }}</td>
+                    <td>{{ batter.sixes }}</td>
+                    <td>{{ batter.strikeRate | number: '1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (innings.bowling.length) {
+            <div class="table-scroll bowling-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>BOWLER</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>ECO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (bowler of innings.bowling; track bowler.playerName) {
+                    <tr>
+                      <td>
+                        <strong>{{ bowler.playerName }}</strong>
+                      </td>
+                      <td>{{ overs(bowler.legalBalls) }}</td>
+                      <td>{{ bowler.runs }}</td>
+                      <td>
+                        <b>{{ bowler.wickets }}</b>
+                      </td>
+                      <td>{{ bowler.economy | number: '1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          @if (innings.fallOfWickets.length) {
+            <div class="fow">
+              <span>FALL OF WICKETS</span>
+              <div>
+                @for (wicket of innings.fallOfWickets; track wicket.wicketNumber) {
+                  <b
+                    >{{ wicket.wicketNumber }} · {{ wicket.playerName }} {{ wicket.runs }} ({{
+                      wicket.overNumber
+                    }}.{{ wicket.ballNumber }})</b
+                  >
+                }
+              </div>
+            </div>
+          }
+        </article>
       }
     </section>
   }

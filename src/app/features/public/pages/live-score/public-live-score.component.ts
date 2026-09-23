@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, distinctUntilChanged, of, switchMap, tap, timer } from 'rxjs';
@@ -15,14 +15,47 @@ interface Match {
   teamBId?: string;
   teamAName?: string;
   teamBName?: string;
+  scheduledAt?: string;
 }
 
 interface PublicScorecard {
+  inningsId: string;
   inningsNumber: number;
   teamName: string;
   runs: number;
   wickets: number;
   legalBalls: number;
+  extras: number;
+  batting: Batter[];
+  bowling: Bowler[];
+  fallOfWickets: FallOfWicket[];
+}
+
+interface Batter {
+  playerName: string;
+  runs: number;
+  balls: number;
+  fours: number;
+  sixes: number;
+  strikeRate: number;
+  out: boolean;
+  dismissal?: string;
+}
+
+interface Bowler {
+  playerName: string;
+  legalBalls: number;
+  runs: number;
+  wickets: number;
+  economy: number;
+}
+
+interface FallOfWicket {
+  wicketNumber: number;
+  playerName: string;
+  runs: number;
+  overNumber: number;
+  ballNumber: number;
 }
 
 interface CurrentInnings {
@@ -43,7 +76,7 @@ interface CurrentInnings {
 @Component({
   selector: 'app-public-live-score',
   standalone: true,
-  imports: [AsyncPipe, RouterLink],
+  imports: [AsyncPipe, DecimalPipe, RouterLink],
   templateUrl: './public-live-score.component.html',
   styleUrl: './public-live-score.component.scss',
 })
@@ -115,5 +148,9 @@ export class PublicLiveScoreComponent {
 
   statusLabel(score: LiveScore): string {
     return score.status || this.match?.status || 'LIVE';
+  }
+
+  matchStatusLabel(): string {
+    return this.match?.status || 'COMPLETED';
   }
 }
