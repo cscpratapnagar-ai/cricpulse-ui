@@ -156,6 +156,42 @@
         }
 
         <div class="live-line"><i></i> LIVE SCORE · EVENT {{ score.eventVersion ?? '—' }}</div>
+
+      <section class="live-players">
+        <article class="player-card striker">
+          <div class="player-role">STRIKER</div>
+          <strong>{{ score.strikerName || 'Striker' }}</strong>
+          @if (score.batters?.length) {
+            @for (batter of score.batters; track batter.playerId) {
+              @if (batter.playerId === score.strikerId) {
+                <span>{{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 · {{ batter.sixes }}x6</span>
+              }
+            }
+          }
+        </article>
+        <article class="player-card">
+          <div class="player-role">NON-STRIKER</div>
+          <strong>{{ score.nonStrikerName || 'Non-Striker' }}</strong>
+          @if (score.batters?.length) {
+            @for (batter of score.batters; track batter.playerId) {
+              @if (batter.playerId === score.nonStrikerId) {
+                <span>{{ batter.runs }} ({{ batter.ballsFaced }}) · {{ batter.fours }}x4 · {{ batter.sixes }}x6</span>
+              }
+            }
+          }
+        </article>
+        <article class="player-card bowler">
+          <div class="player-role">CURRENT BOWLER</div>
+          <strong>{{ score.currentBowlerName || 'Bowler' }}</strong>
+          @if (score.bowlers?.length) {
+            @for (bowler of score.bowlers; track bowler.playerId) {
+              @if (bowler.playerId === score.currentBowlerId) {
+                <span>{{ overs(bowler.legalBalls) }} · {{ bowler.runsConceded }} R · {{ bowler.wickets }} W · {{ bowler.economy | number: '1.2-2' }} ECO</span>
+              }
+            }
+          }
+        </article>
+      </section>
       </section>
 
       <section class="info-grid">
@@ -179,6 +215,8 @@
             @for (ball of score.recentBalls; track ball.deliveryId) {
               <div
                 class="ball"
+                [title]="(ball.strikerName || 'Striker') + ' · ' + (ball.bowlerName || 'Bowler')"
+
                 [class.wicket]="ball.wicketType"
                 [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
                 [class.extra]="ball.extraType"
