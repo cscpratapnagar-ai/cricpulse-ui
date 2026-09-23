@@ -51,7 +51,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>BATTER</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th>
+                  <th>BATTER</th>
+                  <th>R</th>
+                  <th>B</th>
+                  <th>4s</th>
+                  <th>6s</th>
+                  <th>SR</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,12 +85,20 @@
             <div class="table-scroll bowling-table">
               <table>
                 <thead>
-                  <tr><th>BOWLER</th><th>O</th><th>R</th><th>W</th><th>ECO</th></tr>
+                  <tr>
+                    <th>BOWLER</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>ECO</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (bowler of innings.bowling; track bowler.playerName) {
                     <tr>
-                      <td><strong>{{ bowler.playerName }}</strong></td>
+                      <td>
+                        <strong>{{ bowler.playerName }}</strong>
+                      </td>
                       <td>{{ overs(bowler.legalBalls) }}</td>
                       <td>{{ bowler.runs }}</td>
                       <td><b>{{ bowler.wickets }}</b></td>
@@ -102,7 +115,11 @@
               <span>FALL OF WICKETS</span>
               <div>
                 @for (wicket of innings.fallOfWickets; track wicket.wicketNumber) {
-                  <b>{{ wicket.wicketNumber }} · {{ wicket.playerName }} {{ wicket.runs }} ({{ wicket.overNumber }}.{{ wicket.ballNumber }})</b>
+                  <b>
+                    {{ wicket.wicketNumber }} · {{ wicket.playerName }} {{ wicket.runs }} ({{
+                      wicket.overNumber
+                    }}.{{ wicket.ballNumber }})
+                  </b>
                 }
               </div>
             </div>
