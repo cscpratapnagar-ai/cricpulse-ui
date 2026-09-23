@@ -588,3 +588,46 @@ td small {
     animation: none;
   }
 }
+
+.live-players {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.player-card {
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.player-card.striker {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.player-role {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  opacity: 0.62;
+  margin-bottom: 7px;
+}
+
+.player-card strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.player-card span {
+  display: block;
+  font-size: 0.78rem;
+  opacity: 0.72;
+}
+
+@media (max-width: 720px) {
+  .live-players {
+    grid-template-columns: 1fr;
+  }
+}
