@@ -789,7 +789,9 @@
   }
 }
 @media (max-width: 680px) {
-  .intel-advanced { grid-template-columns: 1fr 1fr; }
+  .intel-advanced {
+    grid-template-columns: 1fr 1fr;
+  }
   .match-page {
     padding: 30px 18px 80px;
   }
@@ -828,7 +830,9 @@
   .metrics {
     grid-template-columns: 1fr;
   }
-  .intel-advanced { grid-template-columns: 1fr; }
+  .intel-advanced {
+    grid-template-columns: 1fr;
+  }
   .hero-copy {
     width: 100%;
   }
