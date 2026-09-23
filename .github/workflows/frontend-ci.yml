@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Normalize repository formatting
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feat/no-team-workspace-guard')
+        if: (github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feat/no-team-workspace-guard')) || (github.event_name == 'pull_request' && github.head_ref == 'feat/no-team-workspace-guard')
         run: |
           npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}" "scripts/**/*.{mjs,js}" "*.json"
           if ! git diff --quiet; then
