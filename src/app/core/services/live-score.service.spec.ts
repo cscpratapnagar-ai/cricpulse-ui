@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { LiveScoreService } from './live-score.service';
+import { LiveScoreService, decideLiveScoreFrame } from './live-score.service';
 
 describe('LiveScoreService', () => {
   let service: LiveScoreService;
@@ -21,9 +21,6 @@ describe('LiveScoreService', () => {
     });
   });
 });
-
-
-import { decideLiveScoreFrame } from './live-score.service';
 
 describe('decideLiveScoreFrame', () => {
   it('ignores duplicate and stale versions', () => {
