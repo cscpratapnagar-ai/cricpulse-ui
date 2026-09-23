@@ -119,3 +119,4 @@ export class PublicLiveScoreComponent {
     return score.status || this.match?.status || 'LIVE';
   }
 }
+
