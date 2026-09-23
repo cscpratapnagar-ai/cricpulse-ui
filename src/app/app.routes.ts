@@ -48,7 +48,6 @@ import {
   canAccessMatchOpening,
   canAccessMatchToss,
 } from './core/routing/match-lifecycle.guard';
-import { canAccessBroadcastControl } from './core/routing/broadcast-control.guard';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { canAccessBroadcastControl } from './core/routing/broadcast-control.guard';
 
