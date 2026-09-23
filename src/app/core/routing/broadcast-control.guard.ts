@@ -18,6 +18,6 @@ export const canAccessBroadcastControl: CanActivateFn = (route: ActivatedRouteSn
     .get<{ matchId: string; allowed: boolean }>(`${API_BASE_URL}/matches/${matchId}/broadcast-access`)
     .pipe(
       map((access) => access.allowed),
-    catchError(() => of(router.createUrlTree(['/matches', matchId]))),
-  );
+      catchError(() => of(router.createUrlTree(['/matches', matchId]))),
+    );
 };
