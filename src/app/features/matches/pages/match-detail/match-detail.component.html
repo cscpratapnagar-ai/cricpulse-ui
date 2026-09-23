@@ -201,7 +201,12 @@
                   <span>{{ intelligence.momentumScore | number: '1.0-1' }}</span>
                 </div>
               </div>
-              <div class="metric-track"><i [class]="momentumTone(intelligence.momentum)" [style.width.%]="intelligence.momentumScore"></i></div>
+              <div class="metric-track">
+                <i
+                  [class]="momentumTone(intelligence.momentum)"
+                  [style.width.%]="intelligence.momentumScore"
+                ></i>
+              </div>
               <small>Recent phase vs innings baseline</small>
             </article>
 
@@ -224,10 +229,15 @@
                   <strong>{{ intelligence.pressureIndex }}<em>/100</em></strong>
                 </div>
                 <span class="risk-badge" [class]="intelligenceTone(intelligence.pressureIndex)">
-                  {{ intelligence.pressureIndex >= 70 ? 'HIGH' : intelligence.pressureIndex >= 45 ? 'WATCH' : 'LOW' }}
+                  {{ pressureLabel(intelligence.pressureIndex) }}
                 </span>
               </div>
-              <div class="metric-track"><i [class]="intelligenceTone(intelligence.pressureIndex)" [style.width.%]="intelligence.pressureIndex"></i></div>
+              <div class="metric-track">
+                <i
+                  [class]="intelligenceTone(intelligence.pressureIndex)"
+                  [style.width.%]="intelligence.pressureIndex"
+                ></i>
+              </div>
               <small>Chase, dots and wicket pressure</small>
             </article>
 
@@ -238,10 +248,15 @@
                   <strong>{{ intelligence.collapseRisk }}<em>/100</em></strong>
                 </div>
                 <span class="risk-badge" [class]="intelligenceTone(intelligence.collapseRisk)">
-                  {{ intelligence.collapseRisk >= 70 ? 'CRITICAL' : intelligence.collapseRisk >= 45 ? 'WATCH' : 'STABLE' }}
+                  {{ collapseLabel(intelligence.collapseRisk) }}
                 </span>
               </div>
-              <div class="metric-track"><i [class]="intelligenceTone(intelligence.collapseRisk)" [style.width.%]="intelligence.collapseRisk"></i></div>
+              <div class="metric-track">
+                <i
+                  [class]="intelligenceTone(intelligence.collapseRisk)"
+                  [style.width.%]="intelligence.collapseRisk"
+                ></i>
+              </div>
               <small>Wickets and dot-ball concentration</small>
             </article>
           </div>
