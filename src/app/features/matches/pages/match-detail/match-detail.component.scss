@@ -326,11 +326,17 @@
   transition: width 0.35s ease;
 }
 .meter i.rising,
-.meter i.high { background: #e9636b; }
+.meter i.high {
+  background: #e9636b;
+}
 .meter i.stable,
-.meter i.mid { background: #e4a94b; }
+.meter i.mid {
+  background: #e4a94b;
+}
 .meter i.falling,
-.meter i.low { background: var(--accent); }
+.meter i.low {
+  background: var(--accent);
+}
 .advanced-card small,
 .advanced-copy {
   display: block;
@@ -338,9 +344,15 @@
   font-size: 9px;
   line-height: 1.35;
 }
-.advanced-card small.rising { color: #e9636b; }
-.advanced-card small.stable { color: #e4a94b; }
-.advanced-card small.falling { color: var(--accent); }
+.advanced-card small.rising {
+  color: #e9636b;
+}
+.advanced-card small.stable {
+  color: #e4a94b;
+}
+.advanced-card small.falling {
+  color: var(--accent);
+}
 
 .quick-links a span svg {
   width: 15px;
