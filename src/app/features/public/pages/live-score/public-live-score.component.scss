@@ -544,6 +544,27 @@ td small {
     grid-template-columns: 1fr;
   }
 
+  .completed-innings {
+    grid-template-columns: 1fr auto;
+    gap: 7px 12px;
+  }
+
+  .completed-innings span {
+    grid-column: 1 / -1;
+  }
+
+  .innings-card {
+    padding: 16px;
+  }
+
+  .innings-header {
+    align-items: flex-start;
+  }
+
+  .innings-total strong {
+    font-size: 23px;
+  }
+
   .score-card {
     padding: 34px 18px;
   }
