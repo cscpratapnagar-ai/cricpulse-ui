@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { API_BASE_URL } from '../../../../core/config/api.config';
@@ -32,6 +33,10 @@ interface MatchIntelligence {
   recentWickets: number;
   recentRunRate: number;
   momentum: string;
+  momentumScore: number;
+  projectedScore: number | null;
+  pressureIndex: number;
+  collapseRisk: number;
   requiredRuns: number | null;
   ballsRemaining: number | null;
   requiredRate: number | null;
@@ -41,7 +46,7 @@ interface MatchIntelligence {
 @Component({
   selector: 'app-match-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './match-detail.component.html',
   styleUrl: './match-detail.component.scss',
 })
@@ -87,6 +92,16 @@ export class MatchDetailComponent {
         this.intelligenceLoading = false;
       },
     });
+  }
+
+  intelligenceTone(value: number): string {
+    if (value >= 75) return 'high';
+    if (value >= 45) return 'mid';
+    return 'low';
+  }
+
+  momentumTone(value: string): string {
+    return value.toLowerCase();
   }
 
   displayMatchTitle(value?: string): string {
