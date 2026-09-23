@@ -69,15 +69,15 @@ export class DashboardComponent {
     return !!this.team;
   }
 
+  private get accessibleCommandItems() {
+    return this.hasWorkspaceAccess
+      ? this.commandItems
+      : this.commandItems.filter((item) => ['Dashboard', 'Teams', 'Settings'].includes(item.label));
+  }
+
   openCommand() {
     this.commandQuery = '';
-    this.commandResults.set(
-      this.hasWorkspaceAccess
-        ? this.commandItems
-        : this.commandItems.filter((item) =>
-            ['Dashboard', 'Teams', 'Settings'].includes(item.label),
-          ),
-    );
+    this.commandResults.set(this.accessibleCommandItems);
     this.commandOpen.set(true);
   }
 
@@ -88,13 +88,9 @@ export class DashboardComponent {
   updateCommand() {
     const q = this.commandQuery.trim().toLowerCase();
     this.commandResults.set(
-      !q
-        ? this.commandItems
-        : this.commandItems.filter(
-            (x) =>
-              (this.hasWorkspaceAccess || ['Dashboard', 'Teams', 'Settings'].includes(x.label)) &&
-              (x.label + ' ' + x.group).toLowerCase().includes(q),
-          ),
+      this.accessibleCommandItems.filter(
+        (x) => !q || (x.label + ' ' + x.group).toLowerCase().includes(q),
+      ),
     );
   }
 
