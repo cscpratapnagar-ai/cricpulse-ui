@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { API_BASE_URL } from '../../../../core/config/api.config';
@@ -45,7 +46,7 @@ interface MatchIntelligence {
 @Component({
   selector: 'app-match-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './match-detail.component.html',
   styleUrl: './match-detail.component.scss',
 })
