@@ -119,9 +119,12 @@ export class MatchDetailComponent {
   intelligenceSignal(): string {
     const value = this.intelligence;
     if (!value) return 'Waiting for live scoring data.';
-    if (value.collapseRisk >= 70) return 'Collapse warning: recent wickets and dot-ball pressure are elevated.';
-    if (value.pressureIndex >= 70) return 'High pressure phase: the current run rate needs a strong response.';
-    if (value.momentumScore >= 75) return 'Momentum is accelerating based on the recent scoring phase.';
+    if (value.collapseRisk >= 70)
+      return 'Collapse warning: recent wickets and dot-ball pressure are elevated.';
+    if (value.pressureIndex >= 70)
+      return 'High pressure phase: the current run rate needs a strong response.';
+    if (value.momentumScore >= 75)
+      return 'Momentum is accelerating based on the recent scoring phase.';
     if (value.momentumScore <= 35) return 'Momentum has softened across the recent scoring phase.';
     return 'Match conditions are currently balanced across the latest recorded phase.';
   }
