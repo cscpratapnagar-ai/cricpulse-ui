@@ -57,7 +57,7 @@ export class PublicLiveScoreComponent {
       return;
     }
 
-    this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({
+    this.http.get<Match>(`${this.api}/public/matches/${this.matchId}`).subscribe({
       next: (match) => (this.match = match),
       error: (error) => {
         this.loadError = true;
