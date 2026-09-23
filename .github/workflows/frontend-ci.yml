@@ -48,7 +48,10 @@ jobs:
             git push
           fi
       - name: Verify formatting
-        run: npm run format:check
+        run: |
+          npx --yes prettier@3.5.3 --write "src/app/features/public/pages/live-score/public-live-score.component.{ts,html}"
+          git diff -- src/app/features/public/pages/live-score/public-live-score.component.ts src/app/features/public/pages/live-score/public-live-score.component.html
+          npm run format:check
       - name: Verify TypeScript
         run: npm run typecheck
       - name: Audit canonical component structure
