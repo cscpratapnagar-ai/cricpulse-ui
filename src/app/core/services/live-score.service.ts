@@ -34,7 +34,7 @@ export interface LiveRecentBall {
   nonStrikerId: string;
   nonStrikerName?: string | null;
   bowlerId: string;
-  bowlerName?: string | null; string;
+  bowlerName?: string | null;
   batRuns: number;
   extraRuns: number;
   extraType?: string | null;
