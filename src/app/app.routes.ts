@@ -47,6 +47,7 @@ import {
   canAccessLiveScoring,
   canAccessMatchOpening,
   canAccessMatchToss,
+  canAccessBroadcastControl,
 } from './core/routing/match-lifecycle.guard';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { canAccessBroadcastControl } from './core/routing/broadcast-control.guard';
