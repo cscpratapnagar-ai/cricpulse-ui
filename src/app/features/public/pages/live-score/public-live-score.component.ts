@@ -15,14 +15,47 @@ interface Match {
   teamBId?: string;
   teamAName?: string;
   teamBName?: string;
+  scheduledAt?: string;
 }
 
 interface PublicScorecard {
+  inningsId: string;
   inningsNumber: number;
   teamName: string;
   runs: number;
   wickets: number;
   legalBalls: number;
+  extras: number;
+  batting: Batter[];
+  bowling: Bowler[];
+  fallOfWickets: FallOfWicket[];
+}
+
+interface Batter {
+  playerName: string;
+  runs: number;
+  balls: number;
+  fours: number;
+  sixes: number;
+  strikeRate: number;
+  out: boolean;
+  dismissal?: string;
+}
+
+interface Bowler {
+  playerName: string;
+  legalBalls: number;
+  runs: number;
+  wickets: number;
+  economy: number;
+}
+
+interface FallOfWicket {
+  wicketNumber: number;
+  playerName: string;
+  runs: number;
+  overNumber: number;
+  ballNumber: number;
 }
 
 interface CurrentInnings {
@@ -115,5 +148,9 @@ export class PublicLiveScoreComponent {
 
   statusLabel(score: LiveScore): string {
     return score.status || this.match?.status || 'LIVE';
+  }
+
+  matchStatusLabel(): string {
+    return this.match?.status || 'COMPLETED';
   }
 }
