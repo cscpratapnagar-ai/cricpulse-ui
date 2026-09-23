@@ -51,7 +51,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>BATTER</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th>
+                  <th>BATTER</th>
+                  <th>R</th>
+                  <th>B</th>
+                  <th>4s</th>
+                  <th>6s</th>
+                  <th>SR</th>
                 </tr>
               </thead>
               <tbody>
@@ -65,7 +70,9 @@
                         <small>NOT OUT</small>
                       }
                     </td>
-                    <td><b>{{ batter.runs }}</b></td>
+                    <td>
+                      <b>{{ batter.runs }}</b>
+                    </td>
                     <td>{{ batter.balls }}</td>
                     <td>{{ batter.fours }}</td>
                     <td>{{ batter.sixes }}</td>
@@ -80,15 +87,25 @@
             <div class="table-scroll bowling-table">
               <table>
                 <thead>
-                  <tr><th>BOWLER</th><th>O</th><th>R</th><th>W</th><th>ECO</th></tr>
+                  <tr>
+                    <th>BOWLER</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>ECO</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (bowler of innings.bowling; track bowler.playerName) {
                     <tr>
-                      <td><strong>{{ bowler.playerName }}</strong></td>
+                      <td>
+                        <strong>{{ bowler.playerName }}</strong>
+                      </td>
                       <td>{{ overs(bowler.legalBalls) }}</td>
                       <td>{{ bowler.runs }}</td>
-                      <td><b>{{ bowler.wickets }}</b></td>
+                      <td>
+                        <b>{{ bowler.wickets }}</b>
+                      </td>
                       <td>{{ bowler.economy | number: '1.2-2' }}</td>
                     </tr>
                   }
