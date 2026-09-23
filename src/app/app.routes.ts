@@ -118,7 +118,11 @@ export const routes: Routes = [
   { path: 'match/:id', component: PublicLiveScoreComponent },
   { path: 'live/:id', redirectTo: 'match/:id', pathMatch: 'full' },
   { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
-  { path: 'broadcast/:id/control', component: BroadcastControlComponent, canActivate: [authGuard, canAccessBroadcastControl] },
+  {
+    path: 'broadcast/:id/control',
+    component: BroadcastControlComponent,
+    canActivate: [authGuard, canAccessBroadcastControl],
+  },
   { path: 'dashboard', ...dashboardRoute() },
   { path: 'live-scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
   { path: 'scoring/:id', redirectTo: 'matches/:id/live-scoring', pathMatch: 'full' },
