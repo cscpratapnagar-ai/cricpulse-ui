@@ -55,7 +55,7 @@ export class BroadcastOverlayComponent {
   constructor() {
     if (!this.matchId) return;
     this.http
-      .get<Match>(`${API_ORIGIN}/api/matches/${this.matchId}`)
+      .get<Match>(`${API_ORIGIN}/api/public/matches/${this.matchId}`)
       .subscribe({ next: (match) => (this.match = match) });
     this.http
       .get<CurrentInnings>(`${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`)
@@ -153,12 +153,28 @@ export class BroadcastOverlayComponent {
     };
   }
 
+  batterName(score: LiveScore) {
+    return (
+      score.strikerName ||
+      score.batters?.find((batter) => batter.playerId === score.strikerId)?.playerName ||
+      'CURRENT BATTER'
+    );
+  }
+
   batterRuns(score: LiveScore) {
     return score.batters?.find((batter) => batter.playerId === score.strikerId)?.runs ?? 0;
   }
 
   batterBalls(score: LiveScore) {
     return score.batters?.find((batter) => batter.playerId === score.strikerId)?.ballsFaced ?? 0;
+  }
+
+  bowlerName(score: LiveScore) {
+    return (
+      score.currentBowlerName ||
+      score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.playerName ||
+      'CURRENT BOWLER'
+    );
   }
 
   bowlerWickets(score: LiveScore) {
@@ -175,6 +191,13 @@ export class BroadcastOverlayComponent {
     return this.overs(
       score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.legalBalls ?? 0,
     );
+  }
+
+  partnershipName(score: LiveScore, playerId: string | undefined | null, fallback: string) {
+    if (!playerId) return fallback;
+    if (playerId === score.strikerId && score.strikerName) return score.strikerName;
+    if (playerId === score.nonStrikerId && score.nonStrikerName) return score.nonStrikerName;
+    return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || fallback;
   }
 
   overs(balls: number) {
