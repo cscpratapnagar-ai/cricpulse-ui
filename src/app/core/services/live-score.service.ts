@@ -103,7 +103,10 @@ export function withCommandId(commandId: string): { 'X-Command-Id': string } {
 export type LiveScoreFrameDecision = 'accept' | 'ignore' | 'reconcile';
 
 /** Decide how a websocket frame should be handled against the last authoritative version. */
-export function decideLiveScoreFrame(version: number | undefined, lastEventVersion: number): LiveScoreFrameDecision {
+export function decideLiveScoreFrame(
+  version: number | undefined,
+  lastEventVersion: number,
+): LiveScoreFrameDecision {
   if (typeof version !== 'number' || !Number.isFinite(version)) return 'accept';
   if (version <= lastEventVersion) return 'ignore';
   if (version > lastEventVersion + 1) return 'reconcile';
