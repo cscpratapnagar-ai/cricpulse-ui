@@ -49,16 +49,24 @@ export class CreateMatchComponent {
   loadTeams(): void {
     const saved = localStorage.getItem('cricketpulse_team');
     const active = saved ? (JSON.parse(saved) as Team) : null;
-    this.http.get<Team[]>(`${API_BASE_URL}/teams`).subscribe({
+    this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
       next: (teams) => {
         this.teams = teams;
-        this.form.teamAId = active?.id || teams[0]?.id || '';
+        const accessibleActive =
+          active && teams.some((team) => team.id === active.id) ? active : null;
+        if (accessibleActive) {
+          localStorage.setItem('cricketpulse_team', JSON.stringify(accessibleActive));
+        } else {
+          localStorage.removeItem('cricketpulse_team');
+        }
+        this.form.teamAId = accessibleActive?.id || teams[0]?.id || '';
       },
       error: () => {
-        if (active) {
-          this.teams = [active];
-          this.form.teamAId = active.id;
-        }
+        this.teams = [];
+        this.form.teamAId = '';
+        localStorage.removeItem('cricketpulse_team');
+        this.error =
+          'No accessible teams are available. Create or join a team before creating a match.';
       },
     });
   }
