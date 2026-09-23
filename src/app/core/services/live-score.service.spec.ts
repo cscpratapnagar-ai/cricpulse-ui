@@ -21,3 +21,26 @@ describe('LiveScoreService', () => {
     });
   });
 });
+
+
+import { decideLiveScoreFrame } from './live-score.service';
+
+describe('decideLiveScoreFrame', () => {
+  it('ignores duplicate and stale versions', () => {
+    expect(decideLiveScoreFrame(7, 7)).toBe('ignore');
+    expect(decideLiveScoreFrame(6, 7)).toBe('ignore');
+  });
+
+  it('requests reconciliation when an authoritative version is skipped', () => {
+    expect(decideLiveScoreFrame(9, 7)).toBe('reconcile');
+  });
+
+  it('accepts the next authoritative version', () => {
+    expect(decideLiveScoreFrame(8, 7)).toBe('accept');
+  });
+
+  it('accepts frames without a usable version', () => {
+    expect(decideLiveScoreFrame(undefined, 7)).toBe('accept');
+    expect(decideLiveScoreFrame(Number.NaN, 7)).toBe('accept');
+  });
+});
