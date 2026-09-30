@@ -26,6 +26,7 @@ export class SelectFieldComponent {
   menuTop = 0;
   menuLeft = 0;
   menuWidth = 0;
+  private menuElement: HTMLElement | null = null;
   constructor(private host: ElementRef<HTMLElement>) {}
   get selectedOption(): SelectOption | undefined {
     return this.options.find((option) => option.value === this.value);
@@ -43,12 +44,15 @@ export class SelectFieldComponent {
 
   private portalMenuToBody(): void {
     const menu = this.host.nativeElement.querySelector('.options');
-    if (!menu || menu.parentElement === document.body) return;
-    document.body.appendChild(menu);
+    if (!menu) return;
+    this.menuElement = menu as HTMLElement;
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
   }
 
   private getMenu(): HTMLElement | null {
-    return document.body.querySelector('.options');
+    return this.menuElement?.isConnected ? this.menuElement : null;
   }
   private updatePlacement(): void {
     const trigger = this.host.nativeElement.querySelector('.select-trigger');
