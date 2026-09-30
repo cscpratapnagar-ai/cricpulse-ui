@@ -81,11 +81,25 @@
           </div>
 
           <div class="scorebug-bowler">
-            <span class="eyebrow">BOWLER</span>
+            <span class="eyebrow">CURRENT BOWLER</span>
             <strong>{{ bowlerName(score) }}</strong>
-            <div>
-              <b>{{ bowlerWickets(score) }}/{{ bowlerRuns(score) }}</b>
-              <span>{{ bowlerOvers(score) }} ov · Econ {{ bowlerEconomy(score) }}</span>
+            <div class="bowler-stats">
+              <span>
+                <b>{{ bowlerOvers(score) }}</b>
+                <small>OV</small>
+              </span>
+              <span>
+                <b>{{ bowlerRuns(score) }}</b>
+                <small>R</small>
+              </span>
+              <span>
+                <b>{{ bowlerWickets(score) }}</b>
+                <small>W</small>
+              </span>
+              <span>
+                <b>{{ bowlerEconomy(score) }}</b>
+                <small>ECON</small>
+              </span>
             </div>
           </div>
         </section>
