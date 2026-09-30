@@ -37,15 +37,15 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Normalize broadcast branch formatting
-        if: github.event_name == 'pull_request' && github.head_ref == 'feat/universal-broadcast-engine'
+        if: github.event_name == 'pull_request' && github.head_ref == 'fix/live-scoring-layout-overlay'
         run: |
           git fetch origin "${GITHUB_HEAD_REF}"
           git checkout -B "${GITHUB_HEAD_REF}" "origin/${GITHUB_HEAD_REF}"
-          npx --yes prettier@3.5.3 --write "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss}"
+          npx --yes prettier@3.5.3 --write "src/app/shared/components/select-field/select-field.component.{ts,html,scss}" "src/app/features/live/pages/live-scoring/live-scoring.component.scss"
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss}
+            git add src/app/shared/components/select-field/select-field.component.{ts,html,scss} src/app/features/live/pages/live-scoring/live-scoring.component.scss
             git commit -m "chore(broadcast): normalize overlay formatting"
             git push origin "${GITHUB_HEAD_REF}"
           fi
