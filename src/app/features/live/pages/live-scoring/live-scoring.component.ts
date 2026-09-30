@@ -15,6 +15,7 @@ interface Match {
   name: string;
   status: string;
   format?: string;
+  totalOvers?: number | null;
   teamAId: string;
   teamBId: string;
   teamAName?: string;
@@ -283,10 +284,19 @@ export class LiveScoringV2Component implements OnDestroy {
     return Math.max(0, this.score.targetRuns - this.score.runs);
   }
 
+  get configuredOvers() {
+    const scoreOvers = Number(this.score?.totalOvers);
+    if (Number.isFinite(scoreOvers) && scoreOvers > 0) return scoreOvers;
+    const matchOvers = Number(this.match?.totalOvers);
+    if (Number.isFinite(matchOvers) && matchOvers > 0) return matchOvers;
+    const formatOvers = Number(this.match?.format?.match(/\d+/)?.[0]);
+    return Number.isFinite(formatOvers) && formatOvers > 0 ? formatOvers : null;
+  }
+
   get ballsRemaining() {
-    const matchOvers = Number(this.match?.format?.match(/\d+/)?.[0]);
-    if (!Number.isFinite(matchOvers) || !matchOvers) return null;
-    return Math.max(0, matchOvers * 6 - (this.score?.legalBalls || 0));
+    const overs = this.configuredOvers;
+    if (!overs) return null;
+    return Math.max(0, overs * 6 - (this.score?.legalBalls || 0));
   }
 
   get currentRunRate() {
@@ -299,9 +309,17 @@ export class LiveScoringV2Component implements OnDestroy {
     return balls && this.requiredRuns ? (this.requiredRuns * 6) / balls : 0;
   }
 
+  get currentOverNumber() {
+    return Math.floor((this.score?.legalBalls || 0) / 6) + 1;
+  }
+
+  get currentOverProgress() {
+    return (this.score?.legalBalls || 0) % 6;
+  }
+
   get ballLabel() {
     const b = this.score?.legalBalls || 0;
-    return `${Math.floor(b / 6)}.${b % 6}`;
+    return `${Math.floor(b / 6) + 1}.${(b % 6) + 1}`;
   }
 
   get publicScoreUrl() {
@@ -611,6 +629,13 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.syncState === 'ERROR') this.syncState = 'SYNCED';
   }
 
+  refreshAuthoritativeState() {
+    if (this.busy || !this.inningsId) return;
+    this.message = '';
+    this.syncState = 'SAVING';
+    this.loadScoreById(this.inningsId);
+  }
+
   private showDeliveryFeedback(body: any) {
     let feedback: {
       type: 'run' | 'four' | 'six' | 'wicket' | 'extra';
@@ -819,11 +844,19 @@ export class LiveScoringV2Component implements OnDestroy {
         this.busy = false;
         this.syncState = 'SYNCED';
         this.lastAction = 'Last delivery undone';
+        this.message = '';
+        this.externalUpdateNotice =
+          'The previous delivery was removed and the live score was resynchronised.';
       },
       error: (e) => {
         this.busy = false;
         this.syncState = 'ERROR';
-        this.message = e?.error?.message || 'Unable to undo last delivery. Please try again.';
+        this.message =
+          e?.status === 403
+            ? 'You do not have permission to correct this innings.'
+            : e?.status === 409
+              ? 'The match changed before the undo completed. Refresh the live state and try again.'
+              : e?.error?.message || 'Undo failed. Refresh the live state and try again.';
       },
     });
   }
