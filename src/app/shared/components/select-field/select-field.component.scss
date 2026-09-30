@@ -62,11 +62,11 @@
   color: var(--cp-text-muted);
 }
 .options {
-  position: absolute;
+  position: fixed;
   z-index: 1000;
-  top: calc(100% + 8px);
+  top: 0;
   left: 0;
-  width: 100%;
+  width: auto;
   box-sizing: border-box;
   max-height: 235px;
   overflow-y: auto;
@@ -81,8 +81,7 @@
   overscroll-behavior: contain;
 }
 .options.up {
-  top: auto;
-  bottom: calc(100% + 8px);
+  top: 0;
 }
 .option {
   display: block;
@@ -135,3 +134,10 @@ html[data-theme='dark'] .option {
     max-height: 200px;
   }
 }
+
+
+/* Viewport overlay: the menu must escape scorer/sidebar overflow contexts. */
+.options {
+  max-width: min(360px, calc(100vw - 16px));
+}
+
