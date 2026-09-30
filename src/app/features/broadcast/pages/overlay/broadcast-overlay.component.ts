@@ -5,6 +5,7 @@ import { catchError, of, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import {
+  LiveBatter,
   LiveRecentBall,
   LiveScore,
   LiveScoreService,
@@ -16,12 +17,14 @@ interface CurrentInnings {
 
 type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'event' | 'auto';
 type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
+
 interface Match {
   id: string;
   name: string;
   teamAName?: string;
   teamBName?: string;
 }
+
 interface AutoEvent {
   kind: EventKind;
   title: string;
@@ -41,24 +44,31 @@ export class BroadcastOverlayComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
+
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   readonly mode: OverlayMode =
     (this.route.snapshot.queryParamMap.get('mode') as OverlayMode) || 'strip';
   readonly eventKind: EventKind =
     (this.route.snapshot.queryParamMap.get('event') as EventKind) || 'FOUR';
+
   match: Match | null = null;
   score$ = of<LiveScore | null>(null);
   autoEvent: AutoEvent | null = null;
+
   private previousScore: LiveScore | null = null;
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     if (!this.matchId) return;
+
     this.http
       .get<Match>(`${API_ORIGIN}/api/public/matches/${this.matchId}`)
       .subscribe({ next: (match) => (this.match = match) });
+
     this.http
-      .get<CurrentInnings>(`${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`)
+      .get<CurrentInnings>(
+        `${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`,
+      )
       .subscribe({
         next: ({ inningsId }) => {
           this.score$ = this.liveScore.watch(inningsId).pipe(
@@ -71,9 +81,11 @@ export class BroadcastOverlayComponent {
 
   onScore(score: LiveScore) {
     if (this.mode !== 'auto') return;
+
     const event = this.detectEvent(score, this.previousScore);
     this.previousScore = score;
     if (!event) return;
+
     this.autoEvent = null;
     queueMicrotask(() => {
       this.autoEvent = event;
@@ -85,14 +97,9 @@ export class BroadcastOverlayComponent {
   private detectEvent(score: LiveScore, previous: LiveScore | null): AutoEvent | null {
     const ball = score.recentBalls?.at(-1);
     if (!ball || !this.isNewState(score, previous)) return null;
+
     if (score.status === 'COMPLETED' && previous?.status !== 'COMPLETED') {
-      return this.makeEvent(
-        'RESULT',
-        'MATCH COMPLETE',
-        `${score.runs}/${score.wickets}`,
-        '✓',
-        score,
-      );
+      return this.makeEvent('RESULT', 'MATCH COMPLETE', `${score.runs}/${score.wickets}`, '✓', score);
     }
     if (ball.wicketType) {
       return this.makeEvent('WICKET', 'WICKET', 'WICKET FALLEN', 'W', score);
@@ -115,6 +122,7 @@ export class BroadcastOverlayComponent {
         score,
       );
     }
+
     return null;
   }
 
@@ -153,20 +161,55 @@ export class BroadcastOverlayComponent {
     };
   }
 
+  private batter(score: LiveScore, playerId: string | null | undefined): LiveBatter | undefined {
+    return score.batters?.find((batter) => batter.playerId === playerId);
+  }
+
   batterName(score: LiveScore) {
     return (
       score.strikerName ||
-      score.batters?.find((batter) => batter.playerId === score.strikerId)?.playerName ||
+      this.batter(score, score.strikerId)?.playerName ||
       'CURRENT BATTER'
     );
   }
 
   batterRuns(score: LiveScore) {
-    return score.batters?.find((batter) => batter.playerId === score.strikerId)?.runs ?? 0;
+    return this.batter(score, score.strikerId)?.runs ?? 0;
   }
 
   batterBalls(score: LiveScore) {
-    return score.batters?.find((batter) => batter.playerId === score.strikerId)?.ballsFaced ?? 0;
+    return this.batter(score, score.strikerId)?.ballsFaced ?? 0;
+  }
+
+  batterFours(score: LiveScore) {
+    return this.batter(score, score.strikerId)?.fours ?? 0;
+  }
+
+  batterSixes(score: LiveScore) {
+    return this.batter(score, score.strikerId)?.sixes ?? 0;
+  }
+
+  batterStrikeRate(score: LiveScore, playerId: string | null | undefined) {
+    const batter = this.batter(score, playerId);
+    if (typeof batter?.strikeRate === 'number') return batter.strikeRate.toFixed(1);
+    if (!batter?.ballsFaced) return '0.0';
+    return ((batter.runs / batter.ballsFaced) * 100).toFixed(1);
+  }
+
+  nonStrikerName(score: LiveScore) {
+    return (
+      score.nonStrikerName ||
+      this.batter(score, score.nonStrikerId)?.playerName ||
+      'NON-STRIKER'
+    );
+  }
+
+  nonStrikerRuns(score: LiveScore) {
+    return this.batter(score, score.nonStrikerId)?.runs ?? 0;
+  }
+
+  nonStrikerBalls(score: LiveScore) {
+    return this.batter(score, score.nonStrikerId)?.ballsFaced ?? 0;
   }
 
   bowlerName(score: LiveScore) {
@@ -187,6 +230,21 @@ export class BroadcastOverlayComponent {
     );
   }
 
+  bowlerWides(score: LiveScore) {
+    return score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.wides ?? 0;
+  }
+
+  bowlerNoBalls(score: LiveScore) {
+    return score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.noBalls ?? 0;
+  }
+
+  bowlerEconomy(score: LiveScore) {
+    const bowler = score.bowlers?.find((item) => item.playerId === score.currentBowlerId);
+    if (typeof bowler?.economy === 'number') return bowler.economy.toFixed(2);
+    const balls = bowler?.legalBalls ?? 0;
+    return balls ? ((bowler?.runsConceded ?? 0) / (balls / 6)).toFixed(2) : '0.00';
+  }
+
   bowlerOvers(score: LiveScore) {
     return this.overs(
       score.bowlers?.find((bowler) => bowler.playerId === score.currentBowlerId)?.legalBalls ?? 0,
@@ -200,8 +258,71 @@ export class BroadcastOverlayComponent {
     return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || fallback;
   }
 
+  battingTeam(score: LiveScore) {
+    return score.inningsNumber === 2
+      ? this.match?.teamBName || 'TEAM B'
+      : this.match?.teamAName || 'TEAM A';
+  }
+
+  bowlingTeam(score: LiveScore) {
+    return score.inningsNumber === 2
+      ? this.match?.teamAName || 'TEAM A'
+      : this.match?.teamBName || 'TEAM B';
+  }
+
+  inningsLabel(score: LiveScore) {
+    return score.inningsNumber === 2 ? '2ND INNINGS' : '1ST INNINGS';
+  }
+
   overs(balls: number) {
     return `${Math.floor(balls / 6)}.${balls % 6}`;
+  }
+
+  currentOver(score: LiveScore) {
+    const legalBalls = score.legalBalls ?? 0;
+    return Math.floor(legalBalls / 6) + 1;
+  }
+
+  currentOverBalls(score: LiveScore) {
+    return (score.recentBalls || [])
+      .filter((ball) => ball.overNumber === this.currentOver(score))
+      .slice(-6);
+  }
+
+  currentOverRuns(score: LiveScore) {
+    return this.currentOverBalls(score).reduce((sum, ball) => sum + ball.totalRuns, 0);
+  }
+
+  runRate(score: LiveScore) {
+    if (!score.legalBalls) return '0.00';
+    return ((score.runs / score.legalBalls) * 6).toFixed(2);
+  }
+
+  requiredRunRate(score: LiveScore) {
+    if (
+      !score.targetRuns ||
+      !score.totalOvers ||
+      score.targetRuns <= score.runs ||
+      score.legalBalls >= score.totalOvers * 6
+    ) {
+      return '—';
+    }
+    const remainingBalls = score.totalOvers * 6 - score.legalBalls;
+    return ((score.targetRuns - score.runs) / (remainingBalls / 6)).toFixed(2);
+  }
+
+  remainingRuns(score: LiveScore) {
+    if (!score.targetRuns || score.targetRuns <= score.runs) return '0';
+    return String(score.targetRuns - score.runs);
+  }
+
+  remainingBalls(score: LiveScore) {
+    if (!score.totalOvers) return '—';
+    return String(Math.max(0, score.totalOvers * 6 - score.legalBalls));
+  }
+
+  targetLabel(score: LiveScore) {
+    return score.targetRuns ? String(score.targetRuns) : '—';
   }
 
   get isEvent() {
@@ -225,9 +346,7 @@ export class BroadcastOverlayComponent {
     if (this.eventKind === 'FOUR') return 'BOUNDARY';
     if (this.eventKind === 'SIX') return 'MAXIMUM';
     if (this.eventKind === 'WICKET') return 'WICKET FALLEN';
-    if (this.eventKind === 'OVER_COMPLETE') {
-      return `${this.overs(score.legalBalls)} OVERS`;
-    }
+    if (this.eventKind === 'OVER_COMPLETE') return `${this.overs(score.legalBalls)} OVERS`;
     if (this.eventKind === 'RESULT') return `${score.runs}/${score.wickets}`;
     return `${score.runs}/${score.wickets} · LIVE`;
   }
