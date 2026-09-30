@@ -33,11 +33,27 @@ export class SelectFieldComponent {
   toggle(): void {
     if (this.disabled) return;
     this.open = !this.open;
-    if (this.open) setTimeout(() => this.updatePlacement());
+    if (this.open) {
+      setTimeout(() => {
+        this.portalMenuToBody();
+        this.updatePlacement();
+      });
+    }
+  }
+
+  private portalMenuToBody(): void {
+    const menu = this.host.nativeElement.querySelector('.options');
+    if (!menu || menu.parentElement === document.body) return;
+    document.body.appendChild(menu);
+  }
+
+  private getMenu(): HTMLElement | null {
+    return document.body.querySelector('.options');
   }
   private updatePlacement(): void {
     const trigger = this.host.nativeElement.querySelector('.select-trigger');
-    if (!trigger) return;
+    const menu = this.getMenu();
+    if (!trigger || !menu) return;
     const box = trigger.getBoundingClientRect();
     const optionCount = this.options.length + 1;
     const estimatedHeight = Math.min(235, 12 + optionCount * 46);
@@ -62,7 +78,12 @@ export class SelectFieldComponent {
     this.open = false;
   }
   @HostListener('document:click', ['$event']) close(event: Event): void {
-    if (this.open && !this.host.nativeElement.contains(event.target as Node)) this.open = false;
+    if (!this.open) return;
+    const target = event.target as Node;
+    const menu = this.getMenu();
+    if (!this.host.nativeElement.contains(target) && !menu?.contains(target)) {
+      this.open = false;
+    }
   }
   @HostListener('window:resize') onResize(): void {
     if (this.open) this.updatePlacement();
