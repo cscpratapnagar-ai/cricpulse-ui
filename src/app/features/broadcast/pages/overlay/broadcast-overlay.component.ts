@@ -311,20 +311,20 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   battingTeam(score: LiveScore) {
     const id = this.battingTeamId(score);
-    if (id === this.match?.teamAId) return this.match.teamAName || 'TEAM A';
-    if (id === this.match?.teamBId) return this.match.teamBName || 'TEAM B';
-    return score.inningsNumber % 2 === 0
-      ? this.match?.teamBName || 'TEAM B'
-      : this.match?.teamAName || 'TEAM A';
+    const match = this.match;
+    if (!match) return 'TEAM';
+    if (id === match.teamAId) return match.teamAName || 'TEAM A';
+    if (id === match.teamBId) return match.teamBName || 'TEAM B';
+    return score.inningsNumber % 2 === 0 ? match.teamBName || 'TEAM B' : match.teamAName || 'TEAM A';
   }
 
   bowlingTeam(score: LiveScore) {
     const id = this.bowlingTeamId(score);
-    if (id === this.match?.teamAId) return this.match.teamAName || 'TEAM A';
-    if (id === this.match?.teamBId) return this.match.teamBName || 'TEAM B';
-    return score.inningsNumber % 2 === 0
-      ? this.match?.teamAName || 'TEAM A'
-      : this.match?.teamBName || 'TEAM B';
+    const match = this.match;
+    if (!match) return 'TEAM';
+    if (id === match.teamAId) return match.teamAName || 'TEAM A';
+    if (id === match.teamBId) return match.teamBName || 'TEAM B';
+    return score.inningsNumber % 2 === 0 ? match.teamAName || 'TEAM A' : match.teamBName || 'TEAM B';
   }
 
   inningsLabel(score: LiveScore) {
