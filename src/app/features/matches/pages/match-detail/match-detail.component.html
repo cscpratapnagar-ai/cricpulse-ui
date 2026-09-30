@@ -172,7 +172,9 @@
           <div class="intel-scoreboard">
             <div class="intel-score">
               <span>INNINGS {{ intelligence.inningsNumber }}</span>
-              <strong>{{ intelligence.runs }}<em>/{{ intelligence.wickets }}</em></strong>
+              <strong
+                >{{ intelligence.runs }}<em>/{{ intelligence.wickets }}</em></strong
+              >
               <small>{{ intelligence.battingTeam }}</small>
             </div>
             <div class="intel-live-ring">
@@ -195,9 +197,9 @@
               <div>
                 <b>{{ intelligence.momentum }} MOMENTUM</b>
                 <small>
-              {{ intelligence.recentRuns }} runs across the last
-              {{ intelligence.recentDeliveries }} deliveries
-            </small>
+                  {{ intelligence.recentRuns }} runs across the last
+                  {{ intelligence.recentDeliveries }} deliveries
+                </small>
               </div>
             </div>
             <div class="signal-wave" aria-hidden="true">
@@ -210,7 +212,9 @@
               <div class="advanced-icon">↗</div>
               <div class="advanced-copy">
                 <span>MOMENTUM SCORE</span>
-                <strong>{{ intelligence.momentumScore | number: '1.0-1' }}<small>/100</small></strong>
+                <strong
+                  >{{ intelligence.momentumScore | number: '1.0-1' }}<small>/100</small></strong
+                >
                 <div class="meter"><i [style.width.%]="intelligence.momentumScore"></i></div>
               </div>
             </div>
@@ -265,7 +269,8 @@
             <span>Live match data will appear once innings events are recorded.</span>
           </div>
         }
-      </article>   </section>
+      </article>
+    </section>
 
     <section class="lower-grid">
       <article class="panel next-panel">
