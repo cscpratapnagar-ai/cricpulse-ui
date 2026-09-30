@@ -53,10 +53,7 @@ export class SelectFieldComponent {
     );
     this.menuTop = this.openUp
       ? Math.max(viewportPadding, box.top - estimatedHeight - gap)
-      : Math.min(
-          window.innerHeight - estimatedHeight - viewportPadding,
-          box.bottom + gap,
-        );
+      : Math.min(window.innerHeight - estimatedHeight - viewportPadding, box.bottom + gap);
   }
   select(option: SelectOption): void {
     if (this.disabled) return;

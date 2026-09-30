@@ -135,9 +135,7 @@ html[data-theme='dark'] .option {
   }
 }
 
-
 /* Viewport overlay: the menu must escape scorer/sidebar overflow contexts. */
 .options {
   max-width: min(360px, calc(100vw - 16px));
 }
-
