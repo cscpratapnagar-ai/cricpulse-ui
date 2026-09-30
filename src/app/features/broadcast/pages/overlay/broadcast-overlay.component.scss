@@ -5,11 +5,7 @@
   overflow: hidden;
   background: transparent;
   color: #fff;
-  font-family:
-    Inter,
-    "Arial Narrow",
-    Arial,
-    sans-serif;
+  font-family: Inter, 'Arial Narrow', Arial, sans-serif;
 }
 
 .broadcast-root,
@@ -161,8 +157,12 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.17);
   border-radius: 0 17px 17px 17px;
-  background:
-    linear-gradient(100deg, rgba(4, 14, 11, 0.98), rgba(7, 24, 18, 0.97) 46%, rgba(3, 11, 9, 0.98));
+  background: linear-gradient(
+    100deg,
+    rgba(4, 14, 11, 0.98),
+    rgba(7, 24, 18, 0.97) 46%,
+    rgba(3, 11, 9, 0.98)
+  );
   box-shadow:
     0 22px 60px rgba(0, 0, 0, 0.62),
     inset 0 1px rgba(255, 255, 255, 0.08);
@@ -171,7 +171,7 @@
 }
 
 .scorebug::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
@@ -182,7 +182,7 @@
 }
 
 .scorebug::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -559,7 +559,7 @@
 }
 
 .moment::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 0;

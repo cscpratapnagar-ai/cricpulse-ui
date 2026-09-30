@@ -28,7 +28,9 @@
           </div>
 
           <div class="scorebug-score">
-            <strong>{{ score.runs }}<em>/{{ score.wickets }}</em></strong>
+            <strong
+              >{{ score.runs }}<em>/{{ score.wickets }}</em></strong
+            >
             <span>{{ overs(score.legalBalls) }} <small>OVERS</small></span>
           </div>
 
@@ -61,7 +63,10 @@
               <i></i>
               <div>
                 <strong>{{ batterName(score) }}</strong>
-                <span>{{ batterBalls(score) }}b · {{ batterFours(score) }}x4 · {{ batterSixes(score) }}x6</span>
+                <span
+                  >{{ batterBalls(score) }}b · {{ batterFours(score) }}x4 ·
+                  {{ batterSixes(score) }}x6</span
+                >
               </div>
               <b>{{ batterRuns(score) }}</b>
             </article>
@@ -115,10 +120,7 @@
         @if (autoEvent; as event) {
           <section
             class="moment"
-            [class]="
-              'moment ' +
-              event.kind.toLowerCase().replace('_', '-')
-            "
+            [class]="'moment ' + event.kind.toLowerCase().replace('_', '-')"
             [attr.data-event-version]="event.version"
           >
             <div class="moment-shard shard-a"></div>
@@ -139,11 +141,16 @@
       <section class="legacy-strip">
         <div class="legacy-brand">CRICPULSE <span>LIVE</span></div>
         <div class="legacy-team">{{ battingTeam(score) }}</div>
-        <div class="legacy-score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
+        <div class="legacy-score">
+          {{ score.runs }}<em>/{{ score.wickets }}</em>
+        </div>
         <div class="legacy-over">{{ overs(score.legalBalls) }} <small>OV</small></div>
         <div class="legacy-balls">
           @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
-            <span [class.wicket]="ball.wicketType" [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6">
+            <span
+              [class.wicket]="ball.wicketType"
+              [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+            >
               {{ token(ball) }}
             </span>
           }
@@ -157,7 +164,10 @@
         <span>BATTER · ON STRIKE</span>
         <strong>{{ batterName(score) }}</strong>
         <b>{{ batterRuns(score) }}<small> RUNS</small></b>
-        <div>{{ batterBalls(score) }} BALLS · {{ batterFours(score) }}x4 · {{ batterSixes(score) }}x6 · SR {{ batterStrikeRate(score, score.strikerId) }}</div>
+        <div>
+          {{ batterBalls(score) }} BALLS · {{ batterFours(score) }}x4 · {{ batterSixes(score) }}x6 ·
+          SR {{ batterStrikeRate(score, score.strikerId) }}
+        </div>
       </section>
     }
 
@@ -166,7 +176,10 @@
         <span>CURRENT BOWLER</span>
         <strong>{{ bowlerName(score) }}</strong>
         <b>{{ bowlerWickets(score) }}/{{ bowlerRuns(score) }}<small> FIG</small></b>
-        <div>{{ bowlerOvers(score) }} OVERS · ECON {{ bowlerEconomy(score) }} · {{ bowlerWides(score) }} WD · {{ bowlerNoBalls(score) }} NB</div>
+        <div>
+          {{ bowlerOvers(score) }} OVERS · ECON {{ bowlerEconomy(score) }} ·
+          {{ bowlerWides(score) }} WD · {{ bowlerNoBalls(score) }} NB
+        </div>
       </section>
     }
 
@@ -174,9 +187,13 @@
       <section class="manual-graphic partnership-graphic">
         <span>LIVE PARTNERSHIP</span>
         <strong>
-          {{ partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1') }}
+          {{
+            partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1')
+          }}
           <i>+</i>
-          {{ partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2') }}
+          {{
+            partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2')
+          }}
         </strong>
         <b>{{ score.partnership?.runs ?? 0 }}<small> RUNS</small></b>
         <div>{{ score.partnership?.balls ?? 0 }} BALLS · CRR {{ runRate(score) }}</div>
