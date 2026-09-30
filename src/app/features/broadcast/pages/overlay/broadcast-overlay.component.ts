@@ -91,7 +91,7 @@ export class BroadcastOverlayComponent {
     queueMicrotask(() => {
       this.autoEvent = event;
       if (this.autoTimer) clearTimeout(this.autoTimer);
-      this.autoTimer = setTimeout(() => (this.autoEvent = null), 4200);
+      this.autoTimer = setTimeout(() => (this.autoEvent = null), 3200);
     });
   }
 
@@ -280,8 +280,11 @@ export class BroadcastOverlayComponent {
   }
 
   currentOver(score: LiveScore) {
+    if (typeof score.currentOver === 'number' && score.currentOver > 0) {
+      return score.currentOver;
+    }
     const legalBalls = score.legalBalls ?? 0;
-    return Math.floor(legalBalls / 6) + 1;
+    return legalBalls === 0 ? 1 : Math.floor((legalBalls - 1) / 6) + 1;
   }
 
   currentOverBalls(score: LiveScore) {
