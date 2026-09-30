@@ -403,23 +403,36 @@
 }
 
 .scorebug-bowler > div {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 5px;
+  margin-top: 7px;
 }
 
-.scorebug-bowler > div b {
+.bowler-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+}
+
+.scorebug-bowler .bowler-stats > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.scorebug-bowler .bowler-stats b {
   color: var(--lime);
-  font-size: 17px;
+  font-size: 13px;
+  line-height: 1;
   font-weight: 1000;
 }
 
-.scorebug-bowler > div span {
-  color: rgba(255, 255, 255, 0.38);
-  font-size: 5px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
+.scorebug-bowler .bowler-stats small {
+  color: rgba(255, 255, 255, 0.34);
+  font-size: 4.5px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.8px;
 }
 
 .over-dock {
@@ -957,15 +970,19 @@
 
 @media (max-width: 1450px) {
   .scorebug {
-    grid-template-columns: 170px 205px 185px minmax(230px, 1fr) 200px;
+    grid-template-columns: 165px 195px 175px minmax(230px, 1fr) 190px;
   }
 
   .scorebug-bowler {
-    display: none;
+    display: flex;
   }
 
-  .scorebug {
-    grid-template-columns: 175px 215px 190px minmax(260px, 1fr);
+  .scorebug-bowler > strong {
+    font-size: 9px;
+  }
+
+  .bowler-stats {
+    gap: 7px;
   }
 }
 
@@ -975,11 +992,23 @@
   }
 
   .scorebug {
-    grid-template-columns: 155px 190px 175px 1fr;
+    grid-template-columns: 145px 175px 160px minmax(210px, 1fr) 175px;
   }
 
   .scorebug-context {
-    display: none;
+    display: grid;
+  }
+
+  .scorebug-bowler {
+    display: flex;
+  }
+
+  .scorebug-bowler > strong {
+    font-size: 8px;
+  }
+
+  .bowler-stats {
+    gap: 5px;
   }
 
   .moment {
