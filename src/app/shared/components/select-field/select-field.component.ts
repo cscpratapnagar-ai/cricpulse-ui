@@ -23,6 +23,9 @@ export class SelectFieldComponent {
   @Output() valueChange = new EventEmitter<string>();
   open = false;
   openUp = false;
+  menuTop = 0;
+  menuLeft = 0;
+  menuWidth = 0;
   constructor(private host: ElementRef<HTMLElement>) {}
   get selectedOption(): SelectOption | undefined {
     return this.options.find((option) => option.value === this.value);
@@ -36,10 +39,24 @@ export class SelectFieldComponent {
     const trigger = this.host.nativeElement.querySelector('.select-trigger');
     if (!trigger) return;
     const box = trigger.getBoundingClientRect();
+    const optionCount = this.options.length + 1;
+    const estimatedHeight = Math.min(235, 12 + optionCount * 46);
+    const viewportPadding = 8;
+    const gap = 8;
     const spaceBelow = window.innerHeight - box.bottom;
     const spaceAbove = box.top;
-    const requiredSpace = 190;
-    this.openUp = spaceBelow < requiredSpace && spaceAbove > spaceBelow + 80;
+    this.openUp = spaceBelow < estimatedHeight + gap && spaceAbove > spaceBelow;
+    this.menuWidth = box.width;
+    this.menuLeft = Math.min(
+      Math.max(viewportPadding, box.left),
+      Math.max(viewportPadding, window.innerWidth - box.width - viewportPadding),
+    );
+    this.menuTop = this.openUp
+      ? Math.max(viewportPadding, box.top - estimatedHeight - gap)
+      : Math.min(
+          window.innerHeight - estimatedHeight - viewportPadding,
+          box.bottom + gap,
+        );
   }
   select(option: SelectOption): void {
     if (this.disabled) return;
