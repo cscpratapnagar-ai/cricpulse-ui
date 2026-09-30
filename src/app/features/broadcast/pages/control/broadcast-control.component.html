@@ -39,7 +39,10 @@
       <article>
         <span class="step-number">01</span>
         <h3>Use the automatic overlay</h3>
-        <p>Copy this URL into an OBS Browser Source. It contains the live score strip and automatic match moments.</p>
+        <p>
+          Copy this URL into an OBS Browser Source. It contains the live score strip and automatic
+          match moments.
+        </p>
         <code>{{ autoUrl() }}</code>
         <button type="button" (click)="copySetup(autoUrl(), 'setup-url')">
           {{ copied === 'setup-url' ? 'Copied!' : 'Copy Browser Source URL' }}
@@ -61,7 +64,10 @@
       <article>
         <span class="step-number">03</span>
         <h3>Send the OBS scene to YouTube</h3>
-        <p>Configure the YouTube Live stream in OBS. CricPulse never receives or stores your YouTube stream key.</p>
+        <p>
+          Configure the YouTube Live stream in OBS. CricPulse never receives or stores your YouTube
+          stream key.
+        </p>
         <ul>
           <li>Add your camera/video source</li>
           <li>Add the CricPulse Browser Source above</li>
