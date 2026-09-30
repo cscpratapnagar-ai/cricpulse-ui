@@ -1,64 +1,148 @@
 <main class="overlay" [class.card-mode]="!isStrip" [class.auto-mode]="isAuto">
   @if (score$ | async; as score) {
     @if (isAuto) {
-      <div class="score-anchor">
-        <section class="score-strip compact-strip">
-          <div class="brand">CRICPULSE <span>LIVE</span></div>
-          <div class="teams">
-            {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
+      <section class="tv-canvas">
+        <header class="broadcast-top">
+          <div class="brand-lockup">
+            <span class="brand-mark">CP</span>
+            <div>
+              <strong>CRICPULSE</strong>
+              <small>LIVE CRICKET</small>
+            </div>
           </div>
-          <div class="score">
-            {{ score.runs }}<em>/{{ score.wickets }}</em>
-          </div>
-          <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
-          <div class="live"><b></b> LIVE</div>
-        </section>
-      </div>
 
-      @if (autoEvent; as event) {
-        <section
-          class="event-graphic auto-event"
-          [class]="'event-graphic auto-event ' + event.kind.toLowerCase()"
-          [attr.data-event-version]="event.version"
-        >
-          <div class="event-orbit orbit-one"></div>
-          <div class="event-orbit orbit-two"></div>
-          <div class="event-ring"></div>
-          <div class="event-content">
-            <label>CRICPULSE · LIVE MOMENT</label>
-            <h1>{{ event.title }}</h1>
-            <p>{{ event.detail }}</p>
-            <div class="event-mark">{{ event.mark }}</div>
+          <div class="match-context">
+            <span>{{ match?.name || 'LIVE MATCH' }}</span>
+            <b>{{ inningsLabel(score) }}</b>
+          </div>
+
+          <div class="live-state">
+            <span class="live-pulse"></span>
+            LIVE
+            <small>{{ score.status || 'IN PLAY' }}</small>
+          </div>
+        </header>
+
+        <section class="broadcast-spacer" aria-hidden="true"></section>
+
+        <section class="broadcast-lower-third">
+          <div class="partnership-ribbon">
+            <span class="ribbon-label">PARTNERSHIP</span>
+            <strong>{{ score.partnership?.runs ?? 0 }}</strong>
+            <small>{{ score.partnership?.balls ?? 0 }} BALLS</small>
+          </div>
+
+          <div class="batting-panel">
+            <div class="team-line">
+              <span class="team-name">{{ battingTeam(score) }}</span>
+              <span class="innings-tag">{{ inningsLabel(score) }}</span>
+            </div>
+
+            <div class="score-line">
+              <strong>{{ score.runs }}<em>/{{ score.wickets }}</em></strong>
+              <span>{{ overs(score.legalBalls) }} <small>OV</small></span>
+            </div>
+
+            <div class="target-line">
+              @if (score.targetRuns) {
+                <span>TARGET <b>{{ targetLabel(score) }}</b></span>
+                <span>NEED <b>{{ remainingRuns(score) }}</b> OFF <b>{{ remainingBalls(score) }}</b></span>
+              } @else {
+                <span>CRR <b>{{ runRate(score) }}</b></span>
+                <span>{{ currentOverRuns(score) }} RUNS THIS OVER</span>
+              }
+            </div>
+          </div>
+
+          <div class="batters-panel">
+            <article class="batter-row striker">
+              <span class="strike-dot"></span>
+              <div class="batter-copy">
+                <strong>{{ batterName(score) }}</strong>
+                <small>{{ batterBalls(score) }} BALLS · {{ batterFours(score) }}x4 · {{ batterSixes(score) }}x6</small>
+              </div>
+              <b class="batter-runs">{{ batterRuns(score) }}<small>{{ batterStrikeRate(score, score.strikerId) }}</small></b>
+            </article>
+            <article class="batter-row">
+              <span class="strike-dot empty"></span>
+              <div class="batter-copy">
+                <strong>{{ nonStrikerName(score) }}</strong>
+                <small>{{ nonStrikerBalls(score) }} BALLS</small>
+              </div>
+              <b class="batter-runs">{{ nonStrikerRuns(score) }}<small>{{ batterStrikeRate(score, score.nonStrikerId) }}</small></b>
+            </article>
+          </div>
+
+          <div class="bowler-panel">
+            <span class="panel-kicker">CURRENT BOWLER</span>
+            <strong>{{ bowlerName(score) }}</strong>
+            <div class="bowler-figures">
+              <b>{{ bowlerWickets(score) }}/{{ bowlerRuns(score) }}</b>
+              <span>{{ bowlerOvers(score) }} OV · ECON {{ bowlerEconomy(score) }}</span>
+            </div>
+            <small>{{ bowlerWides(score) }} WD · {{ bowlerNoBalls(score) }} NB</small>
           </div>
         </section>
-      }
+
+        <section class="broadcast-metrics">
+          <div>
+            <span>CRR</span>
+            <strong>{{ runRate(score) }}</strong>
+          </div>
+          <div>
+            <span>RRR</span>
+            <strong>{{ requiredRunRate(score) }}</strong>
+          </div>
+          <div>
+            <span>THIS OVER</span>
+            <strong>{{ currentOverRuns(score) }}</strong>
+          </div>
+          <div class="over-balls">
+            <span>OVER {{ currentOver(score) }}</span>
+            <div>
+              @for (ball of currentOverBalls(score); track ball.deliveryId) {
+                <b
+                  [class.wicket]="ball.wicketType"
+                  [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
+                >{{ token(ball) }}</b>
+              }
+            </div>
+          </div>
+        </section>
+
+        @if (autoEvent; as event) {
+          <section
+            class="event-graphic auto-event"
+            [class]="'event-graphic auto-event ' + event.kind.toLowerCase()"
+            [attr.data-event-version]="event.version"
+          >
+            <div class="event-orbit orbit-one"></div>
+            <div class="event-orbit orbit-two"></div>
+            <div class="event-ring"></div>
+            <div class="event-content">
+              <label>CRICPULSE · LIVE MOMENT</label>
+              <h1>{{ event.title }}</h1>
+              <p>{{ event.detail }}</p>
+              <div class="event-mark">{{ event.mark }}</div>
+            </div>
+          </section>
+        }
+      </section>
     }
 
     @if (isEvent) {
-      <section class="event-graphic" [class]="eventKind.toLowerCase()">
+      <section class="event-graphic manual-event" [class]="eventKind.toLowerCase()">
         <div class="event-ring"></div>
         <div class="event-content">
           <label>CRICPULSE LIVE</label>
           <h1>{{ eventLabel(score) }}</h1>
           <p>{{ eventDetail(score) }}</p>
-          @if (eventKind === 'FOUR') {
-            <div class="event-mark">4</div>
-          }
-          @if (eventKind === 'SIX') {
-            <div class="event-mark">6</div>
-          }
-          @if (eventKind === 'WICKET') {
-            <div class="event-mark">W</div>
-          }
-          @if (eventKind === 'OVER_COMPLETE') {
-            <div class="event-mark">OV</div>
-          }
-          @if (eventKind === 'MILESTONE') {
-            <div class="event-mark">★</div>
-          }
-          @if (eventKind === 'RESULT') {
-            <div class="event-mark">✓</div>
-          }
+          @if (eventKind === 'FOUR') { <div class="event-mark">4</div> }
+          @if (eventKind === 'SIX') { <div class="event-mark">6</div> }
+          @if (eventKind === 'WICKET') { <div class="event-mark">W</div> }
+          @if (eventKind === 'OVER_COMPLETE') { <div class="event-mark">OV</div> }
+          @if (eventKind === 'MILESTONE') { <div class="event-mark">★</div> }
+          @if (eventKind === 'RESULT') { <div class="event-mark">✓</div> }
         </div>
       </section>
     }
@@ -66,56 +150,63 @@
     @if (isStrip) {
       <section class="score-strip">
         <div class="brand">CRICPULSE <span>LIVE</span></div>
-        <div class="teams">
-          {{ match?.teamAName || 'TEAM A' }} <i>vs</i> {{ match?.teamBName || 'TEAM B' }}
-        </div>
-        <div class="score">
-          {{ score.runs }}<em>/{{ score.wickets }}</em>
-        </div>
+        <div class="teams">{{ battingTeam(score) }} <i>vs</i> {{ bowlingTeam(score) }}</div>
+        <div class="score">{{ score.runs }}<em>/{{ score.wickets }}</em></div>
         <div class="overs">{{ overs(score.legalBalls) }} <small>OV</small></div>
         <div class="balls">
           @for (ball of score.recentBalls?.slice(-6) || []; track ball.deliveryId) {
             <span
               [class.wicket]="ball.wicketType"
               [class.boundary]="ball.totalRuns === 4 || ball.totalRuns === 6"
-            >
-              {{ token(ball) }}
-            </span>
+            >{{ token(ball) }}</span>
           }
         </div>
         <div class="live"><b></b> LIVE</div>
       </section>
     }
+
     @if (isBatter) {
       <section class="player-card">
         <label>ON STRIKE · BATTER</label>
         <h2>{{ batterName(score) }}</h2>
         <div class="hero-stat">{{ batterRuns(score) }} <small>RUNS</small></div>
-        <div class="sub-stat">{{ batterBalls(score) }} BALLS</div>
+        <div class="player-meta">
+          <span>{{ batterBalls(score) }} BALLS</span>
+          <span>{{ batterFours(score) }}x4</span>
+          <span>{{ batterSixes(score) }}x6</span>
+          <span>SR {{ batterStrikeRate(score, score.strikerId) }}</span>
+        </div>
       </section>
     }
+
     @if (isBowler) {
       <section class="player-card">
         <label>CURRENT BOWLER</label>
         <h2>{{ bowlerName(score) }}</h2>
-        <div class="hero-stat">{{ bowlerWickets(score) }}<small>WKTS</small></div>
-        <div class="sub-stat">{{ bowlerRuns(score) }} RUNS · {{ bowlerOvers(score) }} OV</div>
+        <div class="hero-stat">{{ bowlerWickets(score) }}/{{ bowlerRuns(score) }} <small>FIG</small></div>
+        <div class="player-meta">
+          <span>{{ bowlerOvers(score) }} OV</span>
+          <span>ECON {{ bowlerEconomy(score) }}</span>
+          <span>{{ bowlerWides(score) }} WD</span>
+          <span>{{ bowlerNoBalls(score) }} NB</span>
+        </div>
       </section>
     }
+
     @if (isPartnership) {
       <section class="player-card partnership-card">
         <label>PARTNERSHIP</label>
         <h2>
-          {{
-            partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1')
-          }}
+          {{ partnershipName(score, score.partnership?.batterOneId || score.strikerId, 'BATTER 1') }}
           <i>+</i>
-          {{
-            partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2')
-          }}
+          {{ partnershipName(score, score.partnership?.batterTwoId || score.nonStrikerId, 'BATTER 2') }}
         </h2>
-        <div class="hero-stat">{{ score.partnership?.runs ?? 0 }}<small>RUNS</small></div>
-        <div class="sub-stat">{{ score.partnership?.balls ?? 0 }} BALLS TOGETHER</div>
+        <div class="hero-stat">{{ score.partnership?.runs ?? 0 }} <small>RUNS</small></div>
+        <div class="player-meta">
+          <span>{{ score.partnership?.balls ?? 0 }} BALLS</span>
+          <span>CRR {{ runRate(score) }}</span>
+          <span>OVER {{ currentOver(score) }}</span>
+        </div>
       </section>
     }
   }
