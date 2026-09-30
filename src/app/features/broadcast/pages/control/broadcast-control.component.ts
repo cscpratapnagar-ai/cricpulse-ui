@@ -14,6 +14,7 @@ export class BroadcastControlComponent {
   private readonly route = inject(ActivatedRoute);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
+
   readonly events: { kind: EventKind; title: string; icon: string }[] = [
     { kind: 'FOUR', title: 'Boundary FOUR', icon: '4' },
     { kind: 'SIX', title: 'Maximum SIX', icon: '6' },
@@ -60,8 +61,16 @@ export class BroadcastControlComponent {
 
   async copy(mode: Mode | 'auto') {
     const value = mode === 'auto' ? this.autoUrl() : this.url(mode);
+    await this.copyValue(value, mode);
+  }
+
+  async copySetup(value: string, key: string) {
+    await this.copyValue(value, key);
+  }
+
+  private async copyValue(value: string, key: string) {
     await navigator.clipboard.writeText(value);
-    this.copied = mode;
+    this.copied = key;
     setTimeout(() => (this.copied = ''), 1800);
   }
 
