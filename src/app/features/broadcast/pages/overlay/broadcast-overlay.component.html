@@ -1,4 +1,7 @@
 <main class="broadcast-root">
+  @if (broadcastError && !match) {
+    <div class="broadcast-status" role="status">{{ broadcastError }}</div>
+  }
   @if (score$ | async; as score) {
     @if (isAuto) {
       <section
