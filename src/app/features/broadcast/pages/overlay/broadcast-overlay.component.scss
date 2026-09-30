@@ -1089,3 +1089,60 @@
     animation: none !important;
   }
 }
+
+
+/* Universal broadcast extensions: format-agnostic innings rail, player arrival and Test-style context. */
+.innings-ribbon {
+  position: absolute;
+  top: 9.2vh;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  background: rgba(3,10,8,.58);
+  backdrop-filter: blur(10px);
+}
+.innings-ribbon span {
+  min-width: 62px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 6px;
+  align-items: center;
+  padding: 5px 7px;
+  border-radius: 5px;
+  opacity: .42;
+  transition: opacity .25s ease, transform .25s ease, background .25s ease;
+}
+.innings-ribbon span.active { opacity: 1; background: rgba(199,255,74,.12); box-shadow: inset 0 0 0 1px rgba(199,255,74,.18); transform: translateY(-1px); }
+.innings-ribbon span.done { opacity: .68; }
+.innings-ribbon b { grid-row: span 2; color: rgba(255,255,255,.42); font-size: 7px; }
+.innings-ribbon strong { font-size: 7px; font-weight: 950; }
+.innings-ribbon small { color: rgba(255,255,255,.36); font-size: 5px; }
+.test-mode .scorebug { border-radius: 0 18px 18px 18px; }
+.test-mode .context-main b { color: var(--cyan); }
+.moment.new-batter { width: min(520px, 38vw); background: linear-gradient(110deg, rgba(5,16,13,.98), rgba(25,49,33,.96)); }
+.moment.new-batter::before { background: var(--lime); }
+.moment.innings-break { width: min(500px, 36vw); background: linear-gradient(110deg, rgba(5,15,23,.98), rgba(9,40,56,.96)); }
+.moment.innings-break::before { background: var(--cyan); }
+.player-arrival { position: relative; z-index: 2; display: flex; align-items: center; gap: 18px; padding: 18px 20px; }
+.arrival-ring { width: 64px; height: 64px; display:grid; place-items:center; flex:none; border: 1px solid rgba(199,255,74,.4); border-radius:50%; color:#07100d; background:var(--lime); font-size:11px; font-weight:1000; box-shadow:0 0 35px rgba(199,255,74,.25); animation: arrivalIn .65s cubic-bezier(.16,1,.3,1) both; }
+.player-arrival div { min-width:0; }
+.player-arrival small { display:block; color:rgba(255,255,255,.4); font-size:5.5px; font-weight:900; letter-spacing:1.8px; }
+.player-arrival strong { display:block; margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:21px; font-weight:1000; }
+.player-arrival b { display:block; margin-top:7px; color:rgba(255,255,255,.48); font-size:6px; letter-spacing:1.2px; }
+@keyframes arrivalIn {
+  from { opacity:0; transform:scale(.35) rotate(-12deg); }
+  65% { opacity:1; transform:scale(1.08) rotate(2deg); }
+  to { transform:scale(1) rotate(0); }
+}
+@media (max-width: 1050px) {
+  .innings-ribbon { display:none; }
+}
+@media (max-width: 760px) {
+  .moment.new-batter, .moment.innings-break { width:auto; }
+  .player-arrival strong { font-size:16px; }
+}
