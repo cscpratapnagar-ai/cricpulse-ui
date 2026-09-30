@@ -59,6 +59,9 @@ export class LoginComponent {
       })
       .subscribe({
         next: (r) => {
+          // A login may switch accounts in the same browser. Never retain the previous user's workspace.
+          localStorage.removeItem('cricketpulse_team');
+          localStorage.removeItem('cricketpulse_active_team_id');
           localStorage.setItem('cricketpulse_access_token', r.accessToken);
           this.http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).subscribe({
             next: (u) => {
@@ -66,18 +69,29 @@ export class LoginComponent {
               this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
                 next: (t) => {
                   if (t.length) localStorage.setItem('cricketpulse_team', JSON.stringify(t[0]));
+                  else localStorage.removeItem('cricketpulse_team');
+                  localStorage.removeItem('cricketpulse_active_team_id');
                   this.router.navigateByUrl('/dashboard');
                 },
-                error: () => this.router.navigateByUrl('/dashboard'),
+                error: () => {
+                  localStorage.removeItem('cricketpulse_team');
+                  localStorage.removeItem('cricketpulse_active_team_id');
+                  this.router.navigateByUrl('/dashboard');
+                },
               });
             },
             error: () => {
+              localStorage.removeItem('cricketpulse_access_token');
+              localStorage.removeItem('cricketpulse_team');
+              localStorage.removeItem('cricketpulse_active_team_id');
               this.loading = false;
               this.message = 'Your session could not be verified. Please try again.';
             },
           });
         },
         error: (e: HttpErrorResponse) => {
+          localStorage.removeItem('cricketpulse_team');
+          localStorage.removeItem('cricketpulse_active_team_id');
           this.loading = false;
           this.message =
             e.status === 0
