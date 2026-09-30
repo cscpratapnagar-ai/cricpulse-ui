@@ -145,6 +145,13 @@ export class BroadcastOverlayComponent implements OnDestroy {
     return balls ? ((bowler?.runsConceded ?? 0) / (balls / 6)).toFixed(2) : '0.00';
   }
   bowlerOvers(score: LiveScore) { return this.overs(this.bowler(score)?.legalBalls ?? 0); }
+  partnershipName(score: LiveScore, playerId: string | undefined | null, fallback: string) {
+    if (!playerId) return fallback;
+    if (playerId === score.strikerId && score.strikerName) return score.strikerName;
+    if (playerId === score.nonStrikerId && score.nonStrikerName) return score.nonStrikerName;
+    return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || fallback;
+  }
+
   inningsState(score: LiveScore) { return this.innings.find((item) => item.score.inningsId === score.inningsId); }
   battingTeamId(score: LiveScore) { return this.inningsState(score)?.battingTeamId; }
   bowlingTeamId(score: LiveScore) { return this.inningsState(score)?.bowlingTeamId; }
