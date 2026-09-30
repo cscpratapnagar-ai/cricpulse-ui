@@ -66,9 +66,7 @@ export class BroadcastOverlayComponent {
       .subscribe({ next: (match) => (this.match = match) });
 
     this.http
-      .get<CurrentInnings>(
-        `${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`,
-      )
+      .get<CurrentInnings>(`${API_ORIGIN}/api/public/matches/${this.matchId}/current-innings`)
       .subscribe({
         next: ({ inningsId }) => {
           this.score$ = this.liveScore.watch(inningsId).pipe(
@@ -99,7 +97,13 @@ export class BroadcastOverlayComponent {
     if (!ball || !this.isNewState(score, previous)) return null;
 
     if (score.status === 'COMPLETED' && previous?.status !== 'COMPLETED') {
-      return this.makeEvent('RESULT', 'MATCH COMPLETE', `${score.runs}/${score.wickets}`, '✓', score);
+      return this.makeEvent(
+        'RESULT',
+        'MATCH COMPLETE',
+        `${score.runs}/${score.wickets}`,
+        '✓',
+        score,
+      );
     }
     if (ball.wicketType) {
       return this.makeEvent('WICKET', 'WICKET', 'WICKET FALLEN', 'W', score);
@@ -166,11 +170,7 @@ export class BroadcastOverlayComponent {
   }
 
   batterName(score: LiveScore) {
-    return (
-      score.strikerName ||
-      this.batter(score, score.strikerId)?.playerName ||
-      'CURRENT BATTER'
-    );
+    return score.strikerName || this.batter(score, score.strikerId)?.playerName || 'CURRENT BATTER';
   }
 
   batterRuns(score: LiveScore) {
@@ -198,9 +198,7 @@ export class BroadcastOverlayComponent {
 
   nonStrikerName(score: LiveScore) {
     return (
-      score.nonStrikerName ||
-      this.batter(score, score.nonStrikerId)?.playerName ||
-      'NON-STRIKER'
+      score.nonStrikerName || this.batter(score, score.nonStrikerId)?.playerName || 'NON-STRIKER'
     );
   }
 
