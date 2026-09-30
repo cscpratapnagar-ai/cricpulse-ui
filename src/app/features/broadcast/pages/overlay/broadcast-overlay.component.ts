@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of, tap } from 'rxjs';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import {
   LiveBatter,
@@ -81,6 +81,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private previousInningsId: string | null = null;
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
   private refreshTimer: ReturnType<typeof setInterval> | undefined;
+  broadcastError: string | null = null;
 
   constructor() {
     if (!this.matchId) return;
@@ -96,8 +97,57 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private refreshBroadcastState() {
     this.http
       .get<BroadcastState>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state')
+      .pipe(
+        catchError(() =>
+          this.http
+            .get<{
+              id: string;
+              name: string;
+              teamAId: string;
+              teamBId: string;
+              teamAName: string;
+              teamBName: string;
+              format: string;
+              status: string;
+            }>(API_ORIGIN + '/api/public/matches/' + this.matchId)
+            .pipe(
+              tap((match) => {
+                this.match = {
+                  id: match.id,
+                  name: match.name,
+                  teamAId: match.teamAId,
+                  teamBId: match.teamBId,
+                  teamAName: match.teamAName,
+                  teamBName: match.teamBName,
+                  format: match.format,
+                  status: match.status,
+                };
+              }),
+              switchMap(() =>
+                this.http.get<{
+                  inningsId: string;
+                  inningsNumber: number;
+                  status: string;
+                }>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/current-innings'),
+              ),
+              switchMap((current) =>
+                this.http
+                  .get<LiveScore>(
+                    API_ORIGIN + '/api/public/innings/' + encodeURIComponent(current.inningsId),
+                  )
+                  .pipe(
+                    map((score) => ({
+                      match: this.match!,
+                      innings: [{ score }],
+                    })),
+                  ),
+              ),
+            ),
+        ),
+      )
       .subscribe({
         next: (state) => {
+          this.broadcastError = null;
           this.match = state.match;
           this.innings = state.innings || [];
           const current =
@@ -105,16 +155,28 @@ export class BroadcastOverlayComponent implements OnDestroy {
             state.innings.find((item) => item.score.status === 'LIVE')?.score.inningsId ||
             state.innings.at(-1)?.score.inningsId ||
             null;
-          if (!current) return;
+          if (!current) {
+            this.broadcastError = 'No innings is available for this match yet.';
+            return;
+          }
           if (current !== this.currentInningsId) {
             this.previousScore = null;
             this.previousInningsId = this.currentInningsId;
             this.currentInningsId = current;
             this.score$ = this.liveScore.watch(current).pipe(
               tap((score) => this.onScore(score)),
-              catchError(() => of(null)),
+              catchError(() => {
+                this.broadcastError = 'Unable to connect to the live score feed.';
+                return of(null);
+              }),
             );
           }
+        },
+        error: (error) => {
+          this.broadcastError =
+            error?.status === 404
+              ? 'Broadcast state is not available on the running backend. Restart the backend on the latest main branch.'
+              : 'Unable to load this match broadcast state.';
         },
       });
   }
