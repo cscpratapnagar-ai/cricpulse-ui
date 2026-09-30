@@ -315,7 +315,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (!match) return 'TEAM';
     if (id === match.teamAId) return match.teamAName || 'TEAM A';
     if (id === match.teamBId) return match.teamBName || 'TEAM B';
-    return score.inningsNumber % 2 === 0 ? match.teamBName || 'TEAM B' : match.teamAName || 'TEAM A';
+    return score.inningsNumber % 2 === 0
+      ? match.teamBName || 'TEAM B'
+      : match.teamAName || 'TEAM A';
   }
 
   bowlingTeam(score: LiveScore) {
@@ -324,7 +326,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (!match) return 'TEAM';
     if (id === match.teamAId) return match.teamAName || 'TEAM A';
     if (id === match.teamBId) return match.teamBName || 'TEAM B';
-    return score.inningsNumber % 2 === 0 ? match.teamAName || 'TEAM A' : match.teamBName || 'TEAM B';
+    return score.inningsNumber % 2 === 0
+      ? match.teamAName || 'TEAM A'
+      : match.teamBName || 'TEAM B';
   }
 
   inningsLabel(score: LiveScore) {
