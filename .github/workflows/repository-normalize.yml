@@ -2,7 +2,7 @@ name: Repository Normalization
 
 on:
   push:
-    branches: [ui]
+    branches: [ui, feat/universal-broadcast-engine]
 
 permissions:
   contents: write
