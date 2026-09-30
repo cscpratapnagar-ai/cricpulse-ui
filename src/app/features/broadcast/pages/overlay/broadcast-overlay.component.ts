@@ -1,3 +1,4 @@
+// Production OBS overlay: transparent TV graphics driven by the authoritative public live state.
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
