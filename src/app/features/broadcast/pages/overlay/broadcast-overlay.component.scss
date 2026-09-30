@@ -1237,3 +1237,23 @@
     font-size: 16px;
   }
 }
+
+
+.broadcast-status {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 100;
+  max-width: min(680px, 88vw);
+  padding: 18px 24px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(4, 14, 11, 0.94);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
