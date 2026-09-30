@@ -228,6 +228,10 @@ export class LiveScoringV2Component implements OnDestroy {
     return 'Ready for the next delivery.';
   }
 
+  get canRetryLastAction() {
+    return !this.busy && !!this.lastDeliveryPayload;
+  }
+
   get syncLabel() {
     return this.syncState === 'SAVING'
       ? 'SAVING'
@@ -551,6 +555,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
         this.reconcileScore(s, silent);
+        if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
         if (!this.refreshTimer && this.score?.status === 'LIVE') {
           this.refreshTimer = setInterval(() => this.loadScoreById(this.inningsId, true), 15000);
         }
@@ -558,6 +563,7 @@ export class LiveScoringV2Component implements OnDestroy {
       },
       error: (e) => {
         this.loading = false;
+        this.syncState = 'ERROR';
         this.message = e?.error?.message || 'Unable to load live score.';
       },
     });
