@@ -1,5 +1,6 @@
 // Production OBS overlay: transparent TV graphics driven by the authoritative public live state.
 // V2 presentation pass: keep the data contract unchanged while elevating broadcast hierarchy.
+// CI retrigger after repository formatter normalization.
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
