@@ -8,6 +8,7 @@
 }
 
 .live-scorer {
+  container-type: inline-size;
   --ink: #f2f8f4;
   --muted: #9aac9f;
   --subtle: #708277;
@@ -1906,5 +1907,194 @@ button {
 
   .workspace {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Content-width responsive contract.
+   The scorer lives inside the application shell, so viewport media queries alone
+   are insufficient when the global sidebar consumes part of the viewport. */
+@container (max-width: 1180px) {
+  .live-scorer .topbar {
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    padding: 0 20px;
+  }
+
+  .live-scorer .match-context {
+    display: none;
+  }
+
+  .live-scorer .scorer-shell {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .live-scorer .workspace {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 12px;
+  }
+
+  .live-scorer .score-hero-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .live-scorer .score-block,
+  .live-scorer .score-stat {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .live-scorer .score-stat:nth-child(2) {
+    border-right: 0;
+  }
+
+  .live-scorer .score-stat:nth-child(3) {
+    border-right: 1px solid var(--line);
+  }
+
+  .live-scorer .score-stat:last-child {
+    border-right: 0;
+  }
+
+  .live-scorer .panel-heading h1 {
+    font-size: 21px;
+  }
+
+  .live-scorer .scoring-panel {
+    padding: 18px;
+  }
+
+  .live-scorer .players-grid {
+    gap: 7px;
+  }
+
+  .live-scorer .player-tile {
+    padding: 12px;
+  }
+
+  .live-scorer .timeline-list {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .live-scorer .timeline-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .live-scorer .timeline-ball {
+    flex-basis: 40px;
+    height: 50px;
+  }
+
+  .live-scorer .bowler-bar {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+  }
+}
+
+@container (max-width: 940px) {
+  .live-scorer .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .live-scorer .side-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .live-scorer .timeline-card,
+  .live-scorer .public-link {
+    grid-column: span 2;
+  }
+}
+
+@container (max-width: 720px) {
+  .live-scorer .topbar {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    min-height: 58px;
+    padding: 0 14px;
+  }
+
+  .live-scorer .page-nav {
+    display: none;
+  }
+
+  .live-scorer .scorer-shell {
+    padding: 14px 12px 34px;
+  }
+
+  .live-scorer .scoring-panel {
+    padding: 16px;
+    border-radius: 17px;
+  }
+
+  .live-scorer .players-grid,
+  .live-scorer .over-summary,
+  .live-scorer .bowler-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .live-scorer .run-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .live-scorer .event-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .live-scorer .side-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .live-scorer .timeline-card,
+  .live-scorer .public-link {
+    grid-column: auto;
+  }
+
+  .live-scorer .error-actions {
+    flex-direction: column;
+  }
+
+  .live-scorer .error-actions-buttons {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .live-scorer .error-actions-buttons button {
+    flex: 1;
+  }
+}
+
+@container (max-width: 460px) {
+  .live-scorer .brand span {
+    display: none;
+  }
+
+  .live-scorer .panel-heading {
+    flex-direction: column;
+  }
+
+  .live-scorer .ready-pill {
+    align-self: flex-start;
+  }
+
+  .live-scorer .score-stat:last-child {
+    display: none;
+  }
+
+  .live-scorer .run-grid button {
+    min-height: 56px;
+  }
+
+  .live-scorer .mini-run-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .live-scorer .lock-note {
+    max-width: 100%;
+  }
+
+  .live-scorer .section-title {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

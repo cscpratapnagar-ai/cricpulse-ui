@@ -13,7 +13,14 @@
       ><b>v</b>
     </button>
     @if (open && !disabled) {
-      <div class="options" [class.up]="openUp" role="listbox">
+      <div
+        class="options"
+        [class.up]="openUp"
+        [style.top.px]="menuTop"
+        [style.left.px]="menuLeft"
+        [style.width.px]="menuWidth"
+        role="listbox"
+      >
         <button
           type="button"
           class="option placeholder-option"
