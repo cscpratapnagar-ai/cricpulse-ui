@@ -1116,3 +1116,214 @@
     animation: none !important;
   }
 }
+
+
+/* Viewport containment and compact-height safeguards.
+   OBS/browser sources can run at 720p or with browser chrome consuming height.
+   Keep the whole score graphic inside the visible viewport instead of clipping
+   the lower metrics rail or the lower-third card. */
+:host {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.overlay {
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  max-height: 100dvh;
+  align-items: stretch;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.tv-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.broadcast-top,
+.broadcast-lower-third,
+.broadcast-metrics {
+  min-width: 0;
+}
+
+.broadcast-lower-third {
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(0, 1.35fr)
+    minmax(0, 0.8fr)
+    minmax(88px, 0.32fr);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  .broadcast-top {
+    top: clamp(12px, 2vh, 20px);
+  }
+
+  .broadcast-lower-third {
+    bottom: clamp(62px, 8.5vh, 76px);
+    min-height: 0;
+  }
+
+  .score-hero,
+  .batters-panel,
+  .bowler-panel,
+  .partnership-panel {
+    padding-top: clamp(9px, 1.2vh, 14px);
+    padding-bottom: clamp(9px, 1.2vh, 14px);
+  }
+
+  .score-main strong {
+    font-size: clamp(40px, 4vw, 54px);
+  }
+
+  .broadcast-metrics {
+    bottom: clamp(8px, 1.5vh, 14px);
+    min-height: 44px;
+    grid-template-columns: 90px 90px 100px minmax(0, 1fr);
+  }
+
+  .metric {
+    padding-inline: 10px;
+  }
+
+  .over-rail {
+    min-width: 0;
+    gap: 10px;
+    padding-inline: 10px;
+  }
+
+  .over-balls {
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .over-balls b {
+    width: 23px;
+    height: 23px;
+  }
+}
+
+@media (max-width: 900px) {
+  .overlay {
+    padding: 0 12px 12px;
+  }
+
+  .tv-canvas {
+    height: 100%;
+  }
+
+  .broadcast-lower-third {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .broadcast-metrics {
+    grid-template-columns: 62px 62px 72px minmax(0, 1fr);
+  }
+
+  .over-rail,
+  .over-balls {
+    min-width: 0;
+  }
+
+  .over-balls {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 650px) {
+  .overlay {
+    padding-inline: 8px;
+    padding-bottom: 8px;
+  }
+
+  .broadcast-lower-third {
+    max-height: calc(100dvh - 145px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .broadcast-metrics {
+    grid-template-columns: 54px 54px 60px minmax(0, 1fr);
+    min-height: 46px;
+  }
+
+  .broadcast-metrics > div {
+    min-width: 0;
+    padding-inline: 5px;
+  }
+
+  .metric span,
+  .over-label span {
+    letter-spacing: 0.4px;
+  }
+
+  .over-label {
+    min-width: 0;
+  }
+
+  .over-balls b {
+    width: 17px;
+    height: 17px;
+    font-size: 6px;
+  }
+
+  .score-strip {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .teams {
+    min-width: 0;
+    max-width: 38vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-height: 520px) {
+  .broadcast-top {
+    top: 8px;
+  }
+
+  .broadcast-lower-third {
+    bottom: 54px;
+  }
+
+  .broadcast-metrics {
+    bottom: 6px;
+    min-height: 40px;
+  }
+
+  .score-hero,
+  .batters-panel,
+  .bowler-panel {
+    padding-block: 7px;
+  }
+
+  .score-main {
+    margin-top: 2px;
+  }
+
+  .score-main strong {
+    font-size: 38px;
+  }
+
+  .event-graphic {
+    top: 50%;
+    bottom: auto;
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    transform: translate(-50%, -50%);
+  }
+
+  .event-content h1 {
+    font-size: clamp(28px, 5vh, 40px);
+  }
+}
