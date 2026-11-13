@@ -1,7 +1,7 @@
+import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
 import { of } from 'rxjs';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { BroadcastOverlayComponent } from './broadcast-overlay.component';
@@ -24,11 +24,35 @@ const score: LiveScore = {
   eventVersion: 1,
   recentBalls: [],
   batters: [
-    { playerId: 'batter-1', playerName: 'A Batter', runs: 8, ballsFaced: 5, fours: 1, sixes: 0, out: false },
-    { playerId: 'batter-2', playerName: 'B Batter', runs: 4, ballsFaced: 3, fours: 0, sixes: 0, out: false },
+    {
+      playerId: 'batter-1',
+      playerName: 'A Batter',
+      runs: 8,
+      ballsFaced: 5,
+      fours: 1,
+      sixes: 0,
+      out: false,
+    },
+    {
+      playerId: 'batter-2',
+      playerName: 'B Batter',
+      runs: 4,
+      ballsFaced: 3,
+      fours: 0,
+      sixes: 0,
+      out: false,
+    },
   ],
   bowlers: [
-    { playerId: 'bowler-1', playerName: 'C Bowler', legalBalls: 8, runsConceded: 12, wickets: 0, wides: 0, noBalls: 0 },
+    {
+      playerId: 'bowler-1',
+      playerName: 'C Bowler',
+      legalBalls: 8,
+      runsConceded: 12,
+      wickets: 0,
+      wides: 0,
+      noBalls: 0,
+    },
   ],
   partnership: { batterOneId: 'batter-1', batterTwoId: 'batter-2', runs: 12, balls: 8 },
 };
@@ -71,12 +95,17 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     await TestBed.configureTestingModule({
       imports: [BroadcastOverlayComponent],
       providers: [
-        { provide: ActivatedRoute, useValue: {
-          snapshot: {
-            paramMap: { get: () => 'match-1' },
-            queryParamMap: { get: (key: string) => key === 'mode' ? mode : null },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: { get: () => 'match-1' },
+              queryParamMap: {
+                get: (key: string) => (key === 'mode' ? mode : null),
+              },
+            },
           },
-        } },
+        },
         { provide: HttpClient, useValue: http },
         { provide: LiveScoreService, useValue: liveScore },
       ],
@@ -116,18 +145,20 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       ...score,
       runs: 16,
       eventVersion: 2,
-      recentBalls: [{
-        deliveryId: 'delivery-2',
-        overNumber: 2,
-        ballNumber: 3,
-        strikerId: 'batter-1',
-        nonStrikerId: 'batter-2',
-        bowlerId: 'bowler-1',
-        batRuns: 4,
-        extraRuns: 0,
-        legalDelivery: true,
-        totalRuns: 4,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'delivery-2',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 4,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 4,
+        },
+      ],
     };
 
     component.onScore(boundary);
@@ -144,19 +175,21 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       runs: 12,
       wickets: 1,
       eventVersion: 2,
-      recentBalls: [{
-        deliveryId: 'delivery-w',
-        overNumber: 2,
-        ballNumber: 3,
-        strikerId: 'batter-1',
-        nonStrikerId: 'batter-2',
-        bowlerId: 'bowler-1',
-        batRuns: 0,
-        extraRuns: 0,
-        wicketType: 'BOWLED',
-        legalDelivery: true,
-        totalRuns: 0,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'delivery-w',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 0,
+          extraRuns: 0,
+          wicketType: 'BOWLED',
+          legalDelivery: true,
+          totalRuns: 0,
+        },
+      ],
     });
     flushMicrotasks();
 
