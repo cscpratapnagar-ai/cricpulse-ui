@@ -108,6 +108,14 @@ export function withCommandId(commandId: string): { 'X-Command-Id': string } {
   return { 'X-Command-Id': commandId };
 }
 
+/** Prevent a late REST snapshot from overwriting a newer websocket event. */
+export function shouldAcceptLiveScoreSnapshot(
+  version: number | undefined,
+  lastEventVersion: number,
+): boolean {
+  return typeof version !== 'number' || !Number.isFinite(version) || version >= lastEventVersion;
+}
+
 export type LiveScoreFrameDecision = 'accept' | 'ignore' | 'reconcile';
 
 /** Decide how a websocket frame should be handled against the last authoritative version. */
@@ -161,6 +169,7 @@ export class LiveScoreService {
             next: (score) => {
               if (!stopped && score?.inningsId === inningsId) {
                 const version = score.eventVersion;
+                if (!shouldAcceptLiveScoreSnapshot(version, lastEventVersion)) return;
                 if (typeof version === 'number' && Number.isFinite(version)) {
                   lastEventVersion = Math.max(lastEventVersion, version);
                 }
@@ -204,8 +213,8 @@ export class LiveScoreService {
         onConnect: () => {
           if (stopped) return;
           subscription?.unsubscribe();
-          // Recovery first: reconnects may have missed one or more broadcasts.
-          reconcile();
+          // Subscribe before recovery so no event can fall into the
+          // snapshot-to-subscription gap. The REST snapshot is authoritative.
           subscription = client.subscribe(
             `/topic/public/innings/${inningsId}`,
             (message: IMessage) => {
@@ -228,6 +237,7 @@ export class LiveScoreService {
               }
             },
           );
+          reconcile();
         },
         onStompError: () => {
           if (!stopped) reconcile();
