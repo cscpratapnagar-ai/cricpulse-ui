@@ -12,7 +12,10 @@ import {
   timer,
 } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
+import {
+  LiveScore,
+  LiveScoreService,
+} from '../../../../core/services/live-score.service';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 
 interface Match {
