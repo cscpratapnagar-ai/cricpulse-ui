@@ -1,21 +1,9 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  catchError,
-  distinctUntilChanged,
-  filter,
-  of,
-  retry,
-  switchMap,
-  tap,
-  timer,
-} from 'rxjs';
+import { catchError, distinctUntilChanged, filter, of, retry, switchMap, tap, timer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import {
-  LiveScore,
-  LiveScoreService,
-} from '../../../../core/services/live-score.service';
+import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 
 interface Match {
@@ -119,9 +107,7 @@ export class PublicLiveScoreComponent {
       next: (match) => {
         this.match = match;
         this.http
-          .get<PublicScorecard[]>(
-            `${this.api}/public/matches/${this.matchId}/scorecard`,
-          )
+          .get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`)
           .subscribe({
             next: (scorecards) => (this.scorecards = scorecards || []),
             error: () => (this.scorecards = []),
@@ -154,9 +140,7 @@ export class PublicLiveScoreComponent {
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
         this.http
-          .get<CurrentInnings>(
-            `${this.api}/public/matches/${this.matchId}/current-innings`,
-          )
+          .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
           .pipe(
             catchError((error) => {
               console.error(
