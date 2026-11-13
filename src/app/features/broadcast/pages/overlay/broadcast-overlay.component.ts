@@ -1,4 +1,4 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -64,6 +64,7 @@ interface AutoEvent {
   styleUrl: './broadcast-overlay.component.scss',
 })
 export class BroadcastOverlayComponent implements OnDestroy {
+  private readonly document = inject(DOCUMENT);
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
@@ -84,12 +85,16 @@ export class BroadcastOverlayComponent implements OnDestroy {
   broadcastError: string | null = null;
 
   constructor() {
+    // OBS Browser Sources need the page canvas itself to remain transparent;
+    // the normal application theme paints html/body with an opaque background.
+    this.document.documentElement.classList.add('cricpulse-overlay-mode');
     if (!this.matchId) return;
     this.refreshBroadcastState();
     this.refreshTimer = setInterval(() => this.refreshBroadcastState(), 2000);
   }
 
   ngOnDestroy() {
+    this.document.documentElement.classList.remove('cricpulse-overlay-mode');
     if (this.autoTimer) clearTimeout(this.autoTimer);
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
@@ -166,7 +171,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
             this.score$ = this.liveScore.watch(current).pipe(
               tap((score) => this.onScore(score)),
               catchError(() => {
-                this.broadcastError = 'Unable to connect to the live score feed.';
+                this.broadcastError = 'Unable to connect to the live score feed. Reconnecting…';
+                // Allow the next broadcast-state poll to create a fresh watch
+                // if the initial REST snapshot failed and the stream completed.
+                this.currentInningsId = null;
                 return of(null);
               }),
             );
