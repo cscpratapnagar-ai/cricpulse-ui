@@ -140,6 +140,9 @@
             class="moment"
             [class]="'moment ' + event.kind.toLowerCase().replace('_', '-')"
             [attr.data-event-version]="event.version"
+            role="status"
+            aria-live="polite"
+            [attr.aria-label]="event.title + ': ' + event.detail"
           >
             <div class="moment-shard shard-a"></div>
             <div class="moment-shard shard-b"></div>
