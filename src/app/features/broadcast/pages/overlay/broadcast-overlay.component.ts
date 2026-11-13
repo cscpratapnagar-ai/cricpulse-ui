@@ -1,9 +1,10 @@
 import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { catchError, finalize, map, of, switchMap, tap } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
+import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import {
   LiveBatter,
   LiveRecentBall,
@@ -82,6 +83,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private previousInningsId: string | null = null;
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
   private refreshTimer: ReturnType<typeof setInterval> | undefined;
+  private refreshInFlight = false;
   broadcastError: string | null = null;
 
   constructor() {
@@ -100,8 +102,17 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
 
   private refreshBroadcastState() {
+    // Polling is background work: never flash the app-wide loading screen in OBS.
+    // Also prevent slow requests from stacking up behind the 2-second poll timer.
+    if (this.refreshInFlight) return;
+    this.refreshInFlight = true;
+    const backgroundOptions = { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) };
+
     this.http
-      .get<BroadcastState>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state')
+      .get<BroadcastState>(
+        API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state',
+        backgroundOptions,
+      )
       .pipe(
         catchError(() =>
           this.http
@@ -114,7 +125,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
               teamBName: string;
               format: string;
               status: string;
-            }>(API_ORIGIN + '/api/public/matches/' + this.matchId)
+            }>(API_ORIGIN + '/api/public/matches/' + this.matchId, backgroundOptions)
             .pipe(
               tap((match) => {
                 this.match = {
@@ -133,12 +144,13 @@ export class BroadcastOverlayComponent implements OnDestroy {
                   inningsId: string;
                   inningsNumber: number;
                   status: string;
-                }>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/current-innings'),
+                }>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/current-innings', backgroundOptions),
               ),
               switchMap((current) =>
                 this.http
                   .get<LiveScore>(
                     API_ORIGIN + '/api/public/innings/' + encodeURIComponent(current.inningsId),
+                    backgroundOptions,
                   )
                   .pipe(
                     map((score) => ({
@@ -150,6 +162,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
             ),
         ),
       )
+      .pipe(finalize(() => (this.refreshInFlight = false)))
       .subscribe({
         next: (state) => {
           this.broadcastError = null;
