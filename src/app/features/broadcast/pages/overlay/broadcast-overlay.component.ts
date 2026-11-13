@@ -144,7 +144,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
                   inningsId: string;
                   inningsNumber: number;
                   status: string;
-                }>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/current-innings', backgroundOptions),
+                }>(
+                  API_ORIGIN + '/api/public/matches/' + this.matchId + '/current-innings',
+                  backgroundOptions,
+                ),
               ),
               switchMap((current) =>
                 this.http
