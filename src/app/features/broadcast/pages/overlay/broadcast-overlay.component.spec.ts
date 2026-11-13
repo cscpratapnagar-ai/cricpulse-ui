@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { BroadcastOverlayComponent } from './broadcast-overlay.component';
@@ -171,6 +171,49 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
     expect(component.autoEvent?.kind).toBe('FOUR');
     expect(component.autoEvent?.title).toBe('FOUR');
+  }));
+
+  it('detects a SIX event from the live score feed', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 18,
+      eventVersion: 2,
+      recentBalls: [
+        {
+          deliveryId: 'delivery-6',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 6,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 6,
+        },
+      ],
+    });
+    flushMicrotasks();
+
+    expect(component.autoEvent?.kind).toBe('SIX');
+    expect(component.autoEvent?.title).toBe('SIX');
+  }));
+
+  it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
+    liveScore.watch.and.returnValues(
+      throwError(() => new Error('WebSocket disconnected')),
+      of(score),
+    );
+
+    createOverlay();
+    expect(liveScore.watch).toHaveBeenCalledTimes(1);
+
+    tick(2000);
+    fixture.detectChanges();
+
+    expect(liveScore.watch).toHaveBeenCalledTimes(2);
+    expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
   }));
 
   it('detects wickets before boundary and milestone moments', fakeAsync(() => {
