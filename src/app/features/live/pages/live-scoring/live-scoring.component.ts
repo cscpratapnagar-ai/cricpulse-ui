@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { API_BASE_URL } from '../../../../core/config/api.config';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
@@ -98,6 +98,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private offlineHandler = () => (this.connectionState = 'OFFLINE');
   undoConfirmOpen = false;
   private lastDeliveryPayload: any = null;
+  private pendingDeliveryCommandId: string | null = null;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
@@ -710,6 +711,10 @@ export class LiveScoringV2Component implements OnDestroy {
     }
 
     this.lastDeliveryPayload = { ...body };
+    if (!isRetry || !this.pendingDeliveryCommandId) {
+      this.pendingDeliveryCommandId = crypto.randomUUID();
+    }
+    const commandId = this.pendingDeliveryCommandId;
     const payload = {
       inningsId: this.inningsId,
       overNumber: Math.floor((this.score!.legalBalls || 0) / 6),
@@ -729,7 +734,9 @@ export class LiveScoringV2Component implements OnDestroy {
           ? `${body.extraType} recorded`
           : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
     this.http
-      .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload)
+      .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload, {
+        headers: new HttpHeaders({ 'X-Command-Id': commandId }),
+      })
       .subscribe({
         next: (s) => {
           if (s && s.inningsId) {
@@ -739,6 +746,7 @@ export class LiveScoringV2Component implements OnDestroy {
             this.syncState = 'SYNCED';
             this.message = '';
             this.lastDeliveryPayload = null;
+            this.pendingDeliveryCommandId = null;
           } else {
             this.reloadScoreAfterDelivery();
             this.busy = false;
