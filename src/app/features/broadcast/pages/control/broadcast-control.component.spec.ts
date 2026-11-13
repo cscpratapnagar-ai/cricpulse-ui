@@ -6,10 +6,12 @@ describe('BroadcastControlComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [BroadcastControlComponent],
-      providers: [{
-        provide: ActivatedRoute,
-        useValue: { snapshot: { paramMap: { get: () => 'match-123' } } },
-      }],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'match-123' } } },
+        },
+      ],
     });
   });
 
@@ -26,10 +28,18 @@ describe('BroadcastControlComponent', () => {
     const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
 
     expect(component.scenes.map((scene) => scene.mode)).toEqual([
-      'strip', 'batter', 'bowler', 'partnership',
+      'strip',
+      'batter',
+      'bowler',
+      'partnership',
     ]);
     expect(component.events.map((event) => event.kind)).toEqual([
-      'FOUR', 'SIX', 'WICKET', 'MILESTONE', 'OVER_COMPLETE', 'RESULT',
+      'FOUR',
+      'SIX',
+      'WICKET',
+      'MILESTONE',
+      'OVER_COMPLETE',
+      'RESULT',
     ]);
   });
 });
