@@ -152,7 +152,10 @@ export class PublicLiveScoreComponent {
           .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
           .pipe(
             catchError((error) => {
-              console.error('[PublicLive] current innings lookup failed; polling will retry', error);
+              console.error(
+                '[PublicLive] current innings lookup failed; polling will retry',
+                error,
+              );
               return of(null);
             }),
           ),
@@ -164,7 +167,10 @@ export class PublicLiveScoreComponent {
         this.liveScore.watch(innings.inningsId).pipe(
           retry({ delay: 3000 }),
           catchError((error) => {
-            console.error('[PublicLive] score feed failed after retry; polling will recover', error);
+            console.error(
+              '[PublicLive] score feed failed after retry; polling will recover',
+              error,
+            );
             return of<LiveScore | null>(null);
           }),
         ),
