@@ -122,8 +122,8 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('loads the public match state and renders a live transparent scorebug', () => {
     createOverlay();
 
-    expect(http.get.calls.mostRecent().args[0]).toEqual(
-      jasmine.stringMatching(/\\/api\\/public\\/matches\\/match-1\\/broadcast-state$/),
+    expect(String(http.get.calls.mostRecent().args[0])).toContain(
+      '/api/public/matches/match-1/broadcast-state',
     );
     const requestOptions = http.get.calls.mostRecent().args[1] as {
       context: import('@angular/common/http').HttpContext;
