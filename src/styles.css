@@ -437,7 +437,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-
 /* OBS / live broadcast overlay: remove the normal app's opaque theme canvas. */
 html.cricpulse-overlay-mode,
 html.cricpulse-overlay-mode body,
