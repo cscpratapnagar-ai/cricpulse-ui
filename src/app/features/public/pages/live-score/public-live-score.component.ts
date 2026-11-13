@@ -119,7 +119,9 @@ export class PublicLiveScoreComponent {
       next: (match) => {
         this.match = match;
         this.http
-          .get<PublicScorecard[]>(`${this.api}/public/matches/${this.matchId}/scorecard`)
+          .get<PublicScorecard[]>(
+            `${this.api}/public/matches/${this.matchId}/scorecard`,
+          )
           .subscribe({
             next: (scorecards) => (this.scorecards = scorecards || []),
             error: () => (this.scorecards = []),
@@ -152,7 +154,9 @@ export class PublicLiveScoreComponent {
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
         this.http
-          .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
+          .get<CurrentInnings>(
+            `${this.api}/public/matches/${this.matchId}/current-innings`,
+          )
           .pipe(
             catchError((error) => {
               console.error(
