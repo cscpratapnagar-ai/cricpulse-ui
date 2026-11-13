@@ -684,6 +684,27 @@
   background: linear-gradient(90deg, var(--red), transparent);
 }
 
+.moment.six .moment-mark {
+  color: var(--cyan);
+  text-shadow: 0 0 38px rgba(99, 228, 255, 0.58);
+  transform-origin: center;
+}
+
+.moment.six .moment-line {
+  animation-duration: 3.6s;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+}
+
+.moment.wicket .moment-line {
+  animation-duration: 3.6s;
+}
+
+.moment.new-batter .moment-line,
+.moment.innings-break .moment-line,
+.moment.result .moment-line {
+  animation-duration: 5.2s;
+}
+
 .moment-shard {
   position: absolute;
   width: 130px;
