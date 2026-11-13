@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
+import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { BroadcastOverlayComponent } from './broadcast-overlay.component';
 
@@ -121,9 +122,13 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('loads the public match state and renders a live transparent scorebug', () => {
     createOverlay();
 
-    expect(http.get).toHaveBeenCalledWith(
-      jasmine.stringMatching(/\/api\/public\/matches\/match-1\/broadcast-state$/),
+    expect(http.get.calls.mostRecent().args[0]).toEqual(
+      jasmine.stringMatching(/\\/api\\/public\\/matches\\/match-1\\/broadcast-state$/),
     );
+    const requestOptions = http.get.calls.mostRecent().args[1] as {
+      context: import('@angular/common/http').HttpContext;
+    };
+    expect(requestOptions.context.get(SKIP_GLOBAL_LOADING)).toBeTrue();
     expect(liveScore.watch).toHaveBeenCalledWith('innings-1');
     expect(document.documentElement.classList.contains('cricpulse-overlay-mode')).toBeTrue();
     expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
