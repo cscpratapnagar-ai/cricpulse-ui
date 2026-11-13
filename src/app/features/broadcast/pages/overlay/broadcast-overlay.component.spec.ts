@@ -171,6 +171,11 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
     expect(component.autoEvent?.kind).toBe('FOUR');
     expect(component.autoEvent?.title).toBe('FOUR');
+    fixture.detectChanges();
+    const graphic = fixture.nativeElement.querySelector('.moment.four') as HTMLElement;
+    expect(graphic).not.toBeNull();
+    expect(graphic.getAttribute('aria-live')).toBe('polite');
+    expect(graphic.getAttribute('aria-label')).toContain('FOUR');
   }));
 
   it('detects a SIX event from the live score feed', fakeAsync(() => {
@@ -198,6 +203,8 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
     expect(component.autoEvent?.kind).toBe('SIX');
     expect(component.autoEvent?.title).toBe('SIX');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.six')).not.toBeNull();
   }));
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
@@ -242,6 +249,8 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     flushMicrotasks();
 
     expect(component.autoEvent?.kind).toBe('WICKET');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
   }));
 
   it('removes the OBS transparency class when the overlay is destroyed', () => {
