@@ -1,7 +1,16 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, distinctUntilChanged, of, switchMap, tap, timer } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  of,
+  retry,
+  switchMap,
+  tap,
+  timer,
+} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { API_ORIGIN } from '../../../../core/config/api.config';
@@ -139,15 +148,27 @@ export class PublicLiveScoreComponent {
   startLiveFeed(): void {
     this.score$ = timer(0, 5000).pipe(
       switchMap(() =>
-        this.http.get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`),
+        this.http
+          .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
+          .pipe(
+            catchError((error) => {
+              console.error('[PublicLive] current innings lookup failed; polling will retry', error);
+              return of(null);
+            }),
+          ),
       ),
+      filter((innings): innings is CurrentInnings => innings !== null),
       tap((innings) => (this.currentInnings = innings)),
       distinctUntilChanged((previous, current) => previous.inningsId === current.inningsId),
-      switchMap((innings) => this.liveScore.watch(innings.inningsId)),
-      catchError((error) => {
-        console.error('[PublicLive] score failed', error);
-        return of<LiveScore | null>(null);
-      }),
+      switchMap((innings) =>
+        this.liveScore.watch(innings.inningsId).pipe(
+          retry({ delay: 3000 }),
+          catchError((error) => {
+            console.error('[PublicLive] score feed failed after retry; polling will recover', error);
+            return of<LiveScore | null>(null);
+          }),
+        ),
+      ),
     );
   }
 
