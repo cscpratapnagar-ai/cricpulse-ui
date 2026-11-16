@@ -5,6 +5,7 @@ export interface QueuedDelivery {
   commandId: string;
   inningsId: string;
   createdAt: number;
+  syncStatus?: 'PENDING' | 'BLOCKED';
   payload: {
     inningsId: string;
     overNumber: number;
@@ -113,6 +114,27 @@ export class OfflineScoringStore {
     await this.request(
       db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).delete(commandId),
     );
+  }
+
+
+  async markInningsQueueBlocked(inningsId: string): Promise<void> {
+    const db = await this.open();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+      const store = transaction.objectStore(QUEUE_STORE);
+      const request = store.getAll();
+      request.onsuccess = () => {
+        for (const item of request.result as QueuedDelivery[]) {
+          if (item.inningsId === inningsId) {
+            store.put({ ...item, syncStatus: 'BLOCKED' });
+          }
+        }
+      };
+      request.onerror = () => reject(request.error ?? new Error('Could not inspect offline queue.'));
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error('Could not block offline queue.'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Blocking offline queue was aborted.'));
+    });
   }
 
   async count(inningsId: string): Promise<number> {
