@@ -189,7 +189,7 @@
                   {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}</small
                 >
                 <small
-                  >{{ sponsor.placements.map(item => item.eventType.replaceAll('_', ' ')).join(' · ') || 'No event placements' }}</small
+                  >{{ placementLabels(sponsor) }}</small
                 >
               </div>
               <div class="sponsor-record-actions">
