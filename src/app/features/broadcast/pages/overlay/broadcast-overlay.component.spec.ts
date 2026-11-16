@@ -223,6 +223,58 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
   }));
 
+  it('celebrates a batter reaching a half-century with a dedicated graphic', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 54,
+      eventVersion: 2,
+      batters: score.batters?.map((item) => item.playerId === 'batter-1' ? { ...item, runs: 50, ballsFaced: 31 } : item),
+    });
+    flushMicrotasks();
+    expect(component.autoEvent?.kind).toBe('MILESTONE');
+    expect(component.autoEvent?.title).toBe('HALF-CENTURY');
+    expect(component.autoEvent?.milestoneLevel).toBe(50);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.half-century')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('A Batter');
+  }));
+
+  it('celebrates a batter reaching a century with a distinct graphic', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 104,
+      eventVersion: 2,
+      batters: score.batters?.map((item) => item.playerId === 'batter-1' ? { ...item, runs: 100, ballsFaced: 62 } : item),
+    });
+    flushMicrotasks();
+    expect(component.autoEvent?.title).toBe('CENTURY');
+    expect(component.autoEvent?.milestoneLevel).toBe(100);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.century')).not.toBeNull();
+  }));
+
+  it('detects an over-complete moment at the end of a legal over', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 15,
+      legalBalls: 12,
+      eventVersion: 2,
+      recentBalls: [{
+        deliveryId: 'delivery-over-end', overNumber: 2, ballNumber: 6,
+        strikerId: 'batter-1', nonStrikerId: 'batter-2', bowlerId: 'bowler-1',
+        batRuns: 1, extraRuns: 0, legalDelivery: true, totalRuns: 1,
+      }],
+    });
+    flushMicrotasks();
+    expect(component.autoEvent?.kind).toBe('OVER_COMPLETE');
+    expect(component.autoEvent?.title).toBe('OVER COMPLETE');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.over-complete')).not.toBeNull();
+  }));
+
   it('detects wickets before boundary and milestone moments', fakeAsync(() => {
     const component = createOverlay();
     component.onScore({
