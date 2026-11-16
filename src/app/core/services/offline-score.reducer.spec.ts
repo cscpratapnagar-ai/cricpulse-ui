@@ -131,9 +131,7 @@ describe('projectOfflineDelivery', () => {
     );
     expect(next.runs).toBe(3);
     expect(next.legalBalls).toBe(0);
-    expect(next.batters?.[0]).toEqual(
-      jasmine.objectContaining({ runs: 2, ballsFaced: 0 }),
-    );
+    expect(next.batters?.[0]).toEqual(jasmine.objectContaining({ runs: 2, ballsFaced: 0 }));
     expect(next.bowlers?.[0]).toEqual(
       jasmine.objectContaining({ runsConceded: 3, legalBalls: 0, noBalls: 1 }),
     );
