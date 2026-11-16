@@ -315,7 +315,7 @@
       </section>
     }
 
-    @if (isEvent) {
+    @if (isEvent && !isOverSponsorEvent) {
       <section class="manual-event">
         <span>CRICPULSE LIVE</span><strong>{{ eventLabel(score) }}</strong
         ><b>{{ eventDetail(score) }}</b>
