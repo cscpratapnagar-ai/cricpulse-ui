@@ -15,6 +15,19 @@ describe('BroadcastControlComponent', () => {
     });
   });
 
+  it('adds the sponsor to the automatic overlay URL when over sponsorship is enabled', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+    component.sponsorName = 'Shree Motors';
+    component.overSponsorEnabled = true;
+    component.sponsorDuration = 15;
+
+    const url = new URL(component.autoUrl());
+
+    expect(url.searchParams.get('overSponsor')).toBe('true');
+    expect(url.searchParams.get('sponsorType')).toBe('OVER_SPONSOR');
+    expect(url.searchParams.get('sponsorName')).toBe('Shree Motors');
+    expect(url.searchParams.get('duration')).toBe('15');
+  });
   it('builds the automatic OBS browser-source URL for the current match', () => {
     const fixture = TestBed.createComponent(BroadcastControlComponent);
     const component = fixture.componentInstance;
