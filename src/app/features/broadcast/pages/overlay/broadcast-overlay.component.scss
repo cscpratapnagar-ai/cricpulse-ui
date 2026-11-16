@@ -1475,7 +1475,7 @@
     padding: 18px;
     transform: none;
   }
-  .innings-break-details {
+  .manual-graphic > .innings-break-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
