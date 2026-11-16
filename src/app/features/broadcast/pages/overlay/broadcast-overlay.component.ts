@@ -47,6 +47,7 @@ type OverlayMode =
   | 'fall-of-wickets'
   | 'innings-break'
   | 'match-result'
+  | 'sponsor'
   | 'event'
   | 'auto';
 type EventKind =
@@ -95,14 +96,22 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private refreshTimer: ReturnType<typeof setInterval> | undefined;
   private refreshInFlight = false;
   broadcastError: string | null = null;
+  readonly sponsorType = this.route.snapshot.queryParamMap.get('sponsorType') || 'CUSTOM';
+  readonly sponsorName = this.route.snapshot.queryParamMap.get('sponsorName') || 'YOUR BRAND';
+  readonly sponsorTagline = this.route.snapshot.queryParamMap.get('sponsorTagline') || 'PROUD PARTNER OF THE GAME';
+  readonly sponsorLogo = this.route.snapshot.queryParamMap.get('sponsorLogo') || '';
+  readonly sponsorLabel = this.route.snapshot.queryParamMap.get('sponsorLabel') || 'POWERED BY';
+  readonly sponsorDuration = Math.min(30, Math.max(5, Number(this.route.snapshot.queryParamMap.get('duration')) || 10));
 
   constructor() {
     // OBS Browser Sources need the page canvas itself to remain transparent;
     // the normal application theme paints html/body with an opaque background.
     this.document.documentElement.classList.add('cricpulse-overlay-mode');
     if (!this.matchId) return;
-    this.refreshBroadcastState();
-    this.refreshTimer = setInterval(() => this.refreshBroadcastState(), 2000);
+    if (this.mode !== 'sponsor') {
+      this.refreshBroadcastState();
+      this.refreshTimer = setInterval(() => this.refreshBroadcastState(), 2000);
+    }
   }
 
   ngOnDestroy() {
@@ -595,6 +604,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   get isMatchResult() {
     return this.mode === 'match-result';
+  }
+  get isSponsor() {
+    return this.mode === 'sponsor';
   }
   resultOutcome() {
     const type = (this.match?.resultType || '').toUpperCase();
