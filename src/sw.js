@@ -24,7 +24,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   // Never cache API responses, authentication, scoring writes, or live sockets.
-  if (/^\\/(api|auth|actuator|ws)(\\/|$)/.test(url.pathname)) return;
+  if (/^\/(api|auth|actuator|ws)(\/|$)/.test(url.pathname)) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(
@@ -41,7 +41,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (/\\.(?:js|css|woff2?|ttf|svg|png|jpe?g|webp|ico)$/i.test(url.pathname)) {
+  if (/\.(?:js|css|woff2?|ttf|svg|png|jpe?g|webp|ico)$/i.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
