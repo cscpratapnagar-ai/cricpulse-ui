@@ -85,6 +85,7 @@ export class LiveScoringV2Component implements OnDestroy {
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'QUEUED' | 'ERROR' = 'SYNCED';
   pendingOfflineCount = 0;
+  private offlineSnapshotReady = false;
   private flushingOfflineQueue = false;
   wicketOpen = false;
   extraOpen = false;
@@ -648,7 +649,12 @@ export class LiveScoringV2Component implements OnDestroy {
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
         this.reconcileScore(s, silent);
-        void this.offlineStore.saveSnapshot(s).catch(() => undefined);
+        void this.offlineStore.saveSnapshot(s).then(() => {
+          this.offlineSnapshotReady = true;
+        }).catch(() => {
+          this.offlineSnapshotReady = false;
+          this.message = 'Offline recovery storage is unavailable. Live scoring remains online, but offline scoring is disabled.';
+        });
         void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
         if (navigator.onLine) void this.flushOfflineQueue();
