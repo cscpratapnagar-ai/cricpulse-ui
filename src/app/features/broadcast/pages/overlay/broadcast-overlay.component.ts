@@ -46,6 +46,7 @@ type OverlayMode =
   | 'partnership'
   | 'fall-of-wickets'
   | 'innings-break'
+  | 'match-result'
   | 'event'
   | 'auto';
 type EventKind =
@@ -591,6 +592,35 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   get isInningsBreak() {
     return this.mode === 'innings-break';
+  }
+  get isMatchResult() {
+    return this.mode === 'match-result';
+  }
+  resultOutcome() {
+    const type = (this.match?.resultType || '').toUpperCase();
+    if (type === 'TIE') return 'MATCH TIED';
+    if (type === 'DRAW') return 'MATCH DRAWN';
+    if (type === 'NO_RESULT' || type === 'NO-RESULT') return 'NO RESULT';
+    if (this.match?.winningTeamId) return 'CHAMPIONS';
+    return 'MATCH RESULT';
+  }
+  resultWinner() {
+    if (!this.match?.winningTeamId) return '';
+    if (this.match.winningTeamId === this.match.teamAId) return this.match.teamAName || 'TEAM A';
+    if (this.match.winningTeamId === this.match.teamBId) return this.match.teamBName || 'TEAM B';
+    return '';
+  }
+  resultScore(score: LiveScore) {
+    return score.runs + '/' + score.wickets;
+  }
+  resultOvers(score: LiveScore) {
+    return this.overs(score.legalBalls) + (score.totalOvers ? ' / ' + score.totalOvers : '') + ' OV';
+  }
+  resultInnings() {
+    return [...this.innings].sort((a, b) => a.score.inningsNumber - b.score.inningsNumber);
+  }
+  resultDescription() {
+    return this.match?.resultText || (this.match?.status === 'COMPLETED' ? this.resultOutcome() : 'Awaiting official result');
   }
   inningsBreakTarget(score: LiveScore) {
     return score.runs + 1;
