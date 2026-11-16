@@ -1258,3 +1258,31 @@
     font-size: 16px;
   }
 }
+
+
+/* Signature milestone and over-finish broadcast moments */
+.moment.half-century {
+  width: min(560px, 42vw);
+  background: radial-gradient(circle at 16% 50%, rgba(99, 228, 255, 0.18), transparent 34%), linear-gradient(112deg, rgba(4, 16, 27, 0.98), rgba(8, 42, 61, 0.96));
+}
+.moment.half-century::before { width: 5px; background: var(--cyan); box-shadow: 0 0 28px rgba(99, 228, 255, 0.55); }
+.moment.half-century .moment-mark { color: var(--cyan); font-size: 48px; letter-spacing: -3px; text-shadow: 0 0 34px rgba(99, 228, 255, 0.62); }
+.moment.century {
+  width: min(600px, 46vw);
+  background: radial-gradient(circle at 16% 50%, rgba(255, 194, 74, 0.2), transparent 36%), linear-gradient(112deg, rgba(24, 15, 5, 0.99), rgba(66, 39, 8, 0.97));
+  border-color: rgba(255, 194, 74, 0.32);
+}
+.moment.century::before { width: 5px; background: #ffc24a; box-shadow: 0 0 30px rgba(255, 194, 74, 0.62); }
+.moment.century .moment-mark { color: #ffc24a; font-size: 46px; letter-spacing: -3px; text-shadow: 0 0 38px rgba(255, 194, 74, 0.65); }
+.moment.over-complete {
+  width: min(540px, 40vw);
+  background: radial-gradient(circle at 15% 50%, rgba(199, 255, 74, 0.16), transparent 35%), linear-gradient(112deg, rgba(5, 16, 13, 0.98), rgba(27, 48, 24, 0.96));
+}
+.moment.over-complete::before { background: var(--lime); box-shadow: 0 0 24px rgba(199, 255, 74, 0.42); }
+.moment.over-complete .moment-mark { color: var(--lime); font-size: 34px; letter-spacing: -1px; }
+.moment.half-century .moment-line { background: linear-gradient(90deg, var(--cyan), transparent); }
+.moment.century .moment-line { background: linear-gradient(90deg, #ffc24a, transparent); }
+.moment.over-complete .moment-line { background: linear-gradient(90deg, var(--lime), transparent); }
+@media (max-width: 760px) {
+  .moment.half-century, .moment.century, .moment.over-complete { width: auto; }
+}
