@@ -407,7 +407,9 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(component.autoEvent?.detail).toBe('RUN OUT');
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('.moment.wicket').textContent).toContain('RUN OUT');
+    expect(fixture.nativeElement.querySelector('.moment.wicket').textContent).toContain(
+      'RUN OUT',
+    );
   }));
 
   it('still detects a RUN_OUT when the wicket count updates before recentBalls', fakeAsync(() => {
