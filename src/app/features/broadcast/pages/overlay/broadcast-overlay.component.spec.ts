@@ -65,6 +65,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   let liveScore: jasmine.SpyObj<LiveScoreService>;
   let document: Document;
   let mode: string;
+  let queryValues: Record<string, string> = {};
 
   const createOverlay = () => {
     fixture = TestBed.createComponent(BroadcastOverlayComponent);
@@ -74,6 +75,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
   beforeEach(async () => {
     mode = 'auto';
+    queryValues = {};
     http = jasmine.createSpyObj<HttpClient>('HttpClient', ['get']);
     liveScore = jasmine.createSpyObj<LiveScoreService>('LiveScoreService', ['watch']);
     http.get.and.returnValue(
@@ -103,7 +105,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
             snapshot: {
               paramMap: { get: () => 'match-1' },
               queryParamMap: {
-                get: (key: string) => (key === 'mode' ? mode : null),
+                get: (key: string) => (key === 'mode' ? mode : queryValues[key] || null),
               },
             },
           },
@@ -118,6 +120,25 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
   afterEach(() => {
     fixture?.destroy();
+  });
+
+  it('renders a sponsor graphic without requiring live score data', () => {
+    mode = 'sponsor';
+    queryValues = {
+      sponsorType: 'MAIN_SPONSOR',
+      sponsorName: 'Shree Motors',
+      sponsorTagline: 'Drive with trust',
+      sponsorLabel: 'POWERED BY',
+      duration: '15',
+    };
+    createOverlay();
+
+    expect(http.get).not.toHaveBeenCalled();
+    const graphic = fixture.nativeElement.querySelector('.sponsor-graphic') as HTMLElement;
+    expect(graphic).not.toBeNull();
+    expect(graphic.textContent).toContain('Shree Motors');
+    expect(graphic.textContent).toContain('Drive with trust');
+    expect(graphic.style.getPropertyValue('--sponsor-duration')).toBe('15s');
   });
 
   it('loads the public match state and renders a live transparent scorebug', () => {
