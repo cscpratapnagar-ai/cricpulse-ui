@@ -102,6 +102,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   readonly sponsorLogo = this.route.snapshot.queryParamMap.get('sponsorLogo') || '';
   readonly sponsorLabel = this.route.snapshot.queryParamMap.get('sponsorLabel') || 'POWERED BY';
   readonly sponsorDuration = Math.min(30, Math.max(5, Number(this.route.snapshot.queryParamMap.get('duration')) || 10));
+  readonly showOverSponsor = this.route.snapshot.queryParamMap.get('overSponsor') === 'true';
 
   constructor() {
     // OBS Browser Sources need the page canvas itself to remain transparent;
@@ -242,6 +243,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   private eventDuration(kind: EventKind) {
     if (kind === 'NEW_BATTER' || kind === 'INNINGS_BREAK' || kind === 'RESULT') return 5200;
+    if (kind === 'OVER_COMPLETE' && this.showOverSponsor) return this.sponsorDuration * 1000;
     if (kind === 'WICKET' || kind === 'SIX') return 3600;
     return 3000;
   }
@@ -607,6 +609,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   get isSponsor() {
     return this.mode === 'sponsor';
+  }
+  get isOverSponsorEvent() {
+    return this.mode === 'auto' && this.showOverSponsor && this.autoEvent?.kind === 'OVER_COMPLETE';
   }
   resultOutcome() {
     const type = (this.match?.resultType || '').toUpperCase();
