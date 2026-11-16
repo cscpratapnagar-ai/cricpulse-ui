@@ -148,4 +148,53 @@
       }
     </div>
   </section>
+
+  <section class="sponsor-manager">
+    <div class="sponsor-manager-heading">
+      <div>
+        <label>SPONSOR GRAPHICS</label>
+        <h2>Build a sponsor overlay</h2>
+        <p>Create a branded OBS graphic. The generated URL carries the sponsor details, so no sponsor account or stream key is required.</p>
+      </div>
+      <span class="sponsor-manager-tag">CUSTOMIZABLE · OBS READY</span>
+    </div>
+    <div class="sponsor-manager-grid">
+      <label>Graphic type
+        <select [value]="sponsorType" (change)="sponsorType = $any($event.target).value">
+          @for (type of sponsorTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </label>
+      <label>Sponsor / brand name
+        <input type="text" maxlength="60" placeholder="e.g. Shree Motors" [value]="sponsorName" (input)="sponsorName = $any($event.target).value" />
+      </label>
+      <label>Tagline
+        <input type="text" maxlength="100" placeholder="e.g. Your trusted automobile partner" [value]="sponsorTagline" (input)="sponsorTagline = $any($event.target).value" />
+      </label>
+      <label>Logo image URL
+        <input type="url" placeholder="https://example.com/logo.png" [value]="sponsorLogo" (input)="sponsorLogo = $any($event.target).value" />
+      </label>
+      <label>Top label
+        <input type="text" maxlength="32" [value]="sponsorLabel" (input)="sponsorLabel = $any($event.target).value" />
+      </label>
+      <label>Display duration
+        <select [value]="sponsorDuration" (change)="sponsorDuration = +$any($event.target).value">
+          <option [value]="5">5 seconds</option>
+          <option [value]="10">10 seconds</option>
+          <option [value]="15">15 seconds</option>
+          <option [value]="20">20 seconds</option>
+          <option [value]="30">30 seconds</option>
+        </select>
+      </label>
+    </div>
+    <div class="sponsor-url-row">
+      <code>{{ sponsorUrl() }}</code>
+      <div>
+        <button type="button" (click)="copySponsor()">{{ copied === 'sponsor' ? 'Copied!' : 'Copy Sponsor URL' }}</button>
+        <button type="button" class="preview" (click)="openSponsor()">Preview ↗</button>
+      </div>
+    </div>
+    <p class="sponsor-manager-note">Add this URL as a separate OBS Browser Source (1920 × 1080). Each sponsor variation gets its own URL. Use the URL again to restore the same graphic later.</p>
+  </section>
 </main>
