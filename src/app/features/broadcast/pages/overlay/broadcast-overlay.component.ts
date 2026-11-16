@@ -254,7 +254,14 @@ export class BroadcastOverlayComponent implements OnDestroy {
       ...options,
       params: { eventType },
     }).pipe(catchError(() => of([]))).subscribe((items) => {
-      if (this.autoEvent?.kind === kind && items.length) this.activeSponsor = items[0];
+      if (this.autoEvent?.kind === kind && items.length) {
+        this.activeSponsor = items[0];
+        if (this.autoTimer) clearTimeout(this.autoTimer);
+        this.autoTimer = setTimeout(() => {
+          this.autoEvent = null;
+          this.activeSponsor = null;
+        }, this.sponsorDuration * 1000);
+      }
     });
   }
 
