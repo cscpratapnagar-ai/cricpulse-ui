@@ -448,6 +448,12 @@ export class LiveScoringV2Component implements OnDestroy {
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
 
+  get timelineBalls() {
+    // Keep the newest event visible in the compact, horizontally clipped timeline.
+    // The API returns oldest-to-newest, so reverse a copy for this presentation only.
+    return [...(this.score?.recentBalls || [])].reverse();
+  }
+
   get currentOverBalls() {
     if (!this.score) return [];
     const legal = this.score.legalBalls || 0;
