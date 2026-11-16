@@ -39,7 +39,7 @@ interface BroadcastState {
   match: Match;
   innings: BroadcastInnings[];
 }
-type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'event' | 'auto';
+type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'fall-of-wickets' | 'event' | 'auto';
 type EventKind =
   | 'FOUR'
   | 'SIX'
@@ -577,6 +577,15 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   get isPartnership() {
     return this.mode === 'partnership';
+  }
+  get isFallOfWickets() {
+    return this.mode === 'fall-of-wickets';
+  }
+  fallOfWicketName(score: LiveScore, playerId: string) {
+    return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || 'BATTER';
+  }
+  fallOfWicketOver(overNumber: number, ballNumber: number) {
+    return overNumber + '.' + ballNumber;
   }
 
   eventLabel(score: LiveScore) {
