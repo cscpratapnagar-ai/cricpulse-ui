@@ -115,6 +115,10 @@ export class BroadcastControlComponent {
       });
   }
 
+  placementLabels(sponsor: SponsorRecord) {
+    return sponsor.placements.filter((item) => item.enabled).map((item) => item.eventType.replaceAll('_', ' ')).join(' · ') || 'No event placements';
+  }
+
   editSponsor(sponsor: SponsorRecord) {
     this.selectedSponsorId = sponsor.id;
     this.sponsorType = sponsor.sponsorType;
