@@ -508,6 +508,7 @@ export class LiveScoringV2Component implements OnDestroy {
       const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
       if (!snapshot)
         throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
+      this.offlineSnapshotReady = true;
       let projected = snapshot;
       const queue = await this.offlineStore.list(this.inningsId);
       for (const item of queue) projected = projectOfflineDelivery(projected, item);
@@ -649,12 +650,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
         this.reconcileScore(s, silent);
-        void this.offlineStore.saveSnapshot(s).then(() => {
-          this.offlineSnapshotReady = true;
-        }).catch(() => {
-          this.offlineSnapshotReady = false;
-          this.message = 'Offline recovery storage is unavailable. Live scoring remains online, but offline scoring is disabled.';
-        });
+        this.persistOfflineSnapshot(s);
         void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
         if (navigator.onLine) void this.flushOfflineQueue();
@@ -697,6 +693,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.reconciling = true;
     this.scoreFingerprint = nextFingerprint;
     this.applyScore(s);
+    this.persistOfflineSnapshot(s);
     this.lastSyncedAt = new Date();
     if (silent && hadScore && !this.busy) {
       this.externalUpdateNotice =
@@ -777,6 +774,14 @@ export class LiveScoringV2Component implements OnDestroy {
     } finally {
       this.flushingOfflineQueue = false;
     }
+  }
+
+  private persistOfflineSnapshot(score: LiveScore): void {
+    void this.offlineStore.saveSnapshot(score).then(() => {
+      this.offlineSnapshotReady = true;
+    }).catch(() => {
+      this.offlineSnapshotReady = false;
+    });
   }
 
   private reloadScoreAfterDelivery() {
@@ -933,6 +938,7 @@ export class LiveScoringV2Component implements OnDestroy {
         next: (s) => {
           if (s && s.inningsId) {
             this.applyScore(s);
+            this.persistOfflineSnapshot(s);
             this.showDeliveryFeedback(body);
             this.busy = false;
             this.syncState = 'SYNCED';
@@ -1080,6 +1086,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.http.post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/undo`, {}).subscribe({
       next: (s) => {
         this.applyScore(s);
+        this.persistOfflineSnapshot(s);
         this.busy = false;
         this.syncState = 'SYNCED';
         this.lastAction = 'Last delivery undone';
