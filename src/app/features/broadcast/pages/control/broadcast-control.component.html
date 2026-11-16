@@ -188,6 +188,10 @@
         </select>
       </label>
     </div>
+    <label class="over-sponsor-toggle">
+      <input type="checkbox" [checked]="overSponsorEnabled" (change)="overSponsorEnabled = $any($event.target).checked" />
+      <span><b>Automatically show this sponsor after every completed over</b><small>When enabled, use the Automatic OBS URL above. The sponsor graphic appears after each over for the selected duration.</small></span>
+    </label>
     <div class="sponsor-url-row">
       <code>{{ sponsorUrl() }}</code>
       <div>
