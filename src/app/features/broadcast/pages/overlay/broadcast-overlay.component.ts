@@ -45,6 +45,7 @@ type OverlayMode =
   | 'bowler'
   | 'partnership'
   | 'fall-of-wickets'
+  | 'innings-break'
   | 'event'
   | 'auto';
 type EventKind =
@@ -587,6 +588,16 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   get isFallOfWickets() {
     return this.mode === 'fall-of-wickets';
+  }
+  get isInningsBreak() {
+    return this.mode === 'innings-break';
+  }
+  inningsBreakTarget(score: LiveScore) {
+    return score.runs + 1;
+  }
+  inningsBreakOvers(score: LiveScore) {
+    const totalOvers = score.totalOvers ?? this.match?.totalOvers;
+    return totalOvers ? this.overs(score.legalBalls) + ' / ' + totalOvers : this.overs(score.legalBalls);
   }
   fallOfWicketName(score: LiveScore, playerId: string) {
     return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || 'BATTER';
