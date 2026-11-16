@@ -68,7 +68,8 @@ type EventKind =
   | 'MILESTONE'
   | 'OVER_COMPLETE'
   | 'INNINGS_BREAK'
-  | 'RESULT';
+  | 'RESULT'
+  | 'PLAYER_OF_THE_MATCH';
 interface AutoEvent {
   kind: EventKind;
   title: string;
@@ -293,7 +294,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   private loadSponsorForEvent(kind: EventKind) {
     const eventType = kind === 'RESULT' ? 'MATCH_RESULT' : kind;
-    if (!['OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT'].includes(eventType)) return;
+    if (!['OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT', 'PLAYER_OF_THE_MATCH'].includes(eventType)) return;
     const options = { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) };
     this.http
       .get<PublicSponsor[]>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/sponsors', {
