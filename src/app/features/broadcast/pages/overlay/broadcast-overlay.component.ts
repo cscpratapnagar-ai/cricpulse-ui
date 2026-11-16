@@ -256,6 +256,12 @@ export class BroadcastOverlayComponent implements OnDestroy {
     }).pipe(catchError(() => of([]))).subscribe((items) => {
       if (this.autoEvent?.kind === kind && items.length) {
         this.activeSponsor = items[0];
+        const sessionKey = globalThis.crypto?.randomUUID?.() || 'sponsor-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+        this.http.post(
+          API_ORIGIN + '/api/public/matches/' + this.matchId + '/sponsors/' + items[0].id + '/impressions',
+          { eventType, sessionKey },
+          { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) },
+        ).pipe(catchError(() => of(null))).subscribe();
         if (this.autoTimer) clearTimeout(this.autoTimer);
         this.autoTimer = setTimeout(() => {
           this.autoEvent = null;
