@@ -534,13 +534,17 @@ export class LiveScoringV2Component implements OnDestroy {
       this.message = 'Match ID is missing.';
       return;
     }
+    if (!navigator.onLine || e?.status === 0) {
+      void this.restoreOfflineSession();
+      return;
+    }
     this.http.get<Match>(`${this.api}/matches/${this.matchId}`).subscribe({
       next: (m) => {
         this.match = m;
         this.loadXi();
       },
       error: (e) => {
-        if (!navigator.onLine) {
+        if (!navigator.onLine || e?.status === 0) {
           void this.restoreOfflineSession();
           return;
         }
@@ -558,7 +562,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loadInnings();
       },
       error: (e) => {
-        if (!navigator.onLine) {
+        if (!navigator.onLine || e?.status === 0) {
           void this.restoreOfflineSession();
           return;
         }
@@ -590,7 +594,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.connectLiveSocket(this.inningsId);
       },
       error: (e) => {
-        if (!navigator.onLine) {
+        if (!navigator.onLine || e?.status === 0) {
           void this.restoreOfflineSession();
           return;
         }
@@ -661,7 +665,7 @@ export class LiveScoringV2Component implements OnDestroy {
       },
       error: (e) => {
         this.loading = false;
-        if (!navigator.onLine) {
+        if (!navigator.onLine || e?.status === 0) {
           void this.restoreOfflineScore();
           return;
         }
