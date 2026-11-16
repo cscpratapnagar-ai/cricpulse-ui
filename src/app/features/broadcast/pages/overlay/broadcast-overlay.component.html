@@ -278,6 +278,33 @@
       </section>
     }
 
+    @if (isMatchResult) {
+      <section class="manual-graphic match-result-graphic" aria-label="Match result">
+        <div class="match-result-kicker">CRICPULSE LIVE · OFFICIAL RESULT</div>
+        <div class="match-result-heading">
+          <span>{{ resultOutcome() }}</span>
+          @if (resultWinner()) {
+            <strong>{{ resultWinner() }}</strong>
+          }
+        </div>
+        <div class="match-result-summary">{{ resultDescription() }}</div>
+        <div class="match-result-scores">
+          @for (item of resultInnings(); track item.score.inningsId) {
+            <article [class.winner]="item.battingTeamId === match?.winningTeamId">
+              <span>{{ item.score.inningsNumber === 1 ? '1ST INNINGS' : item.score.inningsNumber + 'TH INNINGS' }}</span>
+              <strong>{{ item.score.runs }}<i>/{{ item.score.wickets }}</i></strong>
+              <small>{{ resultOvers(item.score) }}</small>
+              <b>{{ item.battingTeamId === match?.winningTeamId ? 'WINNER' : 'SCORE' }}</b>
+            </article>
+          }
+        </div>
+        @if (!resultWinner() && (match?.resultType || '').toUpperCase() === 'TIE') {
+          <div class="match-result-note">Both teams finished level</div>
+        }
+        <footer>{{ match?.name || 'COMPLETED MATCH' }} · {{ formatLabel() }}</footer>
+      </section>
+    }
+
     @if (isEvent) {
       <section class="manual-event">
         <span>CRICPULSE LIVE</span><strong>{{ eventLabel(score) }}</strong
