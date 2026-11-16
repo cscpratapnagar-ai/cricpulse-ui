@@ -116,7 +116,6 @@ export class OfflineScoringStore {
     );
   }
 
-
   async markInningsQueueBlocked(inningsId: string): Promise<void> {
     const db = await this.open();
     await new Promise<void>((resolve, reject) => {
@@ -130,10 +129,13 @@ export class OfflineScoringStore {
           }
         }
       };
-      request.onerror = () => reject(request.error ?? new Error('Could not inspect offline queue.'));
+      request.onerror = () =>
+        reject(request.error ?? new Error('Could not inspect offline queue.'));
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error ?? new Error('Could not block offline queue.'));
-      transaction.onabort = () => reject(transaction.error ?? new Error('Blocking offline queue was aborted.'));
+      transaction.onerror = () =>
+        reject(transaction.error ?? new Error('Could not block offline queue.'));
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Blocking offline queue was aborted.'));
     });
   }
 
