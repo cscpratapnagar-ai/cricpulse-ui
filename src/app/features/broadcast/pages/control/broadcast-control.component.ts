@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { API_BASE_URL } from '../../../../core/config/api.config';
+import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
 type EventKind =
@@ -124,7 +124,7 @@ export class BroadcastControlComponent {
       });
   }
 
-  placementLabels(sponsor: SponsorRecord) {
+  sponsorAssetUrl(url: string | null) {\n    return url?.startsWith('/api/') ? API_ORIGIN + url : url || '';\n  }\n\n  placementLabels(sponsor: SponsorRecord) {
     return (
       sponsor.placements
         .filter((item) => item.enabled)
