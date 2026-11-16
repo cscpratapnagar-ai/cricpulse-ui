@@ -55,6 +55,7 @@ interface AutoEvent {
   detail: string;
   mark: string;
   version: number;
+  milestoneLevel?: 50 | 100;
 }
 
 @Component({
@@ -252,6 +253,18 @@ export class BroadcastOverlayComponent implements OnDestroy {
       return this.makeEvent('WICKET', 'WICKET', ball.wicketType.replaceAll('_', ' '), 'W', score);
     const newBatter = this.newBatterName(score, previous);
     if (newBatter) return this.makeEvent('NEW_BATTER', 'NEW BATTER', newBatter, 'IN', score);
+    const batterMilestone = this.batterMilestone(score, previous);
+    if (batterMilestone) {
+      const event = this.makeEvent(
+        'MILESTONE',
+        batterMilestone.level === 100 ? 'CENTURY' : 'HALF-CENTURY',
+        batterMilestone.name + ' · ' + batterMilestone.level + ' OFF ' + batterMilestone.balls + ' BALLS',
+        String(batterMilestone.level),
+        score,
+      );
+      event.milestoneLevel = batterMilestone.level;
+      return event;
+    }
     if (ball?.totalRuns === 6 && ball.legalDelivery)
       return this.makeEvent('SIX', 'SIX', 'MAXIMUM', '6', score);
     if (ball?.totalRuns === 4 && ball.legalDelivery)
@@ -292,6 +305,18 @@ export class BroadcastOverlayComponent implements OnDestroy {
       score.legalBalls !== previous.legalBalls ||
       score.inningsId !== previous.inningsId
     );
+  }
+
+  private batterMilestone(score: LiveScore, previous: LiveScore) {
+    const activeIds = [score.strikerId, score.nonStrikerId].filter(Boolean) as string[];
+    for (const playerId of activeIds) {
+      const current = score.batters?.find((item) => item.playerId === playerId);
+      const prior = previous.batters?.find((item) => item.playerId === playerId);
+      if (!current || !prior) continue;
+      const level = current.runs >= 100 && prior.runs < 100 ? 100 : current.runs >= 50 && prior.runs < 50 ? 50 : null;
+      if (level) return { level, name: current.playerName, balls: current.ballsFaced };
+    }
+    return null;
   }
 
   private isMilestone(score: LiveScore, previous: LiveScore) {
