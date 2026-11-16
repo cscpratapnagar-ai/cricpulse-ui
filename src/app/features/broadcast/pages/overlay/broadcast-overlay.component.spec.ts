@@ -161,10 +161,10 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('loads the public match state and renders a live transparent scorebug', () => {
     createOverlay();
 
-    expect(String(http.get.calls.mostRecent().args[0])).toContain(
+    expect(String(http.get.calls.first().args[0])).toContain(
       '/api/public/matches/match-1/broadcast-state',
     );
-    const requestOptions = http.get.calls.mostRecent().args[1] as {
+    const requestOptions = http.get.calls.first().args[1] as {
       context: import('@angular/common/http').HttpContext;
     };
     expect(requestOptions.context.get(SKIP_GLOBAL_LOADING)).toBeTrue();
