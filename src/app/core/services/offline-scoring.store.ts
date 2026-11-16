@@ -55,13 +55,25 @@ export class OfflineScoringStore {
 
   async enqueue(command: QueuedDelivery): Promise<void> {
     const db = await this.open();
-    const transaction = db.transaction(QUEUE_STORE, 'readwrite');
-    const store = transaction.objectStore(QUEUE_STORE);
-    const all = await this.request<QueuedDelivery[]>(store.getAll());
-    const lastCreatedAt = all
-      .filter((item) => item.inningsId === command.inningsId)
-      .reduce((latest, item) => Math.max(latest, item.createdAt), 0);
-    await this.request(store.add({ ...command, createdAt: Math.max(command.createdAt, lastCreatedAt + 1) }));
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+      const store = transaction.objectStore(QUEUE_STORE);
+      const allRequest = store.getAll();
+      allRequest.onsuccess = () => {
+        const all = allRequest.result as QueuedDelivery[];
+        const lastCreatedAt = all
+          .filter((item) => item.inningsId === command.inningsId)
+          .reduce((latest, item) => Math.max(latest, item.createdAt), 0);
+        const write = store.add({
+          ...command,
+          createdAt: Math.max(command.createdAt, lastCreatedAt + 1),
+        });
+        write.onsuccess = () => resolve();
+        write.onerror = () => reject(write.error ?? new Error('Could not queue offline delivery.'));
+      };
+      allRequest.onerror = () => reject(allRequest.error ?? new Error('Could not read offline queue.'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Offline queue transaction was aborted.'));
+    });
   }
 
   async saveSession(matchId: string, session: unknown): Promise<void> {
