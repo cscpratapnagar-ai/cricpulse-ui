@@ -163,6 +163,50 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(graphic.textContent).toContain('Titans');
   });
 
+  it('renders the official match result graphic with winner and both innings scorecards', () => {
+    mode = 'match-result';
+    const component = createOverlay();
+    component.match = {
+      id: 'match-1',
+      name: 'Final Match',
+      format: 'T20',
+      status: 'COMPLETED',
+      teamAId: 'team-a',
+      teamBId: 'team-b',
+      teamAName: 'Falcons',
+      teamBName: 'Titans',
+      winningTeamId: 'team-b',
+      resultType: 'WIN',
+      resultText: 'Titans won by 4 wickets',
+    };
+    component.innings = [
+      { score: { ...score, status: 'COMPLETED', runs: 145, wickets: 8, legalBalls: 120 }, battingTeamId: 'team-a' },
+      { score: { ...score, inningsId: 'innings-2', inningsNumber: 2, status: 'COMPLETED', runs: 146, wickets: 6, legalBalls: 114 }, battingTeamId: 'team-b' },
+    ];
+    fixture.detectChanges();
+
+    const graphic = fixture.nativeElement.querySelector('.match-result-graphic') as HTMLElement;
+    expect(graphic).not.toBeNull();
+    expect(graphic.textContent).toContain('CHAMPIONS');
+    expect(graphic.textContent).toContain('Titans');
+    expect(graphic.textContent).toContain('Titans won by 4 wickets');
+    expect(graphic.textContent).toContain('145/8');
+    expect(graphic.textContent).toContain('146/6');
+    expect(graphic.querySelector('.winner')?.textContent).toContain('WINNER');
+  });
+
+  it('labels a tied result without inventing a winning team', () => {
+    mode = 'match-result';
+    const component = createOverlay();
+    component.match = { id: 'match-1', name: 'Final Match', format: 'T20', status: 'COMPLETED', resultType: 'TIE', resultText: 'Match tied' };
+    fixture.detectChanges();
+
+    const graphic = fixture.nativeElement.querySelector('.match-result-graphic') as HTMLElement;
+    expect(graphic.textContent).toContain('MATCH TIED');
+    expect(graphic.textContent).toContain('Match tied');
+    expect(graphic.querySelector('.match-result-heading > strong')).toBeNull();
+  });
+
   it('renders the legacy strip scene when strip mode is selected', () => {
     mode = 'strip';
     createOverlay();
