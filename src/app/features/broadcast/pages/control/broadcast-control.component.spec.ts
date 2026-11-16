@@ -8,7 +8,13 @@ describe('BroadcastControlComponent', () => {
   let http: jasmine.SpyObj<HttpClient>;
 
   beforeEach(() => {
-    http = jasmine.createSpyObj<HttpClient>('HttpClient', ['get', 'post', 'patch', 'put', 'delete']);
+    http = jasmine.createSpyObj<HttpClient>('HttpClient', [
+      'get',
+      'post',
+      'patch',
+      'put',
+      'delete',
+    ]);
     http.get.and.returnValue(of([]) as never);
     http.put.and.returnValue(of([]) as never);
     TestBed.configureTestingModule({

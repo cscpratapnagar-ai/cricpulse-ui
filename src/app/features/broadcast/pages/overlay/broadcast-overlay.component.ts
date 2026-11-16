@@ -245,9 +245,18 @@ export class BroadcastOverlayComponent implements OnDestroy {
           this.innings = state.innings || [];
           if (this.mode === 'auto' && !this.matchStartSponsorRequested) {
             this.matchStartSponsorRequested = true;
-            this.autoEvent = { kind: 'MATCH_START', title: 'MATCH START', detail: state.match.name || 'LIVE MATCH', mark: 'LIVE', version: Date.now() };
+            this.autoEvent = {
+              kind: 'MATCH_START',
+              title: 'MATCH START',
+              detail: state.match.name || 'LIVE MATCH',
+              mark: 'LIVE',
+              version: Date.now(),
+            };
             if (this.autoTimer) clearTimeout(this.autoTimer);
-            this.autoTimer = setTimeout(() => (this.autoEvent = null), this.eventDuration('MATCH_START'));
+            this.autoTimer = setTimeout(
+              () => (this.autoEvent = null),
+              this.eventDuration('MATCH_START'),
+            );
             this.loadSponsorForEvent('MATCH_START');
           }
           const current =
@@ -304,7 +313,18 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   private loadSponsorForEvent(kind: EventKind) {
     const eventType = kind === 'RESULT' ? 'MATCH_RESULT' : kind;
-    if (!['MATCH_START', 'OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT', 'PLAYER_OF_THE_MATCH'].includes(eventType)) return;
+    if (
+      ![
+        'MATCH_START',
+        'OVER_COMPLETE',
+        'FOUR',
+        'SIX',
+        'WICKET',
+        'RESULT',
+        'PLAYER_OF_THE_MATCH',
+      ].includes(eventType)
+    )
+      return;
     const options = { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) };
     this.http
       .get<PublicSponsor[]>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/sponsors', {
@@ -313,7 +333,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
       })
       .pipe(catchError(() => of([])))
       .subscribe((items) => {
-        if ((this.autoEvent?.kind === kind || (this.mode === 'event' && this.eventKind === kind)) && items.length) {
+        if (
+          (this.autoEvent?.kind === kind || (this.mode === 'event' && this.eventKind === kind)) &&
+          items.length
+        ) {
           this.activeSponsor = items[0];
           const sessionKey =
             globalThis.crypto?.randomUUID?.() ||

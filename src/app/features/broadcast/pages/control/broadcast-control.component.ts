@@ -4,7 +4,14 @@ import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
-type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT' | 'PLAYER_OF_THE_MATCH';
+type EventKind =
+  | 'FOUR'
+  | 'SIX'
+  | 'WICKET'
+  | 'MILESTONE'
+  | 'OVER_COMPLETE'
+  | 'RESULT'
+  | 'PLAYER_OF_THE_MATCH';
 type SponsorType =
   | 'MAIN_SPONSOR'
   | 'OVER_SPONSOR'
@@ -116,7 +123,12 @@ export class BroadcastControlComponent {
   }
 
   placementLabels(sponsor: SponsorRecord) {
-    return sponsor.placements.filter((item) => item.enabled).map((item) => item.eventType.replaceAll('_', ' ')).join(' · ') || 'No event placements';
+    return (
+      sponsor.placements
+        .filter((item) => item.enabled)
+        .map((item) => item.eventType.replaceAll('_', ' '))
+        .join(' · ') || 'No event placements'
+    );
   }
 
   editSponsor(sponsor: SponsorRecord) {
