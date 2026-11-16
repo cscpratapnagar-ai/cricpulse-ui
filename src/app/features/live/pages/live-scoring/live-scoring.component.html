@@ -445,14 +445,14 @@
               <div class="side-heading">
                 <div>
                   <span class="eyebrow">DELIVERY TIMELINE</span
-                  ><small>Latest recorded events</small>
+                  ><small>Newest first · select a ball for details</small>
                 </div>
                 <button type="button" (click)="auditExpanded = !auditExpanded">
                   {{ auditExpanded ? 'Less' : 'All' }}
                 </button>
               </div>
               <div class="timeline-list" [class.expanded]="auditExpanded">
-                @for (ball of score.recentBalls || []; track ball.deliveryId) {
+                @for (ball of timelineBalls; track ball.deliveryId) {
                   <button
                     type="button"
                     class="timeline-ball"
