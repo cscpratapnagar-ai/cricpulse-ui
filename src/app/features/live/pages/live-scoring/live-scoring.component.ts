@@ -44,16 +44,18 @@ export class LiveScoringV2Component implements OnDestroy {
   private readonly liveSocket = inject(LiveScoreSocketService);
   readonly api = API_BASE_URL;
   readonly runs = [0, 1, 2, 3, 4, 5, 6];
-  readonly wicketOptions: SelectOption[] = [
-    { value: 'BOWLED', label: 'Bowled' },
-    { value: 'CAUGHT', label: 'Caught' },
-    { value: 'LBW', label: 'LBW' },
-    { value: 'RUN_OUT', label: 'Run Out' },
-    { value: 'STUMPED', label: 'Stumped' },
-    { value: 'HIT_WICKET', label: 'Hit Wicket' },
-    { value: 'HIT_BALL_TWICE', label: 'Hit the Ball Twice' },
-    { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the Field' },
-  ];
+export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
+  { value: 'BOWLED', label: 'Bowled' },
+  { value: 'CAUGHT', label: 'Caught' },
+  { value: 'LBW', label: 'LBW' },
+  { value: 'RUN_OUT', label: 'Run Out' },
+  { value: 'STUMPED', label: 'Stumped' },
+  { value: 'HIT_WICKET', label: 'Hit Wicket' },
+  { value: 'HIT_BALL_TWICE', label: 'Hit the Ball Twice' },
+  { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the Field' },
+];
+
+  readonly wicketOptions = DELIVERY_WICKET_OPTIONS;
   matchId = this.route.snapshot.paramMap.get('id') || '';
   match: Match | null = null;
   xi: XIPlayer[] = [];
