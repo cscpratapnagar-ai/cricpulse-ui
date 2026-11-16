@@ -233,6 +233,27 @@
       </section>
     }
 
+    @if (isFallOfWickets) {
+      <section class="manual-graphic fall-of-wickets-graphic" aria-label="Fall of wickets">
+        <span>FALL OF WICKETS · {{ battingTeam(score) }}</span>
+        <strong>{{ score.runs }}/{{ score.wickets }}</strong>
+        @if (score.fallOfWickets?.length) {
+          <div class="fall-of-wickets-list">
+            @for (wicket of score.fallOfWickets; track wicket.wicketNumber) {
+              <article>
+                <b>{{ wicket.wicketNumber }}.</b>
+                <span>{{ fallOfWicketName(score, wicket.playerId) }}</span>
+                <strong>{{ wicket.runs }}</strong>
+                <small>{{ fallOfWicketOver(wicket.overNumber, wicket.ballNumber) }} OV</small>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="fall-of-wickets-empty">No wickets have fallen</div>
+        }
+      </section>
+    }
+
     @if (isEvent) {
       <section class="manual-event">
         <span>CRICPULSE LIVE</span><strong>{{ eventLabel(score) }}</strong
