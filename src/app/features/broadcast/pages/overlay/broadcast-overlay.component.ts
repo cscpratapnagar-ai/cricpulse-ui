@@ -606,21 +606,27 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   resultWinner() {
     if (!this.match?.winningTeamId) return '';
-    if (this.match.winningTeamId === this.match.teamAId) return this.match.teamAName || 'TEAM A';
-    if (this.match.winningTeamId === this.match.teamBId) return this.match.teamBName || 'TEAM B';
+    if (this.match.winningTeamId === this.match.teamAId)
+      return this.match.teamAName || 'TEAM A';
+    if (this.match.winningTeamId === this.match.teamBId)
+      return this.match.teamBName || 'TEAM B';
     return '';
   }
-  resultScore(score: LiveScore) {
-    return score.runs + '/' + score.wickets;
-  }
   resultOvers(score: LiveScore) {
-    return this.overs(score.legalBalls) + (score.totalOvers ? ' / ' + score.totalOvers : '') + ' OV';
+    return (
+      this.overs(score.legalBalls) +
+      (score.totalOvers ? ' / ' + score.totalOvers : '') +
+      ' OV'
+    );
   }
   resultInnings() {
     return [...this.innings].sort((a, b) => a.score.inningsNumber - b.score.inningsNumber);
   }
   resultDescription() {
-    return this.match?.resultText || (this.match?.status === 'COMPLETED' ? this.resultOutcome() : 'Awaiting official result');
+    return (
+      this.match?.resultText ||
+      (this.match?.status === 'COMPLETED' ? this.resultOutcome() : 'Awaiting official result')
+    );
   }
   inningsBreakTarget(score: LiveScore) {
     return score.runs + 1;
