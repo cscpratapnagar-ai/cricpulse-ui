@@ -416,6 +416,47 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(component.autoEvent?.detail).toBe('RUN OUT');
   }));
 
+  for (const wicketType of [
+    'BOWLED',
+    'CAUGHT',
+    'LBW',
+    'RUN_OUT',
+    'STUMPED',
+    'HIT_WICKET',
+    'HIT_BALL_TWICE',
+    'OBSTRUCTING_THE_FIELD',
+  ]) {
+    it(`shows an OBS wicket moment for ${wicketType}`, fakeAsync(() => {
+      const component = createOverlay();
+      component.onScore({
+        ...score,
+        wickets: 1,
+        eventVersion: 2,
+        recentBalls: [
+          {
+            deliveryId: 'delivery-' + wicketType,
+            overNumber: 2,
+            ballNumber: 3,
+            strikerId: 'batter-1',
+            nonStrikerId: 'batter-2',
+            bowlerId: 'bowler-1',
+            batRuns: 0,
+            extraRuns: 0,
+            wicketType,
+            legalDelivery: true,
+            totalRuns: 0,
+          },
+        ],
+      });
+      flushMicrotasks();
+
+      expect(component.autoEvent?.kind).toBe('WICKET');
+      expect(component.autoEvent?.detail).toBe(wicketType.replaceAll('_', ' '));
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
+    }));
+  }
+
   it('removes the OBS transparency class when the overlay is destroyed', () => {
     createOverlay();
     expect(document.documentElement.classList.contains('cricpulse-overlay-mode')).toBeTrue();
