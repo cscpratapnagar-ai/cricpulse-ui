@@ -87,6 +87,7 @@ export class LiveScoringV2Component implements OnDestroy {
   pendingOfflineCount = 0;
   private offlineSnapshotReady = false;
   private flushingOfflineQueue = false;
+  private offlineQueueBlocked = false;
   wicketOpen = false;
   extraOpen = false;
   selectedExtraType = '';
@@ -196,6 +197,7 @@ export class LiveScoringV2Component implements OnDestroy {
       !this.oversComplete &&
       !this.needsBowlerChange &&
       !this.busy &&
+      !this.offlineQueueBlocked &&
       Number.isInteger(this.score.legalBalls) &&
       this.score.legalBalls >= 0 &&
       Number.isInteger(this.score.runs) &&
@@ -511,14 +513,17 @@ export class LiveScoringV2Component implements OnDestroy {
       this.offlineSnapshotReady = true;
       let projected = snapshot;
       const queue = await this.offlineStore.list(this.inningsId);
+      this.offlineQueueBlocked = queue.some((item) => item.syncStatus === 'BLOCKED');
       for (const item of queue) projected = projectOfflineDelivery(projected, item);
       this.applyScore(projected);
       this.pendingOfflineCount = queue.length;
       this.connectionState = 'OFFLINE';
-      this.syncState = queue.length ? 'QUEUED' : 'SYNCED';
+      this.syncState = this.offlineQueueBlocked ? 'ERROR' : queue.length ? 'QUEUED' : 'SYNCED';
       this.loading = false;
-      this.message = queue.length
-        ? `${queue.length} saved offline delivery/deliveries restored on this device.`
+      this.message = this.offlineQueueBlocked
+        ? 'Offline sync is paused because the server rejected a queued delivery. Pending deliveries are retained; reconcile the score before continuing.'
+        : queue.length
+          ? `${queue.length} saved offline delivery/deliveries restored on this device.`
         : 'Saved score restored. New deliveries will be stored locally until internet returns.';
     } catch (error: any) {
       this.loading = false;
@@ -740,7 +745,7 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private async flushOfflineQueue(): Promise<void> {
-    if (this.flushingOfflineQueue || !navigator.onLine || !this.inningsId) return;
+    if (this.flushingOfflineQueue || this.offlineQueueBlocked || !navigator.onLine || !this.inningsId) return;
     this.flushingOfflineQueue = true;
     try {
       const queue = await this.offlineStore.list(this.inningsId);
@@ -763,10 +768,15 @@ export class LiveScoringV2Component implements OnDestroy {
             ? `${this.pendingOfflineCount} offline delivery/deliveries still syncing.`
             : 'All offline deliveries synced successfully.';
         } catch (error: any) {
+          this.offlineQueueBlocked = true;
           this.syncState = 'ERROR';
-          this.message =
-            error?.error?.message ||
-            'Offline queue is blocked by a server conflict. Refresh the score and resolve the pending delivery before continuing.';
+          const serverMessage = error?.error?.message || error?.message;
+          try {
+            await this.offlineStore.markInningsQueueBlocked(this.inningsId);
+          } catch {
+            // Keep the in-memory pause even if persisting the blocked marker fails.
+          }
+          this.message = `${serverMessage || 'The server rejected a queued delivery.'} Offline sync is paused. Pending deliveries have been retained; do not retry or clear them until the innings is reconciled.`;
           this.scoreFingerprint = '';
           this.loadScoreById(this.inningsId, true);
           return;
