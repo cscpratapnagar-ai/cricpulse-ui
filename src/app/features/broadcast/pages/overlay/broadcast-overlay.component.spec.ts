@@ -56,6 +56,9 @@ const score: LiveScore = {
     },
   ],
   partnership: { batterOneId: 'batter-1', batterTwoId: 'batter-2', runs: 12, balls: 8 },
+  fallOfWickets: [
+    { wicketNumber: 1, playerId: 'batter-1', runs: 8, overNumber: 1, ballNumber: 3 },
+  ],
 };
 
 describe('BroadcastOverlayComponent browser runtime', () => {
@@ -134,6 +137,18 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('12');
     expect(fixture.nativeElement.textContent).toContain('Falcons');
+  });
+
+  it('renders a fall-of-wickets graphic with dismissed batter, score and over', () => {
+    mode = 'fall-of-wickets';
+    createOverlay();
+
+    const graphic = fixture.nativeElement.querySelector('.fall-of-wickets-graphic');
+    expect(graphic).not.toBeNull();
+    expect(graphic.textContent).toContain('FALL OF WICKETS');
+    expect(graphic.textContent).toContain('A Batter');
+    expect(graphic.textContent).toContain('1.3 OV');
+    expect(graphic.textContent).toContain('8');
   });
 
   it('renders the legacy strip scene when strip mode is selected', () => {
