@@ -21,6 +21,7 @@ export class BroadcastControlComponent {
   sponsorLogo = '';
   sponsorLabel = 'POWERED BY';
   sponsorDuration = 10;
+  overSponsorEnabled = false;
 
   readonly sponsorTypes: { value: SponsorType; label: string }[] = [
     { value: 'MAIN_SPONSOR', label: 'Main Sponsor' },
@@ -50,7 +51,17 @@ export class BroadcastControlComponent {
   }
 
   autoUrl() {
-    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=auto`;
+    const params = new URLSearchParams({ mode: 'auto' });
+    if (this.overSponsorEnabled) {
+      params.set('overSponsor', 'true');
+      params.set('sponsorType', 'OVER_SPONSOR');
+      params.set('sponsorName', this.sponsorName.trim() || 'YOUR BRAND');
+      params.set('sponsorTagline', this.sponsorTagline.trim());
+      params.set('sponsorLogo', this.sponsorLogo.trim());
+      params.set('sponsorLabel', this.sponsorLabel.trim() || 'OVER SPONSOR');
+      params.set('duration', String(Math.min(30, Math.max(5, Number(this.sponsorDuration) || 10))));
+    }
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?${params.toString()}`;
   }
 
   sponsorUrl() {
