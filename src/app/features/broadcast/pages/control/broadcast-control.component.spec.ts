@@ -85,4 +85,26 @@ describe('BroadcastControlComponent', () => {
     expect(url.searchParams.get('sponsorLogo')).toBe('https://example.com/logo.png');
     expect(url.searchParams.get('duration')).toBe('30');
   });
+  it('resolves stored sponsor logo paths against the configured API origin', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+
+    expect(component.sponsorAssetUrl('/api/public/sponsor-assets/logo-1')).toContain(
+      '/api/public/sponsor-assets/logo-1',
+    );
+    expect(component.sponsorAssetUrl('https://cdn.example.com/logo.png')).toBe(
+      'https://cdn.example.com/logo.png',
+    );
+  });
+
+  it('rejects unsupported sponsor logo file types before upload', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+    const file = new File(['not an image'], 'logo.gif', { type: 'image/gif' });
+    const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+    component.selectSponsorLogo(event);
+
+    expect(component.sponsorError).toBe('Choose a PNG, JPG or WEBP image.');
+    expect(component.sponsorLogoFile).toBeNull();
+  });
+
 });
