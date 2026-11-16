@@ -262,12 +262,27 @@
         />
       </label>
       <label
-        >Logo image URL
+        >Upload logo image
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          (change)="selectSponsorLogo($event)"
+        />
+        <small>PNG, JPG or WEBP · Maximum 2 MB · Maximum 2048 × 2048 px</small>
+      </label>
+      @if (sponsorLogoPreview || sponsorLogo) {
+        <div class="sponsor-logo-preview">
+          <img [src]="sponsorLogoPreview || sponsorLogo" alt="Sponsor logo preview" />
+          <span>{{ sponsorLogoFile?.name || 'Current sponsor logo' }}</span>
+        </div>
+      }
+      <label
+        >Or use an external logo URL
         <input
           type="url"
           placeholder="https://example.com/logo.png"
-          [value]="sponsorLogo"
-          (input)="sponsorLogo = $any($event.target).value"
+          [value]="sponsorLogoFile ? '' : sponsorLogo"
+          (input)="sponsorLogo = $any($event.target).value; clearSponsorLogoFile()"
         />
       </label>
       <label
