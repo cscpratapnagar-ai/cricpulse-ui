@@ -1376,3 +1376,106 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Dedicated innings-break scene for OBS Browser Sources */
+.innings-break-graphic {
+  left: 50%;
+  bottom: 8vh;
+  width: min(720px, 80vw);
+  max-width: 720px;
+  transform: translateX(-50%);
+  border-left: 0;
+  border-top: 3px solid var(--cyan);
+  background:
+    radial-gradient(circle at 90% 12%, rgba(99, 228, 255, 0.13), transparent 36%),
+    linear-gradient(115deg, rgba(4, 14, 22, 0.98), rgba(8, 35, 49, 0.97));
+}
+.innings-break-graphic > span {
+  color: var(--cyan);
+}
+.innings-break-scoreline {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-top: 16px;
+}
+.innings-break-team {
+  min-width: 0;
+}
+.innings-break-team small,
+.innings-break-details small {
+  display: block;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+}
+.innings-break-team strong {
+  display: block;
+  margin-top: 7px;
+  overflow: hidden;
+  color: #fff;
+  font-size: clamp(18px, 2.4vw, 28px);
+  font-weight: 1000;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.innings-break-total {
+  flex: none;
+  color: var(--cyan);
+  font-size: clamp(38px, 5vw, 58px);
+  font-weight: 1000;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.innings-break-total i {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.68em;
+  font-style: normal;
+}
+.innings-break-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.innings-break-details > div {
+  min-width: 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+.innings-break-details b {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  color: #fff;
+  font-size: clamp(12px, 1.5vw, 17px);
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.innings-break-target {
+  border-color: rgba(99, 228, 255, 0.32) !important;
+  background: rgba(99, 228, 255, 0.09) !important;
+}
+.innings-break-target b {
+  color: var(--cyan);
+  font-size: 22px;
+}
+@media (max-width: 760px) {
+  .innings-break-graphic {
+    left: 12px;
+    right: 12px;
+    bottom: 6vh;
+    width: auto;
+    padding: 18px;
+    transform: none;
+  }
+  .innings-break-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
