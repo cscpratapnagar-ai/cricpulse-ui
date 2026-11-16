@@ -207,6 +207,48 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.six')).not.toBeNull();
   }));
 
+  it('uses the newest delivery when the over contains an earlier FOUR and latest SIX', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 22,
+      eventVersion: 2,
+      recentBalls: [
+        {
+          deliveryId: 'delivery-earlier-four',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 4,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 4,
+        },
+        {
+          deliveryId: 'delivery-latest-six',
+          overNumber: 2,
+          ballNumber: 4,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 6,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 6,
+        },
+      ],
+    });
+    flushMicrotasks();
+
+    expect(component.autoEvent?.kind).toBe('SIX');
+    expect(component.autoEvent?.mark).toBe('6');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.six')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.moment.four')).toBeNull();
+  }));
+
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
     liveScore.watch.and.returnValues(
       throwError(() => new Error('WebSocket disconnected')),
