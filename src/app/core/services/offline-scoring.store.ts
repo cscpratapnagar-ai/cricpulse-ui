@@ -1,0 +1,107 @@
+import { Injectable } from '@angular/core';
+import { LiveScore } from './live-score.service';
+
+export interface QueuedDelivery {
+  commandId: string;
+  inningsId: string;
+  createdAt: number;
+  payload: {
+    inningsId: string;
+    overNumber: number;
+    ballNumber: number;
+    strikerId: string;
+    nonStrikerId: string;
+    bowlerId: string;
+    batRuns: number;
+    extraRuns: number;
+    extraType: string | null;
+    wicketType: string | null;
+    dismissedPlayerId?: string | null;
+    newBatterId?: string | null;
+    legalDelivery?: boolean;
+  };
+}
+
+const DB_NAME = 'cricpulse-offline-scoring';
+const DB_VERSION = 1;
+const QUEUE_STORE = 'pending-deliveries';
+const SNAPSHOT_STORE = 'innings-snapshots';
+
+@Injectable({ providedIn: 'root' })
+export class OfflineScoringStore {
+  private database?: Promise<IDBDatabase>;
+
+  isSupported(): boolean {
+    return typeof indexedDB !== 'undefined';
+  }
+
+  async saveSnapshot(score: LiveScore): Promise<void> {
+    const db = await this.open();
+    await this.request(db.transaction(SNAPSHOT_STORE, 'readwrite').objectStore(SNAPSHOT_STORE).put({
+      inningsId: score.inningsId,
+      savedAt: Date.now(),
+      score,
+    }));
+  }
+
+  async loadSnapshot(inningsId: string): Promise<LiveScore | null> {
+    const db = await this.open();
+    const value = await this.request<any>(
+      db.transaction(SNAPSHOT_STORE, 'readonly').objectStore(SNAPSHOT_STORE).get(inningsId),
+    );
+    return value?.score ?? null;
+  }
+
+  async enqueue(command: QueuedDelivery): Promise<void> {
+    const db = await this.open();
+    await this.request(db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).add(command));
+  }
+
+  async list(inningsId: string): Promise<QueuedDelivery[]> {
+    const db = await this.open();
+    const values = await this.request<QueuedDelivery[]>(
+      db.transaction(QUEUE_STORE, 'readonly').objectStore(QUEUE_STORE).getAll(),
+    );
+    return values.filter((item) => item.inningsId === inningsId).sort((a, b) =>
+      a.createdAt - b.createdAt || a.commandId.localeCompare(b.commandId),
+    );
+  }
+
+  async remove(commandId: string): Promise<void> {
+    const db = await this.open();
+    await this.request(db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).delete(commandId));
+  }
+
+  async count(inningsId: string): Promise<number> {
+    return (await this.list(inningsId)).length;
+  }
+
+  private open(): Promise<IDBDatabase> {
+    if (!this.isSupported()) return Promise.reject(new Error('This browser does not support durable offline storage.'));
+    if (!this.database) {
+      this.database = new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(QUEUE_STORE)) {
+            db.createObjectStore(QUEUE_STORE, { keyPath: 'commandId' });
+          }
+          if (!db.objectStoreNames.contains(SNAPSHOT_STORE)) {
+            db.createObjectStore(SNAPSHOT_STORE, { keyPath: 'inningsId' });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error ?? new Error('Could not open offline scoring storage.'));
+        request.onblocked = () => reject(new Error('Offline scoring storage upgrade is blocked by another tab.'));
+      });
+    }
+    return this.database;
+  }
+
+  private request<T = unknown>(request: IDBRequest<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error ?? new Error('Offline scoring storage operation failed.'));
+    });
+  }
+}
