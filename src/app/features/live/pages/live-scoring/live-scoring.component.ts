@@ -733,6 +733,7 @@ export class LiveScoringV2Component implements OnDestroy {
           this.syncState = 'ERROR';
           this.message = error?.error?.message ||
             'Offline queue is blocked by a server conflict. Refresh the score and resolve the pending delivery before continuing.';
+          this.scoreFingerprint = '';
           this.loadScoreById(this.inningsId, true);
           return;
         }
