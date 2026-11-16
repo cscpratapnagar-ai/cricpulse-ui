@@ -143,6 +143,18 @@ export class BroadcastControlComponent {
     this.selectedSponsorEvents = ['MATCH_START'];
   }
 
+  changeSponsorType(value: SponsorType) {
+    this.sponsorType = value;
+    const defaults: Record<SponsorType, SponsorEvent[]> = {
+      MAIN_SPONSOR: ['MATCH_START'],
+      OVER_SPONSOR: ['OVER_COMPLETE'],
+      PLAYER_OF_THE_MATCH: ['PLAYER_OF_THE_MATCH'],
+      BOUNDARY_SPONSOR: ['FOUR', 'SIX'],
+      CUSTOM: ['MANUAL'],
+    };
+    this.selectedSponsorEvents = defaults[value];
+  }
+
   toggleSponsorEvent(event: SponsorEvent, checked: boolean) {
     this.selectedSponsorEvents = checked
       ? [...new Set([...this.selectedSponsorEvents, event])]
