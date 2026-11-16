@@ -463,10 +463,12 @@ export class LiveScoringV2Component implements OnDestroy {
     // as the first delivery of the next over (including a wide/no-ball) arrives,
     // the latest delivery's over number naturally switches this strip forward.
     const currentOver = recent[recent.length - 1].overNumber;
-    return recent
-      .filter((ball) => ball.overNumber === currentOver)
-      // API order is chronological: ball 1 stays on the left, latest on the right.
-      .map((ball) => this.ballToken(ball));
+    return (
+      recent
+        .filter((ball) => ball.overNumber === currentOver)
+        // API order is chronological: ball 1 stays on the left, latest on the right.
+        .map((ball) => this.ballToken(ball))
+    );
   }
 
   private load() {
@@ -825,10 +827,9 @@ export class LiveScoringV2Component implements OnDestroy {
       extraType: null,
       wicketType: this.wicketType,
       legalDelivery: this.wicketLegalDelivery,
-      dismissedPlayerId:
-        ['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType)
-          ? this.dismissedPlayerId
-          : this.score.strikerId,
+      dismissedPlayerId: ['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType)
+        ? this.dismissedPlayerId
+        : this.score.strikerId,
       newBatterId: ten ? null : this.newBatterId,
     });
     this.wicketOpen = false;

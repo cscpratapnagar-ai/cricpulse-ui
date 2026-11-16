@@ -368,9 +368,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       wickets: 1,
       eventVersion: 2,
       batters: score.batters?.map((item) =>
-        item.playerId === 'batter-2'
-          ? { ...item, out: true, dismissalType: 'RUN_OUT' }
-          : item,
+        item.playerId === 'batter-2' ? { ...item, out: true, dismissalType: 'RUN_OUT' } : item,
       ),
       recentBalls: [
         {
@@ -404,9 +402,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       wickets: 1,
       eventVersion: 2,
       batters: score.batters?.map((item) =>
-        item.playerId === 'batter-2'
-          ? { ...item, out: true, dismissalType: 'RUN_OUT' }
-          : item,
+        item.playerId === 'batter-2' ? { ...item, out: true, dismissalType: 'RUN_OUT' } : item,
       ),
       recentBalls: [],
     });

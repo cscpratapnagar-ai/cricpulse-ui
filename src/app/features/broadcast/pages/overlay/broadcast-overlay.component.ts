@@ -254,8 +254,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (ball?.wicketType || score.wickets > previous.wickets) {
       const newlyDismissed = score.batters?.find(
         (batter) =>
-          batter.out &&
-          !previous.batters?.find((prior) => prior.playerId === batter.playerId)?.out,
+          batter.out && !previous.batters?.find((prior) => prior.playerId === batter.playerId)?.out,
       );
       const wicketType = ball?.wicketType || newlyDismissed?.dismissalType || 'WICKET';
       return this.makeEvent('WICKET', 'WICKET', wicketType.replaceAll('_', ' '), 'W', score);
