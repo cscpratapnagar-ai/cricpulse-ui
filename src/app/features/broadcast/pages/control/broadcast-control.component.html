@@ -175,7 +175,7 @@
           @for (sponsor of sponsors; track sponsor.id) {
             <article class="sponsor-record">
               @if (sponsor.logoUrl) {
-                <img [src]="sponsor.logoUrl" [alt]="sponsor.name + ' logo'" />
+                <img [src]="sponsorAssetUrl(sponsor.logoUrl)" [alt]="sponsor.name + ' logo'" />
               } @else {
                 <span class="sponsor-record-mark">{{
                   sponsor.name.slice(0, 2).toUpperCase()
