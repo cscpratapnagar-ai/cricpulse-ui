@@ -42,4 +42,19 @@ describe('BroadcastControlComponent', () => {
       'RESULT',
     ]);
   });
+  it('builds a shareable sponsor URL with encoded details and bounded duration', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+    component.sponsorName = 'Shree Motors & Sons';
+    component.sponsorTagline = 'Drive with trust';
+    component.sponsorLogo = 'https://example.com/logo.png';
+    component.sponsorDuration = 45;
+
+    const url = new URL(component.sponsorUrl());
+
+    expect(url.searchParams.get('mode')).toBe('sponsor');
+    expect(url.searchParams.get('sponsorName')).toBe('Shree Motors & Sons');
+    expect(url.searchParams.get('sponsorTagline')).toBe('Drive with trust');
+    expect(url.searchParams.get('sponsorLogo')).toBe('https://example.com/logo.png');
+    expect(url.searchParams.get('duration')).toBe('30');
+  });
 });
