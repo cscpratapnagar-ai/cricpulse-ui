@@ -39,7 +39,14 @@ interface BroadcastState {
   match: Match;
   innings: BroadcastInnings[];
 }
-type OverlayMode = 'strip' | 'batter' | 'bowler' | 'partnership' | 'fall-of-wickets' | 'event' | 'auto';
+type OverlayMode =
+  | 'strip'
+  | 'batter'
+  | 'bowler'
+  | 'partnership'
+  | 'fall-of-wickets'
+  | 'event'
+  | 'auto';
 type EventKind =
   | 'FOUR'
   | 'SIX'
