@@ -40,8 +40,8 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   const newLegal = oldLegal + (legal ? 1 : 0);
   const total = p.batRuns + p.extraRuns;
   const newWickets = score.wickets + (p.wicketType ? 1 : 0);
-  let striker = score.strikerId ?? null;
-  let nonStriker = score.nonStrikerId ?? null;
+  let striker: string | null = score.strikerId ?? null;
+  let nonStriker: string | null = score.nonStrikerId ?? null;
   if (strikeChangingRuns(p) % 2 !== 0) [striker, nonStriker] = [nonStriker, striker];
 
   const dismissed = p.dismissedPlayerId ?? (p.wicketType ? p.strikerId : null);
