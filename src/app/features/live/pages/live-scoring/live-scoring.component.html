@@ -143,6 +143,9 @@
           <div class="last-action">
             <span class="eyebrow">SCORING STATUS</span>
             <b [class.error]="syncState === 'ERROR'">{{ syncLabel }}</b>
+            @if (pendingOfflineCount > 0) {
+              <small>{{ pendingOfflineCount }} delivery/deliveries waiting to sync</small>
+            }
           </div>
         </section>
 
