@@ -1,12 +1,20 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { BroadcastControlComponent } from './broadcast-control.component';
 
 describe('BroadcastControlComponent', () => {
+  let http: jasmine.SpyObj<HttpClient>;
+
   beforeEach(() => {
+    http = jasmine.createSpyObj<HttpClient>('HttpClient', ['get', 'post', 'patch', 'put', 'delete']);
+    http.get.and.returnValue(of([]) as never);
+    http.put.and.returnValue(of([]) as never);
     TestBed.configureTestingModule({
       imports: [BroadcastControlComponent],
       providers: [
+        { provide: HttpClient, useValue: http },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => 'match-123' } } },
