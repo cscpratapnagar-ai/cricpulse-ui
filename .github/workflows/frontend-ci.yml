@@ -49,6 +49,17 @@ jobs:
             git commit -m "chore(broadcast): normalize overlay formatting"
             git push origin "${GITHUB_HEAD_REF}"
           fi
+      - name: Normalize sponsor logo upload formatting
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          npx --yes prettier@3.5.3 --write "src/app/features/broadcast/pages/control/broadcast-control.component.{ts,html,scss,spec.ts}" "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.ts"
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/app/features/broadcast/pages/control/broadcast-control.component.{ts,html,scss,spec.ts} src/app/features/broadcast/pages/overlay/broadcast-overlay.component.ts
+            git commit -m "chore(sponsors): normalize logo upload formatting"
+            git push origin develop
+          fi
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
