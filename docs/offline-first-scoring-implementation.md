@@ -18,7 +18,8 @@ First frontend implementation slice is committed on `develop`. Automated CI and 
 
 ## Implemented in the first frontend slice
 
-- IndexedDB stores pending delivery commands, confirmed innings snapshots, and match/innings session metadata.
+- IndexedDB stores pending delivery commands, confirmed innings snapshots (refreshed after every accepted server score), and match/innings session metadata.
+- Offline input is blocked until a durable confirmed snapshot exists; storage failures are not reported as safely queued.
 - Queue insertion assigns a strictly increasing per-innings timestamp inside one IndexedDB read-write transaction, preserving replay order.
 - The primary Live Scoring route projects offline runs, extras, wickets, batter/bowler figures, overs, partnership, fall of wickets, and recent-ball state.
 - The scorer can restore the last saved session and replay its pending queue after a reload while offline.
