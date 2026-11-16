@@ -606,17 +606,13 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   resultWinner() {
     if (!this.match?.winningTeamId) return '';
-    if (this.match.winningTeamId === this.match.teamAId)
-      return this.match.teamAName || 'TEAM A';
-    if (this.match.winningTeamId === this.match.teamBId)
-      return this.match.teamBName || 'TEAM B';
+    if (this.match.winningTeamId === this.match.teamAId) return this.match.teamAName || 'TEAM A';
+    if (this.match.winningTeamId === this.match.teamBId) return this.match.teamBName || 'TEAM B';
     return '';
   }
   resultOvers(score: LiveScore) {
     return (
-      this.overs(score.legalBalls) +
-      (score.totalOvers ? ' / ' + score.totalOvers : '') +
-      ' OV'
+      this.overs(score.legalBalls) + (score.totalOvers ? ' / ' + score.totalOvers : '') + ' OV'
     );
   }
   resultInnings() {

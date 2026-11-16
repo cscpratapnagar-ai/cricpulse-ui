@@ -262,17 +262,25 @@
             <small>{{ inningsLabel(score) }} COMPLETE</small>
             <strong>{{ battingTeam(score) }}</strong>
           </div>
-          <strong class="innings-break-total">{{ score.runs }}<i>/{{ score.wickets }}</i></strong>
+          <strong class="innings-break-total"
+            >{{ score.runs }}<i>/{{ score.wickets }}</i></strong
+          >
         </div>
         <div class="innings-break-details">
-          <div><small>OVERS</small><b>{{ inningsBreakOvers(score) }}</b></div>
+          <div>
+            <small>OVERS</small><b>{{ inningsBreakOvers(score) }}</b>
+          </div>
           @if (!isMultiInnings() && score.inningsNumber === 1) {
             <div class="innings-break-target">
               <small>NEXT INNINGS TARGET</small><b>{{ inningsBreakTarget(score) }}</b>
             </div>
-            <div><small>NEXT BATTING</small><b>{{ bowlingTeam(score) }}</b></div>
+            <div>
+              <small>NEXT BATTING</small><b>{{ bowlingTeam(score) }}</b>
+            </div>
           } @else {
-            <div><small>FORMAT</small><b>{{ formatLabel() }}</b></div>
+            <div>
+              <small>FORMAT</small><b>{{ formatLabel() }}</b>
+            </div>
           }
         </div>
       </section>
@@ -292,7 +300,9 @@
           @for (item of resultInnings(); track item.score.inningsId) {
             <article [class.winner]="item.battingTeamId === match?.winningTeamId">
               <span>{{ ordinal(item.score.inningsNumber) }} INNINGS</span>
-              <strong>{{ item.score.runs }}<i>/{{ item.score.wickets }}</i></strong>
+              <strong
+                >{{ item.score.runs }}<i>/{{ item.score.wickets }}</i></strong
+              >
               <small>{{ resultOvers(item.score) }}</small>
               <b>{{ item.battingTeamId === match?.winningTeamId ? 'WINNER' : 'SCORE' }}</b>
             </article>
