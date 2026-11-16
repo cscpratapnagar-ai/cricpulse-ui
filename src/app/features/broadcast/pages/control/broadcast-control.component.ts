@@ -124,7 +124,11 @@ export class BroadcastControlComponent {
       });
   }
 
-  sponsorAssetUrl(url: string | null) {\n    return url?.startsWith('/api/') ? API_ORIGIN + url : url || '';\n  }\n\n  placementLabels(sponsor: SponsorRecord) {
+  sponsorAssetUrl(url: string | null) {
+    return url?.startsWith('/api/') ? API_ORIGIN + url : url || '';
+  }
+
+  placementLabels(sponsor: SponsorRecord) {
     return (
       sponsor.placements
         .filter((item) => item.enabled)
