@@ -123,4 +123,51 @@ describe('projectOfflineDelivery', () => {
     expect(next.legalBalls).toBe(120);
     expect(next.status).toBe('COMPLETED');
   });
+
+  it('keeps a no-ball out of legal-ball and batter-ball counts while charging the bowler', () => {
+    const next = projectOfflineDelivery(
+      baseScore(),
+      command('cmd-6', { extraType: 'NO_BALL', extraRuns: 1, batRuns: 2 }),
+    );
+    expect(next.runs).toBe(3);
+    expect(next.legalBalls).toBe(0);
+    expect(next.batters?.[0]).toEqual(
+      jasmine.objectContaining({ runs: 2, ballsFaced: 0 }),
+    );
+    expect(next.bowlers?.[0]).toEqual(
+      jasmine.objectContaining({ runsConceded: 3, legalBalls: 0, noBalls: 1 }),
+    );
+  });
+
+  it('records byes as team runs without charging the bowler', () => {
+    const next = projectOfflineDelivery(
+      baseScore(),
+      command('cmd-7', { extraType: 'BYE', extraRuns: 2 }),
+    );
+    expect(next.runs).toBe(2);
+    expect(next.legalBalls).toBe(1);
+    expect(next.bowlers?.[0]).toEqual(
+      jasmine.objectContaining({ runsConceded: 0, legalBalls: 1 }),
+    );
+    expect(next.overs?.[0]).toEqual(jasmine.objectContaining({ byes: 2, runs: 2 }));
+  });
+
+  it('completes the second innings as soon as the target is reached', () => {
+    const score = { ...baseScore(), inningsNumber: 2, targetRuns: 5, runs: 4 };
+    const next = projectOfflineDelivery(score, command('cmd-8', { batRuns: 1 }));
+    expect(next.runs).toBe(5);
+    expect(next.status).toBe('COMPLETED');
+  });
+
+  it('completes an innings on the tenth wicket without requiring a replacement batter', () => {
+    const score = { ...baseScore(), wickets: 9 };
+    const next = projectOfflineDelivery(
+      score,
+      command('cmd-9', { wicketType: 'BOWLED', dismissedPlayerId: 'batter-1' }),
+    );
+    expect(next.wickets).toBe(10);
+    expect(next.strikerId).toBeNull();
+    expect(next.status).toBe('COMPLETED');
+  });
+
 });
