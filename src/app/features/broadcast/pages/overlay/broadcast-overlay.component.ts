@@ -35,6 +35,8 @@ interface BroadcastInnings {
   declared?: boolean;
   superOver?: boolean;
 }
+interface PublicSponsor { id: string; name: string; tagline: string | null; logoUrl: string | null; sponsorType: string; displayDurationSeconds: number; eventType: string; }
+
 interface BroadcastState {
   match: Match;
   innings: BroadcastInnings[];
@@ -96,12 +98,13 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private refreshTimer: ReturnType<typeof setInterval> | undefined;
   private refreshInFlight = false;
   broadcastError: string | null = null;
-  readonly sponsorType = this.route.snapshot.queryParamMap.get('sponsorType') || 'CUSTOM';
-  readonly sponsorName = this.route.snapshot.queryParamMap.get('sponsorName') || 'YOUR BRAND';
-  readonly sponsorTagline = this.route.snapshot.queryParamMap.get('sponsorTagline') || 'PROUD PARTNER OF THE GAME';
-  readonly sponsorLogo = this.route.snapshot.queryParamMap.get('sponsorLogo') || '';
-  readonly sponsorLabel = this.route.snapshot.queryParamMap.get('sponsorLabel') || 'POWERED BY';
-  readonly sponsorDuration = Math.min(30, Math.max(5, Number(this.route.snapshot.queryParamMap.get('duration')) || 10));
+  activeSponsor: PublicSponsor | null = null;
+  get sponsorType() { return this.activeSponsor?.sponsorType || this.route.snapshot.queryParamMap.get('sponsorType') || 'CUSTOM'; }
+  get sponsorName() { return this.activeSponsor?.name || this.route.snapshot.queryParamMap.get('sponsorName') || 'YOUR BRAND'; }
+  get sponsorTagline() { return this.activeSponsor?.tagline || this.route.snapshot.queryParamMap.get('sponsorTagline') || 'PROUD PARTNER OF THE GAME'; }
+  get sponsorLogo() { return this.activeSponsor?.logoUrl || this.route.snapshot.queryParamMap.get('sponsorLogo') || ''; }
+  get sponsorLabel() { return this.route.snapshot.queryParamMap.get('sponsorLabel') || (this.activeSponsor?.sponsorType === 'OVER_SPONSOR' ? 'OVER SPONSOR' : 'POWERED BY'); }
+  get sponsorDuration() { return Math.min(30, Math.max(5, this.activeSponsor?.displayDurationSeconds || Number(this.route.snapshot.queryParamMap.get('duration')) || 10)); }
   readonly showOverSponsor = this.route.snapshot.queryParamMap.get('overSponsor') === 'true';
 
   constructor() {
@@ -236,8 +239,22 @@ export class BroadcastOverlayComponent implements OnDestroy {
     this.autoEvent = null;
     queueMicrotask(() => {
       this.autoEvent = event;
+      this.activeSponsor = null;
+      this.loadSponsorForEvent(event.kind);
       if (this.autoTimer) clearTimeout(this.autoTimer);
       this.autoTimer = setTimeout(() => (this.autoEvent = null), this.eventDuration(event.kind));
+    });
+  }
+
+  private loadSponsorForEvent(kind: EventKind) {
+    const eventType = kind === 'RESULT' ? 'MATCH_RESULT' : kind;
+    if (!['OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT'].includes(eventType)) return;
+    const options = { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) };
+    this.http.get<PublicSponsor[]>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/sponsors', {
+      ...options,
+      params: { eventType },
+    }).pipe(catchError(() => of([]))).subscribe((items) => {
+      if (this.autoEvent?.kind === kind && items.length) this.activeSponsor = items[0];
     });
   }
 
@@ -611,7 +628,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
     return this.mode === 'sponsor';
   }
   get isOverSponsorEvent() {
-    return this.mode === 'auto' && this.showOverSponsor && this.autoEvent?.kind === 'OVER_COMPLETE';
+    return this.mode === 'auto' && ((this.showOverSponsor && this.autoEvent?.kind === 'OVER_COMPLETE') || !!this.activeSponsor);
   }
   resultOutcome() {
     const type = (this.match?.resultType || '').toUpperCase();
