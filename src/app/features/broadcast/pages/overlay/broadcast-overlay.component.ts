@@ -313,7 +313,12 @@ export class BroadcastOverlayComponent implements OnDestroy {
       const current = score.batters?.find((item) => item.playerId === playerId);
       const prior = previous.batters?.find((item) => item.playerId === playerId);
       if (!current || !prior) continue;
-      const level = current.runs >= 100 && prior.runs < 100 ? 100 : current.runs >= 50 && prior.runs < 50 ? 50 : null;
+      const level =
+        current.runs >= 100 && prior.runs < 100
+          ? 100
+          : current.runs >= 50 && prior.runs < 50
+            ? 50
+            : null;
       if (level) return { level, name: current.playerName, balls: current.ballsFaced };
     }
     return null;
