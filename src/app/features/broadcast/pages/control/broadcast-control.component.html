@@ -158,6 +158,42 @@
       </div>
       <span class="sponsor-manager-tag">CUSTOMIZABLE · OBS READY</span>
     </div>
+    <div class="sponsor-inventory">
+      <div class="sponsor-inventory-heading">
+        <h3>Saved sponsors <span>{{ sponsors.length }}</span></h3>
+        <button type="button" class="sponsor-secondary" (click)="resetSponsorForm()">+ New sponsor</button>
+      </div>
+      @if (sponsors.length) {
+        <div class="sponsor-record-list">
+          @for (sponsor of sponsors; track sponsor.id) {
+            <article class="sponsor-record">
+              @if (sponsor.logoUrl) {
+                <img [src]="sponsor.logoUrl" [alt]="sponsor.name + ' logo'" />
+              } @else {
+                <span class="sponsor-record-mark">{{ sponsor.name.slice(0, 2).toUpperCase() }}</span>
+              }
+              <div class="sponsor-record-copy">
+                <b>{{ sponsor.name }}</b>
+                <small>{{ sponsor.sponsorType.replaceAll('_', ' ') }} · {{ sponsor.displayDurationSeconds }} sec · {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}</small>
+                <small>{{ sponsor.placements.map(item => item.eventType.replaceAll('_', ' ')).join(' · ') || 'No event placements' }}</small>
+              </div>
+              <div class="sponsor-record-actions">
+                <button type="button" class="sponsor-secondary" (click)="editSponsor(sponsor)">Edit</button>
+                <button type="button" class="sponsor-danger" (click)="deleteSponsor(sponsor)">Delete</button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="sponsor-empty">No saved sponsors yet. Add the first sponsor below.</p>
+      }
+    </div>
+    @if (sponsorError) { <p class="sponsor-feedback error" role="alert">{{ sponsorError }}</p> }
+    @if (sponsorNotice) { <p class="sponsor-feedback success" role="status">{{ sponsorNotice }}</p> }
+    <div class="sponsor-form-heading">
+      <h3>{{ selectedSponsorId ? 'Edit sponsor' : 'Add a sponsor' }}</h3>
+      <span>Match-specific sponsor inventory</span>
+    </div>
     <div class="sponsor-manager-grid">
       <label>Graphic type
         <select [value]="sponsorType" (change)="sponsorType = $any($event.target).value">
@@ -187,6 +223,22 @@
           <option [value]="30">30 seconds</option>
         </select>
       </label>
+      <label class="sponsor-active-toggle">
+        <input type="checkbox" [checked]="sponsorActive" (change)="sponsorActive = $any($event.target).checked" />
+        <span>Active sponsor</span>
+      </label>
+    </div>
+    <div class="sponsor-placement-picker">
+      <b>Show this sponsor on</b>
+      <div>
+        @for (event of sponsorEvents; track event.value) {
+          <label><input type="checkbox" [checked]="selectedSponsorEvents.includes(event.value)" (change)="toggleSponsorEvent(event.value, $any($event.target).checked)" /> {{ event.label }}</label>
+        }
+      </div>
+    </div>
+    <div class="sponsor-form-actions">
+      <button type="button" [disabled]="sponsorSaving" (click)="saveSponsor()">{{ sponsorSaving ? 'Saving…' : selectedSponsorId ? 'Update sponsor' : 'Save sponsor' }}</button>
+      @if (selectedSponsorId) { <button type="button" class="sponsor-secondary" (click)="resetSponsorForm()">Cancel edit</button> }
     </div>
     <label class="over-sponsor-toggle">
       <input type="checkbox" [checked]="overSponsorEnabled" (change)="overSponsorEnabled = $any($event.target).checked" />
