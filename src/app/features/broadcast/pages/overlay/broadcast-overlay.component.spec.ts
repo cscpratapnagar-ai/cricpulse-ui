@@ -222,7 +222,9 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.six')).not.toBeNull();
   }));
 
-  it('uses the newest delivery when the over contains an earlier FOUR and latest SIX', fakeAsync(() => {
+  it(
+    'uses the newest delivery when the over contains an earlier FOUR and latest SIX',
+    fakeAsync(() => {
     const component = createOverlay();
     component.onScore({
       ...score,
