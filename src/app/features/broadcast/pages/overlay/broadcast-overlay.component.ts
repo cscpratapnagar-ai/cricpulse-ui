@@ -132,11 +132,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
     );
   }
   get sponsorLogo() {
-    return (
-      this.activeSponsor?.logoUrl?.startsWith('/api/')
-        ? API_ORIGIN + this.activeSponsor.logoUrl
-        : this.activeSponsor?.logoUrl || this.route.snapshot.queryParamMap.get('sponsorLogo') || ''
-    );
+    return this.activeSponsor?.logoUrl?.startsWith('/api/')
+      ? API_ORIGIN + this.activeSponsor.logoUrl
+      : this.activeSponsor?.logoUrl || this.route.snapshot.queryParamMap.get('sponsorLogo') || '';
   }
   get sponsorLabel() {
     return (

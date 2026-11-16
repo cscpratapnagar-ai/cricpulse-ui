@@ -106,5 +106,4 @@ describe('BroadcastControlComponent', () => {
     expect(component.sponsorError).toBe('Choose a PNG, JPG or WEBP image.');
     expect(component.sponsorLogoFile).toBeNull();
   });
-
 });

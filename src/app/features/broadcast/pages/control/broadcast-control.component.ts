@@ -255,7 +255,8 @@ export class BroadcastControlComponent {
               },
               error: () => {
                 this.sponsorSaving = false;
-                this.sponsorError = 'Sponsor saved, but placements could not be updated. Please retry.';
+                this.sponsorError =
+                  'Sponsor saved, but placements could not be updated. Please retry.';
                 this.loadSponsors();
               },
             });
@@ -267,10 +268,9 @@ export class BroadcastControlComponent {
         const form = new FormData();
         form.append('logo', this.sponsorLogoFile, this.sponsorLogoFile.name);
         this.http
-          .post<{ logoUrl: string }>(
-            `${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/logo`,
-            form,
-          )
+          .post<{
+            logoUrl: string;
+          }>(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/logo`, form)
           .subscribe({
             next: (uploaded) => {
               this.sponsorLogo = uploaded.logoUrl;
@@ -279,7 +279,9 @@ export class BroadcastControlComponent {
             error: (error) => {
               this.sponsorSaving = false;
               this.sponsorError =
-                error?.error?.detail || error?.error?.message || 'Logo upload failed. Sponsor details were saved; retry the logo upload.';
+                error?.error?.detail ||
+                error?.error?.message ||
+                'Logo upload failed. Sponsor details were saved; retry the logo upload.';
               this.loadSponsors();
             },
           });
