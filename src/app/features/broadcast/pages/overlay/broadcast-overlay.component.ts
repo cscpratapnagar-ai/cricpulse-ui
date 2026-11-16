@@ -249,8 +249,17 @@ export class BroadcastOverlayComponent implements OnDestroy {
         'II',
         score,
       );
-    if (ball?.wicketType)
-      return this.makeEvent('WICKET', 'WICKET', ball.wicketType.replaceAll('_', ' '), 'W', score);
+    // A dismissal must still be celebrated if a score snapshot contains the
+    // updated wicket count before its recent-ball list is reconciled.
+    if (ball?.wicketType || score.wickets > previous.wickets) {
+      const newlyDismissed = score.batters?.find(
+        (batter) =>
+          batter.out &&
+          !previous.batters?.find((prior) => prior.playerId === batter.playerId)?.out,
+      );
+      const wicketType = ball?.wicketType || newlyDismissed?.dismissalType || 'WICKET';
+      return this.makeEvent('WICKET', 'WICKET', wicketType.replaceAll('_', ' '), 'W', score);
+    }
     const newBatter = this.newBatterName(score, previous);
     if (newBatter) return this.makeEvent('NEW_BATTER', 'NEW BATTER', newBatter, 'IN', score);
     const batterMilestone = this.batterMilestone(score, previous);
