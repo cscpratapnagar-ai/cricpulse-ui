@@ -396,7 +396,7 @@
                     [options]="wicketOptions"
                     [(value)]="wicketType"
                   />
-                  @if (wicketType === 'RUN_OUT') {
+                  @if (wicketType === 'RUN_OUT' || wicketType === 'OBSTRUCTING_THE_FIELD') {
                     <app-select-field
                       label="Dismissed player"
                       placeholder="Select player"
