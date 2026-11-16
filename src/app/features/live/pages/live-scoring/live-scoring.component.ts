@@ -234,6 +234,8 @@ export class LiveScoringV2Component implements OnDestroy {
   get validationHint() {
     if (!this.score) return 'Loading match state…';
     if (this.score.status !== 'LIVE') return 'Scoring is unavailable for this innings.';
+    if (this.offlineQueueBlocked)
+      return 'Pending offline deliveries need reconciliation before scoring can continue.';
     if (this.busy) return 'Saving the previous action…';
     if (this.targetReached) return 'Target reached. Scoring is locked.';
     if (this.oversComplete) return 'All allotted overs are complete.';
@@ -524,7 +526,7 @@ export class LiveScoringV2Component implements OnDestroy {
         ? 'Offline sync is paused because the server rejected a queued delivery. Pending deliveries are retained; reconcile the score before continuing.'
         : queue.length
           ? `${queue.length} saved offline delivery/deliveries restored on this device.`
-        : 'Saved score restored. New deliveries will be stored locally until internet returns.';
+          : 'Saved score restored. New deliveries will be stored locally until internet returns.';
     } catch (error: any) {
       this.loading = false;
       this.connectionState = 'OFFLINE';
@@ -745,7 +747,13 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private async flushOfflineQueue(): Promise<void> {
-    if (this.flushingOfflineQueue || this.offlineQueueBlocked || !navigator.onLine || !this.inningsId) return;
+    if (
+      this.flushingOfflineQueue ||
+      this.offlineQueueBlocked ||
+      !navigator.onLine ||
+      !this.inningsId
+    )
+      return;
     this.flushingOfflineQueue = true;
     try {
       const queue = await this.offlineStore.list(this.inningsId);
