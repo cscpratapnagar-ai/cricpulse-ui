@@ -2,7 +2,7 @@
 
 ## Status
 
-Design/audit complete; implementation not yet started. This document records the verified current architecture and the safety requirements for the first offline-scoring release.
+First frontend implementation slice is committed on `develop`. Automated CI and manual browser acceptance are still required before production sign-off.
 
 ## Verified current behavior
 
@@ -15,6 +15,23 @@ Design/audit complete; implementation not yet started. This document records the
 - The existing innings lock serializes simultaneous requests, but it is not a scorer ownership lease. A row lock alone does not decide which disconnected scorer is authoritative.
 - Undo deletes the latest row from the mutable `deliveries` projection. It does not currently append an explicit undo/tombstone event to the immutable `delivery_events` stream. This must be addressed before treating that stream as a complete offline reconciliation log.
 - The current scorer UI can retry a failed delivery with the same command UUID while the component remains alive. That is useful online idempotency, not durable offline queuing.
+
+## Implemented in the first frontend slice
+
+- IndexedDB stores pending delivery commands, confirmed innings snapshots, and match/innings session metadata.
+- Queue insertion assigns a strictly increasing per-innings timestamp inside one IndexedDB read-write transaction, preserving replay order.
+- The primary Live Scoring route projects offline runs, extras, wickets, batter/bowler figures, overs, partnership, fall of wickets, and recent-ball state.
+- The scorer can restore the last saved session and replay its pending queue after a reload while offline.
+- On reconnection, pending commands are sent sequentially with their original `X-Command-Id`; successful commands are removed only after the server response.
+- Offline undo cancels only the latest unsent local command. It refuses to undo a server-confirmed delivery without connectivity.
+- Pending queue count and sync state are shown in the scorer UI.
+- Reducer unit tests cover boundaries, wides, wicket replacement, stale batting state, and innings-over completion.
+
+## Remaining safety requirements
+
+- Backend row locking plus current striker/non-striker and expected over/ball validation reject stale or duplicate scoring positions. A conflict pauses replay and preserves the queued command; it is not silently merged.
+- A dedicated server-issued scorer lease and explicit event-sourced online undo/correction event are not included in this frontend slice.
+- The local reducer must continue to be checked against backend scoring fixtures for all competition-specific rules before production sign-off.
 
 ## Release 1 architecture
 
@@ -65,12 +82,11 @@ Never auto-merge two independent scoring histories.
 
 ## Implementation sequence
 
-1. Add IndexedDB repository and queue state model, including schema upgrades and storage-failure handling.
-2. Add deterministic client scoring reducer with shared rule fixtures and parity tests against backend behavior.
-3. Add server-side expected-state-version conflict protection and explicit correction/undo events.
-4. Integrate queue/replay with the primary Live Scoring route; show confirmed score, local score, pending count and conflict state.
-5. Add recovery on startup, reconnect, tab close/reopen and interrupted replay.
-6. Run frontend and backend CI; then perform manual browser tests with network disabled/enabled and reload/restart scenarios.
+1. Review CI output and resolve any type, formatting, or unit-test failures.
+2. Expand backend/frontend parity fixtures for all extras, wicket variants, strike rotation, and innings lifecycle transitions.
+3. Add a server-issued scorer lease or stronger state-version precondition for explicit single-writer ownership.
+4. Add immutable correction/undo events for online undo.
+5. Perform manual browser tests with network disabled/enabled, page reload, browser restart, interrupted replay, and two scorers.
 
 ## Acceptance tests
 
@@ -88,4 +104,4 @@ Never auto-merge two independent scoring histories.
 
 ## Sign-off boundary
 
-Automated tests can verify persistence/replay logic, but manual browser verification is still required for airplane-mode/network toggling, reloads, browser restarts, IndexedDB persistence, and real multi-tab behavior. Do not describe offline scoring as complete until both automated and manual acceptance checks pass.
+The first frontend slice is implemented but not yet production-signed. Automated CI and manual browser verification are still required for airplane-mode/network toggling, reloads, browser restarts, IndexedDB persistence, interrupted replay, and multi-scorer conflicts. Do not describe offline scoring as production-complete until these checks pass.
