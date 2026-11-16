@@ -845,3 +845,38 @@ header p {
   color: var(--cp-text-muted);
   font-size: 9px;
 }
+
+.sponsor-logo-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  background: var(--cp-surface);
+}
+.sponsor-logo-preview img {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--cp-surface-hover);
+}
+.sponsor-logo-preview span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sponsor-manager-grid input[type='file'] {
+  width: 100%;
+  padding: 9px;
+  border: 1px dashed var(--cp-border);
+  border-radius: 9px;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+}
