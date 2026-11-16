@@ -180,8 +180,22 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       resultText: 'Titans won by 4 wickets',
     };
     component.innings = [
-      { score: { ...score, status: 'COMPLETED', runs: 145, wickets: 8, legalBalls: 120 }, battingTeamId: 'team-a' },
-      { score: { ...score, inningsId: 'innings-2', inningsNumber: 2, status: 'COMPLETED', runs: 146, wickets: 6, legalBalls: 114 }, battingTeamId: 'team-b' },
+      {
+        score: { ...score, status: 'COMPLETED', runs: 145, wickets: 8, legalBalls: 120 },
+        battingTeamId: 'team-a',
+      },
+      {
+        score: {
+          ...score,
+          inningsId: 'innings-2',
+          inningsNumber: 2,
+          status: 'COMPLETED',
+          runs: 146,
+          wickets: 6,
+          legalBalls: 114,
+        },
+        battingTeamId: 'team-b',
+      },
     ];
     fixture.detectChanges();
 
@@ -198,7 +212,14 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('labels a tied result without inventing a winning team', () => {
     mode = 'match-result';
     const component = createOverlay();
-    component.match = { id: 'match-1', name: 'Final Match', format: 'T20', status: 'COMPLETED', resultType: 'TIE', resultText: 'Match tied' };
+    component.match = {
+      id: 'match-1',
+      name: 'Final Match',
+      format: 'T20',
+      status: 'COMPLETED',
+      resultType: 'TIE',
+      resultText: 'Match tied',
+    };
     fixture.detectChanges();
 
     const graphic = fixture.nativeElement.querySelector('.match-result-graphic') as HTMLElement;
