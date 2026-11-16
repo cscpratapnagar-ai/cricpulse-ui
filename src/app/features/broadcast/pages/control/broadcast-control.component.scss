@@ -541,3 +541,11 @@ header p {
 .sponsor-form-actions button { padding: 10px 14px; border: 0; border-radius: 9px; background: var(--cp-accent); color: var(--cp-on-accent, #07130f); font-size: 11px; font-weight: 850; cursor: pointer; }
 .sponsor-form-actions button:disabled { opacity: .6; cursor: wait; }
 .sponsor-form-actions button.sponsor-secondary { border: 1px solid var(--cp-border); background: transparent; color: var(--cp-text); }
+
+.sponsor-report { margin-top: 18px; padding: 15px; border: 1px solid var(--cp-border); border-radius: 13px; background: var(--cp-surface); }
+.sponsor-report-list { display: grid; gap: 7px; margin-top: 12px; }
+.sponsor-report-list > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 9px 0; border-bottom: 1px solid var(--cp-border); }
+.sponsor-report-list > div:last-child { border-bottom: 0; }
+.sponsor-report-list b { overflow: hidden; color: var(--cp-text); text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.sponsor-report-list span { color: var(--cp-accent); font-size: 10px; font-weight: 850; }
+.sponsor-report-list small { grid-column: 1 / -1; overflow-wrap: anywhere; color: var(--cp-text-muted); font-size: 9px; }
