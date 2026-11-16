@@ -61,6 +61,7 @@ describe('BroadcastControlComponent', () => {
       'MILESTONE',
       'OVER_COMPLETE',
       'RESULT',
+      'PLAYER_OF_THE_MATCH',
     ]);
   });
   it('builds a shareable sponsor URL with encoded details and bounded duration', () => {
