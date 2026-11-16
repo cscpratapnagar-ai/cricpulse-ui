@@ -311,6 +311,16 @@
           </div>
         </div>
         <div class="quick-links">
+          <a [routerLink]="['/broadcast', match.id, 'control']">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.7" />
+                <path d="m16 10 5-3v10l-5-3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                <circle cx="9.5" cy="12" r="2" fill="currentColor" />
+              </svg>
+            </span>
+            Broadcast Control <b>→</b>
+          </a>
           <a [routerLink]="['/matches', match.id, 'scorecard']"
             ><span
               ><svg viewBox="0 0 24 24" fill="none">
