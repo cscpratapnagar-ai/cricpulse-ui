@@ -1,9 +1,18 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { API_BASE_URL } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
 type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
-type SponsorType = 'MAIN_SPONSOR' | 'OVER_SPONSOR' | 'PLAYER_OF_THE_MATCH' | 'CUSTOM';
+type SponsorType = 'MAIN_SPONSOR' | 'OVER_SPONSOR' | 'PLAYER_OF_THE_MATCH' | 'BOUNDARY_SPONSOR' | 'CUSTOM';
+type SponsorEvent = 'MATCH_START' | 'OVER_COMPLETE' | 'FOUR' | 'SIX' | 'WICKET' | 'PLAYER_OF_THE_MATCH' | 'MATCH_RESULT' | 'MANUAL';
+interface SponsorPlacement { id?: string; eventType: SponsorEvent; enabled: boolean; priority: number; }
+interface SponsorRecord {
+  id: string; matchId: string; name: string; tagline: string | null; logoUrl: string | null;
+  sponsorType: SponsorType; displayDurationSeconds: number; active: boolean; placements: SponsorPlacement[];
+}
+interface SponsorReport { sponsorId: string; sponsorName: string; sponsorType: string; active: boolean; impressions: number; lastDisplayedAt: string | null; }
 
 @Component({
   selector: 'app-broadcast-control',
@@ -13,6 +22,7 @@ type SponsorType = 'MAIN_SPONSOR' | 'OVER_SPONSOR' | 'PLAYER_OF_THE_MATCH' | 'CU
 })
 export class BroadcastControlComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly http = inject(HttpClient);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
   sponsorType: SponsorType = 'MAIN_SPONSOR';
@@ -22,13 +32,140 @@ export class BroadcastControlComponent {
   sponsorLabel = 'POWERED BY';
   sponsorDuration = 10;
   overSponsorEnabled = false;
+  sponsors: SponsorRecord[] = [];
+  sponsorReport: SponsorReport[] = [];
+  selectedSponsorId: string | null = null;
+  sponsorSaving = false;
+  sponsorError = '';
+  sponsorNotice = '';
+  sponsorActive = true;
+  sponsorEvents: { value: SponsorEvent; label: string }[] = [
+    { value: 'MATCH_START', label: 'Match start' },
+    { value: 'OVER_COMPLETE', label: 'Over complete' },
+    { value: 'FOUR', label: 'FOUR' },
+    { value: 'SIX', label: 'SIX' },
+    { value: 'WICKET', label: 'Wicket' },
+    { value: 'PLAYER_OF_THE_MATCH', label: 'Player of the Match' },
+    { value: 'MATCH_RESULT', label: 'Match result' },
+    { value: 'MANUAL', label: 'Manual' },
+  ];
+  selectedSponsorEvents: SponsorEvent[] = ['MATCH_START'];
 
   readonly sponsorTypes: { value: SponsorType; label: string }[] = [
     { value: 'MAIN_SPONSOR', label: 'Main Sponsor' },
     { value: 'OVER_SPONSOR', label: 'Over Sponsor' },
     { value: 'PLAYER_OF_THE_MATCH', label: 'Player of the Match Sponsor' },
+    { value: 'BOUNDARY_SPONSOR', label: 'Boundary Sponsor' },
     { value: 'CUSTOM', label: 'Custom Sponsor Banner' },
   ];
+
+  constructor() {
+    if (this.matchId) {
+      this.loadSponsors();
+      this.loadSponsorReport();
+    }
+  }
+
+  loadSponsors() {
+    this.http.get<SponsorRecord[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsors`).subscribe({
+      next: (items) => (this.sponsors = items),
+      error: () => (this.sponsorError = 'Could not load sponsors. Check your match access and try again.'),
+    });
+  }
+
+  loadSponsorReport() {
+    this.http.get<SponsorReport[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsor-report`).subscribe({
+      next: (items) => (this.sponsorReport = items),
+      error: () => (this.sponsorReport = []),
+    });
+  }
+
+  editSponsor(sponsor: SponsorRecord) {
+    this.selectedSponsorId = sponsor.id;
+    this.sponsorType = sponsor.sponsorType;
+    this.sponsorName = sponsor.name;
+    this.sponsorTagline = sponsor.tagline || '';
+    this.sponsorLogo = sponsor.logoUrl || '';
+    this.sponsorLabel = sponsor.sponsorType === 'OVER_SPONSOR' ? 'OVER SPONSOR' : 'POWERED BY';
+    this.sponsorDuration = sponsor.displayDurationSeconds;
+    this.sponsorActive = sponsor.active;
+    this.selectedSponsorEvents = sponsor.placements.filter((item) => item.enabled).map((item) => item.eventType);
+    this.sponsorNotice = '';
+    this.sponsorError = '';
+  }
+
+  resetSponsorForm() {
+    this.selectedSponsorId = null;
+    this.sponsorType = 'MAIN_SPONSOR';
+    this.sponsorName = '';
+    this.sponsorTagline = '';
+    this.sponsorLogo = '';
+    this.sponsorLabel = 'POWERED BY';
+    this.sponsorDuration = 10;
+    this.sponsorActive = true;
+    this.selectedSponsorEvents = ['MATCH_START'];
+  }
+
+  toggleSponsorEvent(event: SponsorEvent, checked: boolean) {
+    this.selectedSponsorEvents = checked
+      ? [...new Set([...this.selectedSponsorEvents, event])]
+      : this.selectedSponsorEvents.filter((item) => item !== event);
+  }
+
+  saveSponsor() {
+    if (!this.sponsorName.trim()) {
+      this.sponsorError = 'Enter a sponsor or brand name.';
+      return;
+    }
+    this.sponsorSaving = true;
+    this.sponsorError = '';
+    this.sponsorNotice = '';
+    const payload = {
+      name: this.sponsorName.trim(), tagline: this.sponsorTagline.trim() || null,
+      logoUrl: this.sponsorLogo.trim() || null, sponsorType: this.sponsorType,
+      displayDurationSeconds: Math.min(30, Math.max(5, Number(this.sponsorDuration) || 10)), active: this.sponsorActive,
+    };
+    const request = this.selectedSponsorId
+      ? this.http.patch<SponsorRecord>(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${this.selectedSponsorId}`, payload)
+      : this.http.post<SponsorRecord>(`${API_BASE_URL}/matches/${this.matchId}/sponsors`, payload);
+    request.subscribe({
+      next: (saved) => {
+        this.http.put<SponsorPlacement[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/placements`,
+          this.selectedSponsorEvents.map((eventType, priority) => ({ eventType, enabled: true, priority })))
+          .subscribe({
+            next: () => {
+              this.sponsorSaving = false;
+              this.sponsorNotice = 'Sponsor saved and event placements updated.';
+              this.resetSponsorForm();
+              this.loadSponsors();
+              this.loadSponsorReport();
+            },
+            error: () => {
+              this.sponsorSaving = false;
+              this.sponsorError = 'Sponsor saved, but placements could not be updated. Please retry.';
+              this.loadSponsors();
+            },
+          });
+      },
+      error: (error) => {
+        this.sponsorSaving = false;
+        this.sponsorError = error?.error?.detail || error?.error?.message || 'Sponsor could not be saved.';
+      },
+    });
+  }
+
+  deleteSponsor(sponsor: SponsorRecord) {
+    if (!globalThis.confirm(`Delete sponsor "${sponsor.name}" from this match?`)) return;
+    this.http.delete(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${sponsor.id}`).subscribe({
+      next: () => {
+        this.sponsorNotice = 'Sponsor deleted.';
+        this.loadSponsors();
+        this.loadSponsorReport();
+        if (this.selectedSponsorId === sponsor.id) this.resetSponsorForm();
+      },
+      error: () => (this.sponsorError = 'Sponsor could not be deleted.'),
+    });
+  }
 
   readonly events: { kind: EventKind; title: string; icon: string }[] = [
     { kind: 'FOUR', title: 'Boundary FOUR', icon: '4' },
