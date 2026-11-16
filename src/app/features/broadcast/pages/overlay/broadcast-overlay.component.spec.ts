@@ -122,6 +122,23 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     fixture?.destroy();
   });
 
+  it('shows the sponsor moment for an automatic completed-over event', () => {
+    mode = 'auto';
+    queryValues = { overSponsor: 'true', sponsorName: 'Shree Motors' };
+    const component = createOverlay();
+    component.autoEvent = {
+      kind: 'OVER_COMPLETE',
+      title: 'OVER COMPLETE',
+      detail: '10.0 OVERS · 8 RUNS',
+      mark: 'OV',
+      version: 10,
+    };
+    fixture.detectChanges();
+
+    expect(component.isOverSponsorEvent).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.sponsor-graphic')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Shree Motors');
+  });
   it('renders a sponsor graphic without requiring live score data', () => {
     mode = 'sponsor';
     queryValues = {
