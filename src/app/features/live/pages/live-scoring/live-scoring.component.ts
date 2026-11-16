@@ -456,14 +456,17 @@ export class LiveScoringV2Component implements OnDestroy {
 
   get currentOverBalls() {
     if (!this.score) return [];
-    const legal = this.score.legalBalls || 0;
-    if (legal % 6 === 0) return [];
-    const currentOver = Math.floor(legal / 6);
-    return (this.score.recentBalls || [])
-      .filter((b) => b.overNumber === currentOver)
-      // The API returns deliveries oldest-to-newest. Keep that order so the
-      // over reads naturally from ball 1 on the left to the latest ball on the right.
-      .map((b) => this.ballToken(b));
+    const recent = this.score.recentBalls || [];
+    if (!recent.length) return [];
+
+    // At an over boundary, keep showing the over that just finished. As soon
+    // as the first delivery of the next over (including a wide/no-ball) arrives,
+    // the latest delivery's over number naturally switches this strip forward.
+    const currentOver = recent[recent.length - 1].overNumber;
+    return recent
+      .filter((ball) => ball.overNumber === currentOver)
+      // API order is chronological: ball 1 stays on the left, latest on the right.
+      .map((ball) => this.ballToken(ball));
   }
 
   private load() {
