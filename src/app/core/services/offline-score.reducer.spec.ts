@@ -131,10 +131,11 @@ describe('projectOfflineDelivery', () => {
     );
     expect(next.runs).toBe(3);
     expect(next.legalBalls).toBe(0);
-    expect(next.batters?.[0]).toEqual(jasmine.objectContaining({ runs: 2, ballsFaced: 0 }));
-    expect(next.bowlers?.[0]).toEqual(
-      jasmine.objectContaining({ runsConceded: 3, legalBalls: 0, noBalls: 1 }),
-    );
+    expect(next.batters?.[0].runs).toBe(2);
+    expect(next.batters?.[0].ballsFaced).toBe(0);
+    expect(next.bowlers?.[0].runsConceded).toBe(3);
+    expect(next.bowlers?.[0].legalBalls).toBe(0);
+    expect(next.bowlers?.[0].noBalls).toBe(1);
   });
 
   it('records byes as team runs without charging the bowler', () => {
@@ -144,10 +145,10 @@ describe('projectOfflineDelivery', () => {
     );
     expect(next.runs).toBe(2);
     expect(next.legalBalls).toBe(1);
-    expect(next.bowlers?.[0]).toEqual(
-      jasmine.objectContaining({ runsConceded: 0, legalBalls: 1 }),
-    );
-    expect(next.overs?.[0]).toEqual(jasmine.objectContaining({ byes: 2, runs: 2 }));
+    expect(next.bowlers?.[0].runsConceded).toBe(0);
+    expect(next.bowlers?.[0].legalBalls).toBe(1);
+    expect(next.overs?.[0].byes).toBe(2);
+    expect(next.overs?.[0].runs).toBe(2);
   });
 
   it('completes the second innings as soon as the target is reached', () => {
