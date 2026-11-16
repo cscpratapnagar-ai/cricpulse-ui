@@ -149,6 +149,20 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(graphic.textContent).toContain('8');
   });
 
+  it('renders the innings-break graphic with completed score and limited-overs target', () => {
+    mode = 'innings-break';
+    createOverlay();
+
+    const graphic = fixture.nativeElement.querySelector('.innings-break-graphic') as HTMLElement;
+    expect(graphic).not.toBeNull();
+    expect(graphic.textContent).toContain('INNINGS BREAK');
+    expect(graphic.textContent).toContain('Falcons');
+    expect(graphic.textContent).toContain('12/0');
+    expect(graphic.textContent).toContain('1.2 / 20');
+    expect(graphic.querySelector('.innings-break-target')?.textContent).toContain('13');
+    expect(graphic.textContent).toContain('Titans');
+  });
+
   it('renders the legacy strip scene when strip mode is selected', () => {
     mode = 'strip';
     createOverlay();
