@@ -1327,7 +1327,6 @@
   }
 }
 
-
 /* Fall-of-wickets broadcast panel */
 .fall-of-wickets-graphic {
   width: min(620px, 48vw);
@@ -1370,6 +1369,10 @@
   font-size: 14px;
 }
 @media (max-width: 760px) {
-  .fall-of-wickets-graphic { width: auto; }
-  .fall-of-wickets-list { grid-template-columns: 1fr; }
+  .fall-of-wickets-graphic {
+    width: auto;
+  }
+  .fall-of-wickets-list {
+    grid-template-columns: 1fr;
+  }
 }
