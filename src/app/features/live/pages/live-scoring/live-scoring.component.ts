@@ -534,7 +534,7 @@ export class LiveScoringV2Component implements OnDestroy {
       this.message = 'Match ID is missing.';
       return;
     }
-    if (!navigator.onLine || e?.status === 0) {
+    if (!navigator.onLine) {
       void this.restoreOfflineSession();
       return;
     }
