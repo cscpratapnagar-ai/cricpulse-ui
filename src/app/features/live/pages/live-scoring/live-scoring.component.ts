@@ -888,6 +888,11 @@ export class LiveScoringV2Component implements OnDestroy {
       ...body,
     };
     if (!navigator.onLine || this.connectionState === 'OFFLINE') {
+      if (!this.offlineSnapshotReady) {
+        this.syncState = 'ERROR';
+        this.message = 'The confirmed score has not been saved for offline recovery. Connect and retry after storage is ready.';
+        return;
+      }
       const queued: QueuedDelivery = {
         commandId,
         inningsId: this.inningsId,
