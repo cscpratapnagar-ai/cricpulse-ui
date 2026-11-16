@@ -597,7 +597,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
   inningsBreakOvers(score: LiveScore) {
     const totalOvers = score.totalOvers ?? this.match?.totalOvers;
-    return totalOvers ? this.overs(score.legalBalls) + ' / ' + totalOvers : this.overs(score.legalBalls);
+    return totalOvers
+      ? this.overs(score.legalBalls) + ' / ' + totalOvers
+      : this.overs(score.legalBalls);
   }
   fallOfWicketName(score: LiveScore, playerId: string) {
     return score.batters?.find((batter) => batter.playerId === playerId)?.playerName || 'BATTER';
