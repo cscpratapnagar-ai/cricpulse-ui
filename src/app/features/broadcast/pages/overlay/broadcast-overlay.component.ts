@@ -163,6 +163,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (this.mode !== 'sponsor') {
       this.refreshBroadcastState();
       this.refreshTimer = setInterval(() => this.refreshBroadcastState(), 2000);
+      if (this.mode === 'event') this.loadSponsorForEvent(this.eventKind);
     }
   }
 
@@ -312,7 +313,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
       })
       .pipe(catchError(() => of([])))
       .subscribe((items) => {
-        if (this.autoEvent?.kind === kind && items.length) {
+        if ((this.autoEvent?.kind === kind || (this.mode === 'event' && this.eventKind === kind)) && items.length) {
           this.activeSponsor = items[0];
           const sessionKey =
             globalThis.crypto?.randomUUID?.() ||
