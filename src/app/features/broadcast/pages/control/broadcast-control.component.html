@@ -195,7 +195,7 @@
         <div class="sponsor-form-heading"><h3>Sponsor delivery report</h3><span>Recorded overlay impressions</span></div>
         <div class="sponsor-report-list">
           @for (item of sponsorReport; track item.sponsorId) {
-            <div><b>{{ item.sponsorName }}</b><span>{{ item.impressions }} impressions</span><small>{{ item.lastDisplayedAt ? (item.lastDisplayedAt | date: 'dd MMM, hh:mm a') : 'Not displayed yet' }}</small></div>
+            <div><b>{{ item.sponsorName }}</b><span>{{ item.impressions }} impressions</span><small>{{ item.lastDisplayedAt || 'Not displayed yet' }}</small></div>
           }
         </div>
       </div>
