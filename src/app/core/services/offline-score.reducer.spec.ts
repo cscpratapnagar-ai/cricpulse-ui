@@ -169,5 +169,4 @@ describe('projectOfflineDelivery', () => {
     expect(next.strikerId).toBeNull();
     expect(next.status).toBe('COMPLETED');
   });
-
 });
