@@ -13,6 +13,7 @@
           "options": {
             "outputPath": "dist/cricketpulse-web",
             "index": "src/index.html",
+            "assets": [{ "glob": "sw.js", "input": "src", "output": "/" }],
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
