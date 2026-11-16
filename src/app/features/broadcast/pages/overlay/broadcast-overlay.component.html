@@ -291,7 +291,7 @@
         <div class="match-result-scores">
           @for (item of resultInnings(); track item.score.inningsId) {
             <article [class.winner]="item.battingTeamId === match?.winningTeamId">
-              <span>{{ item.score.inningsNumber === 1 ? '1ST INNINGS' : item.score.inningsNumber + 'TH INNINGS' }}</span>
+              <span>{{ ordinal(item.score.inningsNumber) }} INNINGS</span>
               <strong>{{ item.score.runs }}<i>/{{ item.score.wickets }}</i></strong>
               <small>{{ resultOvers(item.score) }}</small>
               <b>{{ item.battingTeamId === match?.winningTeamId ? 'WINNER' : 'SCORE' }}</b>
