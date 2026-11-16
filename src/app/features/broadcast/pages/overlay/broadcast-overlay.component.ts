@@ -258,7 +258,12 @@ export class BroadcastOverlayComponent implements OnDestroy {
       const event = this.makeEvent(
         'MILESTONE',
         batterMilestone.level === 100 ? 'CENTURY' : 'HALF-CENTURY',
-        batterMilestone.name + ' · ' + batterMilestone.level + ' OFF ' + batterMilestone.balls + ' BALLS',
+        batterMilestone.name +
+          ' · ' +
+          batterMilestone.level +
+          ' OFF ' +
+          batterMilestone.balls +
+          ' BALLS',
         String(batterMilestone.level),
         score,
       );
@@ -313,12 +318,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
       const current = score.batters?.find((item) => item.playerId === playerId);
       const prior = previous.batters?.find((item) => item.playerId === playerId);
       if (!current || !prior) continue;
-      const level =
-        current.runs >= 100 && prior.runs < 100
-          ? 100
-          : current.runs >= 50 && prior.runs < 50
-            ? 50
-            : null;
+      let level: 50 | 100 | null = null;
+      if (current.runs >= 100 && prior.runs < 100) level = 100;
+      else if (current.runs >= 50 && prior.runs < 50) level = 50;
       if (level) return { level, name: current.playerName, balls: current.ballsFaced };
     }
     return null;
