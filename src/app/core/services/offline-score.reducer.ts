@@ -25,6 +25,11 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   if (p.strikerId !== score.strikerId || p.nonStrikerId !== score.nonStrikerId) {
     throw new Error('The pending delivery does not match the saved batting state.');
   }
+  const expectedOver = Math.floor(score.legalBalls / 6);
+  const expectedBall = (score.legalBalls % 6) + 1;
+  if (p.overNumber !== expectedOver || p.ballNumber !== expectedBall) {
+    throw new Error('The pending delivery position does not match the saved innings state.');
+  }
   const legal = p.extraType !== 'WIDE' && p.extraType !== 'NO_BALL';
   const oldLegal = score.legalBalls;
   const newLegal = oldLegal + (legal ? 1 : 0);
