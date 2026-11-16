@@ -360,6 +360,62 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
   }));
 
+  it('detects a RUN_OUT wicket and shows the run-out detail in the OBS graphic', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      runs: 13,
+      wickets: 1,
+      eventVersion: 2,
+      batters: score.batters?.map((item) =>
+        item.playerId === 'batter-2'
+          ? { ...item, out: true, dismissalType: 'RUN_OUT' }
+          : item,
+      ),
+      recentBalls: [
+        {
+          deliveryId: 'delivery-run-out',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 1,
+          extraRuns: 0,
+          wicketType: 'RUN_OUT',
+          legalDelivery: true,
+          totalRuns: 1,
+        },
+      ],
+    });
+    flushMicrotasks();
+
+    expect(component.autoEvent?.kind).toBe('WICKET');
+    expect(component.autoEvent?.detail).toBe('RUN OUT');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.moment.wicket').textContent).toContain('RUN OUT');
+  }));
+
+  it('still detects a RUN_OUT when the wicket count updates before recentBalls', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({
+      ...score,
+      wickets: 1,
+      eventVersion: 2,
+      batters: score.batters?.map((item) =>
+        item.playerId === 'batter-2'
+          ? { ...item, out: true, dismissalType: 'RUN_OUT' }
+          : item,
+      ),
+      recentBalls: [],
+    });
+    flushMicrotasks();
+
+    expect(component.autoEvent?.kind).toBe('WICKET');
+    expect(component.autoEvent?.detail).toBe('RUN OUT');
+  }));
+
   it('removes the OBS transparency class when the overlay is destroyed', () => {
     createOverlay();
     expect(document.documentElement.classList.contains('cricpulse-overlay-mode')).toBeTrue();
