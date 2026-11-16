@@ -777,11 +777,14 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private persistOfflineSnapshot(score: LiveScore): void {
-    void this.offlineStore.saveSnapshot(score).then(() => {
-      this.offlineSnapshotReady = true;
-    }).catch(() => {
-      this.offlineSnapshotReady = false;
-    });
+    void this.offlineStore
+      .saveSnapshot(score)
+      .then(() => {
+        this.offlineSnapshotReady = true;
+      })
+      .catch(() => {
+        this.offlineSnapshotReady = false;
+      });
   }
 
   private reloadScoreAfterDelivery() {
@@ -890,7 +893,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!navigator.onLine || this.connectionState === 'OFFLINE') {
       if (!this.offlineSnapshotReady) {
         this.syncState = 'ERROR';
-        this.message = 'The confirmed score has not been saved for offline recovery. Connect and retry after storage is ready.';
+        this.message =
+          'The confirmed score has not been saved for offline recovery. Connect and retry after storage is ready.';
         return;
       }
       const queued: QueuedDelivery = {
