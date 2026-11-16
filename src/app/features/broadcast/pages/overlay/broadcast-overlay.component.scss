@@ -1394,7 +1394,7 @@
 .innings-break-graphic > span {
   color: var(--cyan);
 }
-.innings-break-scoreline {
+.manual-graphic > .innings-break-scoreline {
   display: flex;
   justify-content: space-between;
   align-items: end;
@@ -1435,7 +1435,7 @@
   font-size: 0.68em;
   font-style: normal;
 }
-.innings-break-details {
+.manual-graphic > .innings-break-details {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
