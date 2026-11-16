@@ -23,9 +23,10 @@ export interface QueuedDelivery {
 }
 
 const DB_NAME = 'cricpulse-offline-scoring';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const QUEUE_STORE = 'pending-deliveries';
 const SNAPSHOT_STORE = 'innings-snapshots';
+const SESSION_STORE = 'match-sessions';
 
 @Injectable({ providedIn: 'root' })
 export class OfflineScoringStore {
@@ -54,7 +55,24 @@ export class OfflineScoringStore {
 
   async enqueue(command: QueuedDelivery): Promise<void> {
     const db = await this.open();
-    await this.request(db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).add(command));
+    const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+    const store = transaction.objectStore(QUEUE_STORE);
+    const all = await this.request<QueuedDelivery[]>(store.getAll());
+    const lastCreatedAt = all
+      .filter((item) => item.inningsId === command.inningsId)
+      .reduce((latest, item) => Math.max(latest, item.createdAt), 0);
+    await this.request(store.add({ ...command, createdAt: Math.max(command.createdAt, lastCreatedAt + 1) }));
+  }
+
+  async saveSession(matchId: string, session: unknown): Promise<void> {
+    const db = await this.open();
+    await this.request(db.transaction(SESSION_STORE, 'readwrite').objectStore(SESSION_STORE).put({ matchId, session }));
+  }
+
+  async loadSession<T>(matchId: string): Promise<T | null> {
+    const db = await this.open();
+    const value = await this.request<any>(db.transaction(SESSION_STORE, 'readonly').objectStore(SESSION_STORE).get(matchId));
+    return value?.session ?? null;
   }
 
   async list(inningsId: string): Promise<QueuedDelivery[]> {
@@ -88,6 +106,9 @@ export class OfflineScoringStore {
           }
           if (!db.objectStoreNames.contains(SNAPSHOT_STORE)) {
             db.createObjectStore(SNAPSHOT_STORE, { keyPath: 'inningsId' });
+          }
+          if (!db.objectStoreNames.contains(SESSION_STORE)) {
+            db.createObjectStore(SESSION_STORE, { keyPath: 'matchId' });
           }
         };
         request.onsuccess = () => resolve(request.result);
