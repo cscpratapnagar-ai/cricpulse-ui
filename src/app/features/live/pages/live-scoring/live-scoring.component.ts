@@ -1015,12 +1015,12 @@ export class LiveScoringV2Component implements OnDestroy {
           this.message = 'A server-confirmed delivery cannot be undone while offline.';
           return;
         }
-        await this.offlineStore.remove(latest.commandId);
         const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
         if (!snapshot) throw new Error('Saved score snapshot is unavailable; offline undo was not applied.');
+        const remaining = queue.slice(0, -1);
         let projected = snapshot;
-        const remaining = await this.offlineStore.list(this.inningsId);
         for (const item of remaining) projected = projectOfflineDelivery(projected, item);
+        await this.offlineStore.remove(latest.commandId);
         this.applyScore(projected);
         this.pendingOfflineCount = remaining.length;
         this.busy = false;
