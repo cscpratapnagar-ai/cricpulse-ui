@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
-type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
+type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT' | 'PLAYER_OF_THE_MATCH';
 type SponsorType =
   | 'MAIN_SPONSOR'
   | 'OVER_SPONSOR'
@@ -226,6 +226,7 @@ export class BroadcastControlComponent {
     { kind: 'MILESTONE', title: 'Milestone', icon: '★' },
     { kind: 'OVER_COMPLETE', title: 'Over Complete', icon: 'OV' },
     { kind: 'RESULT', title: 'Match Result', icon: '✓' },
+    { kind: 'PLAYER_OF_THE_MATCH', title: 'Player of the Match', icon: '★' },
   ];
 
   readonly scenes: { mode: Mode; title: string; description: string }[] = [
