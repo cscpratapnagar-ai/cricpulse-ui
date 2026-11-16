@@ -856,9 +856,15 @@ export class LiveScoringV2Component implements OnDestroy {
         payload,
       };
       this.busy = true;
+      const projected = this.score ? projectOfflineDelivery(this.score, queued) : null;
+      if (!projected) {
+        this.busy = false;
+        this.syncState = 'ERROR';
+        this.message = 'The current score cannot be projected safely while offline.';
+        return;
+      }
       this.offlineStore.enqueue(queued).then(async () => {
-        if (!this.score) throw new Error('The authoritative innings snapshot is unavailable.');
-        this.score = projectOfflineDelivery(this.score, queued);
+        this.score = projected;
         this.pendingDeliveryCommandId = null;
         this.lastDeliveryPayload = null;
         this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
@@ -999,6 +1005,34 @@ export class LiveScoringV2Component implements OnDestroy {
     )
       return;
     this.undoConfirmOpen = false;
+    if (!navigator.onLine || this.connectionState === 'OFFLINE') {
+      this.busy = true;
+      this.offlineStore.list(this.inningsId).then(async (queue) => {
+        const latest = queue[queue.length - 1];
+        if (!latest) {
+          this.busy = false;
+          this.syncState = 'ERROR';
+          this.message = 'A server-confirmed delivery cannot be undone while offline.';
+          return;
+        }
+        await this.offlineStore.remove(latest.commandId);
+        const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
+        if (!snapshot) throw new Error('Saved score snapshot is unavailable; offline undo was not applied.');
+        let projected = snapshot;
+        const remaining = await this.offlineStore.list(this.inningsId);
+        for (const item of remaining) projected = projectOfflineDelivery(projected, item);
+        this.applyScore(projected);
+        this.pendingOfflineCount = remaining.length;
+        this.busy = false;
+        this.syncState = remaining.length ? 'QUEUED' : 'SYNCED';
+        this.message = 'Last unsent offline delivery cancelled.';
+      }).catch((error: any) => {
+        this.busy = false;
+        this.syncState = 'ERROR';
+        this.message = error?.message || 'Could not cancel the pending offline delivery.';
+      });
+      return;
+    }
     this.busy = true;
     this.syncState = 'SAVING';
     this.lastAction = 'Undoing last delivery';
