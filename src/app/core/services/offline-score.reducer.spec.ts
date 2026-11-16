@@ -25,10 +25,7 @@ const baseScore = (): LiveScore => ({
   partnership: { batterOneId: 'batter-1', batterTwoId: 'batter-2', runs: 0, balls: 0 },
 });
 
-function command(
-  id: string,
-  overrides: Partial<QueuedDelivery['payload']> = {},
-): QueuedDelivery {
+function command(id: string, overrides: Partial<QueuedDelivery['payload']> = {}): QueuedDelivery {
   return {
     commandId: id,
     inningsId: 'innings-1',
@@ -54,19 +51,32 @@ describe('projectOfflineDelivery', () => {
     const next = projectOfflineDelivery(baseScore(), command('cmd-1', { batRuns: 4 }));
     expect(next.runs).toBe(4);
     expect(next.legalBalls).toBe(1);
-    expect(next.batters?.[0]).toEqual(jasmine.objectContaining({
-      playerId: 'batter-1', runs: 4, ballsFaced: 1, fours: 1,
-    }));
-    expect(next.bowlers?.[0]).toEqual(jasmine.objectContaining({
-      playerId: 'bowler-1', runsConceded: 4, legalBalls: 1,
-    }));
+    expect(next.batters?.[0]).toEqual(
+      jasmine.objectContaining({
+        playerId: 'batter-1',
+        runs: 4,
+        ballsFaced: 1,
+        fours: 1,
+      }),
+    );
+    expect(next.bowlers?.[0]).toEqual(
+      jasmine.objectContaining({
+        playerId: 'bowler-1',
+        runsConceded: 4,
+        legalBalls: 1,
+      }),
+    );
     expect(next.recentBalls?.length).toBe(1);
   });
 
   it('does not advance the legal ball for a wide and rotates strike only for completed wide runs', () => {
-    const next = projectOfflineDelivery(baseScore(), command('cmd-2', {
-      extraType: 'WIDE', extraRuns: 2,
-    }));
+    const next = projectOfflineDelivery(
+      baseScore(),
+      command('cmd-2', {
+        extraType: 'WIDE',
+        extraRuns: 2,
+      }),
+    );
     expect(next.runs).toBe(2);
     expect(next.legalBalls).toBe(0);
     expect(next.strikerId).toBe('batter-2');
@@ -74,17 +84,24 @@ describe('projectOfflineDelivery', () => {
   });
 
   it('handles wicket replacement and resets the partnership', () => {
-    const next = projectOfflineDelivery(baseScore(), command('cmd-3', {
-      wicketType: 'BOWLED',
-      dismissedPlayerId: 'batter-1',
-      newBatterId: 'batter-3',
-    }));
+    const next = projectOfflineDelivery(
+      baseScore(),
+      command('cmd-3', {
+        wicketType: 'BOWLED',
+        dismissedPlayerId: 'batter-1',
+        newBatterId: 'batter-3',
+      }),
+    );
     expect(next.wickets).toBe(1);
     expect(next.strikerId).toBe('batter-3');
     expect(next.batters?.find((b) => b.playerId === 'batter-1')?.out).toBeTrue();
-    expect(next.partnership).toEqual(jasmine.objectContaining({
-      batterOneId: 'batter-3', runs: 0, balls: 0,
-    }));
+    expect(next.partnership).toEqual(
+      jasmine.objectContaining({
+        batterOneId: 'batter-3',
+        runs: 0,
+        balls: 0,
+      }),
+    );
     expect(next.fallOfWickets?.length).toBe(1);
   });
 
@@ -95,9 +112,14 @@ describe('projectOfflineDelivery', () => {
 
   it('completes an innings at the configured over limit', () => {
     const score = { ...baseScore(), legalBalls: 119, currentOver: 19, currentBall: 5 };
-    const next = projectOfflineDelivery(score, command('cmd-5', {
-      overNumber: 19, ballNumber: 6, batRuns: 1,
-    }));
+    const next = projectOfflineDelivery(
+      score,
+      command('cmd-5', {
+        overNumber: 19,
+        ballNumber: 6,
+        batRuns: 1,
+      }),
+    );
     expect(next.legalBalls).toBe(120);
     expect(next.status).toBe('COMPLETED');
   });

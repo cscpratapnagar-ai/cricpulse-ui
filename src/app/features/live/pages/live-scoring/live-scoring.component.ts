@@ -6,7 +6,10 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 import { LiveScore } from '../../../../core/services/live-score.service';
-import { OfflineScoringStore, QueuedDelivery } from '../../../../core/services/offline-scoring.store';
+import {
+  OfflineScoringStore,
+  QueuedDelivery,
+} from '../../../../core/services/offline-scoring.store';
 import { projectOfflineDelivery } from '../../../../core/services/offline-score.reducer';
 import {
   LiveScoreSocketService,
@@ -482,7 +485,8 @@ export class LiveScoringV2Component implements OnDestroy {
   private async restoreOfflineSession(): Promise<void> {
     try {
       const session = await this.offlineStore.loadSession<any>(this.matchId);
-      if (!session?.inningsId || !session.match) throw new Error('No saved scoring session exists on this device.');
+      if (!session?.inningsId || !session.match)
+        throw new Error('No saved scoring session exists on this device.');
       this.match = session.match;
       this.xi = session.xi || [];
       this.inningsId = session.inningsId;
@@ -501,7 +505,8 @@ export class LiveScoringV2Component implements OnDestroy {
   private async restoreOfflineScore(): Promise<void> {
     try {
       const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
-      if (!snapshot) throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
+      if (!snapshot)
+        throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
       let projected = snapshot;
       const queue = await this.offlineStore.list(this.inningsId);
       for (const item of queue) projected = projectOfflineDelivery(projected, item);
@@ -533,7 +538,10 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loadXi();
       },
       error: (e) => {
-        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
+        if (!navigator.onLine) {
+          void this.restoreOfflineSession();
+          return;
+        }
         this.loading = false;
         this.message = e?.error?.message || 'Unable to load match.';
       },
@@ -548,7 +556,10 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loadInnings();
       },
       error: (e) => {
-        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
+        if (!navigator.onLine) {
+          void this.restoreOfflineSession();
+          return;
+        }
         this.loading = false;
         this.message = e?.error?.message || 'Unable to load Playing XI.';
       },
@@ -563,16 +574,24 @@ export class LiveScoringV2Component implements OnDestroy {
         this.battingTeamId = i.battingTeamId || '';
         this.bowlingTeamId = i.bowlingTeamId || '';
         this.normalizeTeamIds();
-        void this.offlineStore.saveSession(this.matchId, {
-          match: this.match, xi: this.xi, inningsId: this.inningsId,
-          inningsNumber: this.inningsNumber, battingTeamId: this.battingTeamId,
-          bowlingTeamId: this.bowlingTeamId,
-        }).catch(() => undefined);
+        void this.offlineStore
+          .saveSession(this.matchId, {
+            match: this.match,
+            xi: this.xi,
+            inningsId: this.inningsId,
+            inningsNumber: this.inningsNumber,
+            battingTeamId: this.battingTeamId,
+            bowlingTeamId: this.bowlingTeamId,
+          })
+          .catch(() => undefined);
         this.loadScoreById(this.inningsId, true);
         this.connectLiveSocket(this.inningsId);
       },
       error: (e) => {
-        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
+        if (!navigator.onLine) {
+          void this.restoreOfflineSession();
+          return;
+        }
         this.loading = false;
         this.message =
           e?.status === 404
@@ -603,7 +622,8 @@ export class LiveScoringV2Component implements OnDestroy {
       if (!score?.inningsId || this.busy) return;
       if (this.pendingOfflineCount > 0) {
         this.syncState = 'ERROR';
-        this.message = 'A live update arrived while offline deliveries are pending. Reconnect to reconcile before continuing.';
+        this.message =
+          'A live update arrived while offline deliveries are pending. Reconnect to reconcile before continuing.';
         return;
       }
       this.reconcileScore(score, true);
@@ -639,7 +659,10 @@ export class LiveScoringV2Component implements OnDestroy {
       },
       error: (e) => {
         this.loading = false;
-        if (!navigator.onLine) { void this.restoreOfflineScore(); return; }
+        if (!navigator.onLine) {
+          void this.restoreOfflineScore();
+          return;
+        }
         this.syncState = 'ERROR';
         this.message = e?.error?.message || 'Unable to load live score.';
       },
@@ -703,7 +726,8 @@ export class LiveScoringV2Component implements OnDestroy {
       this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
       if (this.pendingOfflineCount > 0 && this.syncState !== 'ERROR') this.syncState = 'QUEUED';
     } catch {
-      this.message = 'Offline queue could not be inspected. Do not continue scoring until storage is available.';
+      this.message =
+        'Offline queue could not be inspected. Do not continue scoring until storage is available.';
       this.syncState = 'ERROR';
     }
   }
@@ -716,11 +740,13 @@ export class LiveScoringV2Component implements OnDestroy {
       this.pendingOfflineCount = queue.length;
       for (const item of queue) {
         try {
-          const score = await firstValueFrom(this.http.post<LiveScore>(
-            `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
-            item.payload,
-            { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
-          ));
+          const score = await firstValueFrom(
+            this.http.post<LiveScore>(
+              `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
+              item.payload,
+              { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+            ),
+          );
           await this.offlineStore.remove(item.commandId);
           this.applyScore(score);
           await this.offlineStore.saveSnapshot(score);
@@ -731,7 +757,8 @@ export class LiveScoringV2Component implements OnDestroy {
             : 'All offline deliveries synced successfully.';
         } catch (error: any) {
           this.syncState = 'ERROR';
-          this.message = error?.error?.message ||
+          this.message =
+            error?.error?.message ||
             'Offline queue is blocked by a server conflict. Refresh the score and resolve the pending delivery before continuing.';
           this.scoreFingerprint = '';
           this.loadScoreById(this.inningsId, true);
@@ -864,20 +891,23 @@ export class LiveScoringV2Component implements OnDestroy {
         this.message = 'The current score cannot be projected safely while offline.';
         return;
       }
-      this.offlineStore.enqueue(queued).then(async () => {
-        this.score = projected;
-        this.pendingDeliveryCommandId = null;
-        this.lastDeliveryPayload = null;
-        this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
-        this.busy = false;
-        this.syncState = 'QUEUED';
-        this.message = 'Delivery saved on this device. It will sync when internet returns.';
-        this.showDeliveryFeedback(body);
-      }).catch((error) => {
-        this.busy = false;
-        this.syncState = 'ERROR';
-        this.message = error?.message || 'Offline storage failed. This delivery was not saved.';
-      });
+      this.offlineStore
+        .enqueue(queued)
+        .then(async () => {
+          this.score = projected;
+          this.pendingDeliveryCommandId = null;
+          this.lastDeliveryPayload = null;
+          this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+          this.busy = false;
+          this.syncState = 'QUEUED';
+          this.message = 'Delivery saved on this device. It will sync when internet returns.';
+          this.showDeliveryFeedback(body);
+        })
+        .catch((error) => {
+          this.busy = false;
+          this.syncState = 'ERROR';
+          this.message = error?.message || 'Offline storage failed. This delivery was not saved.';
+        });
       return;
     }
     this.busy = true;
@@ -1008,30 +1038,34 @@ export class LiveScoringV2Component implements OnDestroy {
     this.undoConfirmOpen = false;
     if (!navigator.onLine || this.connectionState === 'OFFLINE') {
       this.busy = true;
-      this.offlineStore.list(this.inningsId).then(async (queue) => {
-        const latest = queue[queue.length - 1];
-        if (!latest) {
+      this.offlineStore
+        .list(this.inningsId)
+        .then(async (queue) => {
+          const latest = queue[queue.length - 1];
+          if (!latest) {
+            this.busy = false;
+            this.syncState = 'ERROR';
+            this.message = 'A server-confirmed delivery cannot be undone while offline.';
+            return;
+          }
+          const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
+          if (!snapshot)
+            throw new Error('Saved score snapshot is unavailable; offline undo was not applied.');
+          const remaining = queue.slice(0, -1);
+          let projected = snapshot;
+          for (const item of remaining) projected = projectOfflineDelivery(projected, item);
+          await this.offlineStore.remove(latest.commandId);
+          this.applyScore(projected);
+          this.pendingOfflineCount = remaining.length;
+          this.busy = false;
+          this.syncState = remaining.length ? 'QUEUED' : 'SYNCED';
+          this.message = 'Last unsent offline delivery cancelled.';
+        })
+        .catch((error: any) => {
           this.busy = false;
           this.syncState = 'ERROR';
-          this.message = 'A server-confirmed delivery cannot be undone while offline.';
-          return;
-        }
-        const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
-        if (!snapshot) throw new Error('Saved score snapshot is unavailable; offline undo was not applied.');
-        const remaining = queue.slice(0, -1);
-        let projected = snapshot;
-        for (const item of remaining) projected = projectOfflineDelivery(projected, item);
-        await this.offlineStore.remove(latest.commandId);
-        this.applyScore(projected);
-        this.pendingOfflineCount = remaining.length;
-        this.busy = false;
-        this.syncState = remaining.length ? 'QUEUED' : 'SYNCED';
-        this.message = 'Last unsent offline delivery cancelled.';
-      }).catch((error: any) => {
-        this.busy = false;
-        this.syncState = 'ERROR';
-        this.message = error?.message || 'Could not cancel the pending offline delivery.';
-      });
+          this.message = error?.message || 'Could not cancel the pending offline delivery.';
+        });
       return;
     }
     this.busy = true;

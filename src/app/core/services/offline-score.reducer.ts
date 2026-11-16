@@ -3,12 +3,17 @@ import { QueuedDelivery } from './offline-scoring.store';
 
 function strikeChangingRuns(p: QueuedDelivery['payload']): number {
   switch (p.extraType ?? '') {
-    case 'WIDE': return Math.max(0, p.extraRuns - 1);
-    case 'NO_BALL': return p.batRuns + Math.max(0, p.extraRuns - 1);
+    case 'WIDE':
+      return Math.max(0, p.extraRuns - 1);
+    case 'NO_BALL':
+      return p.batRuns + Math.max(0, p.extraRuns - 1);
     case 'BYE':
-    case 'LEG_BYE': return p.extraRuns;
-    case 'PENALTY': return 0;
-    default: return p.batRuns;
+    case 'LEG_BYE':
+      return p.extraRuns;
+    case 'PENALTY':
+      return 0;
+    default:
+      return p.batRuns;
   }
 }
 
@@ -45,7 +50,8 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
       if (dismissed === striker) striker = null;
       if (dismissed === nonStriker) nonStriker = null;
     } else {
-      if (!p.newBatterId) throw new Error('A new batter is required to project this wicket offline.');
+      if (!p.newBatterId)
+        throw new Error('A new batter is required to project this wicket offline.');
       if (dismissed === striker) striker = p.newBatterId;
       if (dismissed === nonStriker) nonStriker = p.newBatterId;
     }
@@ -56,9 +62,17 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
 
   const batters = [...(score.batters ?? [])];
   const batterIndex = batters.findIndex((b) => b.playerId === p.strikerId);
-  const oldBatter = batterIndex >= 0 ? batters[batterIndex] : {
-    playerId: p.strikerId, runs: 0, ballsFaced: 0, fours: 0, sixes: 0, out: false,
-  };
+  const oldBatter =
+    batterIndex >= 0
+      ? batters[batterIndex]
+      : {
+          playerId: p.strikerId,
+          runs: 0,
+          ballsFaced: 0,
+          fours: 0,
+          sixes: 0,
+          out: false,
+        };
   const updatedBatter = {
     ...oldBatter,
     runs: oldBatter.runs + p.batRuns,
@@ -66,27 +80,55 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
     fours: oldBatter.fours + (p.batRuns === 4 ? 1 : 0),
     sixes: oldBatter.sixes + (p.batRuns === 6 ? 1 : 0),
     out: oldBatter.out || (!!p.wicketType && dismissed === p.strikerId),
-    dismissalType: p.wicketType && dismissed === p.strikerId ? p.wicketType : oldBatter.dismissalType,
+    dismissalType:
+      p.wicketType && dismissed === p.strikerId ? p.wicketType : oldBatter.dismissalType,
   };
   if (batterIndex >= 0) batters[batterIndex] = updatedBatter;
   else batters.push(updatedBatter);
   if (p.wicketType && dismissed && dismissed !== p.strikerId) {
     const dismissedIndex = batters.findIndex((b) => b.playerId === dismissed);
-    if (dismissedIndex >= 0) batters[dismissedIndex] = {
-      ...batters[dismissedIndex], out: true, dismissalType: p.wicketType,
-    };
-    else batters.push({ playerId: dismissed, runs: 0, ballsFaced: 0, fours: 0, sixes: 0, out: true, dismissalType: p.wicketType });
+    if (dismissedIndex >= 0)
+      batters[dismissedIndex] = {
+        ...batters[dismissedIndex],
+        out: true,
+        dismissalType: p.wicketType,
+      };
+    else
+      batters.push({
+        playerId: dismissed,
+        runs: 0,
+        ballsFaced: 0,
+        fours: 0,
+        sixes: 0,
+        out: true,
+        dismissalType: p.wicketType,
+      });
   }
   if (p.newBatterId && !batters.some((b) => b.playerId === p.newBatterId)) {
-    batters.push({ playerId: p.newBatterId, runs: 0, ballsFaced: 0, fours: 0, sixes: 0, out: false });
+    batters.push({
+      playerId: p.newBatterId,
+      runs: 0,
+      ballsFaced: 0,
+      fours: 0,
+      sixes: 0,
+      out: false,
+    });
   }
 
   const conceded = ['BYE', 'LEG_BYE'].includes(p.extraType ?? '') ? 0 : total;
   const bowlers = [...(score.bowlers ?? [])];
   const bowlerIndex = bowlers.findIndex((b) => b.playerId === p.bowlerId);
-  const oldBowler = bowlerIndex >= 0 ? bowlers[bowlerIndex] : {
-    playerId: p.bowlerId, legalBalls: 0, runsConceded: 0, wickets: 0, wides: 0, noBalls: 0,
-  };
+  const oldBowler =
+    bowlerIndex >= 0
+      ? bowlers[bowlerIndex]
+      : {
+          playerId: p.bowlerId,
+          legalBalls: 0,
+          runsConceded: 0,
+          wickets: 0,
+          wides: 0,
+          noBalls: 0,
+        };
   const updatedBowler = {
     ...oldBowler,
     legalBalls: oldBowler.legalBalls + (legal ? 1 : 0),
@@ -101,10 +143,21 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   const overNumber = Math.floor(oldLegal / 6);
   const overs = [...(score.overs ?? [])];
   const overIndex = overs.findIndex((o) => o.overNumber === overNumber);
-  const oldOver = overIndex >= 0 ? overs[overIndex] : {
-    overNumber, bowlerId: p.bowlerId, runs: 0, wickets: 0, legalBalls: 0,
-    wides: 0, noBalls: 0, byes: 0, legByes: 0, completed: false,
-  };
+  const oldOver =
+    overIndex >= 0
+      ? overs[overIndex]
+      : {
+          overNumber,
+          bowlerId: p.bowlerId,
+          runs: 0,
+          wickets: 0,
+          legalBalls: 0,
+          wides: 0,
+          noBalls: 0,
+          byes: 0,
+          legByes: 0,
+          completed: false,
+        };
   const updatedOver = {
     ...oldOver,
     bowlerId: p.bowlerId,
@@ -123,24 +176,45 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   const partnership = p.wicketType
     ? { batterOneId: striker ?? '', batterTwoId: nonStriker ?? '', runs: 0, balls: 0 }
     : score.partnership
-      ? { ...score.partnership, runs: score.partnership.runs + total, balls: score.partnership.balls + (legal ? 1 : 0) }
-      : { batterOneId: striker ?? '', batterTwoId: nonStriker ?? '', runs: total, balls: legal ? 1 : 0 };
+      ? {
+          ...score.partnership,
+          runs: score.partnership.runs + total,
+          balls: score.partnership.balls + (legal ? 1 : 0),
+        }
+      : {
+          batterOneId: striker ?? '',
+          batterTwoId: nonStriker ?? '',
+          runs: total,
+          balls: legal ? 1 : 0,
+        };
 
   const ball = {
-    deliveryId: command.commandId, overNumber, ballNumber: Math.floor(oldLegal % 6) + 1,
-    strikerId: p.strikerId, nonStrikerId: p.nonStrikerId, bowlerId: p.bowlerId,
-    batRuns: p.batRuns, extraRuns: p.extraRuns, extraType: p.extraType,
-    wicketType: p.wicketType, legalDelivery: legal, totalRuns: total,
+    deliveryId: command.commandId,
+    overNumber,
+    ballNumber: Math.floor(oldLegal % 6) + 1,
+    strikerId: p.strikerId,
+    nonStrikerId: p.nonStrikerId,
+    bowlerId: p.bowlerId,
+    batRuns: p.batRuns,
+    extraRuns: p.extraRuns,
+    extraType: p.extraType,
+    wicketType: p.wicketType,
+    legalDelivery: legal,
+    totalRuns: total,
   };
   const recentBalls = [...(score.recentBalls ?? []), ball].slice(-12);
   const fallOfWickets = [...(score.fallOfWickets ?? [])];
   if (p.wicketType && dismissed) {
     fallOfWickets.push({
-      wicketNumber: newWickets, playerId: dismissed, runs: score.runs + total,
-      overNumber, ballNumber: Math.floor(oldLegal % 6) + 1,
+      wicketNumber: newWickets,
+      playerId: dismissed,
+      runs: score.runs + total,
+      overNumber,
+      ballNumber: Math.floor(oldLegal % 6) + 1,
     });
   }
-  const completed = newWickets >= 10 ||
+  const completed =
+    newWickets >= 10 ||
     (!!score.totalOvers && newLegal >= score.totalOvers * 6) ||
     (!!score.targetRuns && score.inningsNumber === 2 && score.runs + total >= score.targetRuns);
   return {
@@ -154,6 +228,11 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
     nonStrikerId: nonStriker,
     currentBowlerId: p.bowlerId,
     status: completed ? 'COMPLETED' : 'LIVE',
-    batters, bowlers, overs, recentBalls, partnership, fallOfWickets,
+    batters,
+    bowlers,
+    overs,
+    recentBalls,
+    partnership,
+    fallOfWickets,
   };
 }

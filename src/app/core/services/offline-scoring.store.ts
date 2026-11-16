@@ -38,11 +38,13 @@ export class OfflineScoringStore {
 
   async saveSnapshot(score: LiveScore): Promise<void> {
     const db = await this.open();
-    await this.request(db.transaction(SNAPSHOT_STORE, 'readwrite').objectStore(SNAPSHOT_STORE).put({
-      inningsId: score.inningsId,
-      savedAt: Date.now(),
-      score,
-    }));
+    await this.request(
+      db.transaction(SNAPSHOT_STORE, 'readwrite').objectStore(SNAPSHOT_STORE).put({
+        inningsId: score.inningsId,
+        savedAt: Date.now(),
+        score,
+      }),
+    );
   }
 
   async loadSnapshot(inningsId: string): Promise<LiveScore | null> {
@@ -71,19 +73,28 @@ export class OfflineScoringStore {
         write.onsuccess = () => resolve();
         write.onerror = () => reject(write.error ?? new Error('Could not queue offline delivery.'));
       };
-      allRequest.onerror = () => reject(allRequest.error ?? new Error('Could not read offline queue.'));
-      transaction.onabort = () => reject(transaction.error ?? new Error('Offline queue transaction was aborted.'));
+      allRequest.onerror = () =>
+        reject(allRequest.error ?? new Error('Could not read offline queue.'));
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Offline queue transaction was aborted.'));
     });
   }
 
   async saveSession(matchId: string, session: unknown): Promise<void> {
     const db = await this.open();
-    await this.request(db.transaction(SESSION_STORE, 'readwrite').objectStore(SESSION_STORE).put({ matchId, session }));
+    await this.request(
+      db
+        .transaction(SESSION_STORE, 'readwrite')
+        .objectStore(SESSION_STORE)
+        .put({ matchId, session }),
+    );
   }
 
   async loadSession<T>(matchId: string): Promise<T | null> {
     const db = await this.open();
-    const value = await this.request<any>(db.transaction(SESSION_STORE, 'readonly').objectStore(SESSION_STORE).get(matchId));
+    const value = await this.request<any>(
+      db.transaction(SESSION_STORE, 'readonly').objectStore(SESSION_STORE).get(matchId),
+    );
     return value?.session ?? null;
   }
 
@@ -92,14 +103,16 @@ export class OfflineScoringStore {
     const values = await this.request<QueuedDelivery[]>(
       db.transaction(QUEUE_STORE, 'readonly').objectStore(QUEUE_STORE).getAll(),
     );
-    return values.filter((item) => item.inningsId === inningsId).sort((a, b) =>
-      a.createdAt - b.createdAt || a.commandId.localeCompare(b.commandId),
-    );
+    return values
+      .filter((item) => item.inningsId === inningsId)
+      .sort((a, b) => a.createdAt - b.createdAt || a.commandId.localeCompare(b.commandId));
   }
 
   async remove(commandId: string): Promise<void> {
     const db = await this.open();
-    await this.request(db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).delete(commandId));
+    await this.request(
+      db.transaction(QUEUE_STORE, 'readwrite').objectStore(QUEUE_STORE).delete(commandId),
+    );
   }
 
   async count(inningsId: string): Promise<number> {
@@ -107,7 +120,8 @@ export class OfflineScoringStore {
   }
 
   private open(): Promise<IDBDatabase> {
-    if (!this.isSupported()) return Promise.reject(new Error('This browser does not support durable offline storage.'));
+    if (!this.isSupported())
+      return Promise.reject(new Error('This browser does not support durable offline storage.'));
     if (!this.database) {
       this.database = new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -124,8 +138,10 @@ export class OfflineScoringStore {
           }
         };
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error ?? new Error('Could not open offline scoring storage.'));
-        request.onblocked = () => reject(new Error('Offline scoring storage upgrade is blocked by another tab.'));
+        request.onerror = () =>
+          reject(request.error ?? new Error('Could not open offline scoring storage.'));
+        request.onblocked = () =>
+          reject(new Error('Offline scoring storage upgrade is blocked by another tab.'));
       });
     }
     return this.database;
@@ -134,7 +150,8 @@ export class OfflineScoringStore {
   private request<T = unknown>(request: IDBRequest<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error ?? new Error('Offline scoring storage operation failed.'));
+      request.onerror = () =>
+        reject(request.error ?? new Error('Offline scoring storage operation failed.'));
     });
   }
 }
