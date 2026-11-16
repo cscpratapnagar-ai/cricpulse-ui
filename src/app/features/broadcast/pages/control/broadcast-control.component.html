@@ -190,6 +190,16 @@
     </div>
     @if (sponsorError) { <p class="sponsor-feedback error" role="alert">{{ sponsorError }}</p> }
     @if (sponsorNotice) { <p class="sponsor-feedback success" role="status">{{ sponsorNotice }}</p> }
+    @if (sponsorReport.length) {
+      <div class="sponsor-report">
+        <div class="sponsor-form-heading"><h3>Sponsor delivery report</h3><span>Recorded overlay impressions</span></div>
+        <div class="sponsor-report-list">
+          @for (item of sponsorReport; track item.sponsorId) {
+            <div><b>{{ item.sponsorName }}</b><span>{{ item.impressions }} impressions</span><small>{{ item.lastDisplayedAt ? (item.lastDisplayedAt | date: 'dd MMM, hh:mm a') : 'Not displayed yet' }}</small></div>
+          }
+        </div>
+      </div>
+    }
     <div class="sponsor-form-heading">
       <h3>{{ selectedSponsorId ? 'Edit sponsor' : 'Add a sponsor' }}</h3>
       <span>Match-specific sponsor inventory</span>
