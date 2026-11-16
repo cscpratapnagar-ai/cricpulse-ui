@@ -69,7 +69,8 @@ type EventKind =
   | 'OVER_COMPLETE'
   | 'INNINGS_BREAK'
   | 'RESULT'
-  | 'PLAYER_OF_THE_MATCH';
+  | 'PLAYER_OF_THE_MATCH'
+  | 'MATCH_START';
 interface AutoEvent {
   kind: EventKind;
   title: string;
@@ -106,6 +107,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
   private refreshTimer: ReturnType<typeof setInterval> | undefined;
   private refreshInFlight = false;
+  private matchStartSponsorRequested = false;
   broadcastError: string | null = null;
   activeSponsor: PublicSponsor | null = null;
   get sponsorType() {
@@ -240,6 +242,13 @@ export class BroadcastOverlayComponent implements OnDestroy {
           this.broadcastError = null;
           this.match = state.match;
           this.innings = state.innings || [];
+          if (this.mode === 'auto' && !this.matchStartSponsorRequested) {
+            this.matchStartSponsorRequested = true;
+            this.autoEvent = { kind: 'MATCH_START', title: 'MATCH START', detail: state.match.name || 'LIVE MATCH', mark: 'LIVE', version: Date.now() };
+            if (this.autoTimer) clearTimeout(this.autoTimer);
+            this.autoTimer = setTimeout(() => (this.autoEvent = null), this.eventDuration('MATCH_START'));
+            this.loadSponsorForEvent('MATCH_START');
+          }
           const current =
             state.match.currentInningsId ||
             state.innings.find((item) => item.score.status === 'LIVE')?.score.inningsId ||
@@ -294,7 +303,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   private loadSponsorForEvent(kind: EventKind) {
     const eventType = kind === 'RESULT' ? 'MATCH_RESULT' : kind;
-    if (!['OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT', 'PLAYER_OF_THE_MATCH'].includes(eventType)) return;
+    if (!['MATCH_START', 'OVER_COMPLETE', 'FOUR', 'SIX', 'WICKET', 'RESULT', 'PLAYER_OF_THE_MATCH'].includes(eventType)) return;
     const options = { context: new HttpContext().set(SKIP_GLOBAL_LOADING, true) };
     this.http
       .get<PublicSponsor[]>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/sponsors', {
