@@ -237,7 +237,7 @@
     <div class="sponsor-manager-grid">
       <label
         >Graphic type
-        <select [value]="sponsorType" (change)="sponsorType = $any($event.target).value">
+        <select [value]="sponsorType" (change)="changeSponsorType($any($event.target).value)">
           @for (type of sponsorTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
           }
