@@ -51,6 +51,8 @@ export class LiveScoringV2Component implements OnDestroy {
     { value: 'RUN_OUT', label: 'Run Out' },
     { value: 'STUMPED', label: 'Stumped' },
     { value: 'HIT_WICKET', label: 'Hit Wicket' },
+    { value: 'HIT_BALL_TWICE', label: 'Hit the Ball Twice' },
+    { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the Field' },
   ];
   matchId = this.route.snapshot.paramMap.get('id') || '';
   match: Match | null = null;
@@ -425,7 +427,7 @@ export class LiveScoringV2Component implements OnDestroy {
   get wicketValidationHint() {
     if (!this.wicketType) return 'Choose how the wicket fell.';
     if (!this.canDeliver) return this.validationHint;
-    if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId)
+    if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
       return 'Choose which batter was dismissed.';
     if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
       return 'Select a valid number of completed runs.';
@@ -439,7 +441,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.wicketOptions.some((option) => option.value === this.wicketType)) return false;
     if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
       return false;
-    if (this.wicketType === 'RUN_OUT' && !this.dismissedPlayerId) return false;
+    if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
+      return false;
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
 
@@ -819,7 +822,9 @@ export class LiveScoringV2Component implements OnDestroy {
       wicketType: this.wicketType,
       legalDelivery: this.wicketLegalDelivery,
       dismissedPlayerId:
-        this.wicketType === 'RUN_OUT' ? this.dismissedPlayerId : this.score.strikerId,
+        ['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType)
+          ? this.dismissedPlayerId
+          : this.score.strikerId,
       newBatterId: ten ? null : this.newBatterId,
     });
     this.wicketOpen = false;
