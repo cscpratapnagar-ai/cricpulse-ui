@@ -479,6 +479,48 @@ export class LiveScoringV2Component implements OnDestroy {
     );
   }
 
+  private async restoreOfflineSession(): Promise<void> {
+    try {
+      const session = await this.offlineStore.loadSession<any>(this.matchId);
+      if (!session?.inningsId || !session.match) throw new Error('No saved scoring session exists on this device.');
+      this.match = session.match;
+      this.xi = session.xi || [];
+      this.inningsId = session.inningsId;
+      this.inningsNumber = session.inningsNumber || 1;
+      this.battingTeamId = session.battingTeamId || '';
+      this.bowlingTeamId = session.bowlingTeamId || '';
+      await this.restoreOfflineScore();
+    } catch (error: any) {
+      this.loading = false;
+      this.connectionState = 'OFFLINE';
+      this.syncState = 'ERROR';
+      this.message = error?.message || 'Could not restore the saved offline scoring session.';
+    }
+  }
+
+  private async restoreOfflineScore(): Promise<void> {
+    try {
+      const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
+      if (!snapshot) throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
+      let projected = snapshot;
+      const queue = await this.offlineStore.list(this.inningsId);
+      for (const item of queue) projected = projectOfflineDelivery(projected, item);
+      this.applyScore(projected);
+      this.pendingOfflineCount = queue.length;
+      this.connectionState = 'OFFLINE';
+      this.syncState = queue.length ? 'QUEUED' : 'SYNCED';
+      this.loading = false;
+      this.message = queue.length
+        ? `${queue.length} saved offline delivery/deliveries restored on this device.`
+        : 'Saved score restored. New deliveries will be stored locally until internet returns.';
+    } catch (error: any) {
+      this.loading = false;
+      this.connectionState = 'OFFLINE';
+      this.syncState = 'ERROR';
+      this.message = error?.message || 'Could not restore offline score data.';
+    }
+  }
+
   private load() {
     if (!this.matchId) {
       this.loading = false;
@@ -491,6 +533,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loadXi();
       },
       error: (e) => {
+        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
         this.loading = false;
         this.message = e?.error?.message || 'Unable to load match.';
       },
@@ -505,6 +548,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loadInnings();
       },
       error: (e) => {
+        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
         this.loading = false;
         this.message = e?.error?.message || 'Unable to load Playing XI.';
       },
@@ -519,10 +563,16 @@ export class LiveScoringV2Component implements OnDestroy {
         this.battingTeamId = i.battingTeamId || '';
         this.bowlingTeamId = i.bowlingTeamId || '';
         this.normalizeTeamIds();
+        void this.offlineStore.saveSession(this.matchId, {
+          match: this.match, xi: this.xi, inningsId: this.inningsId,
+          inningsNumber: this.inningsNumber, battingTeamId: this.battingTeamId,
+          bowlingTeamId: this.bowlingTeamId,
+        }).catch(() => undefined);
         this.loadScoreById(this.inningsId, true);
         this.connectLiveSocket(this.inningsId);
       },
       error: (e) => {
+        if (!navigator.onLine) { void this.restoreOfflineSession(); return; }
         this.loading = false;
         this.message =
           e?.status === 404
@@ -589,6 +639,7 @@ export class LiveScoringV2Component implements OnDestroy {
       },
       error: (e) => {
         this.loading = false;
+        if (!navigator.onLine) { void this.restoreOfflineScore(); return; }
         this.syncState = 'ERROR';
         this.message = e?.error?.message || 'Unable to load live score.';
       },
