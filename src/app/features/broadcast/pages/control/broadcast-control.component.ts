@@ -68,6 +68,8 @@ export class BroadcastControlComponent {
   sponsorName = '';
   sponsorTagline = '';
   sponsorLogo = '';
+  sponsorLogoFile: File | null = null;
+  sponsorLogoPreview = '';
   sponsorLabel = 'POWERED BY';
   sponsorDuration = 10;
   overSponsorEnabled = false;
@@ -137,6 +139,7 @@ export class BroadcastControlComponent {
     this.sponsorName = sponsor.name;
     this.sponsorTagline = sponsor.tagline || '';
     this.sponsorLogo = sponsor.logoUrl || '';
+    this.clearSponsorLogoFile();
     this.sponsorLabel = sponsor.sponsorType === 'OVER_SPONSOR' ? 'OVER SPONSOR' : 'POWERED BY';
     this.sponsorDuration = sponsor.displayDurationSeconds;
     this.sponsorActive = sponsor.active;
@@ -153,10 +156,37 @@ export class BroadcastControlComponent {
     this.sponsorName = '';
     this.sponsorTagline = '';
     this.sponsorLogo = '';
+    this.clearSponsorLogoFile();
     this.sponsorLabel = 'POWERED BY';
     this.sponsorDuration = 10;
     this.sponsorActive = true;
     this.selectedSponsorEvents = ['MATCH_START'];
+  }
+
+  selectSponsorLogo(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+    this.sponsorError = '';
+    if (!file) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      this.sponsorError = 'Choose a PNG, JPG or WEBP image.';
+      input.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.sponsorError = 'Logo must be 2 MB or smaller.';
+      input.value = '';
+      return;
+    }
+    this.clearSponsorLogoFile();
+    this.sponsorLogoFile = file;
+    this.sponsorLogoPreview = URL.createObjectURL(file);
+  }
+
+  clearSponsorLogoFile() {
+    if (this.sponsorLogoPreview) URL.revokeObjectURL(this.sponsorLogoPreview);
+    this.sponsorLogoFile = null;
+    this.sponsorLogoPreview = '';
   }
 
   changeSponsorType(value: SponsorType) {
@@ -201,27 +231,51 @@ export class BroadcastControlComponent {
       : this.http.post<SponsorRecord>(`${API_BASE_URL}/matches/${this.matchId}/sponsors`, payload);
     request.subscribe({
       next: (saved) => {
+        const savePlacements = () => {
+          this.http
+            .put<SponsorPlacement[]>(
+              `${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/placements`,
+              this.selectedSponsorEvents.map((eventType, priority) => ({
+                eventType,
+                enabled: true,
+                priority,
+              })),
+            )
+            .subscribe({
+              next: () => {
+                this.sponsorSaving = false;
+                this.sponsorNotice = 'Sponsor saved and event placements updated.';
+                this.resetSponsorForm();
+                this.loadSponsors();
+                this.loadSponsorReport();
+              },
+              error: () => {
+                this.sponsorSaving = false;
+                this.sponsorError = 'Sponsor saved, but placements could not be updated. Please retry.';
+                this.loadSponsors();
+              },
+            });
+        };
+        if (!this.sponsorLogoFile) {
+          savePlacements();
+          return;
+        }
+        const form = new FormData();
+        form.append('logo', this.sponsorLogoFile, this.sponsorLogoFile.name);
         this.http
-          .put<SponsorPlacement[]>(
-            `${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/placements`,
-            this.selectedSponsorEvents.map((eventType, priority) => ({
-              eventType,
-              enabled: true,
-              priority,
-            })),
+          .post<{ logoUrl: string }>(
+            `${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/logo`,
+            form,
           )
           .subscribe({
-            next: () => {
-              this.sponsorSaving = false;
-              this.sponsorNotice = 'Sponsor saved and event placements updated.';
-              this.resetSponsorForm();
-              this.loadSponsors();
-              this.loadSponsorReport();
+            next: (uploaded) => {
+              this.sponsorLogo = uploaded.logoUrl;
+              savePlacements();
             },
-            error: () => {
+            error: (error) => {
               this.sponsorSaving = false;
               this.sponsorError =
-                'Sponsor saved, but placements could not be updated. Please retry.';
+                error?.error?.detail || error?.error?.message || 'Logo upload failed. Sponsor details were saved; retry the logo upload.';
               this.loadSponsors();
             },
           });
