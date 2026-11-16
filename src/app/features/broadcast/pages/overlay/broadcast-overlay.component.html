@@ -326,19 +326,27 @@
     }
   }
   @if (isSponsor || isOverSponsorEvent) {
-    <section class="sponsor-graphic" [style.--sponsor-duration]="sponsorDuration + 's'" aria-label="Sponsor graphic">
+    <section
+      class="sponsor-graphic"
+      [style.--sponsor-duration]="sponsorDuration + 's'"
+      aria-label="Sponsor graphic"
+    >
       <div class="sponsor-graphic-glow"></div>
       <div class="sponsor-graphic-kicker">CRICPULSE LIVE <span>·</span> {{ sponsorLabel }}</div>
       <div class="sponsor-graphic-content">
         @if (sponsorLogo) {
-          <div class="sponsor-logo-wrap"><img [src]="sponsorLogo" [alt]="sponsorName + ' logo'" /></div>
+          <div class="sponsor-logo-wrap">
+            <img [src]="sponsorLogo" [alt]="sponsorName + ' logo'" />
+          </div>
         } @else {
           <div class="sponsor-logo-fallback">{{ sponsorName.slice(0, 2).toUpperCase() }}</div>
         }
         <div class="sponsor-copy">
           <small>{{ sponsorType.replaceAll('_', ' ') }}</small>
           <strong>{{ sponsorName }}</strong>
-          @if (sponsorTagline) { <span>{{ sponsorTagline }}</span> }
+          @if (sponsorTagline) {
+            <span>{{ sponsorTagline }}</span>
+          }
         </div>
       </div>
       <div class="sponsor-graphic-footer">THANK YOU FOR SUPPORTING THE GAME</div>

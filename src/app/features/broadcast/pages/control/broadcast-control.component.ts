@@ -5,14 +5,46 @@ import { API_BASE_URL } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
 type EventKind = 'FOUR' | 'SIX' | 'WICKET' | 'MILESTONE' | 'OVER_COMPLETE' | 'RESULT';
-type SponsorType = 'MAIN_SPONSOR' | 'OVER_SPONSOR' | 'PLAYER_OF_THE_MATCH' | 'BOUNDARY_SPONSOR' | 'CUSTOM';
-type SponsorEvent = 'MATCH_START' | 'OVER_COMPLETE' | 'FOUR' | 'SIX' | 'WICKET' | 'PLAYER_OF_THE_MATCH' | 'MATCH_RESULT' | 'MANUAL';
-interface SponsorPlacement { id?: string; eventType: SponsorEvent; enabled: boolean; priority: number; }
-interface SponsorRecord {
-  id: string; matchId: string; name: string; tagline: string | null; logoUrl: string | null;
-  sponsorType: SponsorType; displayDurationSeconds: number; active: boolean; placements: SponsorPlacement[];
+type SponsorType =
+  | 'MAIN_SPONSOR'
+  | 'OVER_SPONSOR'
+  | 'PLAYER_OF_THE_MATCH'
+  | 'BOUNDARY_SPONSOR'
+  | 'CUSTOM';
+type SponsorEvent =
+  | 'MATCH_START'
+  | 'OVER_COMPLETE'
+  | 'FOUR'
+  | 'SIX'
+  | 'WICKET'
+  | 'PLAYER_OF_THE_MATCH'
+  | 'MATCH_RESULT'
+  | 'MANUAL';
+interface SponsorPlacement {
+  id?: string;
+  eventType: SponsorEvent;
+  enabled: boolean;
+  priority: number;
 }
-interface SponsorReport { sponsorId: string; sponsorName: string; sponsorType: string; active: boolean; impressions: number; lastDisplayedAt: string | null; }
+interface SponsorRecord {
+  id: string;
+  matchId: string;
+  name: string;
+  tagline: string | null;
+  logoUrl: string | null;
+  sponsorType: SponsorType;
+  displayDurationSeconds: number;
+  active: boolean;
+  placements: SponsorPlacement[];
+}
+interface SponsorReport {
+  sponsorId: string;
+  sponsorName: string;
+  sponsorType: string;
+  active: boolean;
+  impressions: number;
+  lastDisplayedAt: string | null;
+}
 
 @Component({
   selector: 'app-broadcast-control',
@@ -69,15 +101,18 @@ export class BroadcastControlComponent {
   loadSponsors() {
     this.http.get<SponsorRecord[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsors`).subscribe({
       next: (items) => (this.sponsors = items),
-      error: () => (this.sponsorError = 'Could not load sponsors. Check your match access and try again.'),
+      error: () =>
+        (this.sponsorError = 'Could not load sponsors. Check your match access and try again.'),
     });
   }
 
   loadSponsorReport() {
-    this.http.get<SponsorReport[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsor-report`).subscribe({
-      next: (items) => (this.sponsorReport = items),
-      error: () => (this.sponsorReport = []),
-    });
+    this.http
+      .get<SponsorReport[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsor-report`)
+      .subscribe({
+        next: (items) => (this.sponsorReport = items),
+        error: () => (this.sponsorReport = []),
+      });
   }
 
   editSponsor(sponsor: SponsorRecord) {
@@ -89,7 +124,9 @@ export class BroadcastControlComponent {
     this.sponsorLabel = sponsor.sponsorType === 'OVER_SPONSOR' ? 'OVER SPONSOR' : 'POWERED BY';
     this.sponsorDuration = sponsor.displayDurationSeconds;
     this.sponsorActive = sponsor.active;
-    this.selectedSponsorEvents = sponsor.placements.filter((item) => item.enabled).map((item) => item.eventType);
+    this.selectedSponsorEvents = sponsor.placements
+      .filter((item) => item.enabled)
+      .map((item) => item.eventType);
     this.sponsorNotice = '';
     this.sponsorError = '';
   }
@@ -121,17 +158,30 @@ export class BroadcastControlComponent {
     this.sponsorError = '';
     this.sponsorNotice = '';
     const payload = {
-      name: this.sponsorName.trim(), tagline: this.sponsorTagline.trim() || null,
-      logoUrl: this.sponsorLogo.trim() || null, sponsorType: this.sponsorType,
-      displayDurationSeconds: Math.min(30, Math.max(5, Number(this.sponsorDuration) || 10)), active: this.sponsorActive,
+      name: this.sponsorName.trim(),
+      tagline: this.sponsorTagline.trim() || null,
+      logoUrl: this.sponsorLogo.trim() || null,
+      sponsorType: this.sponsorType,
+      displayDurationSeconds: Math.min(30, Math.max(5, Number(this.sponsorDuration) || 10)),
+      active: this.sponsorActive,
     };
     const request = this.selectedSponsorId
-      ? this.http.patch<SponsorRecord>(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${this.selectedSponsorId}`, payload)
+      ? this.http.patch<SponsorRecord>(
+          `${API_BASE_URL}/matches/${this.matchId}/sponsors/${this.selectedSponsorId}`,
+          payload,
+        )
       : this.http.post<SponsorRecord>(`${API_BASE_URL}/matches/${this.matchId}/sponsors`, payload);
     request.subscribe({
       next: (saved) => {
-        this.http.put<SponsorPlacement[]>(`${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/placements`,
-          this.selectedSponsorEvents.map((eventType, priority) => ({ eventType, enabled: true, priority })))
+        this.http
+          .put<SponsorPlacement[]>(
+            `${API_BASE_URL}/matches/${this.matchId}/sponsors/${saved.id}/placements`,
+            this.selectedSponsorEvents.map((eventType, priority) => ({
+              eventType,
+              enabled: true,
+              priority,
+            })),
+          )
           .subscribe({
             next: () => {
               this.sponsorSaving = false;
@@ -142,14 +192,16 @@ export class BroadcastControlComponent {
             },
             error: () => {
               this.sponsorSaving = false;
-              this.sponsorError = 'Sponsor saved, but placements could not be updated. Please retry.';
+              this.sponsorError =
+                'Sponsor saved, but placements could not be updated. Please retry.';
               this.loadSponsors();
             },
           });
       },
       error: (error) => {
         this.sponsorSaving = false;
-        this.sponsorError = error?.error?.detail || error?.error?.message || 'Sponsor could not be saved.';
+        this.sponsorError =
+          error?.error?.detail || error?.error?.message || 'Sponsor could not be saved.';
       },
     });
   }
@@ -177,10 +229,22 @@ export class BroadcastControlComponent {
   ];
 
   readonly scenes: { mode: Mode; title: string; description: string }[] = [
-    { mode: 'strip', title: 'Live Score Strip', description: 'Persistent score bar for the main broadcast scene.' },
+    {
+      mode: 'strip',
+      title: 'Live Score Strip',
+      description: 'Persistent score bar for the main broadcast scene.',
+    },
     { mode: 'batter', title: 'Batter Card', description: 'Lower-third for the current striker.' },
-    { mode: 'bowler', title: 'Bowler Card', description: 'Current bowler figures and over progress.' },
-    { mode: 'partnership', title: 'Partnership Card', description: 'Current batting partnership spotlight.' },
+    {
+      mode: 'bowler',
+      title: 'Bowler Card',
+      description: 'Current bowler figures and over progress.',
+    },
+    {
+      mode: 'partnership',
+      title: 'Partnership Card',
+      description: 'Current batting partnership spotlight.',
+    },
   ];
 
   url(mode: Mode) {
