@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
 import { LiveScore } from '../../../../core/services/live-score.service';
+import { OfflineScoringStore, QueuedDelivery } from '../../../../core/services/offline-scoring.store';
+import { projectOfflineDelivery } from '../../../../core/services/offline-score.reducer';
 import {
   LiveScoreSocketService,
   LiveSocketState,
@@ -53,6 +56,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly liveSocket = inject(LiveScoreSocketService);
+  private readonly offlineStore = inject(OfflineScoringStore);
   readonly api = API_BASE_URL;
   readonly runs = [0, 1, 2, 3, 4, 5, 6];
   readonly wicketOptions = DELIVERY_WICKET_OPTIONS;
@@ -76,7 +80,9 @@ export class LiveScoringV2Component implements OnDestroy {
   } | null = null;
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   lastAction = '';
-  syncState: 'SYNCED' | 'SAVING' | 'ERROR' = 'SYNCED';
+  syncState: 'SYNCED' | 'SAVING' | 'QUEUED' | 'ERROR' = 'SYNCED';
+  pendingOfflineCount = 0;
+  private flushingOfflineQueue = false;
   wicketOpen = false;
   extraOpen = false;
   selectedExtraType = '';
@@ -240,9 +246,11 @@ export class LiveScoringV2Component implements OnDestroy {
   get syncLabel() {
     return this.syncState === 'SAVING'
       ? 'SAVING'
-      : this.syncState === 'ERROR'
-        ? 'ACTION FAILED'
-        : 'SYNCED';
+      : this.syncState === 'QUEUED'
+        ? 'QUEUED OFFLINE'
+        : this.syncState === 'ERROR'
+          ? 'ACTION FAILED'
+          : 'SYNCED';
   }
 
   get connectionLabel() {
@@ -543,6 +551,11 @@ export class LiveScoringV2Component implements OnDestroy {
     this.liveSocket.connect(inningsId, (payload) => {
       const score = payload as LiveScore;
       if (!score?.inningsId || this.busy) return;
+      if (this.pendingOfflineCount > 0) {
+        this.syncState = 'ERROR';
+        this.message = 'A live update arrived while offline deliveries are pending. Reconnect to reconcile before continuing.';
+        return;
+      }
       this.reconcileScore(score, true);
     });
   }
@@ -565,7 +578,10 @@ export class LiveScoringV2Component implements OnDestroy {
     this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
       next: (s) => {
         this.reconcileScore(s, silent);
+        void this.offlineStore.saveSnapshot(s).catch(() => undefined);
+        void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
+        if (navigator.onLine) void this.flushOfflineQueue();
         if (!this.refreshTimer && this.score?.status === 'LIVE') {
           this.refreshTimer = setInterval(() => this.loadScoreById(this.inningsId, true), 15000);
         }
@@ -627,6 +643,54 @@ export class LiveScoringV2Component implements OnDestroy {
     } else {
       this.previousBowlerId = '';
       this.selectedBowlerId = s.currentBowlerId || '';
+    }
+  }
+
+  private async refreshPendingOfflineCount(): Promise<void> {
+    if (!this.inningsId) return;
+    try {
+      this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+      if (this.pendingOfflineCount > 0 && this.syncState !== 'ERROR') this.syncState = 'QUEUED';
+    } catch {
+      this.message = 'Offline queue could not be inspected. Do not continue scoring until storage is available.';
+      this.syncState = 'ERROR';
+    }
+  }
+
+  private async flushOfflineQueue(): Promise<void> {
+    if (this.flushingOfflineQueue || !navigator.onLine || !this.inningsId) return;
+    this.flushingOfflineQueue = true;
+    try {
+      const queue = await this.offlineStore.list(this.inningsId);
+      this.pendingOfflineCount = queue.length;
+      for (const item of queue) {
+        try {
+          const score = await firstValueFrom(this.http.post<LiveScore>(
+            `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
+            item.payload,
+            { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+          ));
+          await this.offlineStore.remove(item.commandId);
+          this.applyScore(score);
+          await this.offlineStore.saveSnapshot(score);
+          this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+          this.syncState = this.pendingOfflineCount ? 'QUEUED' : 'SYNCED';
+          this.message = this.pendingOfflineCount
+            ? `${this.pendingOfflineCount} offline delivery/deliveries still syncing.`
+            : 'All offline deliveries synced successfully.';
+        } catch (error: any) {
+          this.syncState = 'ERROR';
+          this.message = error?.error?.message ||
+            'Offline queue is blocked by a server conflict. Refresh the score and resolve the pending delivery before continuing.';
+          this.loadScoreById(this.inningsId, true);
+          return;
+        }
+      }
+    } catch (error: any) {
+      this.syncState = 'ERROR';
+      this.message = error?.message || 'Could not read the offline scoring queue.';
+    } finally {
+      this.flushingOfflineQueue = false;
     }
   }
 
@@ -728,11 +792,36 @@ export class LiveScoringV2Component implements OnDestroy {
       inningsId: this.inningsId,
       overNumber: Math.floor((this.score!.legalBalls || 0) / 6),
       ballNumber: ((this.score!.legalBalls || 0) % 6) + 1,
-      strikerId: this.score!.strikerId,
-      nonStrikerId: this.score!.nonStrikerId,
+      strikerId: this.score!.strikerId!,
+      nonStrikerId: this.score!.nonStrikerId!,
       bowlerId: this.activeBowlerId,
       ...body,
     };
+    if (!navigator.onLine || this.connectionState === 'OFFLINE') {
+      const queued: QueuedDelivery = {
+        commandId,
+        inningsId: this.inningsId,
+        createdAt: Date.now(),
+        payload,
+      };
+      this.busy = true;
+      this.offlineStore.enqueue(queued).then(async () => {
+        if (!this.score) throw new Error('The authoritative innings snapshot is unavailable.');
+        this.score = projectOfflineDelivery(this.score, queued);
+        this.pendingDeliveryCommandId = null;
+        this.lastDeliveryPayload = null;
+        this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+        this.busy = false;
+        this.syncState = 'QUEUED';
+        this.message = 'Delivery saved on this device. It will sync when internet returns.';
+        this.showDeliveryFeedback(body);
+      }).catch((error) => {
+        this.busy = false;
+        this.syncState = 'ERROR';
+        this.message = error?.message || 'Offline storage failed. This delivery was not saved.';
+      });
+      return;
+    }
     this.busy = true;
     this.syncState = 'SAVING';
     this.lastAction = isRetry
