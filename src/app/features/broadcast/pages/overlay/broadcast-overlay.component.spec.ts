@@ -229,7 +229,9 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       ...score,
       runs: 54,
       eventVersion: 2,
-      batters: score.batters?.map((item) => item.playerId === 'batter-1' ? { ...item, runs: 50, ballsFaced: 31 } : item),
+      batters: score.batters?.map((item) =>
+        item.playerId === 'batter-1' ? { ...item, runs: 50, ballsFaced: 31 } : item,
+      ),
     });
     flushMicrotasks();
     expect(component.autoEvent?.kind).toBe('MILESTONE');
@@ -246,7 +248,9 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       ...score,
       runs: 104,
       eventVersion: 2,
-      batters: score.batters?.map((item) => item.playerId === 'batter-1' ? { ...item, runs: 100, ballsFaced: 62 } : item),
+      batters: score.batters?.map((item) =>
+        item.playerId === 'batter-1' ? { ...item, runs: 100, ballsFaced: 62 } : item,
+      ),
     });
     flushMicrotasks();
     expect(component.autoEvent?.title).toBe('CENTURY');
@@ -262,11 +266,20 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       runs: 15,
       legalBalls: 12,
       eventVersion: 2,
-      recentBalls: [{
-        deliveryId: 'delivery-over-end', overNumber: 2, ballNumber: 6,
-        strikerId: 'batter-1', nonStrikerId: 'batter-2', bowlerId: 'bowler-1',
-        batRuns: 1, extraRuns: 0, legalDelivery: true, totalRuns: 1,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'delivery-over-end',
+          overNumber: 2,
+          ballNumber: 6,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 1,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 1,
+        },
+      ],
     });
     flushMicrotasks();
     expect(component.autoEvent?.kind).toBe('OVER_COMPLETE');
