@@ -258,13 +258,13 @@ describe('BroadcastOverlayComponent browser runtime', () => {
         ],
       });
       flushMicrotasks();
-  
+
       expect(component.autoEvent?.kind).toBe('SIX');
       expect(component.autoEvent?.mark).toBe('6');
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('.moment.six')).not.toBeNull();
       expect(fixture.nativeElement.querySelector('.moment.four')).toBeNull();
-      }),
+    }),
   );
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
