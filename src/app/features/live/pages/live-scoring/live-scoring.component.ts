@@ -272,7 +272,7 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!ball) return '';
     if (ball.wicketType) return 'wicket';
     if (ball.extraType) return 'extra';
-    if (ball.totalRuns === 4 || ball.totalRuns === 6) return 'boundary';
+    if (ball.batRuns === 4 || ball.batRuns === 6) return 'boundary';
     return '';
   }
 
@@ -455,16 +455,9 @@ export class LiveScoringV2Component implements OnDestroy {
     const currentOver = Math.floor(legal / 6);
     return (this.score.recentBalls || [])
       .filter((b) => b.overNumber === currentOver)
-      .reverse()
-      .map((b) =>
-        b.wicketType
-          ? 'W'
-          : b.extraType === 'WIDE'
-            ? 'Wd'
-            : b.extraType === 'NO_BALL'
-              ? 'Nb'
-              : String(b.totalRuns),
-      );
+      // The API returns deliveries oldest-to-newest. Keep that order so the
+      // over reads naturally from ball 1 on the left to the latest ball on the right.
+      .map((b) => this.ballToken(b));
   }
 
   private load() {
@@ -590,7 +583,7 @@ export class LiveScoringV2Component implements OnDestroy {
       strikerId: s.strikerId,
       nonStrikerId: s.nonStrikerId,
       currentBowlerId: s.currentBowlerId,
-      latestDeliveryId: (s.recentBalls || [])[0]?.deliveryId,
+      latestDeliveryId: (s.recentBalls || []).at(-1)?.deliveryId,
     });
     if (nextFingerprint === this.scoreFingerprint) return;
     const hadScore = !!this.scoreFingerprint;
