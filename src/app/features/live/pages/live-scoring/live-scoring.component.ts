@@ -881,29 +881,25 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
-
   private async acquireScorerLease(): Promise<void> {
     if (!navigator.onLine || !this.inningsId) return;
     try {
       const storageKey = `cricpulse-scorer-lease:${this.inningsId}`;
-      this.scorerLeaseToken =
-        sessionStorage.getItem(storageKey) || crypto.randomUUID();
+      this.scorerLeaseToken = sessionStorage.getItem(storageKey) || crypto.randomUUID();
       sessionStorage.setItem(storageKey, this.scorerLeaseToken);
       await firstValueFrom(
-        this.http.post(
-          `${this.api}/scoring/innings/${this.inningsId}/lease`,
-          { leaseToken: this.scorerLeaseToken },
-        ),
+        this.http.post(`${this.api}/scoring/innings/${this.inningsId}/lease`, {
+          leaseToken: this.scorerLeaseToken,
+        }),
       );
       this.scorerLeaseReady = true;
       if (this.scorerLeaseRenewalTimer) clearInterval(this.scorerLeaseRenewalTimer);
       this.scorerLeaseRenewalTimer = setInterval(() => {
         if (!navigator.onLine || !this.inningsId || !this.scorerLeaseToken) return;
         void firstValueFrom(
-          this.http.put(
-            `${this.api}/scoring/innings/${this.inningsId}/lease`,
-            { leaseToken: this.scorerLeaseToken },
-          ),
+          this.http.put(`${this.api}/scoring/innings/${this.inningsId}/lease`, {
+            leaseToken: this.scorerLeaseToken,
+          }),
         ).catch((error) => {
           this.scorerLeaseReady = false;
           this.message =
@@ -1674,32 +1670,34 @@ export class LiveScoringV2Component implements OnDestroy {
     this.busy = true;
     this.syncState = 'SAVING';
     this.lastAction = 'Undoing last delivery';
-    this.http.post<LiveScore>(
-      `${this.api}/scoring/innings/${this.inningsId}/undo`,
-      {},
-      { headers: new HttpHeaders({ 'X-Scorer-Lease': this.scorerLeaseToken }) },
-    ).subscribe({
-      next: (s) => {
-        this.applyScore(s);
-        this.persistOfflineSnapshot(s);
-        this.busy = false;
-        this.syncState = 'SYNCED';
-        this.lastAction = 'Last delivery undone';
-        this.message = '';
-        this.externalUpdateNotice =
-          'The previous delivery was removed and the live score was resynchronised.';
-      },
-      error: (e) => {
-        this.busy = false;
-        this.syncState = 'ERROR';
-        this.message =
-          e?.status === 403
-            ? 'You do not have permission to correct this innings.'
-            : e?.status === 409
-              ? 'The match changed before the undo completed. Refresh the live state and try again.'
-              : e?.error?.message || 'Undo failed. Refresh the live state and try again.';
-      },
-    });
+    this.http
+      .post<LiveScore>(
+        `${this.api}/scoring/innings/${this.inningsId}/undo`,
+        {},
+        { headers: new HttpHeaders({ 'X-Scorer-Lease': this.scorerLeaseToken }) },
+      )
+      .subscribe({
+        next: (s) => {
+          this.applyScore(s);
+          this.persistOfflineSnapshot(s);
+          this.busy = false;
+          this.syncState = 'SYNCED';
+          this.lastAction = 'Last delivery undone';
+          this.message = '';
+          this.externalUpdateNotice =
+            'The previous delivery was removed and the live score was resynchronised.';
+        },
+        error: (e) => {
+          this.busy = false;
+          this.syncState = 'ERROR';
+          this.message =
+            e?.status === 403
+              ? 'You do not have permission to correct this innings.'
+              : e?.status === 409
+                ? 'The match changed before the undo completed. Refresh the live state and try again.'
+                : e?.error?.message || 'Undo failed. Refresh the live state and try again.';
+        },
+      });
   }
 
   startSecondInnings() {
