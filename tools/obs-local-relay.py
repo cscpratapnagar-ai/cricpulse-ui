@@ -17,6 +17,7 @@ HOST = "127.0.0.1"
 PORT = 8765
 CLIENTS: set[socket.socket] = set()
 CLIENTS_LOCK = threading.Lock()
+LATEST_BY_MATCH: dict[str, bytes] = {}
 
 
 def recv_exact(sock: socket.socket, size: int) -> bytes:
@@ -43,6 +44,14 @@ def send_frame(sock: socket.socket, opcode: int, payload: bytes) -> None:
 
 def broadcast(sender: socket.socket, payload: bytes) -> None:
     dead: list[socket.socket] = []
+    try:
+        import json
+        message = json.loads(payload.decode("utf-8"))
+        if message.get("source") == "cricpulse-scorer" and message.get("matchId"):
+            with CLIENTS_LOCK:
+                LATEST_BY_MATCH[str(message["matchId"])] = payload
+    except (UnicodeDecodeError, ValueError, AttributeError):
+        pass
     with CLIENTS_LOCK:
         recipients = [client for client in CLIENTS if client is not sender]
     for client in recipients:
@@ -97,6 +106,11 @@ class RelayHandler(socketserver.BaseRequestHandler):
             client.settimeout(None)
             with CLIENTS_LOCK:
                 CLIENTS.add(client)
+                latest = list(LATEST_BY_MATCH.values())
+            # Replay the latest score snapshot to a newly opened OBS Browser
+            # Source so it can recover even when the internet is still offline.
+            for payload in latest:
+                send_frame(client, 0x1, payload)
 
             while True:
                 first, second = recv_exact(client, 2)
