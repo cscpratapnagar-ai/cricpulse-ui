@@ -122,11 +122,15 @@ export class LiveScoringV2Component implements OnDestroy {
   undoConfirmOpen = false;
   private lastDeliveryPayload: any = null;
   private pendingDeliveryCommandId: string | null = null;
+  private scoreBroadcastChannel?: BroadcastChannel;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
     window.addEventListener('offline', this.offlineHandler);
     this.connectionState = navigator.onLine ? 'ONLINE' : 'OFFLINE';
+    if (typeof BroadcastChannel !== 'undefined') {
+      this.scoreBroadcastChannel = new BroadcastChannel('cricpulse-live-score');
+    }
     this.liveSocket.state$.subscribe((state) => {
       this.socketState = state;
       if (state === 'CONNECTED') this.connectionState = 'ONLINE';
@@ -136,6 +140,7 @@ export class LiveScoringV2Component implements OnDestroy {
 
   ngOnDestroy(): void {
     this.liveSocket.disconnect();
+    this.scoreBroadcastChannel?.close();
     if (this.refreshTimer) clearInterval(this.refreshTimer);
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     window.removeEventListener('online', this.onlineHandler);
@@ -712,10 +717,12 @@ export class LiveScoringV2Component implements OnDestroy {
 
   private handleReconnect() {
     this.connectionState = 'RECONNECTING';
-    if (this.inningsId) {
-      this.loadScoreById(this.inningsId, true);
-      this.connectLiveSocket(this.inningsId);
-    }
+    if (!this.inningsId) return;
+    this.connectLiveSocket(this.inningsId);
+    // A queue can have been marked BLOCKED during a previous interrupted
+    // session. Re-validate it against the authoritative server state on every
+    // reconnect; retryOfflineSync preserves each original commandId.
+    void this.retryOfflineSync();
   }
 
   private loadScoreById(id: string, silent = false) {
@@ -797,6 +804,16 @@ export class LiveScoringV2Component implements OnDestroy {
       return;
     }
     this.score = s;
+    // Keep OBS Browser Sources on this origin updated from the scorer's local
+    // projection while the network is unavailable. The server remains the
+    // source of truth for reconnect reconciliation.
+    this.scoreBroadcastChannel?.postMessage({
+      source: 'cricpulse-scorer',
+      matchId: this.matchId,
+      inningsId: s.inningsId,
+      score: s,
+      sentAt: Date.now(),
+    });
     this.inningsId = s.inningsId || this.inningsId;
     this.inningsNumber = s.inningsNumber || this.inningsNumber;
     this.battingTeamId = (s as any).battingTeamId || this.battingTeamId;
