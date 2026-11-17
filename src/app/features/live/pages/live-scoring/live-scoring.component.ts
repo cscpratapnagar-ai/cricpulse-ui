@@ -533,6 +533,7 @@ export class LiveScoringV2Component implements OnDestroy {
       await this.restoreOfflineScore();
       if (savedBowlerId && this.needsBowlerChange) {
         this.selectedBowlerId = savedBowlerId;
+        if (this.score) this.publishLocalObsScore(this.score);
       }
     } catch (error: any) {
       this.loading = false;
@@ -602,6 +603,9 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.canChangeBowler) return;
     if (!this.bowlerOptions.some((option) => option.value === bowlerId)) return;
     this.selectedBowlerId = bowlerId;
+    // The server score cannot be changed while offline, but OBS must reflect
+    // the locally selected next-over bowler immediately.
+    if (this.score) this.publishLocalObsScore(this.score);
     void this.offlineStore
       .saveSession(this.matchId, {
         match: this.match,
@@ -1002,11 +1006,43 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private publishLocalObsScore(score: LiveScore): void {
+    const selectedBowlerId = this.activeBowlerId;
+    const selectedBowler = this.xi.find((player) => player.playerId === selectedBowlerId);
+    const overlayScore: LiveScore = selectedBowlerId
+      ? {
+          ...score,
+          currentBowlerId: selectedBowlerId,
+          currentBowlerName: selectedBowler?.name || score.currentBowlerName || null,
+          bowlers: [
+            ...(score.bowlers || []).filter((bowler) => bowler.playerId !== selectedBowlerId),
+            {
+              ...(score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId),
+              playerId: selectedBowlerId,
+              playerName: selectedBowler?.name || score.currentBowlerName || 'Current Bowler',
+              legalBalls:
+                (score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId)
+                  ?.legalBalls ?? 0,
+              runsConceded:
+                (score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId)
+                  ?.runsConceded ?? 0,
+              wickets:
+                (score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId)
+                  ?.wickets ?? 0,
+              wides:
+                (score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId)
+                  ?.wides ?? 0,
+              noBalls:
+                (score.bowlers || []).find((bowler) => bowler.playerId === selectedBowlerId)
+                  ?.noBalls ?? 0,
+            },
+          ],
+        }
+      : score;
     const message = {
       source: 'cricpulse-scorer',
       matchId: this.matchId,
       inningsId: score.inningsId,
-      score,
+      score: overlayScore,
       match: this.match,
       battingTeamId: this.battingTeamId,
       bowlingTeamId: this.bowlingTeamId,
