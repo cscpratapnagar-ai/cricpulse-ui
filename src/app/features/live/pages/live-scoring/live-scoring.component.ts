@@ -1436,14 +1436,9 @@ export class LiveScoringV2Component implements OnDestroy {
           // Publish the local projection immediately so same-origin overlay
           // contexts receive the offline score, not only the scorer component.
           this.applyScore(projected);
-          await this.offlineStore.saveSnapshot(projected).then(
-            () => {
-              this.offlineSnapshotReady = true;
-            },
-            () => {
-              this.offlineSnapshotReady = false;
-            },
-          );
+          // Keep the snapshot as the last server-confirmed base score.
+          // The pending queue is replayed on refresh/restart; persisting the
+          // projected score here would replay those same deliveries twice.
           this.pendingDeliveryCommandId = null;
           this.lastDeliveryPayload = null;
           this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
