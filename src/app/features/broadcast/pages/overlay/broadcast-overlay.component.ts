@@ -118,6 +118,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private destroyed = false;
   autoEvent: AutoEvent | null = null;
   private currentInningsId: string | null = null;
+  private localScoreStreamInningsId: string | null = null;
   private previousScore: LiveScore | null = null;
   private previousInningsId: string | null = null;
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
@@ -224,30 +225,34 @@ export class BroadcastOverlayComponent implements OnDestroy {
     this.broadcastError = null;
     this.localScore$.next(score);
 
-    // Always bind the visible overlay to the local BehaviorSubject first.
-    // This guarantees a refreshed OBS Browser Source immediately renders the
-    // relay's cached offline snapshot, even if the remote live feed errors.
-    if (inningsId !== this.currentInningsId) {
+    // A REST poll can set currentInningsId before the relay snapshot arrives.
+    // Track the local stream binding independently so a refreshed OBS page
+    // always switches to the relay snapshot even when both sources report the
+    // same innings ID.
+    if (inningsId !== this.localScoreStreamInningsId) {
       this.previousScore = null;
       this.previousInningsId = this.currentInningsId;
       this.currentInningsId = inningsId;
-      const localFeed = this.localScore$.pipe(
+      this.localScoreStreamInningsId = inningsId;
+      this.score$ = this.localScore$.pipe(
         filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
         tap((local) => this.onScore(local)),
       );
-      this.score$ = localFeed;
-      // Attach the server feed separately so its failure cannot terminate or
-      // replace the local offline score stream.
-      this.liveScore.watch(inningsId).subscribe({
-        next: (serverScore) => {
-          if (serverScore?.inningsId === inningsId) {
-            this.localScore$.next(serverScore);
-          }
-        },
-        error: () => {
-          this.broadcastError = null;
-        },
-      });
+
+      // Do not attach an authoritative server stream while offline: its older
+      // snapshot can overwrite the newer local projection after OBS refresh.
+      if (navigator.onLine) {
+        this.liveScore.watch(inningsId).subscribe({
+          next: (serverScore) => {
+            if (serverScore?.inningsId === inningsId && navigator.onLine) {
+              this.localScore$.next(serverScore);
+            }
+          },
+          error: () => {
+            this.broadcastError = null;
+          },
+        });
+      }
     }
   }
 
