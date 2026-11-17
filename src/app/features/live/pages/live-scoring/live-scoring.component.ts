@@ -1100,8 +1100,18 @@ export class LiveScoringV2Component implements OnDestroy {
             // Keep the command in IndexedDB; the next reconnect can safely retry it.
           }
           const serverMessage = error?.error?.message || error?.message;
+          const status = Number(error?.status ?? 0);
+          // Network loss, throttling and server failures are transient. Keep the
+          // command PENDING and retry automatically; only domain/client errors
+          // should pause the queue for explicit reconciliation.
+          if (status === 0 || status === 408 || status === 425 || status === 429 || status >= 500) {
+            this.syncState = 'QUEUED';
+            this.message = serverMessage || 'Temporary sync failure. The delivery is retained and will retry automatically.';
+            this.scheduleOfflineSyncRetry();
+            return;
+          }
           await this.blockOfflineQueue(
-            serverMessage || 'The server rejected an offline delivery.',
+            serverMessage || 'The server rejected an offline delivery. Pending deliveries were retained.',
           );
           return;
         }
