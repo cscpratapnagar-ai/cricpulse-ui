@@ -139,6 +139,26 @@ export class OfflineScoringStore {
     });
   }
 
+  async markInningsQueuePending(inningsId: string): Promise<void> {
+    const db = await this.open();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+      const store = transaction.objectStore(QUEUE_STORE);
+      const request = store.getAll();
+      request.onsuccess = () => {
+        for (const item of request.result as QueuedDelivery[]) {
+          if (item.inningsId === inningsId) {
+            store.put({ ...item, syncStatus: 'PENDING' });
+          }
+        }
+      };
+      request.onerror = () => reject(request.error ?? new Error('Could not inspect offline queue.'));
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error('Could not resume offline queue.'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Resuming offline queue was aborted.'));
+    });
+  }
+
   async count(inningsId: string): Promise<number> {
     return (await this.list(inningsId)).length;
   }
