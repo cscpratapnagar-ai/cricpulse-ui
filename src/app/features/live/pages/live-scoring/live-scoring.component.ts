@@ -972,6 +972,22 @@ export class LiveScoringV2Component implements OnDestroy {
     this.loadScoreById(this.inningsId);
   }
 
+  async retryOfflineSync(): Promise<void> {
+    if (!this.inningsId || !navigator.onLine || this.flushingOfflineQueue) return;
+    this.message = 'Refreshing the server score and checking saved offline deliveries…';
+    this.offlineQueueBlocked = false;
+    this.syncState = 'SAVING';
+    try {
+      await this.offlineStore.markInningsQueuePending(this.inningsId);
+      this.scoreFingerprint = '';
+      this.loadScoreById(this.inningsId, true);
+    } catch (error: any) {
+      this.offlineQueueBlocked = true;
+      this.syncState = 'ERROR';
+      this.message = error?.message || 'Could not resume the saved offline queue.';
+    }
+  }
+
   retryLastAction() {
     if (this.busy || !this.lastDeliveryPayload) return;
     this.message = '';
