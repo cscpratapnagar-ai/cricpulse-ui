@@ -2,7 +2,17 @@ import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { BehaviorSubject, catchError, filter, finalize, map, merge, of, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  finalize,
+  map,
+  merge,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import {
