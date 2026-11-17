@@ -192,7 +192,6 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
-
   private acceptLocalScoreMessage(message: any): void {
     if (
       message?.source !== 'cricpulse-scorer' ||
