@@ -32,7 +32,7 @@ describe('LoginComponent', () => {
     const router = TestBed.inject(Router);
     const users = TestBed.inject(CurrentUserService);
 
-    spyOn(http, 'post').and.returnValue(of({ accessToken: 'token-123' }));
+    spyOn(http, 'post').and.returnValue(of({}));
     spyOn(http, 'get').and.returnValues(
       of({ id: 'u1', fullName: 'Player One', email: 'PLAYER@EXAMPLE.COM' }),
       of([]),
@@ -48,7 +48,7 @@ describe('LoginComponent', () => {
       jasmine.any(String),
       jasmine.objectContaining({ email: 'player@example.com', password: 'secret123' }),
     );
-    expect(localStorage.getItem('cricketpulse_access_token')).toBe('token-123');
+    expect(localStorage.getItem('cricketpulse_access_token')).toBeNull();
     expect(users.user()?.email).toBe('PLAYER@EXAMPLE.COM');
     expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
   });
