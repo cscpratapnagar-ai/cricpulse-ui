@@ -152,10 +152,13 @@ export class OfflineScoringStore {
           }
         }
       };
-      request.onerror = () => reject(request.error ?? new Error('Could not inspect offline queue.'));
+      request.onerror = () =>
+        reject(request.error ?? new Error('Could not inspect offline queue.'));
       transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error ?? new Error('Could not resume offline queue.'));
-      transaction.onabort = () => reject(transaction.error ?? new Error('Resuming offline queue was aborted.'));
+      transaction.onerror = () =>
+        reject(transaction.error ?? new Error('Could not resume offline queue.'));
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Resuming offline queue was aborted.'));
     });
   }
 
