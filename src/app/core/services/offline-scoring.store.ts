@@ -71,11 +71,15 @@ export class OfflineScoringStore {
           ...command,
           createdAt: Math.max(command.createdAt, lastCreatedAt + 1),
         });
-        write.onsuccess = () => resolve();
-        write.onerror = () => reject(write.error ?? new Error('Could not queue offline delivery.'));
+        write.onerror = () => {
+          reject(write.error ?? new Error('Could not queue offline delivery.'));
+        };
       };
       allRequest.onerror = () =>
         reject(allRequest.error ?? new Error('Could not read offline queue.'));
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () =>
+        reject(transaction.error ?? new Error('Offline queue transaction failed.'));
       transaction.onabort = () =>
         reject(transaction.error ?? new Error('Offline queue transaction was aborted.'));
     });
@@ -191,7 +195,12 @@ export class OfflineScoringStore {
           reject(new Error('Offline scoring storage upgrade is blocked by another tab.'));
       });
     }
-    return this.database;
+    return this.database.catch((error) => {
+      // Do not cache a rejected open promise forever. A blocked upgrade or
+      // transient IndexedDB failure must be recoverable on the next retry.
+      this.database = undefined;
+      throw error;
+    });
   }
 
   private request<T = unknown>(request: IDBRequest<T>): Promise<T> {
