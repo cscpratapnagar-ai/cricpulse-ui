@@ -210,7 +210,48 @@ export class BroadcastOverlayComponent implements OnDestroy {
     ) {
       return;
     }
-    this.localScore$.next(message.score as LiveScore);
+
+    const score = message.score as LiveScore;
+    const inningsId = score.inningsId;
+    if (message.match) this.match = message.match as Match;
+    this.innings = [
+      {
+        score,
+        battingTeamId: message.battingTeamId,
+        bowlingTeamId: message.bowlingTeamId,
+      },
+    ];
+    this.broadcastError = null;
+    this.localScore$.next(score);
+
+    // A relay snapshot can arrive before the public REST endpoints are
+    // reachable (for example, when OBS is restarted during an outage).
+    // Establish the score stream from the local snapshot first, then merge
+    // authoritative live updates whenever the backend becomes reachable.
+    if (inningsId !== this.currentInningsId) {
+      this.previousScore = null;
+      this.previousInningsId = this.currentInningsId;
+      this.currentInningsId = inningsId;
+      this.score$ = merge(
+        this.liveScore.watch(inningsId),
+        this.localScore$.pipe(
+          filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
+        ),
+      ).pipe(
+        tap((nextScore) => {
+          if (nextScore) this.onScore(nextScore);
+        }),
+        catchError(() => {
+          // Keep the local relay stream alive; REST polling will retry the
+          // authoritative feed after connectivity returns.
+          this.broadcastError = null;
+          return this.localScore$.pipe(
+            filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
+            tap((local) => this.onScore(local)),
+          );
+        }),
+      );
+    }
   }
 
   private connectLocalObsRelay(): void {
