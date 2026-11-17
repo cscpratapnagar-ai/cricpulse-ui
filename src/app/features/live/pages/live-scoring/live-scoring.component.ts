@@ -123,9 +123,6 @@ export class LiveScoringV2Component implements OnDestroy {
   private lastDeliveryPayload: any = null;
   private pendingDeliveryCommandId: string | null = null;
   private scoreBroadcastChannel?: BroadcastChannel;
-  private localRelaySocket?: WebSocket;
-  private localRelayReconnectTimer?: ReturnType<typeof setTimeout>;
-  private localRelayReconnectDelay = 1000;
   private destroyed = false;
 
   constructor() {
@@ -135,7 +132,6 @@ export class LiveScoringV2Component implements OnDestroy {
     if (typeof BroadcastChannel !== 'undefined') {
       this.scoreBroadcastChannel = new BroadcastChannel('cricpulse-live-score');
     }
-    this.connectLocalObsRelay();
     this.liveSocket.state$.subscribe((state) => {
       this.socketState = state;
       if (state === 'CONNECTED') this.connectionState = 'ONLINE';
@@ -147,9 +143,6 @@ export class LiveScoringV2Component implements OnDestroy {
     this.destroyed = true;
     this.liveSocket.disconnect();
     this.scoreBroadcastChannel?.close();
-    if (this.localRelayReconnectTimer) clearTimeout(this.localRelayReconnectTimer);
-    this.localRelaySocket?.close();
-    this.localRelaySocket = undefined;
     if (this.refreshTimer) clearInterval(this.refreshTimer);
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     window.removeEventListener('online', this.onlineHandler);
@@ -832,51 +825,6 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
-  private connectLocalObsRelay(): void {
-    if (this.destroyed || typeof WebSocket === 'undefined') return;
-    try {
-      const socket = new WebSocket('ws://127.0.0.1:8765/ws');
-      this.localRelaySocket = socket;
-      socket.onopen = () => {
-        if (this.localRelaySocket !== socket || this.destroyed) return;
-        this.localRelayReconnectDelay = 1000;
-        if (this.score) this.publishLocalObsScore(this.score);
-      };
-      socket.onclose = () => {
-        if (this.localRelaySocket !== socket) return;
-        this.localRelaySocket = undefined;
-        this.scheduleLocalObsRelayReconnect();
-      };
-      socket.onerror = () => socket.close();
-    } catch {
-      this.scheduleLocalObsRelayReconnect();
-    }
-  }
-
-  private scheduleLocalObsRelayReconnect(): void {
-    if (this.destroyed || this.localRelayReconnectTimer) return;
-    const delay = this.localRelayReconnectDelay;
-    this.localRelayReconnectDelay = Math.min(this.localRelayReconnectDelay * 2, 15000);
-    this.localRelayReconnectTimer = setTimeout(() => {
-      this.localRelayReconnectTimer = undefined;
-      this.connectLocalObsRelay();
-    }, delay);
-  }
-
-  private publishLocalObsScore(score: LiveScore): void {
-    const message = {
-      source: 'cricpulse-scorer',
-      matchId: this.matchId,
-      inningsId: score.inningsId,
-      score,
-      sentAt: Date.now(),
-    };
-    this.scoreBroadcastChannel?.postMessage(message);
-    if (this.localRelaySocket?.readyState === WebSocket.OPEN) {
-      this.localRelaySocket.send(JSON.stringify(message));
-    }
-  }
-
   private async refreshPendingOfflineCount(): Promise<void> {
     if (!this.inningsId) return;
     try {
@@ -933,8 +881,10 @@ export class LiveScoringV2Component implements OnDestroy {
     try {
       // Always start from the server's latest state. Never replay against a stale
       // local snapshot after another scorer may have advanced the innings.
-      let authoritative = await firstValueFrom(
-        this.http.get<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}`),
+      let authoritative = this.unwrapApiPayload<LiveScore>(
+        await firstValueFrom(
+          this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
+        ),
       );
       this.applyScore(authoritative);
       const queue = await this.offlineStore.list(this.inningsId);
@@ -962,11 +912,13 @@ export class LiveScoringV2Component implements OnDestroy {
           // If it is not present in the recent authoritative deliveries, retry
           // the original idempotency key. Never infer success from totals alone.
           try {
-            authoritative = await firstValueFrom(
-              this.http.post<LiveScore>(
-                `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
-                item.payload,
-                { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+            authoritative = this.unwrapApiPayload<LiveScore>(
+              await firstValueFrom(
+                this.http.post<any>(
+                  `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
+                  item.payload,
+                  { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+                ),
               ),
             );
             await this.offlineStore.remove(item.commandId);
@@ -978,8 +930,10 @@ export class LiveScoringV2Component implements OnDestroy {
             // If the command was not committed, the server rejects the stale
             // position. Keep it in IndexedDB; never infer success from score totals.
             try {
-              const latest = await firstValueFrom(
-                this.http.get<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}`),
+              const latest = this.unwrapApiPayload<LiveScore>(
+                await firstValueFrom(
+                  this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
+                ),
               );
               authoritative = latest;
               this.applyScore(latest);
@@ -1013,11 +967,13 @@ export class LiveScoringV2Component implements OnDestroy {
         }
 
         try {
-          authoritative = await firstValueFrom(
-            this.http.post<LiveScore>(
-              `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
-              item.payload,
-              { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+          authoritative = this.unwrapApiPayload<LiveScore>(
+            await firstValueFrom(
+              this.http.post<any>(
+                `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
+                item.payload,
+                { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+              ),
             ),
           );
           await this.offlineStore.remove(item.commandId);
@@ -1028,8 +984,10 @@ export class LiveScoringV2Component implements OnDestroy {
           // Re-fetch before deciding whether the request failed or committed but
           // its response was lost. The stable command id remains safe to retry.
           try {
-            const latest = await firstValueFrom(
-              this.http.get<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}`),
+            const latest = this.unwrapApiPayload<LiveScore>(
+              await firstValueFrom(
+                this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
+              ),
             );
             if (this.isDeliveryAlreadyRecorded(item, latest)) {
               authoritative = latest;
