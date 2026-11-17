@@ -273,6 +273,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.score.status !== 'LIVE') return 'Scoring is unavailable for this innings.';
     if (this.offlineQueueBlocked)
       return 'Pending offline deliveries need reconciliation before scoring can continue.';
+    if (navigator.onLine && !this.scorerLeaseReady)
+      return 'Waiting for exclusive scorer control. Another active scorer may own this innings.';
     if (this.busy) return 'Saving the previous action…';
     if (this.targetReached) return 'Target reached. Scoring is locked.';
     if (this.oversComplete) return 'All allotted overs are complete.';
