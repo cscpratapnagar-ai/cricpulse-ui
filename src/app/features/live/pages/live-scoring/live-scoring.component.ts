@@ -63,7 +63,15 @@ export class LiveScoringV2Component implements OnDestroy {
   readonly api = API_BASE_URL;
   readonly runs = [0, 1, 2, 3, 4, 5, 6];
   readonly wicketOptions = DELIVERY_WICKET_OPTIONS;
-  matchId = this.route.snapshot.paramMap.get('id') || '';
+  // The route is hosted inside DashboardComponent's empty-path child route.
+  // In that configuration Angular may keep :id on an ancestor snapshot.
+  matchId =
+    this.route.snapshot.paramMap.get('id') ||
+    this.route.parent?.snapshot.paramMap.get('id') ||
+    this.route.pathFromRoot
+      .map((route) => route.snapshot.paramMap.get('id'))
+      .find((id): id is string => !!id) ||
+    '';
   match: Match | null = null;
   xi: XIPlayer[] = [];
   score: LiveScore | null = null;
@@ -634,6 +642,15 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   retrySessionLoad() {
+    if (!this.matchId) {
+      this.matchId =
+        this.route.snapshot.paramMap.get('id') ||
+        this.route.parent?.snapshot.paramMap.get('id') ||
+        this.route.pathFromRoot
+          .map((route) => route.snapshot.paramMap.get('id'))
+          .find((id): id is string => !!id) ||
+        '';
+    }
     this.loading = true;
     this.message = '';
     this.syncState = 'SYNCED';
