@@ -126,6 +126,8 @@ export class LiveScoringV2Component implements OnDestroy {
   private localRelaySocket?: WebSocket;
   private localRelayReconnectTimer?: ReturnType<typeof setTimeout>;
   private localRelayReconnectDelay = 1000;
+  private offlineSyncRetryTimer?: ReturnType<typeof setTimeout>;
+  private offlineSyncRetryDelay = 3000;
   private destroyed = false;
 
   constructor() {
@@ -152,6 +154,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.localRelaySocket = undefined;
     if (this.refreshTimer) clearInterval(this.refreshTimer);
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
+    if (this.offlineSyncRetryTimer) clearTimeout(this.offlineSyncRetryTimer);
     window.removeEventListener('online', this.onlineHandler);
     window.removeEventListener('offline', this.offlineHandler);
   }
@@ -725,13 +728,52 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private handleReconnect() {
+    if (!navigator.onLine || !this.inningsId) return;
     this.connectionState = 'RECONNECTING';
-    if (!this.inningsId) return;
     this.connectLiveSocket(this.inningsId);
-    // A queue can have been marked BLOCKED during a previous interrupted
-    // session. Re-validate it against the authoritative server state on every
-    // reconnect; retryOfflineSync preserves each original commandId.
+    // Revalidate previously blocked entries against the server before replay.
+    // Original command IDs are retained, so retries remain idempotent.
     void this.retryOfflineSync();
+  }
+
+  private scheduleOfflineSyncRetry(): void {
+    if (this.destroyed || !navigator.onLine || !this.inningsId || this.offlineSyncRetryTimer) return;
+    const delay = this.offlineSyncRetryDelay;
+    this.offlineSyncRetryDelay = Math.min(this.offlineSyncRetryDelay * 2, 30000);
+    this.offlineSyncRetryTimer = setTimeout(() => {
+      this.offlineSyncRetryTimer = undefined;
+      if (navigator.onLine) void this.resumePendingOfflineSync();
+    }, delay);
+  }
+
+  private async resumePendingOfflineSync(): Promise<void> {
+    if (!navigator.onLine || !this.inningsId || this.flushingOfflineQueue || this.offlineQueueBlocked) return;
+    try {
+      const queue = await this.offlineStore.list(this.inningsId);
+      this.pendingOfflineCount = queue.length;
+      if (!queue.length) {
+        this.syncState = 'SYNCED';
+        this.offlineSyncRetryDelay = 3000;
+        return;
+      }
+      const raw = await firstValueFrom(this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`));
+      const payload = this.unwrapApiPayload<any>(raw);
+      const authoritative = {
+        ...payload,
+        inningsId: payload?.inningsId || payload?.innings_id || payload?.id || this.inningsId,
+      } as LiveScore;
+      if (!payload || typeof payload !== 'object' || !authoritative.inningsId || !Number.isFinite(authoritative.legalBalls)) {
+        throw new Error('Server returned an invalid innings score; queued deliveries were retained.');
+      }
+      this.scoreFingerprint = '';
+      this.reconcileScore(authoritative, true);
+      await this.offlineStore.saveSnapshot(authoritative);
+      await this.flushOfflineQueue();
+    } catch (error: any) {
+      this.syncState = 'QUEUED';
+      this.message = error?.error?.message || error?.message || 'Server is temporarily unavailable. Offline deliveries remain saved and will retry automatically.';
+      this.scheduleOfflineSyncRetry();
+    }
   }
 
   private loadScoreById(id: string, silent = false) {
@@ -1066,13 +1108,19 @@ export class LiveScoringV2Component implements OnDestroy {
       }
 
       this.syncState = this.pendingOfflineCount ? 'QUEUED' : 'SYNCED';
-      this.message = this.pendingOfflineCount
-        ? `${this.pendingOfflineCount} offline delivery/deliveries remain queued.`
-        : 'All offline deliveries synced successfully.';
+      if (this.pendingOfflineCount) {
+        this.message = `${this.pendingOfflineCount} offline delivery/deliveries remain queued.`;
+        this.scheduleOfflineSyncRetry();
+      } else {
+        this.message = 'All offline deliveries synced successfully.';
+        this.offlineSyncRetryDelay = 3000;
+        if (this.offlineSyncRetryTimer) clearTimeout(this.offlineSyncRetryTimer);
+        this.offlineSyncRetryTimer = undefined;
+      }
     } catch (error: any) {
-      this.syncState = 'ERROR';
-      this.message =
-        error?.error?.message || error?.message || 'Could not sync offline deliveries.';
+      this.syncState = 'QUEUED';
+      this.message = error?.error?.message || error?.message || 'Server is temporarily unavailable. Offline deliveries remain saved and will retry automatically.';
+      this.scheduleOfflineSyncRetry();
     } finally {
       this.flushingOfflineQueue = false;
     }
@@ -1102,7 +1150,7 @@ export class LiveScoringV2Component implements OnDestroy {
     try {
       await this.offlineStore.markInningsQueuePending(this.inningsId);
       this.scoreFingerprint = '';
-      this.loadScoreById(this.inningsId, true);
+      await this.resumePendingOfflineSync();
     } catch (error: any) {
       this.offlineQueueBlocked = true;
       this.syncState = 'ERROR';
