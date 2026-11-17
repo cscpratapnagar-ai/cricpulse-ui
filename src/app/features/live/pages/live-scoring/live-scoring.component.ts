@@ -123,6 +123,10 @@ export class LiveScoringV2Component implements OnDestroy {
   private lastDeliveryPayload: any = null;
   private pendingDeliveryCommandId: string | null = null;
   private scoreBroadcastChannel?: BroadcastChannel;
+  private localRelaySocket?: WebSocket;
+  private localRelayReconnectTimer?: ReturnType<typeof setTimeout>;
+  private localRelayReconnectDelay = 1000;
+  private destroyed = false;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
@@ -131,6 +135,7 @@ export class LiveScoringV2Component implements OnDestroy {
     if (typeof BroadcastChannel !== 'undefined') {
       this.scoreBroadcastChannel = new BroadcastChannel('cricpulse-live-score');
     }
+    this.connectLocalObsRelay();
     this.liveSocket.state$.subscribe((state) => {
       this.socketState = state;
       if (state === 'CONNECTED') this.connectionState = 'ONLINE';
@@ -139,8 +144,12 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.liveSocket.disconnect();
     this.scoreBroadcastChannel?.close();
+    if (this.localRelayReconnectTimer) clearTimeout(this.localRelayReconnectTimer);
+    this.localRelaySocket?.close();
+    this.localRelaySocket = undefined;
     if (this.refreshTimer) clearInterval(this.refreshTimer);
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     window.removeEventListener('online', this.onlineHandler);
@@ -807,13 +816,7 @@ export class LiveScoringV2Component implements OnDestroy {
     // Keep OBS Browser Sources on this origin updated from the scorer's local
     // projection while the network is unavailable. The server remains the
     // source of truth for reconnect reconciliation.
-    this.scoreBroadcastChannel?.postMessage({
-      source: 'cricpulse-scorer',
-      matchId: this.matchId,
-      inningsId: s.inningsId,
-      score: s,
-      sentAt: Date.now(),
-    });
+    this.publishLocalObsScore(s);
     this.inningsId = s.inningsId || this.inningsId;
     this.inningsNumber = s.inningsNumber || this.inningsNumber;
     this.battingTeamId = (s as any).battingTeamId || this.battingTeamId;
@@ -826,6 +829,52 @@ export class LiveScoringV2Component implements OnDestroy {
     } else {
       this.previousBowlerId = '';
       this.selectedBowlerId = s.currentBowlerId || '';
+    }
+  }
+
+
+  private connectLocalObsRelay(): void {
+    if (this.destroyed || typeof WebSocket === 'undefined') return;
+    try {
+      const socket = new WebSocket('ws://127.0.0.1:8765/ws');
+      this.localRelaySocket = socket;
+      socket.onopen = () => {
+        if (this.localRelaySocket !== socket || this.destroyed) return;
+        this.localRelayReconnectDelay = 1000;
+        if (this.score) this.publishLocalObsScore(this.score);
+      };
+      socket.onclose = () => {
+        if (this.localRelaySocket !== socket) return;
+        this.localRelaySocket = undefined;
+        this.scheduleLocalObsRelayReconnect();
+      };
+      socket.onerror = () => socket.close();
+    } catch {
+      this.scheduleLocalObsRelayReconnect();
+    }
+  }
+
+  private scheduleLocalObsRelayReconnect(): void {
+    if (this.destroyed || this.localRelayReconnectTimer) return;
+    const delay = this.localRelayReconnectDelay;
+    this.localRelayReconnectDelay = Math.min(this.localRelayReconnectDelay * 2, 15000);
+    this.localRelayReconnectTimer = setTimeout(() => {
+      this.localRelayReconnectTimer = undefined;
+      this.connectLocalObsRelay();
+    }, delay);
+  }
+
+  private publishLocalObsScore(score: LiveScore): void {
+    const message = {
+      source: 'cricpulse-scorer',
+      matchId: this.matchId,
+      inningsId: score.inningsId,
+      score,
+      sentAt: Date.now(),
+    };
+    this.scoreBroadcastChannel?.postMessage(message);
+    if (this.localRelaySocket?.readyState === WebSocket.OPEN) {
+      this.localRelaySocket.send(JSON.stringify(message));
     }
   }
 
