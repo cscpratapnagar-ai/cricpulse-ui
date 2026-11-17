@@ -548,7 +548,10 @@
       }
     </main>
   } @else {
-    <div class="loading-state">Unable to load scoring session.</div>
+    <div class="loading-state">
+      <span>{{ message || 'Unable to load scoring session.' }}</span>
+      <button type="button" (click)="retrySessionLoad()">Retry loading session</button>
+    </div>
   }
 
   @if (undoConfirmOpen) {
