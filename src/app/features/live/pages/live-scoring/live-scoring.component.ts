@@ -1038,11 +1038,26 @@ export class LiveScoringV2Component implements OnDestroy {
           ],
         }
       : score;
+    // Offline wicket projection changes player IDs locally. Resolve those IDs
+    // against the cached XI before publishing so OBS never keeps the dismissed
+    // batter's stale name (the server is intentionally not contacted offline).
+    const playerName = (playerId: string | null | undefined) =>
+      this.xi.find((player) => player.playerId === playerId)?.name || null;
+    const namedOverlayScore: LiveScore = {
+      ...overlayScore,
+      strikerName: playerName(overlayScore.strikerId) || overlayScore.strikerName || null,
+      nonStrikerName:
+        playerName(overlayScore.nonStrikerId) || overlayScore.nonStrikerName || null,
+      batters: (overlayScore.batters || []).map((batter) => ({
+        ...batter,
+        playerName: playerName(batter.playerId) || batter.playerName || null,
+      })),
+    };
     const message = {
       source: 'cricpulse-scorer',
       matchId: this.matchId,
       inningsId: score.inningsId,
-      score: overlayScore,
+      score: namedOverlayScore,
       match: this.match,
       battingTeamId: this.battingTeamId,
       bowlingTeamId: this.bowlingTeamId,
