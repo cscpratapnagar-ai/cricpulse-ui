@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Normalize broadcast branch formatting
-        if: (github.event_name == 'pull_request' && github.head_ref == 'feat/universal-broadcast-engine') || (github.event_name == 'push' && github.ref == 'refs/heads/develop' && github.event.head_commit.message == 'ci: normalize broadcast formatting on current fix')
+        if: (github.event_name == 'pull_request' && github.head_ref == 'feat/universal-broadcast-engine') || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
         run: |
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           git fetch origin "${BRANCH}"
