@@ -120,6 +120,30 @@ export class OfflineScoringStore {
     );
   }
 
+  /**
+   * Commit a server acknowledgement atomically: either both the authoritative
+   * snapshot is stored and the queue item is removed, or neither change lands.
+   * This closes the crash window between deleting a delivery and saving its
+   * confirmed score.
+   */
+  async acknowledgeDelivery(commandId: string, score: LiveScore): Promise<void> {
+    const db = await this.open();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction([QUEUE_STORE, SNAPSHOT_STORE], 'readwrite');
+      transaction.objectStore(SNAPSHOT_STORE).put({
+        inningsId: score.inningsId,
+        savedAt: Date.now(),
+        score,
+      });
+      transaction.objectStore(QUEUE_STORE).delete(commandId);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () =>
+        reject(transaction.error ?? new Error('Could not commit offline delivery acknowledgement.'));
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Offline delivery acknowledgement was aborted.'));
+    });
+  }
+
   async markInningsQueueBlocked(inningsId: string): Promise<void> {
     const db = await this.open();
     await new Promise<void>((resolve, reject) => {
