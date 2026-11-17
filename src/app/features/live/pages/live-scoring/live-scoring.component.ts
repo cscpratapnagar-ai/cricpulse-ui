@@ -560,7 +560,7 @@ export class LiveScoringV2Component implements OnDestroy {
       }
 
       this.applyScore(projected);
-      this.connectionState = 'OFFLINE';
+      this.connectionState = navigator.onLine ? 'RECONNECTING' : 'OFFLINE';
       if (this.offlineQueueBlocked) {
         await this.offlineStore.markInningsQueueBlocked(this.inningsId).catch(() => undefined);
         this.syncState = 'ERROR';
@@ -575,9 +575,14 @@ export class LiveScoringV2Component implements OnDestroy {
           : 'Saved score restored. New deliveries will be stored locally until internet returns.';
       }
       this.loading = false;
+      // The online event may have fired before the saved innings was restored.
+      // Re-check connectivity now that inningsId and the pending queue are ready.
+      if (navigator.onLine && !this.offlineQueueBlocked) {
+        this.handleReconnect();
+      }
     } catch (error: any) {
       this.loading = false;
-      this.connectionState = 'OFFLINE';
+      this.connectionState = navigator.onLine ? 'RECONNECTING' : 'OFFLINE';
       this.syncState = 'ERROR';
       this.message = error?.message || 'Could not restore offline score data.';
     }
