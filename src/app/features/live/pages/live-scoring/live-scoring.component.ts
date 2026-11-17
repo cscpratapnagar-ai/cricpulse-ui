@@ -613,7 +613,8 @@ export class LiveScoringV2Component implements OnDestroy {
         selectedBowlerId: bowlerId,
       })
       .catch(() => {
-        this.message = 'Bowler selection could not be saved for offline recovery. Please select again.';
+        this.message =
+          'Bowler selection could not be saved for offline recovery. Please select again.';
         this.syncState = 'ERROR';
       });
   }
