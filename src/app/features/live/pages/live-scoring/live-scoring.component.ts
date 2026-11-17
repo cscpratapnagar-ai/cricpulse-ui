@@ -1046,8 +1046,7 @@ export class LiveScoringV2Component implements OnDestroy {
     const namedOverlayScore: LiveScore = {
       ...overlayScore,
       strikerName: playerName(overlayScore.strikerId) || overlayScore.strikerName || null,
-      nonStrikerName:
-        playerName(overlayScore.nonStrikerId) || overlayScore.nonStrikerName || null,
+      nonStrikerName: playerName(overlayScore.nonStrikerId) || overlayScore.nonStrikerName || null,
       batters: (overlayScore.batters || []).map((batter) => ({
         ...batter,
         playerName: playerName(batter.playerId) || batter.playerName || null,
