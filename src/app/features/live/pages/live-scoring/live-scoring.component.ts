@@ -1172,13 +1172,25 @@ export class LiveScoringV2Component implements OnDestroy {
       this.offlineStore
         .enqueue(queued)
         .then(async () => {
-          this.score = projected;
+          // Publish the local projection immediately so same-origin overlay
+          // contexts receive the offline score, not only the scorer component.
+          this.applyScore(projected);
+          await this.offlineStore.saveSnapshot(projected).then(
+            () => {
+              this.offlineSnapshotReady = true;
+            },
+            () => {
+              this.offlineSnapshotReady = false;
+            },
+          );
           this.pendingDeliveryCommandId = null;
           this.lastDeliveryPayload = null;
           this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
           this.busy = false;
           this.syncState = 'QUEUED';
-          this.message = 'Delivery saved on this device. It will sync when internet returns.';
+          this.message = this.offlineSnapshotReady
+            ? 'Delivery saved on this device. It will sync when internet returns.'
+            : 'Delivery is safely queued, but the latest offline snapshot could not be saved.';
           this.showDeliveryFeedback(body);
         })
         .catch((error) => {
