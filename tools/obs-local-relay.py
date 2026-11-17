@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import json
+import os
 import socket
 import socketserver
 import struct
@@ -18,6 +20,52 @@ PORT = 8765
 CLIENTS: set[socket.socket] = set()
 CLIENTS_LOCK = threading.Lock()
 LATEST_BY_MATCH: dict[str, bytes] = {}
+STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "obs-local-relay-state.json")
+
+
+def load_saved_scores() -> None:
+    """Restore the last score per match after a relay/PC restart."""
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as state_file:
+            saved = json.load(state_file)
+        if not isinstance(saved, dict):
+            return
+        for match_id, message in saved.items():
+            if not isinstance(match_id, str) or not isinstance(message, dict):
+                continue
+            if (
+                message.get("source") == "cricpulse-scorer"
+                and message.get("matchId") == match_id
+                and isinstance(message.get("score"), dict)
+                and message["score"].get("inningsId")
+            ):
+                LATEST_BY_MATCH[match_id] = json.dumps(
+                    message, separators=(",", ":"), ensure_ascii=False
+                ).encode("utf-8")
+    except (OSError, ValueError, TypeError):
+        # A missing or damaged cache must not prevent the relay from starting.
+        return
+
+
+def save_scores_locked() -> None:
+    """Atomically persist the in-memory snapshots while CLIENTS_LOCK is held."""
+    temporary = STATE_FILE + ".tmp"
+    try:
+        saved = {
+            match_id: json.loads(payload.decode("utf-8"))
+            for match_id, payload in LATEST_BY_MATCH.items()
+        }
+        with open(temporary, "w", encoding="utf-8") as state_file:
+            json.dump(saved, state_file, ensure_ascii=False, separators=(",", ":"))
+            state_file.flush()
+            os.fsync(state_file.fileno())
+        os.replace(temporary, STATE_FILE)
+    except (OSError, UnicodeDecodeError, ValueError, TypeError):
+        try:
+            if os.path.exists(temporary):
+                os.remove(temporary)
+        except OSError:
+            pass
 
 
 def recv_exact(sock: socket.socket, size: int) -> bytes:
@@ -45,12 +93,17 @@ def send_frame(sock: socket.socket, opcode: int, payload: bytes) -> None:
 def broadcast(sender: socket.socket, payload: bytes) -> None:
     dead: list[socket.socket] = []
     try:
-        import json
         message = json.loads(payload.decode("utf-8"))
-        if message.get("source") == "cricpulse-scorer" and message.get("matchId"):
+        if (
+            message.get("source") == "cricpulse-scorer"
+            and message.get("matchId")
+            and isinstance(message.get("score"), dict)
+            and message["score"].get("inningsId")
+        ):
             with CLIENTS_LOCK:
                 LATEST_BY_MATCH[str(message["matchId"])] = payload
-    except (UnicodeDecodeError, ValueError, AttributeError):
+                save_scores_locked()
+    except (UnicodeDecodeError, ValueError, AttributeError, TypeError):
         pass
     with CLIENTS_LOCK:
         recipients = [client for client in CLIENTS if client is not sender]
