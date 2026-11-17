@@ -832,7 +832,6 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
-
   private connectLocalObsRelay(): void {
     if (this.destroyed || typeof WebSocket === 'undefined') return;
     try {
