@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { clearSession } from '../../core/auth/auth';
+import { API_BASE_URL } from '../../core/config/api.config';
 import { ThemeService } from '../../core/services/theme.service';
 import { DashboardService } from './dashboard.service';
 
@@ -15,6 +17,7 @@ import { DashboardService } from './dashboard.service';
 })
 export class DashboardComponent {
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
   readonly theme = inject(ThemeService);
   readonly dashboard = inject(DashboardService);
   readonly commandOpen = signal(false);
@@ -112,7 +115,13 @@ export class DashboardComponent {
   }
 
   logout() {
-    clearSession();
-    void this.router.navigateByUrl('/login');
+    const finish = () => {
+      clearSession();
+      void this.router.navigateByUrl('/login');
+    };
+    this.http.post<void>(`${API_BASE_URL}/auth/logout`, {}).subscribe({
+      next: finish,
+      error: finish,
+    });
   }
 }
