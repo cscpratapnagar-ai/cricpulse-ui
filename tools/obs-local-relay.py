@@ -204,6 +204,7 @@ class ThreadedRelay(socketserver.ThreadingTCPServer):
 
 
 if __name__ == "__main__":
+    load_saved_scores()
     with ThreadedRelay((HOST, PORT), RelayHandler) as server:
         print(f"CricPulse OBS local relay listening at ws://{HOST}:{PORT}/ws")
         print("Keep this window open while scoring and streaming. Press Ctrl+C to stop.")
