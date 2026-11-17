@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ElementRef, ViewChild } from '@angular/core';
-import { clearSession } from './auth';
+import { API_BASE, clearSession } from './auth';
 
 interface CurrentUser { userId: string; fullName: string; role: string; }
 interface Team { id: string; name: string; city: string; ownerId: string; }
@@ -47,10 +47,10 @@ export class DashboardComponent implements AfterViewInit {
   constructor(){
     localStorage.removeItem('cricketpulse_team');
     this.router.events.subscribe(event=>{if(event instanceof NavigationEnd){setTimeout(()=>this.resetSidebarScroll(),0)}});
-    this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+    this.http.get<CurrentUser>(`${API_BASE}/auth/me').subscribe({
       next:u=>{
         this.user=u;
-        this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+        this.http.get<Team[]>(`${API_BASE}/teams/mine').subscribe({
           next:teams=>{
             this.team=teams.length>0?teams[0]:null;
             if(this.team) localStorage.setItem('cricketpulse_team',JSON.stringify(this.team));
@@ -68,7 +68,7 @@ export class DashboardComponent implements AfterViewInit {
   openSidebar():void{this.sidebarOpen=true;document.body.style.overflow='hidden'}
   closeSidebar():void{this.sidebarOpen=false;document.body.style.overflow=''}
   private resetSidebarScroll():void{if(this.sidebar){this.sidebar.nativeElement.scrollTop=0;this.sidebar.nativeElement.style.overflowY=window.innerWidth<=800?'auto':'hidden'}}
-  logout():void{this.http.post<void>('http://localhost:8080/api/auth/logout',{}).subscribe({next:()=>this.finishLogout(),error:()=>this.finishLogout()})}
+  logout():void{this.http.post<void>(`${API_BASE}/auth/logout',{}).subscribe({next:()=>this.finishLogout(),error:()=>this.finishLogout()})}
   private finishLogout():void{clearSession();localStorage.removeItem('cricketpulse_team');void this.router.navigateByUrl('/login')}
   ngOnDestroy():void{document.body.style.overflow=''}
 }
