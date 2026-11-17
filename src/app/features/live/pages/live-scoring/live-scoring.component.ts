@@ -758,11 +758,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.http.get<any>(`${this.api}/matches/${this.matchId}`).pipe(timeout({ first: 4000 })),
       );
       this.connectionState = 'ONLINE';
-      if (
-        this.inningsId &&
-        this.socketState !== 'CONNECTED' &&
-        this.socketState !== 'CONNECTING'
-      ) {
+      if (this.inningsId && this.socketState !== 'CONNECTED' && this.socketState !== 'CONNECTING') {
         this.connectLiveSocket(this.inningsId);
       }
       if (this.inningsId && !this.flushingOfflineQueue) {
