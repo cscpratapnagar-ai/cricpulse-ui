@@ -68,6 +68,7 @@ export class DashboardComponent implements AfterViewInit {
   openSidebar():void{this.sidebarOpen=true;document.body.style.overflow='hidden'}
   closeSidebar():void{this.sidebarOpen=false;document.body.style.overflow=''}
   private resetSidebarScroll():void{if(this.sidebar){this.sidebar.nativeElement.scrollTop=0;this.sidebar.nativeElement.style.overflowY=window.innerWidth<=800?'auto':'hidden'}}
-  logout():void{clearSession();localStorage.removeItem('cricketpulse_team');void this.router.navigateByUrl('/login')}
+  logout():void{this.http.post<void>('http://localhost:8080/api/auth/logout',{}).subscribe({next:()=>this.finishLogout(),error:()=>this.finishLogout()})}
+  private finishLogout():void{clearSession();localStorage.removeItem('cricketpulse_team');void this.router.navigateByUrl('/login')}
   ngOnDestroy():void{document.body.style.overflow=''}
 }
