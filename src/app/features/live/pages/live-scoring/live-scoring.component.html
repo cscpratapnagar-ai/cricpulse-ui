@@ -225,9 +225,15 @@
             @if (syncState === 'ERROR') {
               <div class="error-actions">
                 <span>{{ message }}</span>
-                <button type="button" (click)="retryLastAction()" [disabled]="busy">
-                  Retry action
-                </button>
+                @if (pendingOfflineCount > 0) {
+                  <button type="button" (click)="retryOfflineSync()" [disabled]="busy || !navigator.onLine">
+                    Reconcile offline sync
+                  </button>
+                } @else {
+                  <button type="button" (click)="retryLastAction()" [disabled]="busy">
+                    Retry action
+                  </button>
+                }
                 <button type="button" (click)="dismissError()">Dismiss</button>
               </div>
             }
