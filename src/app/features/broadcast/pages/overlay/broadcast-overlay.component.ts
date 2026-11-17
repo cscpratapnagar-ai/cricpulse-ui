@@ -2,7 +2,7 @@ import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { catchError, finalize, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, finalize, map, merge, of, switchMap, tap } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import {
@@ -100,6 +100,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
   match: Match | null = null;
   innings: BroadcastInnings[] = [];
   score$ = of<LiveScore | null>(null);
+  private readonly localScore$ = new BehaviorSubject<LiveScore | null>(null);
+  private localScoreChannel?: BroadcastChannel;
   autoEvent: AutoEvent | null = null;
   private currentInningsId: string | null = null;
   private previousScore: LiveScore | null = null;
@@ -159,6 +161,18 @@ export class BroadcastOverlayComponent implements OnDestroy {
     // OBS Browser Sources need the page canvas itself to remain transparent;
     // the normal application theme paints html/body with an opaque background.
     this.document.documentElement.classList.add('cricpulse-overlay-mode');
+    if (typeof BroadcastChannel !== 'undefined') {
+      this.localScoreChannel = new BroadcastChannel('cricpulse-live-score');
+      this.localScoreChannel.onmessage = (event: MessageEvent) => {
+        const message = event.data;
+        if (
+          message?.source !== 'cricpulse-scorer' ||
+          message?.matchId !== this.matchId ||
+          !message?.score?.inningsId
+        ) return;
+        this.localScore$.next(message.score as LiveScore);
+      };
+    }
     if (!this.matchId) return;
     if (this.mode !== 'sponsor') {
       this.refreshBroadcastState();
@@ -169,6 +183,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.document.documentElement.classList.remove('cricpulse-overlay-mode');
+    this.localScoreChannel?.close();
+    this.localScore$.complete();
     if (this.autoTimer) clearTimeout(this.autoTimer);
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
@@ -272,8 +288,15 @@ export class BroadcastOverlayComponent implements OnDestroy {
             this.previousScore = null;
             this.previousInningsId = this.currentInningsId;
             this.currentInningsId = current;
-            this.score$ = this.liveScore.watch(current).pipe(
-              tap((score) => this.onScore(score)),
+            this.score$ = merge(
+              this.liveScore.watch(current),
+              this.localScore$.pipe(
+                // A scorer may publish an offline projection for another innings
+                // in the same match; only display the active innings.
+                switchMap((score) => of(score?.inningsId === current ? score : null)),
+              ),
+            ).pipe(
+              tap((score) => { if (score) this.onScore(score); }),
               catchError(() => {
                 this.broadcastError = 'Unable to connect to the live score feed. Reconnecting…';
                 // Allow the next broadcast-state poll to create a fresh watch
