@@ -31,15 +31,22 @@ function readCookie(name: string): string | null {
   return value ? decodeURIComponent(value.slice(prefix.length)) : null;
 }
 
-function isApiRequest(url: string): boolean {
-  return url.startsWith(API_BASE) || url.startsWith('/api/');
+const LEGACY_LOCAL_API_BASE = 'http://localhost:8080/api';
+
+function normalizeApiUrl(url: string): string | null {
+  if (url.startsWith(LEGACY_LOCAL_API_BASE)) return url.replace(LEGACY_LOCAL_API_BASE, API_BASE);
+  if (url.startsWith(API_BASE)) return url;
+  if (url.startsWith('/api/')) return url;
+  return null;
 }
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
-  if (!isApiRequest(request.url)) return next(request);
+  const apiUrl = normalizeApiUrl(request.url);
+  if (!apiUrl) return next(request);
 
   const http = inject(HttpClient);
   const credentialed = request.clone({
+    url: apiUrl,
     withCredentials: true,
     headers: request.headers.delete('Authorization')
   });
