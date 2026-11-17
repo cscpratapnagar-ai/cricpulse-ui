@@ -226,7 +226,7 @@
               <div class="error-actions">
                 <span>{{ message }}</span>
                 @if (pendingOfflineCount > 0) {
-                  <button type="button" (click)="retryOfflineSync()" [disabled]="busy || !navigator.onLine">
+                  <button type="button" (click)="retryOfflineSync()" [disabled]="busy || connectionState === 'OFFLINE'">
                     Reconcile offline sync
                   </button>
                 } @else {
