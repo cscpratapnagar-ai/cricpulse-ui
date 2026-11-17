@@ -242,8 +242,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
           if (nextScore) this.onScore(nextScore);
         }),
         catchError(() => {
-          // Keep the local relay stream alive; REST polling will retry the
-          // authoritative feed after connectivity returns.
+          // Mark the REST feed for reinitialization. The next broadcast-state
+          // poll will attach a fresh authoritative stream after connectivity returns.
+          this.currentInningsId = null;
           this.broadcastError = null;
           return this.localScore$.pipe(
             filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
