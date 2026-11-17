@@ -257,7 +257,8 @@
                 label="Bowler"
                 placeholder="Select bowler"
                 [options]="bowlerOptions"
-                [(value)]="selectedBowlerId"
+                [value]="selectedBowlerId"
+                (valueChange)="onBowlerSelected($event)"
                 [disabled]="!canChangeBowler"
               />
             </div>
