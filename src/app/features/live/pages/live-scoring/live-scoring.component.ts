@@ -747,12 +747,7 @@ export class LiveScoringV2Component implements OnDestroy {
   // navigator.onLine only reports browser network availability. Probe the actual
   // CricPulse API so Wi-Fi without backend access is never shown as ONLINE.
   private async checkBackendConnectivity(): Promise<void> {
-    if (
-      this.destroyed ||
-      !navigator.onLine ||
-      !this.matchId ||
-      this.connectivityProbeInFlight
-    ) {
+    if (this.destroyed || !navigator.onLine || !this.matchId || this.connectivityProbeInFlight) {
       if (!navigator.onLine) this.connectionState = 'OFFLINE';
       return;
     }
