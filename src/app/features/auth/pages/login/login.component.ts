@@ -5,9 +5,6 @@ import { Router, RouterLink } from '@angular/router';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { CurrentUserService } from '../../../../core/services/current-user.service';
 
-interface AuthResponse {
-  accessToken: string;
-}
 interface CurrentUser {
   userId?: string;
   id?: string;
@@ -53,16 +50,15 @@ export class LoginComponent {
     }
     this.loading = true;
     this.http
-      .post<AuthResponse>(`${API_BASE_URL}/auth/login`, {
+      .post<void>(`${API_BASE_URL}/auth/login`, {
         email,
         password: this.password,
       })
       .subscribe({
-        next: (r) => {
+        next: () => {
           // A login may switch accounts in the same browser. Never retain the previous user's workspace.
           localStorage.removeItem('cricketpulse_team');
           localStorage.removeItem('cricketpulse_active_team_id');
-          localStorage.setItem('cricketpulse_access_token', r.accessToken);
           this.http.get<CurrentUser>(`${API_BASE_URL}/auth/me`).subscribe({
             next: (u) => {
               this.currentUser.set(u);
