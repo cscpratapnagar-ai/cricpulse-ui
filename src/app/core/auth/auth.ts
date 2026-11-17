@@ -18,7 +18,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   if (SAFE_METHODS.has(request.method.toUpperCase())) return next(cookieRequest);
 
   // Fetch a synchronizer token before unsafe requests. The access token stays HttpOnly.
-  const csrfRequest = new HttpRequest('GET', `${API_BASE_URL}/auth/csrf`, {
+  const csrfRequest = new HttpRequest('GET', `${API_BASE_URL}/auth/csrf`, null, {
     withCredentials: true,
   });
   return next(csrfRequest).pipe(
