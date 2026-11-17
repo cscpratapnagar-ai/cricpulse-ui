@@ -11,30 +11,48 @@ describe('authInterceptor', () => {
 
   afterEach(() => localStorage.clear());
 
-  it('adds the bearer token to protected API requests', () => {
-    localStorage.setItem('cricketpulse_access_token', 'token-123');
+  it('sends API requests with browser credentials and no bearer token', () => {
+    localStorage.setItem('cricketpulse_access_token', 'legacy-token');
     const request = new HttpRequest('GET', '/api/matches');
 
     authInterceptor(request, (next) => {
-      expect(next.headers.get('Authorization')).toBe('Bearer token-123');
+      expect(next.withCredentials).toBeTrue();
+      expect(next.headers.has('Authorization')).toBeFalse();
       return of(new HttpResponse({ status: 200 }));
     }).subscribe();
   });
 
-  it('does not add the token to login requests', () => {
-    localStorage.setItem('cricketpulse_access_token', 'token-123');
-    const request = new HttpRequest('POST', '/api/auth/login', null);
+  it('bootstraps CSRF and adds its header to unsafe API requests', () => {
+    const request = new HttpRequest('POST', '/api/matches', { name: 'Final' });
+    const calls: HttpRequest<unknown>[] = [];
 
     authInterceptor(request, (next) => {
-      expect(next.headers.has('Authorization')).toBeFalse();
+      calls.push(next);
+      if (calls.length === 1) {
+        expect(next.url).toContain('/api/auth/csrf');
+        expect(next.withCredentials).toBeTrue();
+        return of(new HttpResponse({ body: { token: 'csrf-123' } }));
+      }
+      expect(next.headers.get('X-XSRF-TOKEN')).toBe('csrf-123');
+      expect(next.withCredentials).toBeTrue();
+      return of(new HttpResponse({ status: 201 }));
+    }).subscribe();
+
+    expect(calls.length).toBe(2);
+  });
+
+  it('does not recursively bootstrap the CSRF endpoint', () => {
+    const request = new HttpRequest('GET', '/api/auth/csrf');
+    authInterceptor(request, (next) => {
+      expect(next.withCredentials).toBeTrue();
       return of(new HttpResponse({ status: 200 }));
     }).subscribe();
   });
 });
 
 describe('clearSession', () => {
-  it('removes authentication and cached user storage', () => {
-    localStorage.setItem('cricketpulse_access_token', 'token');
+  it('removes legacy authentication and cached user storage', () => {
+    localStorage.setItem('cricketpulse_access_token', 'legacy-token');
     localStorage.setItem('cricketpulse_user', JSON.stringify({ id: '1' }));
 
     clearSession();
