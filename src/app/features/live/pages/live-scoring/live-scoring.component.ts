@@ -581,9 +581,17 @@ export class LiveScoringV2Component implements OnDestroy {
 
   private loadInnings() {
     this.http.get<any>(`${this.api}/matches/${this.matchId}/current-innings`).subscribe({
-      next: (i) => {
-        this.inningsId = i.id || i.inningsId || '';
-        this.inningsNumber = i.inningsNumber || 1;
+      next: (raw) => {
+        const i = this.unwrapApiPayload<any>(raw);
+        this.inningsId = i?.id || i?.inningsId || i?.innings_id || '';
+        if (!this.inningsId) {
+          this.loading = false;
+          this.syncState = 'ERROR';
+          this.message =
+            'Current innings response did not include an innings ID. Check the current-innings API response.';
+          return;
+        }
+        this.inningsNumber = i.inningsNumber || i.innings_number || 1;
         this.battingTeamId = i.battingTeamId || '';
         this.bowlingTeamId = i.bowlingTeamId || '';
         this.normalizeTeamIds();
@@ -612,6 +620,25 @@ export class LiveScoringV2Component implements OnDestroy {
             : e?.error?.message || 'Unable to load current innings.';
       },
     });
+  }
+
+  private unwrapApiPayload<T>(raw: any): T {
+    let value = raw;
+    for (let depth = 0; depth < 3; depth++) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) break;
+      const nested = value.data ?? value.result ?? value.innings ?? value.score;
+      if (!nested || typeof nested !== 'object') break;
+      value = nested;
+    }
+    return value as T;
+  }
+
+  retrySessionLoad() {
+    this.loading = true;
+    this.message = '';
+    this.syncState = 'SYNCED';
+    this.score = null;
+    this.load();
   }
 
   private normalizeTeamIds() {
@@ -658,8 +685,19 @@ export class LiveScoringV2Component implements OnDestroy {
       return;
     }
     this.inningsId = id;
-    this.http.get<LiveScore>(`${this.api}/scoring/innings/${id}`).subscribe({
-      next: (s) => {
+    this.http.get<any>(`${this.api}/scoring/innings/${id}`).subscribe({
+      next: (raw) => {
+        const payload = this.unwrapApiPayload<any>(raw);
+        const s = {
+          ...payload,
+          inningsId: payload?.inningsId || payload?.innings_id || payload?.id || id,
+        } as LiveScore;
+        if (!payload || typeof payload !== 'object') {
+          this.loading = false;
+          this.syncState = 'ERROR';
+          this.message = 'Live score API returned an empty or invalid response.';
+          return;
+        }
         this.reconcileScore(s, silent);
         this.persistOfflineSnapshot(s);
         void this.refreshPendingOfflineCount();
