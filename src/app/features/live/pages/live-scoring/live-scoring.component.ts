@@ -737,7 +737,8 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private scheduleOfflineSyncRetry(): void {
-    if (this.destroyed || !navigator.onLine || !this.inningsId || this.offlineSyncRetryTimer) return;
+    if (this.destroyed || !navigator.onLine || !this.inningsId || this.offlineSyncRetryTimer)
+      return;
     const delay = this.offlineSyncRetryDelay;
     this.offlineSyncRetryDelay = Math.min(this.offlineSyncRetryDelay * 2, 30000);
     this.offlineSyncRetryTimer = setTimeout(() => {
@@ -747,7 +748,13 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   private async resumePendingOfflineSync(): Promise<void> {
-    if (!navigator.onLine || !this.inningsId || this.flushingOfflineQueue || this.offlineQueueBlocked) return;
+    if (
+      !navigator.onLine ||
+      !this.inningsId ||
+      this.flushingOfflineQueue ||
+      this.offlineQueueBlocked
+    )
+      return;
     try {
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
@@ -756,14 +763,23 @@ export class LiveScoringV2Component implements OnDestroy {
         this.offlineSyncRetryDelay = 3000;
         return;
       }
-      const raw = await firstValueFrom(this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`));
+      const raw = await firstValueFrom(
+        this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
+      );
       const payload = this.unwrapApiPayload<any>(raw);
       const authoritative = {
         ...payload,
         inningsId: payload?.inningsId || payload?.innings_id || payload?.id || this.inningsId,
       } as LiveScore;
-      if (!payload || typeof payload !== 'object' || !authoritative.inningsId || !Number.isFinite(authoritative.legalBalls)) {
-        throw new Error('Server returned an invalid innings score; queued deliveries were retained.');
+      if (
+        !payload ||
+        typeof payload !== 'object' ||
+        !authoritative.inningsId ||
+        !Number.isFinite(authoritative.legalBalls)
+      ) {
+        throw new Error(
+          'Server returned an invalid innings score; queued deliveries were retained.',
+        );
       }
       this.scoreFingerprint = '';
       this.reconcileScore(authoritative, true);
@@ -771,7 +787,10 @@ export class LiveScoringV2Component implements OnDestroy {
       await this.flushOfflineQueue();
     } catch (error: any) {
       this.syncState = 'QUEUED';
-      this.message = error?.error?.message || error?.message || 'Server is temporarily unavailable. Offline deliveries remain saved and will retry automatically.';
+      this.message =
+        error?.error?.message ||
+        error?.message ||
+        'Server is temporarily unavailable. Offline deliveries remain saved and will retry automatically.';
       this.scheduleOfflineSyncRetry();
     }
   }
