@@ -848,7 +848,8 @@ export class LiveScoringV2Component implements OnDestroy {
     this.pendingOfflineCount = await this.offlineStore
       .count(this.inningsId)
       .catch(() => this.pendingOfflineCount);
-    this.message = `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
+    this.message =
+      `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
 
   private async flushOfflineQueue(): Promise<void> {
