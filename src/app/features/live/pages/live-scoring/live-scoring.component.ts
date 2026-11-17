@@ -519,9 +519,7 @@ export class LiveScoringV2Component implements OnDestroy {
     try {
       const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
       if (!snapshot) {
-        throw new Error(
-          'No saved score snapshot exists. Connect to the internet before scoring.',
-        );
+        throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
       }
 
       this.offlineSnapshotReady = true;
