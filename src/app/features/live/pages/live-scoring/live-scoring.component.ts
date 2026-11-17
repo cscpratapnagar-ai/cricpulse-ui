@@ -758,17 +758,31 @@ export class LiveScoringV2Component implements OnDestroy {
         this.http.get<any>(`${this.api}/matches/${this.matchId}`).pipe(timeout({ first: 4000 })),
       );
       this.connectionState = 'ONLINE';
-      this.connectLiveSocket(this.inningsId);
-      if (this.inningsId && this.pendingOfflineCount > 0 && !this.flushingOfflineQueue) {
-        await this.retryOfflineSync();
+      if (
+        this.inningsId &&
+        this.socketState !== 'CONNECTED' &&
+        this.socketState !== 'CONNECTING'
+      ) {
+        this.connectLiveSocket(this.inningsId);
+      }
+      if (this.inningsId && !this.flushingOfflineQueue) {
+        const queue = await this.offlineStore.list(this.inningsId);
+        this.pendingOfflineCount = queue.length;
+        if (queue.some((item) => item.syncStatus !== 'BLOCKED')) {
+          await this.resumePendingOfflineSync();
+        }
       }
     } catch (error: any) {
       // Any HTTP response (including 401/403/404) proves the API is reachable.
       // Status 0 and timeout indicate that the backend cannot be reached.
       if (Number(error?.status) > 0) {
         this.connectionState = 'ONLINE';
-        if (this.inningsId && this.pendingOfflineCount > 0 && !this.flushingOfflineQueue) {
-          await this.retryOfflineSync();
+        if (this.inningsId && !this.flushingOfflineQueue) {
+          const queue = await this.offlineStore.list(this.inningsId);
+          this.pendingOfflineCount = queue.length;
+          if (queue.some((item) => item.syncStatus !== 'BLOCKED')) {
+            await this.resumePendingOfflineSync();
+          }
         }
       } else {
         this.connectionState = 'OFFLINE';
