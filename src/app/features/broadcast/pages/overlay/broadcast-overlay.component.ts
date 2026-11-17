@@ -102,6 +102,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
   score$ = of<LiveScore | null>(null);
   private readonly localScore$ = new BehaviorSubject<LiveScore | null>(null);
   private localScoreChannel?: BroadcastChannel;
+  private localRelaySocket?: WebSocket;
+  private localRelayReconnectTimer?: ReturnType<typeof setTimeout>;
+  private localRelayReconnectDelay = 1000;
+  private destroyed = false;
   autoEvent: AutoEvent | null = null;
   private currentInningsId: string | null = null;
   private previousScore: LiveScore | null = null;
@@ -164,17 +168,11 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (typeof BroadcastChannel !== 'undefined') {
       this.localScoreChannel = new BroadcastChannel('cricpulse-live-score');
       this.localScoreChannel.onmessage = (event: MessageEvent) => {
-        const message = event.data;
-        if (
-          message?.source !== 'cricpulse-scorer' ||
-          message?.matchId !== this.matchId ||
-          !message?.score?.inningsId
-        )
-          return;
-        this.localScore$.next(message.score as LiveScore);
+        this.acceptLocalScoreMessage(event.data);
       };
     }
     if (!this.matchId) return;
+    this.connectLocalObsRelay();
     if (this.mode !== 'sponsor') {
       this.refreshBroadcastState();
       this.refreshTimer = setInterval(() => this.refreshBroadcastState(), 2000);
@@ -183,11 +181,63 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     this.document.documentElement.classList.remove('cricpulse-overlay-mode');
     this.localScoreChannel?.close();
+    if (this.localRelayReconnectTimer) clearTimeout(this.localRelayReconnectTimer);
+    this.localRelaySocket?.close();
+    this.localRelaySocket = undefined;
     this.localScore$.complete();
     if (this.autoTimer) clearTimeout(this.autoTimer);
     if (this.refreshTimer) clearInterval(this.refreshTimer);
+  }
+
+
+  private acceptLocalScoreMessage(message: any): void {
+    if (
+      message?.source !== 'cricpulse-scorer' ||
+      message?.matchId !== this.matchId ||
+      !message?.score?.inningsId
+    ) {
+      return;
+    }
+    this.localScore$.next(message.score as LiveScore);
+  }
+
+  private connectLocalObsRelay(): void {
+    if (this.destroyed || typeof WebSocket === 'undefined') return;
+    try {
+      const socket = new WebSocket('ws://127.0.0.1:8765/ws');
+      this.localRelaySocket = socket;
+      socket.onopen = () => {
+        if (this.localRelaySocket === socket) this.localRelayReconnectDelay = 1000;
+      };
+      socket.onmessage = (event: MessageEvent) => {
+        try {
+          this.acceptLocalScoreMessage(JSON.parse(String(event.data)));
+        } catch {
+          // Ignore malformed local relay messages.
+        }
+      };
+      socket.onclose = () => {
+        if (this.localRelaySocket !== socket) return;
+        this.localRelaySocket = undefined;
+        this.scheduleLocalObsRelayReconnect();
+      };
+      socket.onerror = () => socket.close();
+    } catch {
+      this.scheduleLocalObsRelayReconnect();
+    }
+  }
+
+  private scheduleLocalObsRelayReconnect(): void {
+    if (this.destroyed || this.localRelayReconnectTimer) return;
+    const delay = this.localRelayReconnectDelay;
+    this.localRelayReconnectDelay = Math.min(this.localRelayReconnectDelay * 2, 15000);
+    this.localRelayReconnectTimer = setTimeout(() => {
+      this.localRelayReconnectTimer = undefined;
+      this.connectLocalObsRelay();
+    }, delay);
   }
 
   private refreshBroadcastState() {
