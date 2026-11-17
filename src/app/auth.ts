@@ -9,9 +9,12 @@ declare global {
   interface Window { CRICPULSE_API_BASE_URL?: string; }
 }
 
+const defaultApiBase = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8080/api'
+  : '/api';
 export const API_BASE = (typeof window !== 'undefined' && window.CRICPULSE_API_BASE_URL
   ? window.CRICPULSE_API_BASE_URL
-  : 'http://localhost:8080/api').replace(/\/+$/, '');
+  : defaultApiBase).replace(/\/+$/, '');
 
 const CSRF_COOKIE = 'XSRF-TOKEN';
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
