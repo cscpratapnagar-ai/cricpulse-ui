@@ -481,6 +481,18 @@
                   <span class="empty-state">No deliveries yet</span>
                 }
               </div>
+              @if (correctionAudit.length) {
+                <div class="correction-history">
+                  <small>IMMUTABLE CORRECTION HISTORY · {{ correctionAudit.length }}</small>
+                  @for (correction of correctionAudit; track correction.correctionId) {
+                    <div class="correction-entry">
+                      <b>{{ correction.correctionType }}</b>
+                      <span>Delivery {{ correction.affectedDeliveryId }}</span>
+                      <time>{{ correction.createdAt | date: 'short' }}</time>
+                    </div>
+                  }
+                </div>
+              }
               @if (selectedRecentBall) {
                 <div class="selected-ball">
                   <div>
