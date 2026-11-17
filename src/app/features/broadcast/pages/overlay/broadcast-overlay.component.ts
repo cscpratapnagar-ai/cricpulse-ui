@@ -2,7 +2,7 @@ import { AsyncPipe, DOCUMENT } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { BehaviorSubject, catchError, finalize, map, merge, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, finalize, map, merge, of, switchMap, tap } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import {
@@ -341,9 +341,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
             this.score$ = merge(
               this.liveScore.watch(current),
               this.localScore$.pipe(
-                // A scorer may publish an offline projection for another innings
-                // in the same match; only display the active innings.
-                switchMap((score) => of(score?.inningsId === current ? score : null)),
+                // Ignore the empty initial value so it cannot overwrite the
+                // first authoritative score emitted by the live score stream.
+                // A scorer may also publish another innings for this match.
+                filter((score): score is LiveScore => !!score && score.inningsId === current),
               ),
             ).pipe(
               tap((score) => {
