@@ -2,8 +2,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { API_BASE } from './auth';
 
-interface AuthResponse { accessToken: string; userId: string; fullName: string; email: string; role: string; }
+interface AuthResponse { userId: string; fullName: string; email: string; role: string; }
 interface ApiError { error?: { code?: string; message?: string }; }
 interface CurrentUser { userId?: string; id?: string; fullName?: string; email?: string; role?: string; }
 interface Team { id: string; name: string; city: string; ownerId: string; }
@@ -22,14 +23,13 @@ export class LoginComponent {
     const email = this.email.trim().toLowerCase();
     if (!email || !this.password) { this.message = 'Enter your email and password.'; return; }
     this.loading = true;
-    this.http.post<AuthResponse>('http://localhost:8080/api/auth/login', { email, password: this.password }).subscribe({
-      next: response => {
-        localStorage.setItem('cricketpulse_access_token', response.accessToken);
-        this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
+    this.http.post<AuthResponse>(`${API_BASE}/auth/login`, { email, password: this.password }).subscribe({
+      next: () => {
+        this.http.get<CurrentUser>(`${API_BASE}/auth/me`).subscribe({
           next: user => {
             localStorage.setItem('cricketpulse_user', JSON.stringify(user));
             localStorage.removeItem('cricketpulse_team');
-            this.http.get<Team[]>('http://localhost:8080/api/teams/mine').subscribe({
+            this.http.get<Team[]>(`${API_BASE}/teams/mine`).subscribe({
               next: teams => {
                 if (teams.length > 0) localStorage.setItem('cricketpulse_team', JSON.stringify(teams[0]));
                 else localStorage.removeItem('cricketpulse_team');
@@ -42,7 +42,6 @@ export class LoginComponent {
             });
           },
           error: () => {
-            localStorage.removeItem('cricketpulse_access_token');
             localStorage.removeItem('cricketpulse_user');
             localStorage.removeItem('cricketpulse_team');
             this.loading = false;
