@@ -296,7 +296,9 @@ export class BroadcastOverlayComponent implements OnDestroy {
                 switchMap((score) => of(score?.inningsId === current ? score : null)),
               ),
             ).pipe(
-              tap((score) => { if (score) this.onScore(score); }),
+              tap((score) => {
+                if (score) this.onScore(score);
+              }),
               catchError(() => {
                 this.broadcastError = 'Unable to connect to the live score feed. Reconnecting…';
                 // Allow the next broadcast-state poll to create a fresh watch
