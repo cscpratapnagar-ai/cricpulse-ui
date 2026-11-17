@@ -886,14 +886,12 @@ export class LiveScoringV2Component implements OnDestroy {
 
   private loadCorrectionAudit(): void {
     if (!this.inningsId || !navigator.onLine) return;
-    this.http
-      .get<any>(`${this.api}/scoring/audit/innings/${this.inningsId}`)
-      .subscribe({
-        next: (response) => {
-          const audit = this.unwrapApiPayload<any>(response);
-          this.correctionAudit = Array.isArray(audit?.corrections) ? audit.corrections : [];
-        },
-      });
+    this.http.get<any>(`${this.api}/scoring/audit/innings/${this.inningsId}`).subscribe({
+      next: (response) => {
+        const audit = this.unwrapApiPayload<any>(response);
+        this.correctionAudit = Array.isArray(audit?.corrections) ? audit.corrections : [];
+      },
+    });
   }
 
   private async acquireScorerLease(): Promise<void> {
