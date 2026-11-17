@@ -940,7 +940,7 @@ export class LiveScoringV2Component implements OnDestroy {
         }
         this.reconcileScore(s, silent);
         this.persistOfflineSnapshot(s);
-        if (navigator.onLine) void this.acquireScorerLease();
+        if (navigator.onLine) void this.acquireScorerLease().catch(() => undefined);
         void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
         if (navigator.onLine) void this.flushOfflineQueue();
