@@ -882,17 +882,43 @@ export class LiveScoringV2Component implements OnDestroy {
         const expectedPosition = expectedOver * 6 + expectedBall;
 
         if (position < expectedPosition) {
-          // A response may have been lost after the server committed this exact
-          // ball. Remove it only when the authoritative recent-ball record matches.
-          if (this.isDeliveryAlreadyRecorded(item, authoritative)) {
+          // recentBalls is intentionally capped at 12 entries, so an older
+          // delivery may have committed successfully and then aged out of that
+          // response. Replay the original command id: backend idempotency checks
+          // delivery_events by command_id before validating the old ball position.
+          // A committed command returns the current score without inserting twice.
+          try {
+            authoritative = await firstValueFrom(
+              this.http.post<LiveScore>(
+                `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
+                item.payload,
+                { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+              ),
+            );
             await this.offlineStore.remove(item.commandId);
+            this.applyScore(authoritative);
+            await this.offlineStore.saveSnapshot(authoritative);
             this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
             continue;
+          } catch (error: any) {
+            // If the command was not committed, the server rejects the stale
+            // position. Keep it in IndexedDB; never infer success from score totals.
+            try {
+              const latest = await firstValueFrom(
+                this.http.get<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}`),
+              );
+              authoritative = latest;
+              this.applyScore(latest);
+            } catch {
+              // Preserve the queued command if the authoritative score is unavailable.
+            }
+            const serverMessage = error?.error?.message || error?.message;
+            await this.blockOfflineQueue(
+              serverMessage ||
+                `Offline delivery ${item.payload.overNumber + 1}.${item.payload.ballNumber} could not be verified by its command ID.`,
+            );
+            return;
           }
-          await this.blockOfflineQueue(
-            `Offline delivery ${item.payload.overNumber + 1}.${item.payload.ballNumber} is older than the server score and cannot be verified automatically.`,
-          );
-          return;
         }
 
         if (position > expectedPosition) {
