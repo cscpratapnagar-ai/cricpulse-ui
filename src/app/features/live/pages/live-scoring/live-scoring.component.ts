@@ -519,7 +519,9 @@ export class LiveScoringV2Component implements OnDestroy {
     try {
       const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
       if (!snapshot) {
-        throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
+        throw new Error(
+          'No saved score snapshot exists. Connect to the internet before scoring.',
+        );
       }
 
       this.offlineSnapshotReady = true;
@@ -843,7 +845,9 @@ export class LiveScoringV2Component implements OnDestroy {
     this.offlineQueueBlocked = true;
     this.syncState = 'ERROR';
     await this.offlineStore.markInningsQueueBlocked(this.inningsId).catch(() => undefined);
-    this.pendingOfflineCount = await this.offlineStore.count(this.inningsId).catch(() => this.pendingOfflineCount);
+    this.pendingOfflineCount = await this.offlineStore
+      .count(this.inningsId)
+      .catch(() => this.pendingOfflineCount);
     this.message = `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
 
@@ -951,7 +955,8 @@ export class LiveScoringV2Component implements OnDestroy {
         : 'All offline deliveries synced successfully.';
     } catch (error: any) {
       this.syncState = 'ERROR';
-      this.message = error?.error?.message || error?.message || 'Could not sync offline deliveries.';
+      this.message =
+        error?.error?.message || error?.message || 'Could not sync offline deliveries.';
     } finally {
       this.flushingOfflineQueue = false;
     }
