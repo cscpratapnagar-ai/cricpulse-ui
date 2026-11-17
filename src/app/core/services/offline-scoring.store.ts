@@ -138,7 +138,9 @@ export class OfflineScoringStore {
       transaction.objectStore(QUEUE_STORE).delete(commandId);
       transaction.oncomplete = () => resolve();
       transaction.onerror = () =>
-        reject(transaction.error ?? new Error('Could not commit offline delivery acknowledgement.'));
+        reject(
+          transaction.error ?? new Error('Could not commit offline delivery acknowledgement.'),
+        );
       transaction.onabort = () =>
         reject(transaction.error ?? new Error('Offline delivery acknowledgement was aborted.'));
     });
