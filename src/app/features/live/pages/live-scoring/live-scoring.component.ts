@@ -116,6 +116,7 @@ export class LiveScoringV2Component implements OnDestroy {
   externalUpdateNotice = '';
   selectedRecentBall: any = null;
   auditExpanded = false;
+  correctionAudit: any[] = [];
   reconciling = false;
   private onlineHandler = () => this.handleReconnect();
   private offlineHandler = () => (this.connectionState = 'OFFLINE');
@@ -881,6 +882,18 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
+  private loadCorrectionAudit(): void {
+    if (!this.inningsId || !navigator.onLine) return;
+    this.http
+      .get<any>(`${this.api}/scoring/audit/innings/${this.inningsId}`)
+      .subscribe({
+        next: (response) => {
+          const audit = this.unwrapApiPayload<any>(response);
+          this.correctionAudit = Array.isArray(audit?.corrections) ? audit.corrections : [];
+        },
+      });
+  }
+
   private async acquireScorerLease(): Promise<void> {
     if (!navigator.onLine || !this.inningsId) return;
     try {
@@ -940,6 +953,7 @@ export class LiveScoringV2Component implements OnDestroy {
         }
         this.reconcileScore(s, silent);
         this.persistOfflineSnapshot(s);
+        this.loadCorrectionAudit();
         if (navigator.onLine) void this.acquireScorerLease().catch(() => undefined);
         void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
