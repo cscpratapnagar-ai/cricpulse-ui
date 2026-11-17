@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-interface AuthResponse { accessToken: string; userId: string; fullName: string; email: string; role: string; }
+interface AuthResponse { userId: string; fullName: string; email: string; role: string; }
 interface ApiError { error?: { code?: string; message?: string }; }
 interface CurrentUser { userId?: string; id?: string; fullName?: string; email?: string; role?: string; }
 interface Team { id: string; name: string; city: string; ownerId: string; }
@@ -24,7 +24,6 @@ export class LoginComponent {
     this.loading = true;
     this.http.post<AuthResponse>('http://localhost:8080/api/auth/login', { email, password: this.password }).subscribe({
       next: response => {
-        localStorage.setItem('cricketpulse_access_token', response.accessToken);
         this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
           next: user => {
             localStorage.setItem('cricketpulse_user', JSON.stringify(user));
@@ -42,7 +41,6 @@ export class LoginComponent {
             });
           },
           error: () => {
-            localStorage.removeItem('cricketpulse_access_token');
             localStorage.removeItem('cricketpulse_user');
             localStorage.removeItem('cricketpulse_team');
             this.loading = false;
