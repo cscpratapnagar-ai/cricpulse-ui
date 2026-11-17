@@ -131,6 +131,9 @@ export class LiveScoringV2Component implements OnDestroy {
   private connectivityProbeTimer?: ReturnType<typeof setInterval>;
   private connectivityProbeInFlight = false;
   private destroyed = false;
+  private scorerLeaseToken = '';
+  private scorerLeaseReady = false;
+  private scorerLeaseRenewalTimer?: ReturnType<typeof setInterval>;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
@@ -161,6 +164,7 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     if (this.offlineSyncRetryTimer) clearTimeout(this.offlineSyncRetryTimer);
     if (this.connectivityProbeTimer) clearInterval(this.connectivityProbeTimer);
+    if (this.scorerLeaseRenewalTimer) clearInterval(this.scorerLeaseRenewalTimer);
     window.removeEventListener('online', this.onlineHandler);
     window.removeEventListener('offline', this.offlineHandler);
   }
@@ -229,6 +233,7 @@ export class LiveScoringV2Component implements OnDestroy {
       !this.needsBowlerChange &&
       !this.busy &&
       !this.offlineQueueBlocked &&
+      (!navigator.onLine || this.scorerLeaseReady) &&
       Number.isInteger(this.score.legalBalls) &&
       this.score.legalBalls >= 0 &&
       Number.isInteger(this.score.runs) &&
@@ -876,6 +881,47 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
+
+  private async acquireScorerLease(): Promise<void> {
+    if (!navigator.onLine || !this.inningsId) return;
+    try {
+      const storageKey = `cricpulse-scorer-lease:${this.inningsId}`;
+      this.scorerLeaseToken =
+        sessionStorage.getItem(storageKey) || crypto.randomUUID();
+      sessionStorage.setItem(storageKey, this.scorerLeaseToken);
+      await firstValueFrom(
+        this.http.post(
+          `${this.api}/scoring/innings/${this.inningsId}/lease`,
+          { leaseToken: this.scorerLeaseToken },
+        ),
+      );
+      this.scorerLeaseReady = true;
+      if (this.scorerLeaseRenewalTimer) clearInterval(this.scorerLeaseRenewalTimer);
+      this.scorerLeaseRenewalTimer = setInterval(() => {
+        if (!navigator.onLine || !this.inningsId || !this.scorerLeaseToken) return;
+        void firstValueFrom(
+          this.http.put(
+            `${this.api}/scoring/innings/${this.inningsId}/lease`,
+            { leaseToken: this.scorerLeaseToken },
+          ),
+        ).catch((error) => {
+          this.scorerLeaseReady = false;
+          this.message =
+            error?.error?.message ||
+            'Scoring lease lost. Another scorer may have taken control; refresh before continuing.';
+          this.syncState = 'ERROR';
+        });
+      }, 8000);
+    } catch (error: any) {
+      this.scorerLeaseReady = false;
+      this.message =
+        error?.error?.message ||
+        'Another scorer currently controls this innings. This device is read-only until the lease is available.';
+      this.syncState = 'ERROR';
+      throw error;
+    }
+  }
+
   private loadScoreById(id: string, silent = false) {
     if (!id) {
       this.loading = false;
@@ -898,6 +944,7 @@ export class LiveScoringV2Component implements OnDestroy {
         }
         this.reconcileScore(s, silent);
         this.persistOfflineSnapshot(s);
+        if (navigator.onLine) void this.acquireScorerLease();
         void this.refreshPendingOfflineCount();
         if (this.syncState === 'SAVING') this.syncState = 'SYNCED';
         if (navigator.onLine) void this.flushOfflineQueue();
@@ -1129,6 +1176,7 @@ export class LiveScoringV2Component implements OnDestroy {
           this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
         ),
       );
+      await this.acquireScorerLease();
       this.applyScore(authoritative);
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
@@ -1159,7 +1207,12 @@ export class LiveScoringV2Component implements OnDestroy {
                 this.http.post<any>(
                   `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
                   item.payload,
-                  { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+                  {
+                    headers: new HttpHeaders({
+                      'X-Command-Id': item.commandId,
+                      'X-Scorer-Lease': this.scorerLeaseToken,
+                    }),
+                  },
                 ),
               ),
             );
@@ -1467,7 +1520,10 @@ export class LiveScoringV2Component implements OnDestroy {
           : `${body.batRuns} run${body.batRuns === 1 ? '' : 's'} recorded`;
     this.http
       .post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/deliveries`, payload, {
-        headers: new HttpHeaders({ 'X-Command-Id': commandId }),
+        headers: new HttpHeaders({
+          'X-Command-Id': commandId,
+          'X-Scorer-Lease': this.scorerLeaseToken,
+        }),
       })
       .subscribe({
         next: (s) => {
@@ -1618,7 +1674,11 @@ export class LiveScoringV2Component implements OnDestroy {
     this.busy = true;
     this.syncState = 'SAVING';
     this.lastAction = 'Undoing last delivery';
-    this.http.post<LiveScore>(`${this.api}/scoring/innings/${this.inningsId}/undo`, {}).subscribe({
+    this.http.post<LiveScore>(
+      `${this.api}/scoring/innings/${this.inningsId}/undo`,
+      {},
+      { headers: new HttpHeaders({ 'X-Scorer-Lease': this.scorerLeaseToken }) },
+    ).subscribe({
       next: (s) => {
         this.applyScore(s);
         this.persistOfflineSnapshot(s);
