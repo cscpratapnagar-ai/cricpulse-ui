@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
@@ -128,12 +128,17 @@ export class LiveScoringV2Component implements OnDestroy {
   private localRelayReconnectDelay = 1000;
   private offlineSyncRetryTimer?: ReturnType<typeof setTimeout>;
   private offlineSyncRetryDelay = 3000;
+  private connectivityProbeTimer?: ReturnType<typeof setInterval>;
+  private connectivityProbeInFlight = false;
   private destroyed = false;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
     window.addEventListener('offline', this.offlineHandler);
-    this.connectionState = navigator.onLine ? 'ONLINE' : 'OFFLINE';
+    this.connectionState = navigator.onLine ? 'RECONNECTING' : 'OFFLINE';
+    this.connectivityProbeTimer = setInterval(() => {
+      void this.checkBackendConnectivity();
+    }, 5000);
     if (typeof BroadcastChannel !== 'undefined') {
       this.scoreBroadcastChannel = new BroadcastChannel('cricpulse-live-score');
     }
@@ -155,6 +160,7 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.refreshTimer) clearInterval(this.refreshTimer);
     if (this.feedbackTimer) clearTimeout(this.feedbackTimer);
     if (this.offlineSyncRetryTimer) clearTimeout(this.offlineSyncRetryTimer);
+    if (this.connectivityProbeTimer) clearInterval(this.connectivityProbeTimer);
     window.removeEventListener('online', this.onlineHandler);
     window.removeEventListener('offline', this.offlineHandler);
   }
@@ -735,10 +741,46 @@ export class LiveScoringV2Component implements OnDestroy {
   private handleReconnect() {
     if (!navigator.onLine || !this.inningsId) return;
     this.connectionState = 'RECONNECTING';
-    this.connectLiveSocket(this.inningsId);
-    // Revalidate previously blocked entries against the server before replay.
-    // Original command IDs are retained, so retries remain idempotent.
-    void this.retryOfflineSync();
+    void this.checkBackendConnectivity();
+  }
+
+  // navigator.onLine only reports browser network availability. Probe the actual
+  // CricPulse API so Wi-Fi without backend access is never shown as ONLINE.
+  private async checkBackendConnectivity(): Promise<void> {
+    if (
+      this.destroyed ||
+      !navigator.onLine ||
+      !this.matchId ||
+      this.connectivityProbeInFlight
+    ) {
+      if (!navigator.onLine) this.connectionState = 'OFFLINE';
+      return;
+    }
+
+    this.connectivityProbeInFlight = true;
+    try {
+      await firstValueFrom(
+        this.http.get<any>(`${this.api}/matches/${this.matchId}`).pipe(timeout({ first: 4000 })),
+      );
+      this.connectionState = 'ONLINE';
+      this.connectLiveSocket(this.inningsId);
+      if (this.inningsId && this.pendingOfflineCount > 0 && !this.flushingOfflineQueue) {
+        await this.retryOfflineSync();
+      }
+    } catch (error: any) {
+      // Any HTTP response (including 401/403/404) proves the API is reachable.
+      // Status 0 and timeout indicate that the backend cannot be reached.
+      if (Number(error?.status) > 0) {
+        this.connectionState = 'ONLINE';
+        if (this.inningsId && this.pendingOfflineCount > 0 && !this.flushingOfflineQueue) {
+          await this.retryOfflineSync();
+        }
+      } else {
+        this.connectionState = 'OFFLINE';
+      }
+    } finally {
+      this.connectivityProbeInFlight = false;
+    }
   }
 
   private scheduleOfflineSyncRetry(): void {
