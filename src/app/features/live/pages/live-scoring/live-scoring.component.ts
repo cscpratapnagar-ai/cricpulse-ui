@@ -882,11 +882,20 @@ export class LiveScoringV2Component implements OnDestroy {
         const expectedPosition = expectedOver * 6 + expectedBall;
 
         if (position < expectedPosition) {
-          // recentBalls is intentionally capped at 12 entries, so an older
-          // delivery may have committed successfully and then aged out of that
-          // response. Replay the original command id: backend idempotency checks
-          // delivery_events by command_id before validating the old ball position.
-          // A committed command returns the current score without inserting twice.
+          // The server has advanced past this queued position. First compare the
+          // authoritative recent-ball record with the queued payload. Older app
+          // versions may have committed the delivery before command-id event
+          // tracking was available, so a replay can return "position already
+          // recorded" even though this exact delivery is already on the server.
+          if (this.isDeliveryAlreadyRecorded(item, authoritative)) {
+            await this.offlineStore.remove(item.commandId);
+            await this.offlineStore.saveSnapshot(authoritative);
+            this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+            continue;
+          }
+
+          // If it is not present in the recent authoritative deliveries, retry
+          // the original idempotency key. Never infer success from totals alone.
           try {
             authoritative = await firstValueFrom(
               this.http.post<LiveScore>(
