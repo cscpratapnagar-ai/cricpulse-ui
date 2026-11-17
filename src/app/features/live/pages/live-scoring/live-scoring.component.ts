@@ -1016,9 +1016,6 @@ export class LiveScoringV2Component implements OnDestroy {
     if (this.localRelaySocket?.readyState === WebSocket.OPEN) {
       this.localRelaySocket.send(JSON.stringify(message));
     }
-    if (this.localRelaySocket?.readyState === WebSocket.OPEN) {
-      this.localRelaySocket.send(JSON.stringify(message));
-    }
   }
 
   private async refreshPendingOfflineCount(): Promise<void> {
