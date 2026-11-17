@@ -1007,6 +1007,9 @@ export class LiveScoringV2Component implements OnDestroy {
       matchId: this.matchId,
       inningsId: score.inningsId,
       score,
+      match: this.match,
+      battingTeamId: this.battingTeamId,
+      bowlingTeamId: this.bowlingTeamId,
       sentAt: Date.now(),
     };
     this.scoreBroadcastChannel?.postMessage(message);
