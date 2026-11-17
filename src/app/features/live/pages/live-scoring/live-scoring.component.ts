@@ -529,7 +529,11 @@ export class LiveScoringV2Component implements OnDestroy {
       this.inningsNumber = session.inningsNumber || 1;
       this.battingTeamId = session.battingTeamId || '';
       this.bowlingTeamId = session.bowlingTeamId || '';
+      const savedBowlerId = session.selectedBowlerId || '';
       await this.restoreOfflineScore();
+      if (savedBowlerId && this.needsBowlerChange) {
+        this.selectedBowlerId = savedBowlerId;
+      }
     } catch (error: any) {
       this.loading = false;
       this.connectionState = 'OFFLINE';
@@ -592,6 +596,26 @@ export class LiveScoringV2Component implements OnDestroy {
       this.syncState = 'ERROR';
       this.message = error?.message || 'Could not restore offline score data.';
     }
+  }
+
+  onBowlerSelected(bowlerId: string): void {
+    if (!this.canChangeBowler) return;
+    if (!this.bowlerOptions.some((option) => option.value === bowlerId)) return;
+    this.selectedBowlerId = bowlerId;
+    void this.offlineStore
+      .saveSession(this.matchId, {
+        match: this.match,
+        xi: this.xi,
+        inningsId: this.inningsId,
+        inningsNumber: this.inningsNumber,
+        battingTeamId: this.battingTeamId,
+        bowlingTeamId: this.bowlingTeamId,
+        selectedBowlerId: bowlerId,
+      })
+      .catch(() => {
+        this.message = 'Bowler selection could not be saved for offline recovery. Please select again.';
+        this.syncState = 'ERROR';
+      });
   }
 
   private load() {
