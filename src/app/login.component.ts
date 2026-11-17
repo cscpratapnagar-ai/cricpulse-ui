@@ -23,7 +23,7 @@ export class LoginComponent {
     if (!email || !this.password) { this.message = 'Enter your email and password.'; return; }
     this.loading = true;
     this.http.post<AuthResponse>('http://localhost:8080/api/auth/login', { email, password: this.password }).subscribe({
-      next: response => {
+      next: () => {
         this.http.get<CurrentUser>('http://localhost:8080/api/auth/me').subscribe({
           next: user => {
             localStorage.setItem('cricketpulse_user', JSON.stringify(user));
