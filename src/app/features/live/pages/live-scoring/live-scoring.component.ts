@@ -1146,8 +1146,7 @@ export class LiveScoringV2Component implements OnDestroy {
           // tracking was available, so a replay can return "position already
           // recorded" even though this exact delivery is already on the server.
           if (this.isDeliveryAlreadyRecorded(item, authoritative)) {
-            await this.offlineStore.remove(item.commandId);
-            await this.offlineStore.saveSnapshot(authoritative);
+            await this.offlineStore.acknowledgeDelivery(item.commandId, authoritative);
             this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
             continue;
           }
@@ -1164,9 +1163,8 @@ export class LiveScoringV2Component implements OnDestroy {
                 ),
               ),
             );
-            await this.offlineStore.remove(item.commandId);
+            await this.offlineStore.acknowledgeDelivery(item.commandId, authoritative);
             this.applyScore(authoritative);
-            await this.offlineStore.saveSnapshot(authoritative);
             this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
             continue;
           } catch (error: any) {
@@ -1219,9 +1217,8 @@ export class LiveScoringV2Component implements OnDestroy {
               ),
             ),
           );
-          await this.offlineStore.remove(item.commandId);
+          await this.offlineStore.acknowledgeDelivery(item.commandId, authoritative);
           this.applyScore(authoritative);
-          await this.offlineStore.saveSnapshot(authoritative);
           this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
         } catch (error: any) {
           // Re-fetch before deciding whether the request failed or committed but
@@ -1234,9 +1231,8 @@ export class LiveScoringV2Component implements OnDestroy {
             );
             if (this.isDeliveryAlreadyRecorded(item, latest)) {
               authoritative = latest;
-              await this.offlineStore.remove(item.commandId);
+              await this.offlineStore.acknowledgeDelivery(item.commandId, latest);
               this.applyScore(latest);
-              await this.offlineStore.saveSnapshot(latest);
               this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
               continue;
             }
