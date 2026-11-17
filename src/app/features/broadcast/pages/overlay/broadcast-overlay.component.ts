@@ -169,7 +169,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
           message?.source !== 'cricpulse-scorer' ||
           message?.matchId !== this.matchId ||
           !message?.score?.inningsId
-        ) return;
+        )
+          return;
         this.localScore$.next(message.score as LiveScore);
       };
     }
