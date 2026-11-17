@@ -515,6 +515,7 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
+  // prettier-ignore
   private async restoreOfflineScore(): Promise<void> {
     try {
       const snapshot = await this.offlineStore.loadSnapshot(this.inningsId);
@@ -823,6 +824,7 @@ export class LiveScoringV2Component implements OnDestroy {
     }
   }
 
+  // prettier-ignore
   private isDeliveryAlreadyRecorded(item: QueuedDelivery, score: LiveScore): boolean {
     const payload = item.payload;
     return (score.recentBalls || []).some(
@@ -839,6 +841,7 @@ export class LiveScoringV2Component implements OnDestroy {
     );
   }
 
+  // prettier-ignore
   private async blockOfflineQueue(message: string): Promise<void> {
     this.offlineQueueBlocked = true;
     this.syncState = 'ERROR';
@@ -850,6 +853,7 @@ export class LiveScoringV2Component implements OnDestroy {
       `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
 
+  // prettier-ignore
   private async flushOfflineQueue(): Promise<void> {
     if (
       this.flushingOfflineQueue ||
@@ -976,6 +980,7 @@ export class LiveScoringV2Component implements OnDestroy {
     this.loadScoreById(this.inningsId);
   }
 
+  // prettier-ignore
   async retryOfflineSync(): Promise<void> {
     if (!this.inningsId || !navigator.onLine || this.flushingOfflineQueue) return;
     this.message = 'Refreshing the server score and checking saved offline deliveries…';
