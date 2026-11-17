@@ -224,34 +224,30 @@ export class BroadcastOverlayComponent implements OnDestroy {
     this.broadcastError = null;
     this.localScore$.next(score);
 
-    // A relay snapshot can arrive before the public REST endpoints are
-    // reachable (for example, when OBS is restarted during an outage).
-    // Establish the score stream from the local snapshot first, then merge
-    // authoritative live updates whenever the backend becomes reachable.
+    // Always bind the visible overlay to the local BehaviorSubject first.
+    // This guarantees a refreshed OBS Browser Source immediately renders the
+    // relay's cached offline snapshot, even if the remote live feed errors.
     if (inningsId !== this.currentInningsId) {
       this.previousScore = null;
       this.previousInningsId = this.currentInningsId;
       this.currentInningsId = inningsId;
-      this.score$ = merge(
-        this.liveScore.watch(inningsId),
-        this.localScore$.pipe(
-          filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
-        ),
-      ).pipe(
-        tap((nextScore) => {
-          if (nextScore) this.onScore(nextScore);
-        }),
-        catchError(() => {
-          // Mark the REST feed for reinitialization. The next broadcast-state
-          // poll will attach a fresh authoritative stream after connectivity returns.
-          this.currentInningsId = null;
-          this.broadcastError = null;
-          return this.localScore$.pipe(
-            filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
-            tap((local) => this.onScore(local)),
-          );
-        }),
+      const localFeed = this.localScore$.pipe(
+        filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
+        tap((local) => this.onScore(local)),
       );
+      this.score$ = localFeed;
+      // Attach the server feed separately so its failure cannot terminate or
+      // replace the local offline score stream.
+      this.liveScore.watch(inningsId).subscribe({
+        next: (serverScore) => {
+          if (serverScore?.inningsId === inningsId) {
+            this.localScore$.next(serverScore);
+          }
+        },
+        error: () => {
+          this.broadcastError = null;
+        },
+      });
     }
   }
 
