@@ -42,11 +42,11 @@ jobs:
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           git fetch origin "${BRANCH}"
           git checkout -B "${BRANCH}" "origin/${BRANCH}"
-          npx --yes prettier@3.5.3 --write "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss}"
+          npx --yes prettier@3.5.3 --write "src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss}" "src/app/features/live/pages/live-scoring/live-scoring.component.ts"
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss}
+            git add src/app/features/broadcast/pages/overlay/broadcast-overlay.component.{ts,html,scss} src/app/features/live/pages/live-scoring/live-scoring.component.ts
             git commit -m "chore(broadcast): normalize overlay formatting"
             git push origin "${BRANCH}"
           fi
