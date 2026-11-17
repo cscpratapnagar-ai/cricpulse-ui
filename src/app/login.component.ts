@@ -23,13 +23,13 @@ export class LoginComponent {
     const email = this.email.trim().toLowerCase();
     if (!email || !this.password) { this.message = 'Enter your email and password.'; return; }
     this.loading = true;
-    this.http.post<AuthResponse>(`${API_BASE}/auth/login', { email, password: this.password }).subscribe({
+    this.http.post<AuthResponse>(`${API_BASE}/auth/login`, { email, password: this.password }).subscribe({
       next: () => {
-        this.http.get<CurrentUser>(`${API_BASE}/auth/me').subscribe({
+        this.http.get<CurrentUser>(`${API_BASE}/auth/me`).subscribe({
           next: user => {
             localStorage.setItem('cricketpulse_user', JSON.stringify(user));
             localStorage.removeItem('cricketpulse_team');
-            this.http.get<Team[]>(`${API_BASE}/teams/mine').subscribe({
+            this.http.get<Team[]>(`${API_BASE}/teams/mine`).subscribe({
               next: teams => {
                 if (teams.length > 0) localStorage.setItem('cricketpulse_team', JSON.stringify(teams[0]));
                 else localStorage.removeItem('cricketpulse_team');
