@@ -1,5 +1,6 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.serv
 export class ObsSceneControllerComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   readonly obs = inject(ObsWebSocketService);
+  private readonly obsSubscriptions = new Subscription();
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   protocol: 'ws' | 'wss' = 'ws';
   host = '127.0.0.1';
@@ -25,11 +27,30 @@ export class ObsSceneControllerComponent implements OnDestroy {
   error = '';
   notice = '';
 
+  constructor() {
+    this.obsSubscriptions.add(
+      this.obs.sceneChanged$.subscribe((sceneName) => {
+        this.currentScene = sceneName;
+        this.selectedScene = sceneName;
+        this.notice = `OBS program scene changed to “${sceneName}”.`;
+      }),
+    );
+    this.obsSubscriptions.add(
+      this.obs.connectionLost$.subscribe((message) => {
+        this.error = message;
+        this.notice = '';
+        this.connecting = false;
+        this.switching = false;
+      }),
+    );
+  }
+
   get connectionUrl(): string {
     return `${this.protocol}://${this.host.trim() || '127.0.0.1'}:${this.port.trim() || '4455'}`;
   }
 
   async connect(): Promise<void> {
+    if (this.connecting) return;
     this.error = '';
     this.notice = '';
     this.connecting = true;
@@ -71,14 +92,21 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   async switchScene(): Promise<void> {
-    if (!this.obs.connected || !this.selectedScene || this.selectedScene === this.currentScene)
+    if (
+      !this.obs.connected ||
+      !this.selectedScene ||
+      this.selectedScene === this.currentScene ||
+      this.switching
+    )
       return;
     this.error = '';
     this.notice = '';
     this.switching = true;
     try {
       await this.obs.switchScene(this.selectedScene);
+      // OBS SceneChanged events provide the authoritative scene; query as a fallback.
       this.currentScene = await this.obs.currentScene();
+      this.selectedScene = this.currentScene;
       this.notice = `Switched to “${this.currentScene}”.`;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Scene switch failed.';
@@ -88,6 +116,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.obsSubscriptions.unsubscribe();
     this.obs.disconnect();
     this.password = '';
   }

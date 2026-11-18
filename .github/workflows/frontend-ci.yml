@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Normalize branch formatting
-        if: (github.event_name == 'pull_request' && (github.head_ref == 'feat/universal-broadcast-engine' || github.head_ref == 'feat/smart-match-insights-responsive' || github.head_ref == 'feat/live-obs-overlay-preview' || github.head_ref == 'feat/broadcast-scene-controller' || github.head_ref == 'feat/obs-websocket-scene-switching')) || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+        if: (github.event_name == 'pull_request' && (github.head_ref == 'feat/universal-broadcast-engine' || github.head_ref == 'feat/smart-match-insights-responsive' || github.head_ref == 'feat/live-obs-overlay-preview' || github.head_ref == 'feat/broadcast-scene-controller' || github.head_ref == 'feat/obs-websocket-scene-switching' || github.head_ref == 'feat/obs-live-scene-sync-reliability')) || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
         run: |
           BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
           git fetch origin "${BRANCH}"

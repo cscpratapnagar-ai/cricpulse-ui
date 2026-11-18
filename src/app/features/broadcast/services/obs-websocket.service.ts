@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 export interface ObsScene {
   sceneName: string;
@@ -12,6 +13,9 @@ interface ObsEnvelope {
 
 @Injectable({ providedIn: 'root' })
 export class ObsWebSocketService {
+  readonly sceneChanged$ = new Subject<string>();
+  readonly connectionLost$ = new Subject<string>();
+
   private socket?: WebSocket;
   private requestSequence = 0;
   private readonly pending = new Map<
@@ -33,11 +37,14 @@ export class ObsWebSocketService {
     const socket = new WebSocket(url);
     this.socket = socket;
     await new Promise<void>((resolve, reject) => {
+      let settled = false;
       const handshakeTimeout = setTimeout(() => {
         socket.close();
-        reject(new Error('OBS connection timed out. Check host, port and firewall.'));
+        fail(new Error('OBS connection timed out. Check host, port and firewall.'));
       }, 8000);
       const fail = (error: Error) => {
+        if (settled) return;
+        settled = true;
         clearTimeout(handshakeTimeout);
         reject(error);
       };
@@ -51,20 +58,33 @@ export class ObsWebSocketService {
         clearTimeout(handshakeTimeout);
         this.identified = false;
         this.rejectPending(new Error('OBS connection closed.'));
+        if (this.socket === socket) {
+          this.socket = undefined;
+          this.connectionLost$.next('OBS connection closed. Reconnect to restore scene control.');
+        }
         fail(new Error('OBS closed the connection. Verify the password and WebSocket settings.'));
       };
       socket.onmessage = async (event) => {
+        if (this.socket !== socket) return;
         try {
           const envelope = JSON.parse(String(event.data)) as ObsEnvelope;
           if (envelope.op === 0) {
             const identify = await this.createIdentifyPayload(envelope.d, password);
-            if (socket.readyState === WebSocket.OPEN) {
+            if (socket.readyState === WebSocket.OPEN && this.socket === socket) {
               socket.send(JSON.stringify({ op: 1, d: identify }));
             }
           } else if (envelope.op === 2) {
+            if (settled) return;
+            settled = true;
             this.identified = true;
             clearTimeout(handshakeTimeout);
             resolve();
+          } else if (envelope.op === 5) {
+            if (envelope.d['eventType'] === 'SceneChanged') {
+              const eventData = envelope.d['eventData'] as Record<string, unknown> | undefined;
+              const sceneName = String(eventData?.['sceneName'] || '');
+              if (sceneName) this.sceneChanged$.next(sceneName);
+            }
           } else if (envelope.op === 7) {
             const requestId = String(envelope.d['requestId'] ?? '');
             const pending = this.pending.get(requestId);
@@ -116,10 +136,18 @@ export class ObsWebSocketService {
   }
 
   private parseScenes(response: Record<string, unknown>): ObsScene[] {
-    return ((response['scenes'] as Array<Record<string, unknown>>) || []).map((scene, index) => ({
-      sceneName: String(scene['sceneName'] || ''),
-      sceneIndex: Number(scene['sceneIndex'] ?? index),
-    }));
+    const rawScenes = response['scenes'];
+    if (!Array.isArray(rawScenes)) throw new Error('OBS returned an invalid scene list.');
+    return rawScenes
+      .map((scene, index) => {
+        const item = scene as Record<string, unknown>;
+        return {
+          sceneName: String(item['sceneName'] || ''),
+          sceneIndex: Number(item['sceneIndex'] ?? index),
+        };
+      })
+      .filter((scene) => scene.sceneName.length > 0)
+      .sort((a, b) => a.sceneIndex - b.sceneIndex);
   }
 
   private request(
@@ -127,6 +155,7 @@ export class ObsWebSocketService {
     requestData: Record<string, unknown> = {},
   ): Promise<Record<string, unknown>> {
     if (!this.connected || !this.socket) return Promise.reject(new Error('Connect to OBS first.'));
+    const socket = this.socket;
     const requestId = `cricpulse-${++this.requestSequence}`;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -134,7 +163,13 @@ export class ObsWebSocketService {
         reject(new Error(`OBS request timed out: ${requestType}`));
       }, 8000);
       this.pending.set(requestId, { resolve, reject, timer });
-      this.socket!.send(JSON.stringify({ op: 6, d: { requestType, requestId, requestData } }));
+      try {
+        socket.send(JSON.stringify({ op: 6, d: { requestType, requestId, requestData } }));
+      } catch (error) {
+        clearTimeout(timer);
+        this.pending.delete(requestId);
+        reject(error instanceof Error ? error : new Error(`OBS request failed: ${requestType}`));
+      }
     });
   }
 
@@ -152,11 +187,12 @@ export class ObsWebSocketService {
   ): Promise<Record<string, unknown>> {
     const rpcVersion = Number(hello['rpcVersion'] || 1);
     const auth = hello['authentication'] as { salt?: string; challenge?: string } | undefined;
-    if (!auth) return { rpcVersion };
+    const eventSubscriptions = 4; // OBS WebSocket v5 Scenes events, including SceneChanged.
+    if (!auth) return { rpcVersion, eventSubscriptions };
     if (!password) throw new Error('OBS requires a WebSocket password. Enter it to connect.');
     const secret = await this.sha256Base64(password + (auth.salt || ''));
     const authentication = await this.sha256Base64(secret + (auth.challenge || ''));
-    return { rpcVersion, authentication };
+    return { rpcVersion, authentication, eventSubscriptions };
   }
 
   private async sha256Base64(value: string): Promise<string> {
