@@ -3,7 +3,7 @@ name: Temporary Prettier Normalize
 on:
   push:
     branches:
-      - feat/live-intelligence-panel-v1
+      - feat/obs-broadcast-setup-workflow
 
 permissions:
   contents: write
@@ -16,16 +16,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.22.3'
-          cache: npm
-      - run: npm install --no-audit --no-fund
-      - run: npx --yes prettier@3.5.3 --write "src/**/*.{ts,html,scss,css,json}" "scripts/**/*.{mjs,js}" "*.json"
-      - name: Commit formatting
+      - run: npx --yes prettier@3.5.3 --write src/app/features/broadcast/pages/control/broadcast-control.component.html
+      - name: Commit exact Prettier output
         run: |
           if git diff --quiet; then
+            echo "Already formatted."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src scripts '*.json'
-          git commit -m "chore(frontend): normalize intelligence formatting"
+          git add src/app/features/broadcast/pages/control/broadcast-control.component.html
+          git commit -m "fix: apply exact Prettier formatting to OBS control template"
           git push
