@@ -5,6 +5,14 @@ import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.serv
 
 type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
 
+type AutomationEvent = 'FOUR' | 'SIX' | 'WICKET' | 'OVER_COMPLETE' | 'MILESTONE' | 'INNINGS_BREAK' | 'RESULT';
+
+interface AutomationRule { event: AutomationEvent; label: string; sceneName: string; }
+
+interface AutomationScoreMessage { source?: string; matchId?: string; score?: ObsAutomationScore; match?: { status?: string; resultText?: string | null; name?: string }; }
+
+interface ObsAutomationScore { inningsId: string; runs: number; wickets: number; legalBalls: number; status?: string; eventVersion?: number; eventId?: string; sequenceNo?: number; recentBalls?: Array<{ deliveryId: string; totalRuns: number; legalDelivery: boolean; wicketType?: string | null }>; }
+
 interface ScenePreset {
   key: ScenePresetKey;
   label: string;
@@ -48,9 +56,32 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }));
   favoriteSceneNames: string[] = [];
   private readonly preferencesKey = `cricpulse.obs-scene-presets.${this.matchId}`;
+  automationEnabled = false;
+  automationReturnScene = '';
+  automationReturnDelay = 8;
+  automationStatus = 'Automation is off.';
+  automationRules: AutomationRule[] = [
+    { event: 'FOUR', label: 'Four', sceneName: '' },
+    { event: 'SIX', label: 'Six', sceneName: '' },
+    { event: 'WICKET', label: 'Wicket', sceneName: '' },
+    { event: 'OVER_COMPLETE', label: 'Over complete', sceneName: '' },
+    { event: 'MILESTONE', label: 'Milestone', sceneName: '' },
+    { event: 'INNINGS_BREAK', label: 'Innings break', sceneName: '' },
+    { event: 'RESULT', label: 'Match result', sceneName: '' },
+  ];
+  private automationChannel?: BroadcastChannel;
+  private automationRelay?: WebSocket;
+  private automationRelayReconnect?: ReturnType<typeof setTimeout>;
+  private automationRelayDelay = 1000;
+  private automationReturnTimer?: ReturnType<typeof setTimeout>;
+  private automationBaseScene = '';
+  private previousAutomationScore: ObsAutomationScore | null = null;
+  private previousAutomationMatchStatus = '';
+  private readonly processedAutomationEvents = new Set<string>();
 
   constructor() {
     this.loadPreferences();
+    if (this.automationEnabled) this.startAutomationFeeds();
     this.obsSubscriptions.add(
       this.obs.sceneChanged$.subscribe((sceneName) => {
         this.currentScene = sceneName;
@@ -172,7 +203,19 @@ export class ObsSceneControllerComponent implements OnDestroy {
     try {
       const raw = localStorage.getItem(this.preferencesKey);
       if (!raw) return;
-      const saved = JSON.parse(raw) as { presets?: ScenePreset[]; favorites?: string[] };
+      const saved = JSON.parse(raw) as {
+        presets?: ScenePreset[]; favorites?: string[]; automationEnabled?: boolean;
+        automationReturnScene?: string; automationReturnDelay?: number; automationRules?: AutomationRule[];
+      };
+      this.automationEnabled = saved.automationEnabled === true;
+      this.automationReturnScene = typeof saved.automationReturnScene === 'string' ? saved.automationReturnScene : '';
+      this.automationReturnDelay = Math.min(30, Math.max(2, Number(saved.automationReturnDelay) || 8));
+      if (Array.isArray(saved.automationRules)) {
+        this.automationRules = this.automationRules.map((rule) => {
+          const savedRule = saved.automationRules?.find((item) => item.event === rule.event);
+          return { ...rule, sceneName: typeof savedRule?.sceneName === 'string' ? savedRule.sceneName : '' };
+        });
+      }
       if (Array.isArray(saved.presets)) {
         this.presets = this.presets.map((preset) => {
           const stored = saved.presets?.find((item) => item.key === preset.key);
@@ -197,11 +240,103 @@ export class ObsSceneControllerComponent implements OnDestroy {
     try {
       localStorage.setItem(
         this.preferencesKey,
-        JSON.stringify({ presets: this.presets, favorites: this.favoriteSceneNames }),
+        JSON.stringify({ presets: this.presets, favorites: this.favoriteSceneNames,
+          automationEnabled: this.automationEnabled, automationReturnScene: this.automationReturnScene,
+          automationReturnDelay: this.automationReturnDelay, automationRules: this.automationRules }),
       );
     } catch {
       this.notice = 'Preferences could not be saved in this browser.';
     }
+  }
+
+  setAutomationEnabled(enabled: boolean): void {
+    this.automationEnabled = enabled; this.persistPreferences();
+    if (enabled) { this.previousAutomationScore = null; this.previousAutomationMatchStatus = ''; this.startAutomationFeeds(); this.automationStatus = 'Automation enabled. Waiting for the next match event.'; }
+    else { this.stopAutomationFeeds(); if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer); this.automationReturnTimer = undefined; this.automationStatus = 'Automation is off.'; }
+  }
+
+  saveAutomationRules(): void {
+    const available = new Set(this.scenes.map((scene) => scene.sceneName));
+    this.automationRules = this.automationRules.map((rule) => ({ ...rule, sceneName: available.has(rule.sceneName) ? rule.sceneName : '' }));
+    if (this.automationReturnScene && !available.has(this.automationReturnScene)) this.automationReturnScene = '';
+    this.automationReturnDelay = Math.min(30, Math.max(2, Number(this.automationReturnDelay) || 8));
+    this.persistPreferences(); this.automationStatus = 'Event scene rules saved.';
+  }
+
+  onAutomationScore(score: ObsAutomationScore, match?: AutomationScoreMessage['match']): void {
+    const previous = this.previousAutomationScore;
+    const event = this.detectAutomationEvent(score, previous, match?.status);
+    this.previousAutomationScore = score;
+    if (match?.status) this.previousAutomationMatchStatus = match.status;
+    if (!this.automationEnabled || !this.obs.connected || !event) return;
+    const identity = score.eventId || String(score.eventVersion ?? score.sequenceNo ?? `${score.inningsId}:${score.runs}:${score.wickets}:${score.legalBalls}`);
+    if (this.processedAutomationEvents.has(identity)) return;
+    this.processedAutomationEvents.add(identity);
+    if (this.processedAutomationEvents.size > 100) { const oldest = this.processedAutomationEvents.values().next().value; if (oldest) this.processedAutomationEvents.delete(oldest); }
+    const rule = this.automationRules.find((item) => item.event === event);
+    if (!rule?.sceneName || !this.scenes.some((scene) => scene.sceneName === rule.sceneName)) { this.automationStatus = `${rule?.label || event} detected · no scene is assigned.`; return; }
+    void this.runAutomationScene(rule.sceneName, rule.label);
+  }
+
+  private detectAutomationEvent(score: ObsAutomationScore, previous: ObsAutomationScore | null, matchStatus?: string): AutomationEvent | null {
+    if (!previous || previous.inningsId !== score.inningsId) return null;
+    const latest = score.recentBalls?.at(-1); const priorDeliveryId = previous.recentBalls?.at(-1)?.deliveryId;
+    const newDelivery = !!latest && latest.deliveryId !== priorDeliveryId;
+    if (matchStatus === 'COMPLETED' && this.previousAutomationMatchStatus !== 'COMPLETED') return 'RESULT';
+    if (score.status === 'COMPLETED' && previous.status !== 'COMPLETED') return 'INNINGS_BREAK';
+    if (score.wickets > previous.wickets || (newDelivery && !!latest?.wicketType)) return 'WICKET';
+    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 6) return 'SIX';
+    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 4) return 'FOUR';
+    if (score.runs > previous.runs && [25,50,75,100,125,150,175,200,250,300,400,500].some((m) => previous.runs < m && score.runs >= m)) return 'MILESTONE';
+    if (newDelivery && latest?.legalDelivery && score.legalBalls > 0 && score.legalBalls % 6 === 0) return 'OVER_COMPLETE';
+    return null;
+  }
+
+  private async runAutomationScene(sceneName: string, eventLabel: string): Promise<void> {
+    if (!this.obs.connected || this.switching) return;
+    if (!this.automationBaseScene) this.automationBaseScene = this.automationReturnScene || this.currentScene;
+    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
+    try {
+      await this.obs.switchScene(sceneName); this.currentScene = sceneName; this.selectedScene = sceneName;
+      this.automationStatus = `Auto switched to ${sceneName} · ${eventLabel}.`;
+      this.automationReturnTimer = setTimeout(() => {
+        const target = this.automationReturnScene || this.automationBaseScene;
+        if (target && target !== sceneName && this.obs.connected) {
+          void this.obs.switchScene(target).then(() => { this.currentScene = target; this.selectedScene = target; this.automationStatus = `Returned to ${target}.`; }).catch(() => { this.automationStatus = 'Automatic return failed. Check OBS connection.'; });
+        } this.automationReturnTimer = undefined;
+      }, this.automationReturnDelay * 1000);
+    } catch (error) { this.automationStatus = error instanceof Error ? error.message : 'Automatic scene switch failed.'; }
+  }
+
+  private startAutomationFeeds(): void {
+    if (typeof BroadcastChannel !== 'undefined' && !this.automationChannel) { this.automationChannel = new BroadcastChannel('cricpulse-live-score'); this.automationChannel.onmessage = (event: MessageEvent<AutomationScoreMessage>) => this.acceptAutomationMessage(event.data); }
+    if (!this.automationRelay && typeof WebSocket !== 'undefined') this.connectAutomationRelay();
+  }
+
+  private acceptAutomationMessage(message: AutomationScoreMessage): void {
+    if (message?.source !== 'cricpulse-scorer' || message.matchId !== this.matchId || !message.score?.inningsId) return;
+    this.onAutomationScore(message.score, message.match);
+  }
+
+  private connectAutomationRelay(): void {
+    if (!this.automationEnabled || this.automationRelay || typeof WebSocket === 'undefined') return;
+    try { const socket = new WebSocket('ws://127.0.0.1:8765/ws'); this.automationRelay = socket;
+      socket.onmessage = (event: MessageEvent) => { try { this.acceptAutomationMessage(JSON.parse(String(event.data))); } catch { /* Ignore invalid relay payloads. */ } };
+      socket.onopen = () => { if (this.automationRelay === socket) this.automationRelayDelay = 1000; };
+      socket.onclose = () => { if (this.automationRelay !== socket) return; this.automationRelay = undefined; this.scheduleAutomationRelayReconnect(); };
+      socket.onerror = () => socket.close();
+    } catch { this.scheduleAutomationRelayReconnect(); }
+  }
+
+  private scheduleAutomationRelayReconnect(): void {
+    if (!this.automationEnabled || this.automationRelayReconnect) return; const delay = this.automationRelayDelay; this.automationRelayDelay = Math.min(this.automationRelayDelay * 2, 15000);
+    this.automationRelayReconnect = setTimeout(() => { this.automationRelayReconnect = undefined; this.connectAutomationRelay(); }, delay);
+  }
+
+  private stopAutomationFeeds(): void {
+    this.automationChannel?.close(); this.automationChannel = undefined;
+    if (this.automationRelayReconnect) clearTimeout(this.automationRelayReconnect); this.automationRelayReconnect = undefined;
+    this.automationRelay?.close(); this.automationRelay = undefined; this.automationRelayDelay = 1000;
   }
 
   async switchScene(): Promise<void> {
@@ -230,6 +365,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.obsSubscriptions.unsubscribe();
+    this.stopAutomationFeeds();
+    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
     this.obs.disconnect();
     this.password = '';
   }
