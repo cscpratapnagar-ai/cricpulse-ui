@@ -214,6 +214,32 @@
     </div>
   </section>
 
+  <section class="automation-card" aria-labelledby="automation-title">
+    <div class="card-head">
+      <div><span class="eyebrow">EVENT-DRIVEN PRODUCTION</span><h2 id="automation-title">Automatic scene switching</h2>
+        <p>Switch OBS scenes when live scoring events arrive from this match. Automation starts disabled.</p></div>
+      <label class="automation-toggle"><input type="checkbox" [checked]="automationEnabled" (change)="setAutomationEnabled($any($event.target).checked)" />
+        <span>{{ automationEnabled ? 'Automation ON' : 'Automation OFF' }}</span></label>
+    </div>
+    @if (obs.connected) {
+      <div class="automation-settings">
+        <label>Return scene after event<select [value]="automationReturnScene" (change)="automationReturnScene = $any($event.target).value">
+          <option value="">Return to scene active before automation</option>@for (scene of scenes; track scene.sceneName) { <option [value]="scene.sceneName">{{ scene.sceneName }}</option> }</select></label>
+        <label>Event graphic duration<select [value]="automationReturnDelay" (change)="automationReturnDelay = +$any($event.target).value">
+          @for (seconds of [2,4,6,8,10,15,20,30]; track seconds) { <option [value]="seconds">{{ seconds }} seconds</option> }</select></label>
+      </div>
+      <div class="automation-rule-list">
+        @for (rule of automationRules; track rule.event) {
+          <label class="automation-rule"><span><b>{{ rule.label }}</b><small>{{ rule.event.replaceAll('_', ' ') }}</small></span>
+            <select [value]="rule.sceneName" (change)="rule.sceneName = $any($event.target).value" [disabled]="!automationEnabled">
+              <option value="">No scene (ignore event)</option>@for (scene of scenes; track scene.sceneName) { <option [value]="scene.sceneName">{{ scene.sceneName }}</option> }</select></label>
+        }
+      </div>
+      <div class="automation-actions"><button class="secondary" type="button" (click)="saveAutomationRules()">Save rules</button>
+        <span class="automation-status" role="status">{{ automationStatus }}</span></div>
+    } @else { <div class="empty">Connect OBS to configure event scene rules.</div> }
+    <p class="automation-note">Four, six, wicket, milestones, over completion, innings break and result events are detected from the scorer’s live event stream. Only this match is accepted. Scene switching is disabled until you turn automation on.</p>
+  </section>
   <section class="setup-card">
     <h2>First-time setup</h2>
     <ol>
