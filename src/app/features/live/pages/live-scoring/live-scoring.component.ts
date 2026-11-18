@@ -11,6 +11,7 @@ import {
   QueuedDelivery,
 } from '../../../../core/services/offline-scoring.store';
 import {
+  hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
@@ -595,6 +596,15 @@ export class LiveScoringV2Component implements OnDestroy {
       const queue = await this.offlineStore.list(this.inningsId);
       this.offlineQueueBlocked = queue.some((item) => item.syncStatus === 'BLOCKED');
       this.pendingOfflineCount = queue.length;
+
+      // Detect a forked multi-device queue before any command is replayed.
+      // This avoids partially syncing one branch and then discovering the other.
+      if (hasOfflineQueuePositionConflict(queue)) {
+        await this.blockOfflineQueue(
+          'Multiple devices recorded different legal deliveries at the same ball position. Reconcile the score on the scorer device before syncing.',
+        );
+        return;
+      }
 
       for (const item of queue) {
         try {
