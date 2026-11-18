@@ -1552,10 +1552,49 @@ export class LiveScoringV2Component implements OnDestroy {
         },
         error: (e) => {
           this.busy = false;
+          if (Number(e?.status ?? 0) === 0) {
+            void this.persistFailedNetworkDelivery(payload, commandId, e);
+            return;
+          }
           this.syncState = 'ERROR';
           this.message = e?.error?.message || 'Unable to record delivery. Please try again.';
         },
       });
+  }
+
+  /**
+   * A delivery POST can commit on the server while its response is lost.
+   * Persist the same command ID so reconnect replay can safely resolve it
+   * through server idempotency instead of asking the scorer to re-enter it.
+   */
+  private async persistFailedNetworkDelivery(payload: QueuedDelivery['payload'], commandId: string, error: any): Promise<void> {
+    if (!this.offlineSnapshotReady || !this.score) {
+      this.syncState = 'ERROR';
+      this.message = error?.message || 'Network failed and no confirmed offline snapshot is available. Delivery was not queued; retry the same action.';
+      return;
+    }
+    const queued: QueuedDelivery = {
+      commandId,
+      inningsId: this.inningsId,
+      createdAt: Date.now(),
+      payload,
+    };
+    try {
+      const projected = projectOfflineDelivery(this.score, queued);
+      await this.offlineStore.enqueue(queued);
+      this.applyScore(projected);
+      this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+      this.pendingDeliveryCommandId = null;
+      this.lastDeliveryPayload = null;
+      this.connectionState = 'RECONNECTING';
+      this.syncState = 'QUEUED';
+      this.message = 'Connection lost during delivery save. The same command was safely queued and will reconcile on reconnect.';
+      this.showDeliveryFeedback(payload);
+      void this.checkBackendConnectivity();
+    } catch (queueError: any) {
+      this.syncState = 'ERROR';
+      this.message = queueError?.message || 'Delivery could not be safely queued. Retry is available with the original command ID.';
+    }
   }
 
   recordRuns(r: number) {
