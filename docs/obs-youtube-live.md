@@ -79,7 +79,7 @@ The authenticated Broadcast Control page links to the direct OBS scene controlle
 
 - OBS Studio 28+ includes WebSocket v5. Enable it under **Tools → WebSocket Server Settings**.
 - Default endpoint is `ws://127.0.0.1:4455`. Use the OBS server password if authentication is enabled.
-- The controller requests the scene list, identifies the current Program scene, and sends `SetCurrentProgramScene` requests when the operator confirms a switch.
+- The controller requests the scene list, identifies the current Program scene, and sends `SetCurrentProgramScene` requests when the operator confirms a switch. It does not control OBS Preview scenes or transition settings.
 - Credentials are held in the page's memory only; they are not written to local storage or sent to CricPulse's API.
 - Keep OBS WebSocket restricted to localhost or a trusted LAN. Do not expose it directly to the public internet.
 - A page served over HTTPS cannot connect to an insecure `ws://` endpoint because of browser mixed-content rules. Use a local HTTP deployment or configured `wss://` endpoint.
