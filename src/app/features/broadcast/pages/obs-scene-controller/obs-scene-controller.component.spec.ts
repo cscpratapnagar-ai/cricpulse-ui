@@ -40,6 +40,8 @@ describe('ObsSceneControllerComponent', () => {
       imports: [ObsSceneControllerComponent],
       providers: [
         { provide: ObsWebSocketService, useValue: obs },
+        { provide: HttpClient, useValue: jasmine.createSpyObj<HttpClient>('HttpClient', ['get']) },
+        { provide: LiveScoreService, useValue: jasmine.createSpyObj<LiveScoreService>('LiveScoreService', ['watch']) },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => 'match-123' } } },
