@@ -1567,10 +1567,16 @@ export class LiveScoringV2Component implements OnDestroy {
    * Persist the same command ID so reconnect replay can safely resolve it
    * through server idempotency instead of asking the scorer to re-enter it.
    */
-  private async persistFailedNetworkDelivery(payload: QueuedDelivery['payload'], commandId: string, error: any): Promise<void> {
+  private async persistFailedNetworkDelivery(
+    payload: QueuedDelivery['payload'],
+    commandId: string,
+    error: any,
+  ): Promise<void> {
     if (!this.score) {
       this.syncState = 'ERROR';
-      this.message = error?.message || 'Network failed and no score is available to safely queue this delivery. Retry the same action.';
+      this.message =
+        error?.message ||
+        'Network failed and no score is available to safely queue this delivery. Retry the same action.';
       return;
     }
     if (!this.offlineSnapshotReady) {
@@ -1579,7 +1585,9 @@ export class LiveScoringV2Component implements OnDestroy {
         this.offlineSnapshotReady = true;
       } catch (storageError: any) {
         this.syncState = 'ERROR';
-        this.message = storageError?.message || 'Offline snapshot could not be saved. Delivery was not queued; retry the same action.';
+        this.message =
+          storageError?.message ||
+          'Offline snapshot could not be saved. Delivery was not queued; retry the same action.';
         return;
       }
     }
@@ -1598,12 +1606,15 @@ export class LiveScoringV2Component implements OnDestroy {
       this.lastDeliveryPayload = null;
       this.connectionState = 'RECONNECTING';
       this.syncState = 'QUEUED';
-      this.message = 'Connection lost during delivery save. The same command was safely queued and will reconcile on reconnect.';
+      this.message =
+        'Connection lost during delivery save. The same command was safely queued and will reconcile on reconnect.';
       this.showDeliveryFeedback(payload);
       void this.checkBackendConnectivity();
     } catch (queueError: any) {
       this.syncState = 'ERROR';
-      this.message = queueError?.message || 'Delivery could not be safely queued. Retry is available with the original command ID.';
+      this.message =
+        queueError?.message ||
+        'Delivery could not be safely queued. Retry is available with the original command ID.';
     }
   }
 
