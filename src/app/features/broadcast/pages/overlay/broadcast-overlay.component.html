@@ -6,6 +6,9 @@
     @if (isAuto) {
       <section
         class="air-frame"
+        [class.theme-blue]="theme === 'blue'"
+        [class.theme-purple]="theme === 'purple'"
+        [class.theme-orange]="theme === 'orange'"
         [class.test-mode]="isMultiInnings()"
         aria-label="CricPulse live cricket broadcast graphics"
       >

@@ -64,6 +64,7 @@ export class BroadcastControlComponent {
   private readonly http = inject(HttpClient);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
+  selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   sponsorType: SponsorType = 'MAIN_SPONSOR';
   sponsorName = '';
   sponsorTagline = '';
@@ -342,6 +343,7 @@ export class BroadcastControlComponent {
 
   autoUrl() {
     const params = new URLSearchParams({ mode: 'auto' });
+    if (this.selectedTheme !== 'lime') params.set('theme', this.selectedTheme);
     if (this.overSponsorEnabled) {
       params.set('overSponsor', 'true');
       params.set('sponsorType', 'OVER_SPONSOR');
