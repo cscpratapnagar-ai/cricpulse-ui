@@ -84,6 +84,17 @@ describe('BroadcastControlComponent', () => {
     expect(new URL(component.previewUrl()).searchParams.get('previewRefresh')).toBe('1');
   });
 
+  it('requests fullscreen for the live preview iframe', async () => {
+    const fixture = TestBed.createComponent(BroadcastControlComponent);
+    fixture.detectChanges();
+    const frame = fixture.nativeElement.querySelector('iframe') as HTMLIFrameElement;
+    const requestFullscreen = jasmine.createSpy('requestFullscreen').and.returnValue(Promise.resolve());
+    Object.defineProperty(frame, 'requestFullscreen', { value: requestFullscreen });
+
+    await fixture.componentInstance.fullscreenPreview();
+
+    expect(requestFullscreen).toHaveBeenCalled();
+  });
   it('builds a shareable sponsor URL with encoded details and bounded duration', () => {
     const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
     component.sponsorName = 'Shree Motors & Sons';
