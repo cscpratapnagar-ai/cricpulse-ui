@@ -263,6 +263,16 @@
               </div>
             </div>
           }
+          }
+          <div class="insight-summary">
+            <div class="insight-summary-heading"><span>LIVE SITUATION</span><b>{{ intelligence.chasePressure }}</b></div>
+            <p>{{ chaseSituation() }}</p>
+            @if (intelligence.requiredRate !== null) {
+              <small>{{ runRateDifferenceLabel() }}</small>
+            } @else {
+              <small>Current run rate: {{ intelligence.inningsRunRate }} · recent rate: {{ intelligence.recentRunRate }}</small>
+            }
+          </div>
         } @else {
           <div class="intel-empty">
             <b>Intelligence unavailable</b>
