@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
 
@@ -79,6 +79,7 @@ export class BroadcastControlComponent {
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   previewEnabled = true;
   previewRefreshToken = 0;
+  @ViewChild('previewFrame') private previewFrame?: ElementRef<HTMLIFrameElement>;
 
   previewUrl() {
     const params = new URL(this.autoUrl());
@@ -90,8 +91,9 @@ export class BroadcastControlComponent {
     this.previewRefreshToken += 1;
   }
 
-  async fullscreenPreview(frame: HTMLIFrameElement) {
-    if (!frame.requestFullscreen) return;
+  async fullscreenPreview() {
+    const frame = this.previewFrame?.nativeElement;
+    if (!frame?.requestFullscreen) return;
     await frame.requestFullscreen();
   }
   sponsorType: SponsorType = 'MAIN_SPONSOR';
