@@ -6,6 +6,7 @@ import {
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
   projectOfflineDelivery,
+  restoreOfflineQueueProjection,
 } from './offline-score.reducer';
 import { QueuedDelivery } from './offline-scoring.store';
 
@@ -330,5 +331,82 @@ describe('getOfflineQueueConflictPositions', () => {
         command('report-no-ball', { extraType: 'NO_BALL', legalDelivery: false }),
       ]),
     ).toEqual([]);
+  });
+});
+
+describe('restoreOfflineQueueProjection', () => {
+  it('restores a fully valid queue in sequence', () => {
+    const first = command('restore-1', { batRuns: 2, ballNumber: 1 });
+    const second = command('restore-2', { batRuns: 4, ballNumber: 2 });
+    const result = restoreOfflineQueueProjection(baseScore(), [first, second], 'match-1', 'innings-1');
+
+    expect(result.blocked).toBeFalse();
+    expect(result.error).toBeNull();
+    expect(result.restoredDeliveries).toBe(2);
+    expect(result.score.runs).toBe(6);
+    expect(result.score.legalBalls).toBe(2);
+  });
+
+  it('returns the untouched snapshot when a later queue item fails projection', () => {
+    const snapshot = baseScore();
+    const first = command('restore-partial-1', { batRuns: 4, ballNumber: 1 });
+    const invalidSecond = command('restore-partial-2', { batRuns: 1, ballNumber: 3 });
+    const result = restoreOfflineQueueProjection(
+      snapshot,
+      [first, invalidSecond],
+      'match-1',
+      'innings-1',
+    );
+
+    expect(result.blocked).toBeTrue();
+    expect(result.error).toMatch(/position does not match/);
+    expect(result.restoredDeliveries).toBe(0);
+    expect(result.score).toBe(snapshot);
+    expect(result.score.runs).toBe(0);
+    expect(result.score.legalBalls).toBe(0);
+  });
+
+  it('blocks conflicting legal deliveries before applying any projection', () => {
+    const snapshot = baseScore();
+    const result = restoreOfflineQueueProjection(
+      snapshot,
+      [command('restore-fork-a', { batRuns: 1 }), command('restore-fork-b', { batRuns: 6 })],
+      'match-1',
+      'innings-1',
+    );
+
+    expect(result.blocked).toBeTrue();
+    expect(result.error).toMatch(/different legal deliveries/);
+    expect(result.score).toBe(snapshot);
+    expect(result.score.runs).toBe(0);
+  });
+
+  it('blocks a previously blocked command and retains the original snapshot', () => {
+    const snapshot = baseScore();
+    const blockedCommand = command('restore-blocked', { batRuns: 3 });
+    blockedCommand.syncStatus = 'BLOCKED';
+    const result = restoreOfflineQueueProjection(
+      snapshot,
+      [blockedCommand],
+      'match-1',
+      'innings-1',
+    );
+
+    expect(result.blocked).toBeTrue();
+    expect(result.error).toMatch(/marked blocked/);
+    expect(result.score).toBe(snapshot);
+    expect(result.restoredDeliveries).toBe(0);
+  });
+
+  it('blocks wrong match identity without partially restoring', () => {
+    const snapshot = baseScore();
+    const wrongMatch = command('restore-wrong-match', { batRuns: 2 });
+    wrongMatch.matchId = 'another-match';
+    const result = restoreOfflineQueueProjection(snapshot, [wrongMatch], 'match-1', 'innings-1');
+
+    expect(result.blocked).toBeTrue();
+    expect(result.error).toMatch(/different match/);
+    expect(result.score).toBe(snapshot);
+    expect(result.score.runs).toBe(0);
   });
 });
