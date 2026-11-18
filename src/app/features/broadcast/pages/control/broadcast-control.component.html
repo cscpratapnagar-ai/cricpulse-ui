@@ -18,11 +18,20 @@
       </p>
     </div>
     <div class="flow-steps" aria-label="Broadcast flow">
-      <div><b>01</b><span>CricPulse scoring</span></div>
+      <div>
+        <b>01</b>
+        <span>CricPulse scoring</span>
+      </div>
       <i>→</i>
-      <div><b>02</b><span>OBS Browser Source</span></div>
+      <div>
+        <b>02</b>
+        <span>OBS Browser Source</span>
+      </div>
       <i>→</i>
-      <div><b>03</b><span>YouTube Live</span></div>
+      <div>
+        <b>03</b>
+        <span>YouTube Live</span>
+      </div>
     </div>
   </section>
 
@@ -132,10 +141,18 @@
       </button>
     </div>
     <div class="obs-setting-chips">
-      <span><b>Width</b> {{ resolutionPreset().width }}</span>
-      <span><b>Height</b> {{ resolutionPreset().height }}</span>
-      <span><b>FPS</b> 60 (or match OBS)</span>
-      <span><b>Background</b> Transparent</span>
+      <span>
+        <b>Width</b> {{ resolutionPreset().width }}
+      </span>
+      <span>
+        <b>Height</b> {{ resolutionPreset().height }}
+      </span>
+      <span>
+        <b>FPS</b> 60 (or match OBS)
+      </span>
+      <span>
+        <b>Background</b> Transparent
+      </span>
     </div>
     <ol>
       <li>OBS → Sources → <b>+</b> → Browser</li>
@@ -268,9 +285,9 @@
         <div class="sponsor-report-list">
           @for (item of sponsorReport; track item.sponsorId) {
             <div>
-              <b>{{ item.sponsorName }}</b
-              ><span>{{ item.impressions }} impressions</span
-              ><small>{{ item.lastDisplayedAt || 'Not displayed yet' }}</small>
+              <b>{{ item.sponsorName }}</b>
+              <span>{{ item.impressions }} impressions</span>
+              <small>{{ item.lastDisplayedAt || 'Not displayed yet' }}</small>
             </div>
           }
         </div>
@@ -281,16 +298,16 @@
       <span>Match-specific sponsor inventory</span>
     </div>
     <div class="sponsor-manager-grid">
-      <label
-        >Graphic type
+      <label>
+        Graphic type
         <select [value]="sponsorType" (change)="changeSponsorType($any($event.target).value)">
           @for (type of sponsorTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
           }
         </select>
       </label>
-      <label
-        >Sponsor / brand name
+      <label>
+        Sponsor / brand name
         <input
           type="text"
           maxlength="60"
@@ -299,8 +316,8 @@
           (input)="sponsorName = $any($event.target).value"
         />
       </label>
-      <label
-        >Tagline
+      <label>
+        Tagline
         <input
           type="text"
           maxlength="100"
@@ -309,8 +326,8 @@
           (input)="sponsorTagline = $any($event.target).value"
         />
       </label>
-      <label
-        >Upload logo image
+      <label>
+        Upload logo image
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp"
@@ -324,8 +341,8 @@
           <span>{{ sponsorLogoFile?.name || 'Current sponsor logo' }}</span>
         </div>
       }
-      <label
-        >Or use an external logo URL
+      <label>
+        Or use an external logo URL
         <input
           type="url"
           placeholder="https://example.com/logo.png"
@@ -333,8 +350,8 @@
           (input)="sponsorLogo = $any($event.target).value; clearSponsorLogoFile()"
         />
       </label>
-      <label
-        >Top label
+      <label>
+        Top label
         <input
           type="text"
           maxlength="32"
@@ -342,8 +359,8 @@
           (input)="sponsorLabel = $any($event.target).value"
         />
       </label>
-      <label
-        >Display duration
+      <label>
+        Display duration
         <select
           [value]="sponsorDuration"
           (change)="sponsorDuration = +$any($event.target).value"
