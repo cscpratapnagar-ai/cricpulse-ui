@@ -251,7 +251,7 @@ header p {
   color: #d99a25;
   font-size: 9px;
   font-weight: 850;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
 }
 .scene-controller-options {
   display: grid;
@@ -272,9 +272,15 @@ header p {
   color: var(--cp-text);
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
-.scene-controller-option:hover { border-color: var(--cp-accent); transform: translateY(-1px); }
+.scene-controller-option:hover {
+  border-color: var(--cp-accent);
+  transform: translateY(-1px);
+}
 .scene-controller-option.selected {
   border-color: var(--cp-accent);
   background: color-mix(in srgb, var(--cp-accent) 10%, var(--cp-surface));
@@ -284,10 +290,17 @@ header p {
   color: var(--cp-accent);
   font-size: 9px;
   font-weight: 900;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
-.scene-controller-option b { font-size: 12px; line-height: 1.3; }
-.scene-controller-option small { color: var(--cp-text-muted); font-size: 10px; line-height: 1.45; }
+.scene-controller-option b {
+  font-size: 12px;
+  line-height: 1.3;
+}
+.scene-controller-option small {
+  color: var(--cp-text-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
 .scene-controller-actions {
   display: flex;
   justify-content: space-between;
@@ -297,11 +310,36 @@ header p {
   padding-top: 14px;
   border-top: 1px solid var(--cp-border);
 }
-.scene-controller-current { min-width: 0; display: grid; gap: 5px; }
-.scene-controller-current span { color: var(--cp-text-muted); font-size: 9px; font-weight: 850; letter-spacing: .08em; }
-.scene-controller-current strong { color: var(--cp-text); font-size: 13px; }
-.scene-controller-current code { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cp-text-muted); font-size: 10px; }
-.scene-controller-buttons { display: flex; flex-shrink: 0; flex-wrap: wrap; gap: 8px; }
+.scene-controller-current {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.scene-controller-current span {
+  color: var(--cp-text-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+.scene-controller-current strong {
+  color: var(--cp-text);
+  font-size: 13px;
+}
+.scene-controller-current code {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+}
+.scene-controller-buttons {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .scene-controller-buttons button {
   padding: 9px 12px;
   border: 0;
@@ -312,16 +350,41 @@ header p {
   font-weight: 850;
   cursor: pointer;
 }
-.scene-controller-buttons button.preview { border: 1px solid var(--cp-border); background: transparent; color: var(--cp-text); }
-@media (max-width: 900px) { .scene-controller-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.scene-controller-buttons button.preview {
+  border: 1px solid var(--cp-border);
+  background: transparent;
+  color: var(--cp-text);
+}
+@media (max-width: 900px) {
+  .scene-controller-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 @media (max-width: 600px) {
-  .scene-controller { padding: 15px; }
-  .scene-controller-heading, .scene-controller-actions { align-items: stretch; flex-direction: column; }
-  .scene-controller-note { align-self: flex-start; }
-  .scene-controller-options { grid-template-columns: 1fr; }
-  .scene-controller-buttons { width: 100%; }
-  .scene-controller-buttons button { flex: 1 1 100%; }
-  .scene-controller-current code { white-space: normal; overflow-wrap: anywhere; }
+  .scene-controller {
+    padding: 15px;
+  }
+  .scene-controller-heading,
+  .scene-controller-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .scene-controller-note {
+    align-self: flex-start;
+  }
+  .scene-controller-options {
+    grid-template-columns: 1fr;
+  }
+  .scene-controller-buttons {
+    width: 100%;
+  }
+  .scene-controller-buttons button {
+    flex: 1 1 100%;
+  }
+  .scene-controller-current code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 .auto-scene {

@@ -172,7 +172,13 @@
           [attr.aria-pressed]="selectedControllerScene === option.value"
           (click)="selectControllerScene(option.value)"
         >
-          <span class="scene-controller-type">{{ option.category === 'automatic' ? 'AUTO' : option.category === 'event' ? 'EVENT' : 'OVERLAY' }}</span>
+          <span class="scene-controller-type">{{
+            option.category === 'automatic'
+              ? 'AUTO'
+              : option.category === 'event'
+                ? 'EVENT'
+                : 'OVERLAY'
+          }}</span>
           <b>{{ option.title }}</b>
           <small>{{ option.description }}</small>
         </button>
@@ -188,7 +194,9 @@
         <button type="button" (click)="copySetup(controllerUrl(), 'controller-url')">
           {{ copied === 'controller-url' ? 'URL Copied!' : 'Copy Selected URL' }}
         </button>
-        <button type="button" class="preview" (click)="openControllerScene()">Open Graphic ↗</button>
+        <button type="button" class="preview" (click)="openControllerScene()">
+          Open Graphic ↗
+        </button>
       </div>
     </div>
   </section>
