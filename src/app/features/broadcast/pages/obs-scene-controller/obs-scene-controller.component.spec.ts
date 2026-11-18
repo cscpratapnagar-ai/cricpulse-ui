@@ -10,6 +10,7 @@ describe('ObsSceneControllerComponent', () => {
   let connectionLost$: Subject<string>;
 
   beforeEach(() => {
+    localStorage.removeItem('cricpulse.obs-scene-presets.match-123');
     obs = jasmine.createSpyObj<ObsWebSocketService>('ObsWebSocketService', [
       'connect',
       'disconnect',
@@ -43,6 +44,23 @@ describe('ObsSceneControllerComponent', () => {
         },
       ],
     });
+  });
+
+  it('restores saved presets and favorites for this match from browser storage', () => {
+    localStorage.setItem(
+      'cricpulse.obs-scene-presets.match-123',
+      JSON.stringify({
+        presets: [{ key: 'score', label: 'Scoreboard', sceneName: 'Camera + Score' }],
+        favorites: ['Camera'],
+      }),
+    );
+
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+
+    expect(component.presets.find((preset) => preset.key === 'score')?.sceneName).toBe(
+      'Camera + Score',
+    );
+    expect(component.favoriteSceneNames).toEqual(['Camera']);
   });
 
   it('uses sensible local OBS defaults and match context', () => {
@@ -102,6 +120,72 @@ describe('ObsSceneControllerComponent', () => {
     expect(obs.switchScene).toHaveBeenCalledWith('Camera + Score');
     expect(obs.currentScene).toHaveBeenCalled();
     expect(component.notice).toContain('Camera');
+  });
+
+  it('assigns a preset to the selected scene and persists it', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Camera + Score', sceneIndex: 1 },
+    ];
+    component.selectedScene = 'Camera + Score';
+
+    component.assignSelectedToPreset('main');
+
+    expect(component.presets.find((preset) => preset.key === 'main')?.sceneName).toBe(
+      'Camera + Score',
+    );
+    expect(localStorage.getItem('cricpulse.obs-scene-presets.match-123')).toContain(
+      'Camera + Score',
+    );
+  });
+
+  it('switches to an assigned preset and rejects missing assignments', async () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [{ sceneName: 'Camera + Score', sceneIndex: 1 }];
+    component.presets = component.presets.map((preset) =>
+      preset.key === 'score' ? { ...preset, sceneName: 'Camera + Score' } : preset,
+    );
+
+    await component.switchPreset('score');
+    expect(obs.switchScene).toHaveBeenCalledWith('Camera + Score');
+
+    await component.switchPreset('break');
+    expect(component.error).toContain('Assign an available OBS scene');
+  });
+
+  it('toggles favorites and returns only available favorite scenes', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Camera + Score', sceneIndex: 1 },
+    ];
+
+    component.toggleFavorite('Camera');
+    component.toggleFavorite('Camera + Score');
+    expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual([
+      'Camera',
+      'Camera + Score',
+    ]);
+
+    component.toggleFavorite('Camera');
+    expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual(['Camera + Score']);
+  });
+
+  it('clears preset and favorite references when scenes disappear on refresh', async () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.presets = component.presets.map((preset) =>
+      preset.key === 'main' ? { ...preset, sceneName: 'Deleted Scene' } : preset,
+    );
+    component.favoriteSceneNames = ['Deleted Scene'];
+    obs.refreshScenes.and.resolveTo([{ sceneName: 'Camera', sceneIndex: 0 }]);
+    component.currentScene = 'Camera';
+    component.selectedScene = 'Camera';
+
+    await component.refresh();
+
+    expect(component.presets.find((preset) => preset.key === 'main')?.sceneName).toBe('');
+    expect(component.favoriteSceneNames).toEqual([]);
   });
 
   it('reports connection failures and resets scene state', async () => {

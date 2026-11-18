@@ -123,6 +123,15 @@
               (click)="selectedScene = scene.sceneName"
             >
               <span class="scene-icon">▣</span><span class="scene-name">{{ scene.sceneName }}</span>
+              <span
+                class="favorite-star"
+                [class.favorited]="isFavorite(scene.sceneName)"
+                (click)="$event.stopPropagation(); toggleFavorite(scene.sceneName)"
+                role="button"
+                tabindex="0"
+                [attr.aria-label]="isFavorite(scene.sceneName) ? 'Remove favorite' : 'Add favorite'"
+                >★</span
+              >
               @if (scene.sceneName === currentScene) {
                 <span class="live-tag">ON AIR</span>
               }
@@ -140,6 +149,69 @@
         ><span>OBS WebSocket is built into OBS Studio 28+. Default port is 4455.</span>
       </div>
     }
+  </section>
+
+  <section class="preset-card">
+    <div class="card-head">
+      <div>
+        <span class="eyebrow">ONE-CLICK PRODUCTION</span>
+        <h2>Scene presets</h2>
+        <p>Assign your OBS scenes once, then switch to them with one click.</p>
+      </div>
+    </div>
+    <div class="preset-grid">
+      @for (preset of presets; track preset.key) {
+        <article class="preset-item">
+          <div class="preset-heading">
+            <strong>{{ preset.label }}</strong>
+            <span>{{ preset.sceneName || 'Not assigned' }}</span>
+          </div>
+          <div class="preset-actions">
+            <button
+              type="button"
+              class="primary"
+              [disabled]="!obs.connected || !preset.sceneName || switching"
+              (click)="switchPreset(preset.key)"
+            >
+              Go live
+            </button>
+            <button
+              type="button"
+              class="secondary"
+              [disabled]="!obs.connected || !selectedScene"
+              (click)="assignSelectedToPreset(preset.key)"
+            >
+              Assign selected
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+    <div class="favorites-block">
+      <div class="favorites-title">
+        <strong>Favorite scenes</strong><span>{{ favoriteScenes.length }} saved</span>
+      </div>
+      @if (favoriteScenes.length) {
+        <div class="favorite-list">
+          @for (scene of favoriteScenes; track scene.sceneName) {
+            <button
+              type="button"
+              class="favorite-scene"
+              [class.active]="scene.sceneName === currentScene"
+              [disabled]="!obs.connected || switching"
+              (click)="selectedScene = scene.sceneName; switchScene()"
+            >
+              <span>★</span><b>{{ scene.sceneName }}</b>
+              @if (scene.sceneName === currentScene) {
+                <small>ON AIR</small>
+              }
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="favorite-empty">Star a scene below to add it to your quick-access list.</p>
+      }
+    </div>
   </section>
 
   <section class="setup-card">
