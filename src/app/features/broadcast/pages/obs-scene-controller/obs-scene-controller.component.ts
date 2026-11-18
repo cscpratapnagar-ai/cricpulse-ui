@@ -1,6 +1,10 @@
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError, of } from 'rxjs';
+import { API_ORIGIN } from '../../../../core/config/api.config';
+import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
+import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.service';
 
 type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
@@ -19,6 +23,8 @@ interface AutomationRule {
   label: string;
   sceneName: string;
 }
+
+interface AutomationFeedState { match: { status?: string; name?: string; currentInningsId?: string | null }; innings: Array<{ score: ObsAutomationScore }>; }
 
 interface AutomationScoreMessage {
   source?: string;
@@ -60,6 +66,8 @@ interface ScenePreset {
 export class ObsSceneControllerComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   readonly obs = inject(ObsWebSocketService);
+  private readonly http = inject(HttpClient);
+  private readonly liveScore = inject(LiveScoreService);
   private readonly obsSubscriptions = new Subscription();
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   protocol: 'ws' | 'wss' = 'ws';
@@ -104,6 +112,10 @@ export class ObsSceneControllerComponent implements OnDestroy {
   private automationRelay?: WebSocket;
   private automationRelayReconnect?: ReturnType<typeof setTimeout>;
   private automationRelayDelay = 1000;
+  private automationScoreSubscription?: Subscription;
+  private automationPollTimer?: ReturnType<typeof setInterval>;
+  private automationFeedInFlight = false;
+  private automationWatchedInningsId = '';
   private automationReturnTimer?: ReturnType<typeof setTimeout>;
   private automationBaseScene = '';
   private previousAutomationScore: ObsAutomationScore | null = null;
@@ -418,6 +430,33 @@ export class ObsSceneControllerComponent implements OnDestroy {
         this.acceptAutomationMessage(event.data);
     }
     if (!this.automationRelay && typeof WebSocket !== 'undefined') this.connectAutomationRelay();
+    if (!this.automationPollTimer) {
+      void this.refreshAutomationFeed();
+      this.automationPollTimer = setInterval(() => void this.refreshAutomationFeed(), 15000);
+    }
+  }
+
+  private refreshAutomationFeed(): void {
+    if (!this.automationEnabled || !this.matchId || this.automationFeedInFlight) return;
+    this.automationFeedInFlight = true;
+    const context = new HttpContext().set(SKIP_GLOBAL_LOADING, true);
+    this.http.get<AutomationFeedState>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state', { context })
+      .pipe(catchError(() => of(null)))
+      .subscribe((state) => {
+        this.automationFeedInFlight = false;
+        if (!state || !this.automationEnabled) return;
+        const innings = state.innings || [];
+        const currentId = state.match.currentInningsId || innings.find((item) => item.score.status === 'LIVE')?.score.inningsId || innings.at(-1)?.score.inningsId || '';
+        const snapshot = innings.find((item) => item.score.inningsId === currentId)?.score;
+        if (snapshot) this.onAutomationScore(snapshot, state.match);
+        if (!currentId || currentId === this.automationWatchedInningsId) return;
+        this.automationScoreSubscription?.unsubscribe();
+        this.automationWatchedInningsId = currentId;
+        this.automationScoreSubscription = this.liveScore.watch(currentId).subscribe({
+          next: (score: LiveScore) => { if (this.automationEnabled && score.matchId === this.matchId) this.onAutomationScore(score, state.match); },
+          error: () => { this.automationWatchedInningsId = ''; },
+        });
+      });
   }
 
   private acceptAutomationMessage(message: AutomationScoreMessage): void {
