@@ -77,6 +77,23 @@ export class BroadcastControlComponent {
     );
   }
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
+  previewEnabled = true;
+  previewRefreshToken = 0;
+
+  previewUrl() {
+    const params = new URL(this.autoUrl());
+    params.searchParams.set('previewRefresh', String(this.previewRefreshToken));
+    return params.toString();
+  }
+
+  refreshPreview() {
+    this.previewRefreshToken += 1;
+  }
+
+  async fullscreenPreview(frame: HTMLIFrameElement) {
+    if (!frame.requestFullscreen) return;
+    await frame.requestFullscreen();
+  }
   sponsorType: SponsorType = 'MAIN_SPONSOR';
   sponsorName = '';
   sponsorTagline = '';
