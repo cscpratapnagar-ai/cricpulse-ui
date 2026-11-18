@@ -62,6 +62,7 @@ describe('ObsSceneControllerComponent', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.scenes = [{ sceneName: 'Camera + Score', sceneIndex: 1 }];
     component.currentScene = 'Camera';
+    obs.currentScene.and.resolveTo('Camera + Score');
     component.selectedScene = 'Camera + Score';
 
     await component.switchScene();
