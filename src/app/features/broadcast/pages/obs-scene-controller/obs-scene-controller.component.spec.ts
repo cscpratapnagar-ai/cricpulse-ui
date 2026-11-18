@@ -1,7 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { ObsWebSocketService } from '../../services/obs-websocket.service';
+import { LiveScoreService } from '../../../../core/services/live-score.service';
 import { ObsSceneControllerComponent } from './obs-scene-controller.component';
 
 describe('ObsSceneControllerComponent', () => {
