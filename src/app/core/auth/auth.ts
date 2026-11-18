@@ -1,7 +1,7 @@
-import { HttpClient, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, filter, map, of, switchMap } from 'rxjs';
 
 import { API_BASE_URL, isApiRequest } from '../config/api.config';
 import { CurrentUser, CurrentUserService } from '../services/current-user.service';
@@ -21,9 +21,13 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const csrfRequest = new HttpRequest('GET', `${API_BASE_URL}/auth/csrf`, null, {
     withCredentials: true,
   });
+
   return next(csrfRequest).pipe(
+    // Interceptors receive HttpEvents (including Sent and progress events), not just responses.
+    // Only inspect the completed HTTP response for the CSRF token.
+    filter((event): event is HttpResponse<unknown> => event instanceof HttpResponse),
     switchMap((response) => {
-      const token = (response as { body?: { token?: string } }).body?.token;
+      const token = (response.body as { token?: string } | null)?.token;
       if (!token) throw new Error('Unable to initialize CSRF protection.');
       return next(cookieRequest.clone({ setHeaders: { 'X-XSRF-TOKEN': token } }));
     }),
