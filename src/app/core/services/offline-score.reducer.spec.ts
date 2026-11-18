@@ -338,7 +338,12 @@ describe('restoreOfflineQueueProjection', () => {
   it('restores a fully valid queue in sequence', () => {
     const first = command('restore-1', { batRuns: 2, ballNumber: 1 });
     const second = command('restore-2', { batRuns: 4, ballNumber: 2 });
-    const result = restoreOfflineQueueProjection(baseScore(), [first, second], 'match-1', 'innings-1');
+    const result = restoreOfflineQueueProjection(
+      baseScore(),
+      [first, second],
+      'match-1',
+      'innings-1',
+    );
 
     expect(result.blocked).toBeFalse();
     expect(result.error).toBeNull();
