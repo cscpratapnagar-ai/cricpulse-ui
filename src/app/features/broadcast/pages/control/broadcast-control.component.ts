@@ -132,8 +132,10 @@ export class BroadcastControlComponent {
   }
 
   get selectedControllerOption(): SceneControllerOption {
-    return this.controllerOptions.find((option) => option.value === this.selectedControllerScene) ??
-      this.controllerOptions[0];
+    return (
+      this.controllerOptions.find((option) => option.value === this.selectedControllerScene) ??
+      this.controllerOptions[0]
+    );
   }
 
   previewSafeUrl(): SafeResourceUrl {
