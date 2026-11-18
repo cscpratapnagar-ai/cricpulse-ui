@@ -1,6 +1,6 @@
 import { LiveScore } from './live-score.service';
 import {
-  hasOfflineQueuePositionConflict,
+  getOfflineQueueConflictPositions,\n  hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
@@ -307,5 +307,25 @@ describe('hasOfflineQueuePositionConflict', () => {
         command('fork-legal-after-nb', { ballNumber: 1 }),
       ]),
     ).toBeFalse();
+  });
+});
+
+describe('getOfflineQueueConflictPositions', () => {
+  it('returns the human-readable positions where legal delivery forks occur', () => {
+    const queue = [
+      command('report-conflict-a', { overNumber: 0, ballNumber: 2, batRuns: 1 }),
+      command('report-conflict-b', { overNumber: 0, ballNumber: 2, batRuns: 4 }),
+      command('report-conflict-c', { overNumber: 1, ballNumber: 3, batRuns: 2 }),
+      command('report-conflict-d', { overNumber: 1, ballNumber: 3, batRuns: 6 }),
+    ];
+    expect(getOfflineQueueConflictPositions(queue)).toEqual(['1.2', '2.3']);
+  });
+
+  it('does not report repeated non-legal deliveries as a legal-ball fork', () => {
+    expect(getOfflineQueueConflictPositions([
+      command('report-wide-a', { extraType: 'WIDE', legalDelivery: false }),
+      command('report-wide-b', { extraType: 'WIDE', legalDelivery: false }),
+      command('report-no-ball', { extraType: 'NO_BALL', legalDelivery: false }),
+    ])).toEqual([]);
   });
 });
