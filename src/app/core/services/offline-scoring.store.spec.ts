@@ -53,9 +53,9 @@ describe('OfflineScoringStore (IndexedDB)', () => {
 
     const items = await store.list(inningsId);
     expect(items.map((item) => item.commandId)).toEqual([
-      'offline-store-cmd-3',
       'offline-store-cmd-1',
       'offline-store-cmd-2',
+      'offline-store-cmd-3',
     ]);
     expect(items[1].createdAt).toBeGreaterThan(items[0].createdAt);
     expect(items[2].createdAt).toBeGreaterThan(items[1].createdAt);
