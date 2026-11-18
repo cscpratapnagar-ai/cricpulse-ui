@@ -267,6 +267,28 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
  * Network, throttling and server availability failures are retryable.
  * Client/domain errors require scorer reconciliation instead of blind replay.
  */
+/** Match an offline command to a server recent-ball record without guessing from totals. */
+export function offlineDeliveryMatchesRecentBall(
+  command: QueuedDelivery,
+  ball: NonNullable<LiveScore['recentBalls']>[number],
+): boolean {
+  const p = command.payload;
+  const legalDelivery = p.legalDelivery ?? (p.extraType !== 'WIDE' && p.extraType !== 'NO_BALL');
+  return (
+    ball.overNumber === p.overNumber &&
+    ball.ballNumber === p.ballNumber &&
+    ball.strikerId === p.strikerId &&
+    ball.nonStrikerId === p.nonStrikerId &&
+    ball.bowlerId === p.bowlerId &&
+    ball.batRuns === p.batRuns &&
+    ball.extraRuns === p.extraRuns &&
+    (ball.extraType || null) === (p.extraType || null) &&
+    (ball.wicketType || null) === (p.wicketType || null) &&
+    ball.legalDelivery === legalDelivery &&
+    ball.totalRuns === p.batRuns + p.extraRuns
+  );
+}
+
 export function isTransientOfflineSyncStatus(status: unknown): boolean {
   const normalized = Number(status ?? 0);
   return (
