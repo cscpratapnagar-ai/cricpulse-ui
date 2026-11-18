@@ -33,7 +33,7 @@ interface Match {
   teamAName?: string;
   teamBName?: string;
 }
-interface XIPlayer {
+interface OfflineQueueDiagnostic {\n  commandId: string;\n  position: string;\n  summary: string;\n  identities: string;\n  syncStatus: string;\n  createdAt: string;\n  conflict: boolean;\n}\n\ninterface XIPlayer {
   teamId: string;
   playerId: string;
   name: string;
@@ -106,7 +106,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'QUEUED' | 'ERROR' = 'SYNCED';
-  pendingOfflineCount = 0;
+  pendingOfflineCount = 0;\n  offlineQueueDiagnostics: OfflineQueueDiagnostic[] = [];\n  offlineConflictPositions: string[] = [];\n  offlineRecoveryReport = '';
   private offlineSnapshotReady = false;
   private flushingOfflineQueue = false;
   private offlineQueueBlocked = false;
@@ -1194,6 +1194,64 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   // prettier-ignore
+  private setOfflineQueueDiagnostics(queue: QueuedDelivery[]): void {
+    const legalPositionCounts = new Map<string, number>();
+    for (const item of queue) {
+      const payload = item.payload;
+      const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+      if (!legal) continue;
+      const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
+      legalPositionCounts.set(position, (legalPositionCounts.get(position) || 0) + 1);
+    }
+    this.offlineConflictPositions = [...legalPositionCounts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([position]) => position);
+    this.offlineQueueDiagnostics = queue.map((item) => {
+      const payload = item.payload;
+      const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
+      const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+      const conflict = legal && (legalPositionCounts.get(position) || 0) > 1;
+      const extras = payload.extraType ? `${payload.extraType} +${payload.extraRuns}` : '';
+      const wicket = payload.wicketType ? `WICKET: ${payload.wicketType}` : '';
+      const summary = [`${payload.batRuns} bat run(s)`, extras, wicket].filter(Boolean).join(' · ');
+      const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
+      return {
+        commandId: item.commandId,
+        position,
+        summary,
+        identities,
+        syncStatus: item.syncStatus || 'PENDING',
+        createdAt: new Date(item.createdAt).toLocaleString(),
+        conflict,
+      };
+    });
+    this.offlineRecoveryReport = [
+      'CricPulse Offline Queue Recovery Report',
+      `Match: ${this.matchId}`,
+      `Innings: ${this.inningsId}`,
+      `Pending deliveries: ${queue.length}`,
+      `Conflicting legal-ball positions: ${this.offlineConflictPositions.join(', ') || 'none identified'}`,
+      ...this.offlineQueueDiagnostics.map((item) =>
+        `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
+      ),
+      'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
+    ].join('\n');
+  }
+
+  async copyOfflineRecoveryReport(): Promise<void> {
+    if (!this.offlineRecoveryReport) {
+      this.message = 'Offline queue report is not available yet.';
+      return;
+    }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(this.offlineRecoveryReport);
+      this.message = 'Offline recovery report copied. Pending deliveries remain unchanged.';
+    } catch {
+      this.message = 'Copy failed. Review the conflict details below; pending deliveries remain unchanged.';
+    }
+  }
+
   private async blockOfflineQueue(message: string): Promise<void> {
     this.offlineQueueBlocked = true;
     this.syncState = 'ERROR';
