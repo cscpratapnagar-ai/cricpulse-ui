@@ -97,9 +97,7 @@ export class BroadcastControlComponent {
     return params.toString();
   }
 
-  controllerUrl(
-    selection: SceneControllerSelection = this.selectedControllerScene,
-  ) {
+  controllerUrl(selection: SceneControllerSelection = this.selectedControllerScene) {
     if (selection === 'auto') return this.autoUrl();
     if (selection.startsWith('event:')) {
       return this.eventUrl(selection.slice(6) as EventKind);
