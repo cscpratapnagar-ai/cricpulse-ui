@@ -307,6 +307,19 @@ export function isTransientOfflineSyncStatus(status: unknown): boolean {
  * Repeated wides/no-balls at the same position remain valid because they do not
  * advance the legal-ball cursor.
  */
+/** Return human-readable over.ball positions containing duplicate legal deliveries. */
+export function getOfflineQueueConflictPositions(queue: QueuedDelivery[]): string[] {
+  const counts = new Map<string, number>();
+  for (const command of queue) {
+    const p = command.payload;
+    const legal = p.legalDelivery ?? (p.extraType !== 'WIDE' && p.extraType !== 'NO_BALL');
+    if (!legal) continue;
+    const position = `${p.overNumber + 1}.${p.ballNumber}`;
+    counts.set(position, (counts.get(position) || 0) + 1);
+  }
+  return [...counts.entries()].filter(([, count]) => count > 1).map(([position]) => position);
+}
+
 export function hasOfflineQueuePositionConflict(queue: QueuedDelivery[]): boolean {
   const legalPositions = new Set<string>();
   for (const command of queue) {
