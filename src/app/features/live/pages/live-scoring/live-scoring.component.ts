@@ -594,6 +594,7 @@ export class LiveScoringV2Component implements OnDestroy {
       let projected = snapshot;
       await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
+      this.setOfflineQueueDiagnostics(queue);
       this.offlineQueueBlocked = queue.some((item) => item.syncStatus === 'BLOCKED');
       this.pendingOfflineCount = queue.length;
 
@@ -1256,9 +1257,9 @@ export class LiveScoringV2Component implements OnDestroy {
     this.offlineQueueBlocked = true;
     this.syncState = 'ERROR';
     await this.offlineStore.markInningsQueueBlocked(this.inningsId).catch(() => undefined);
-    this.pendingOfflineCount = await this.offlineStore
-      .count(this.inningsId)
-      .catch(() => this.pendingOfflineCount);
+    const queue = await this.offlineStore.list(this.inningsId).catch(() => [] as QueuedDelivery[]);
+    this.pendingOfflineCount = queue.length || this.pendingOfflineCount;
+    this.setOfflineQueueDiagnostics(queue);
     this.message =
       `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
@@ -1288,6 +1289,13 @@ export class LiveScoringV2Component implements OnDestroy {
       await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
+      this.setOfflineQueueDiagnostics(queue);
+      if (this.offlineConflictPositions.length) {
+        await this.blockOfflineQueue(
+          `Conflicting offline deliveries detected at legal-ball position(s) ${this.offlineConflictPositions.join(', ')}.`,
+        );
+        return;
+      }
 
       for (const item of queue) {
         const identityError = offlineQueueIdentityError(item, this.matchId, this.inningsId);
