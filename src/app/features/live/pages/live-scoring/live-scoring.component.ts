@@ -40,6 +40,14 @@ interface XIPlayer {
   wicketKeeper: boolean;
 }
 
+export function shouldRecoverLiveScoreAfterSocketConnect(
+  previousState: LiveSocketState,
+  nextState: LiveSocketState,
+  hasLoadedScore: boolean,
+): boolean {
+  return previousState !== 'CONNECTED' && nextState === 'CONNECTED' && hasLoadedScore;
+}
+
 export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
   { value: 'BOWLED', label: 'Bowled' },
   { value: 'CAUGHT', label: 'Caught' },
@@ -139,6 +147,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private scorerLeaseToken = '';
   private scorerLeaseReady = false;
   private scorerLeaseRenewalTimer?: ReturnType<typeof setInterval>;
+  private socketRecoveryInFlight = false;
 
   constructor() {
     window.addEventListener('online', this.onlineHandler);
@@ -152,8 +161,21 @@ export class LiveScoringV2Component implements OnDestroy {
     }
     this.connectLocalObsRelay();
     this.liveSocket.state$.subscribe((state) => {
+      const previousState = this.socketState;
       this.socketState = state;
-      if (state === 'CONNECTED') this.connectionState = 'ONLINE';
+      if (state === 'CONNECTED') {
+        this.connectionState = 'ONLINE';
+        // WebSocket reconnects do not replay missed frames. Immediately fetch
+        // the authoritative score instead of waiting for the 15-second poll.
+        if (
+          shouldRecoverLiveScoreAfterSocketConnect(previousState, state, !!this.score) &&
+          this.inningsId &&
+          !this.socketRecoveryInFlight
+        ) {
+          this.socketRecoveryInFlight = true;
+          this.loadScoreById(this.inningsId, true);
+        }
+      }
     });
     this.load();
   }
@@ -964,6 +986,7 @@ export class LiveScoringV2Component implements OnDestroy {
           this.message = 'Live score API returned an empty or invalid response.';
           return;
         }
+        this.socketRecoveryInFlight = false;
         this.reconcileScore(s, silent);
         this.persistOfflineSnapshot(s);
         this.loadCorrectionAudit();
@@ -977,6 +1000,7 @@ export class LiveScoringV2Component implements OnDestroy {
         this.loading = false;
       },
       error: (e) => {
+        this.socketRecoveryInFlight = false;
         this.loading = false;
         if (!navigator.onLine || e?.status === 0) {
           void this.restoreOfflineScore();
