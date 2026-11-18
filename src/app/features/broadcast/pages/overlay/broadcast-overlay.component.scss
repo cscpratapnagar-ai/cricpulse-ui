@@ -1801,8 +1801,7 @@
     sponsorExit var(--sponsor-duration) linear forwards;
 }
 @keyframes sponsorExit {
-  0%,
-  88% {
+  0%, 88% {
     opacity: 1;
     transform: translate(-50%, 0);
   }
