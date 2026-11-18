@@ -562,6 +562,9 @@ export class LiveScoringV2Component implements OnDestroy {
       if (!snapshot) {
         throw new Error('No saved score snapshot exists. Connect to the internet before scoring.');
       }
+      if (snapshot.matchId !== this.matchId || snapshot.inningsId !== this.inningsId) {
+        throw new Error('The saved score snapshot belongs to a different match or innings. Offline recovery is blocked.');
+      }
 
       this.offlineSnapshotReady = true;
       let projected = snapshot;
@@ -872,7 +875,9 @@ export class LiveScoringV2Component implements OnDestroy {
         !payload ||
         typeof payload !== 'object' ||
         !authoritative.inningsId ||
-        !Number.isFinite(authoritative.legalBalls)
+        !Number.isFinite(authoritative.legalBalls) ||
+        authoritative.matchId !== this.matchId ||
+        authoritative.inningsId !== this.inningsId
       ) {
         throw new Error(
           'Server returned an invalid innings score; queued deliveries were retained.',
@@ -1746,6 +1751,11 @@ export class LiveScoringV2Component implements OnDestroy {
         .list(this.inningsId)
         .then(async (queue) => {
           const latest = queue[queue.length - 1];
+          if (latest && offlineQueueIdentityError(latest, this.matchId, this.inningsId)) {
+            await this.blockOfflineQueue('The last pending delivery belongs to a different match or innings.');
+            this.busy = false;
+            return;
+          }
           if (!latest) {
             this.busy = false;
             this.syncState = 'ERROR';
