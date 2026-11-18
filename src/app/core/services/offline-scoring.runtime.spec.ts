@@ -203,7 +203,7 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
     expect(restored.blocked).toBeTrue();
     expect(restored.error).toContain('Multiple devices recorded different legal deliveries');
     expect(restored.restoredDeliveries).toBe(0);
-    expect(restored.score).toBe(restoredSnapshot);
+    expect(restored.score).toBe(restoredSnapshot!);
     expect(restored.score.runs).toBe(0);
     expect(restored.score.legalBalls).toBe(0);
 
