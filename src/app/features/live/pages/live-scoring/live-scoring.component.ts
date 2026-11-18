@@ -11,6 +11,7 @@ import {
   QueuedDelivery,
 } from '../../../../core/services/offline-scoring.store';
 import {
+  getOfflineQueueConflictPositions,
   hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
@@ -1204,9 +1205,7 @@ export class LiveScoringV2Component implements OnDestroy {
       const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
       legalPositionCounts.set(position, (legalPositionCounts.get(position) || 0) + 1);
     }
-    this.offlineConflictPositions = [...legalPositionCounts.entries()]
-      .filter(([, count]) => count > 1)
-      .map(([position]) => position);
+    this.offlineConflictPositions = getOfflineQueueConflictPositions(queue);
     this.offlineQueueDiagnostics = queue.map((item) => {
       const payload = item.payload;
       const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
