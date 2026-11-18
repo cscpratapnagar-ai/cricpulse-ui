@@ -1,4 +1,4 @@
-import { HttpRequest, HttpResponse, HttpSentEvent } from '@angular/common/http';
+import { HttpEvent, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { concat, of } from 'rxjs';
 import { authInterceptor, clearSession } from './auth';
@@ -32,7 +32,7 @@ describe('authInterceptor', () => {
         expect(next.url).toContain('/api/auth/csrf');
         expect(next.withCredentials).toBeTrue();
         return concat(
-          of(new HttpSentEvent()),
+          of({ type: HttpEventType.Sent } as HttpEvent<unknown>),
           of(new HttpResponse({ body: { token: 'csrf-123' } })),
         );
       }
