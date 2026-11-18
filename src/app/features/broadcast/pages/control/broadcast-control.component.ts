@@ -338,7 +338,7 @@ export class BroadcastControlComponent {
   ];
 
   url(mode: Mode) {
-    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=${mode}&theme=${this.selectedTheme}`;
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=${mode}`;
   }
 
   autoUrl() {
@@ -358,7 +358,6 @@ export class BroadcastControlComponent {
   sponsorUrl() {
     const params = new URLSearchParams({
       mode: 'sponsor',
-      theme: this.selectedTheme,
       sponsorType: this.sponsorType,
       sponsorName: this.sponsorName.trim() || 'YOUR BRAND',
       sponsorTagline: this.sponsorTagline.trim(),
@@ -370,7 +369,7 @@ export class BroadcastControlComponent {
   }
 
   eventUrl(kind: EventKind) {
-    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=event&event=${kind}&theme=${this.selectedTheme}`;
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=event&event=${kind}`;
   }
 
   async copy(mode: Mode | 'auto') {
