@@ -114,8 +114,12 @@ describe('ObsSceneControllerComponent', () => {
 
     component.assignSelectedToPreset('main');
 
-    expect(component.presets.find((preset) => preset.key === 'main')?.sceneName).toBe('Camera + Score');
-    expect(localStorage.getItem('cricpulse.obs-scene-presets.match-123')).toContain('Camera + Score');
+    expect(component.presets.find((preset) => preset.key === 'main')?.sceneName).toBe(
+      'Camera + Score',
+    );
+    expect(localStorage.getItem('cricpulse.obs-scene-presets.match-123')).toContain(
+      'Camera + Score',
+    );
   });
 
   it('switches to an assigned preset and rejects missing assignments', async () => {
@@ -141,7 +145,10 @@ describe('ObsSceneControllerComponent', () => {
 
     component.toggleFavorite('Camera');
     component.toggleFavorite('Camera + Score');
-    expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual(['Camera', 'Camera + Score']);
+    expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual([
+      'Camera',
+      'Camera + Score',
+    ]);
 
     component.toggleFavorite('Camera');
     expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual(['Camera + Score']);
