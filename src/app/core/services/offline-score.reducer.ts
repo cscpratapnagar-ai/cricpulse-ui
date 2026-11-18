@@ -273,6 +273,10 @@ export function offlineDeliveryMatchesRecentBall(
   ball: NonNullable<LiveScore['recentBalls']>[number],
 ): boolean {
   const p = command.payload;
+  // Server delivery IDs are the strongest acknowledgement signal. If present,
+  // a different ID must never be treated as this queued command, even when the
+  // delivery fingerprint happens to be identical.
+  if (ball.deliveryId && ball.deliveryId !== command.commandId) return false;
   const legalDelivery = p.legalDelivery ?? (p.extraType !== 'WIDE' && p.extraType !== 'NO_BALL');
   return (
     ball.overNumber === p.overNumber &&
