@@ -1,7 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { ObsWebSocketService } from '../../services/obs-websocket.service';
+import { LiveScoreService } from '../../../../core/services/live-score.service';
 import { ObsSceneControllerComponent } from './obs-scene-controller.component';
 
 describe('ObsSceneControllerComponent', () => {
@@ -38,6 +40,11 @@ describe('ObsSceneControllerComponent', () => {
       imports: [ObsSceneControllerComponent],
       providers: [
         { provide: ObsWebSocketService, useValue: obs },
+        { provide: HttpClient, useValue: jasmine.createSpyObj<HttpClient>('HttpClient', ['get']) },
+        {
+          provide: LiveScoreService,
+          useValue: jasmine.createSpyObj<LiveScoreService>('LiveScoreService', ['watch']),
+        },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => 'match-123' } } },
@@ -188,6 +195,86 @@ describe('ObsSceneControllerComponent', () => {
     expect(component.favoriteSceneNames).toEqual([]);
   });
 
+  it('keeps event automation disabled by default and persists configured rules', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    expect(component.automationEnabled).toBeFalse();
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Wicket', sceneIndex: 1 },
+    ];
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'WICKET' ? { ...rule, sceneName: 'Wicket' } : rule,
+    );
+    component.automationReturnScene = 'Camera';
+    component.automationReturnDelay = 10;
+    component.saveAutomationRules();
+    const saved = JSON.parse(localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}');
+    expect(saved.automationEnabled).toBeFalse();
+    expect(saved.automationReturnScene).toBe('Camera');
+    expect(saved.automationReturnDelay).toBe(10);
+    expect(
+      saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET').sceneName,
+    ).toBe('Wicket');
+  });
+
+  it('cancels automatic return when the operator manually switches scenes', async () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.currentScene = 'Event Scene';
+    component.selectedScene = 'Manual Scene';
+    component['automationBaseScene'] = 'Main Scene';
+    component['automationReturnTimer'] = setTimeout(() => undefined, 5000);
+    await component.switchScene();
+    expect(component['automationReturnTimer']).toBeUndefined();
+    expect(component['automationBaseScene']).toBe('');
+    expect(obs.switchScene).toHaveBeenCalledWith('Manual Scene');
+  });
+  it('automatically switches to a configured scene for a new six event', async () => {
+    const fixture = TestBed.createComponent(ObsSceneControllerComponent);
+    const component = fixture.componentInstance;
+    component.automationEnabled = true;
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Six', sceneIndex: 1 },
+    ];
+    component.currentScene = 'Camera';
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'SIX' ? { ...rule, sceneName: 'Six' } : rule,
+    );
+    const baseline = {
+      inningsId: 'inn-1',
+      runs: 10,
+      wickets: 0,
+      legalBalls: 1,
+      eventVersion: 1,
+      recentBalls: [{ deliveryId: 'd-1', totalRuns: 1, legalDelivery: true }],
+    };
+    component.onAutomationScore(baseline);
+    component.onAutomationScore({
+      ...baseline,
+      runs: 16,
+      legalBalls: 2,
+      eventVersion: 2,
+      recentBalls: [{ deliveryId: 'd-2', totalRuns: 6, legalDelivery: true }],
+    });
+    await Promise.resolve();
+    expect(obs.switchScene).toHaveBeenCalledWith('Six');
+    expect(component.automationStatus).toContain('Six');
+    fixture.destroy();
+  });
+
+  it('ignores scorer messages from another match', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.automationEnabled = true;
+    const message = {
+      source: 'cricpulse-scorer',
+      matchId: 'other-match',
+      score: { inningsId: 'inn-1', runs: 10, wickets: 0, legalBalls: 1 },
+    };
+    (
+      component as unknown as { acceptAutomationMessage: (value: typeof message) => void }
+    ).acceptAutomationMessage(message);
+    expect(component['previousAutomationScore']).toBeNull();
+  });
   it('reports connection failures and resets scene state', async () => {
     obs.connect.and.rejectWith(new Error('Connection refused'));
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
