@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
@@ -64,6 +64,7 @@ interface SponsorReport {
 @Component({
   selector: 'app-broadcast-control',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './broadcast-control.component.html',
   styleUrl: './broadcast-control.component.scss',
 })
