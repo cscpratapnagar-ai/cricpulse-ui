@@ -3,13 +3,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.service';
 
-@Component({
-  selector: 'app-obs-scene-controller',
-  standalone: true,
-  imports: [RouterLink],
-  templateUrl: './obs-scene-controller.component.html',
-  styleUrl: './obs-scene-controller.component.scss',
-})
 type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
 
 interface ScenePreset {
@@ -18,6 +11,13 @@ interface ScenePreset {
   sceneName: string;
 }
 
+@Component({
+  selector: 'app-obs-scene-controller',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './obs-scene-controller.component.html',
+  styleUrl: './obs-scene-controller.component.scss',
+})
 export class ObsSceneControllerComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   readonly obs = inject(ObsWebSocketService);
