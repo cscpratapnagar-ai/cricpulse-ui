@@ -56,11 +56,6 @@ jobs:
             git commit -m "chore: normalize offline scoring formatting"
             git push origin "${BRANCH}"
           fi
-      - name: Diagnose exact Prettier formatting for OBS template
-        if: github.event_name == 'pull_request'
-        run: |
-          npx --yes prettier@3.5.3 src/app/features/broadcast/pages/control/broadcast-control.component.html > /tmp/broadcast-control.formatted.html
-          diff -u --label committed-template src/app/features/broadcast/pages/control/broadcast-control.component.html --label prettier-template /tmp/broadcast-control.formatted.html || true
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
