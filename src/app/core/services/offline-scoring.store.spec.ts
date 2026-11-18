@@ -89,9 +89,12 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     ]);
   });
 
-
   it('rejects reusing a command ID across different matches even when innings and payload match', async () => {
-    const first = queued('offline-store-cross-match-command', 'offline-store-cross-match-innings', 950);
+    const first = queued(
+      'offline-store-cross-match-command',
+      'offline-store-cross-match-innings',
+      950,
+    );
     first.matchId = 'match-one';
     await store.enqueue(first);
 
