@@ -10,6 +10,14 @@ import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.serv
   templateUrl: './obs-scene-controller.component.html',
   styleUrl: './obs-scene-controller.component.scss',
 })
+type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
+
+interface ScenePreset {
+  key: ScenePresetKey;
+  label: string;
+  sceneName: string;
+}
+
 export class ObsSceneControllerComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   readonly obs = inject(ObsWebSocketService);
