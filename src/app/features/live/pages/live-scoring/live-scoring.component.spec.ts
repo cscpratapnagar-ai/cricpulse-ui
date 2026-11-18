@@ -24,13 +24,19 @@ describe('LiveScoringV2Component', () => {
 
 describe('socket reconnect score recovery', () => {
   it('requests immediate authoritative recovery after a disconnected socket reconnects when score is loaded', () => {
-    expect(shouldRecoverLiveScoreAfterSocketConnect('DISCONNECTED', 'CONNECTED', true)).toBeTrue();
+    expect(
+      shouldRecoverLiveScoreAfterSocketConnect('DISCONNECTED', 'CONNECTED', true),
+    ).toBeTrue();
     expect(shouldRecoverLiveScoreAfterSocketConnect('ERROR', 'CONNECTED', true)).toBeTrue();
-    expect(shouldRecoverLiveScoreAfterSocketConnect('CONNECTING', 'CONNECTED', true)).toBeTrue();
+    expect(
+      shouldRecoverLiveScoreAfterSocketConnect('CONNECTING', 'CONNECTED', true),
+    ).toBeTrue();
   });
 
   it('does not trigger recovery before score is loaded', () => {
-    expect(shouldRecoverLiveScoreAfterSocketConnect('DISCONNECTED', 'CONNECTED', false)).toBeFalse();
+    expect(
+      shouldRecoverLiveScoreAfterSocketConnect('DISCONNECTED', 'CONNECTED', false),
+    ).toBeFalse();
   });
 
   it('does not trigger repeated recovery while the socket remains connected', () => {
