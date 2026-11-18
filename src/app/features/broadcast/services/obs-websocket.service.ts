@@ -42,7 +42,11 @@ export class ObsWebSocketService {
         reject(error);
       };
       socket.onerror = () =>
-        fail(new Error('Could not connect to OBS WebSocket. Enable it in OBS Tools → WebSocket Server Settings.'));
+        fail(
+          new Error(
+            'Could not connect to OBS WebSocket. Enable it in OBS Tools → WebSocket Server Settings.',
+          ),
+        );
       socket.onclose = () => {
         clearTimeout(handshakeTimeout);
         this.identified = false;
@@ -67,11 +71,15 @@ export class ObsWebSocketService {
             if (!pending) return;
             clearTimeout(pending.timer);
             this.pending.delete(requestId);
-            const status = envelope.d['requestStatus'] as { result?: boolean; code?: number; comment?: string } | undefined;
+            const status = envelope.d['requestStatus'] as
+              | { result?: boolean; code?: number; comment?: string }
+              | undefined;
             if (status?.result) {
               pending.resolve((envelope.d['responseData'] as Record<string, unknown>) || {});
             } else {
-              pending.reject(new Error(status?.comment || `OBS request failed (${status?.code ?? 'unknown'}).`));
+              pending.reject(
+                new Error(status?.comment || `OBS request failed (${status?.code ?? 'unknown'}).`),
+              );
             }
           }
         } catch (error) {
@@ -114,7 +122,10 @@ export class ObsWebSocketService {
     }));
   }
 
-  private request(requestType: string, requestData: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+  private request(
+    requestType: string,
+    requestData: Record<string, unknown> = {},
+  ): Promise<Record<string, unknown>> {
     if (!this.connected || !this.socket) return Promise.reject(new Error('Connect to OBS first.'));
     const requestId = `cricpulse-${++this.requestSequence}`;
     return new Promise((resolve, reject) => {

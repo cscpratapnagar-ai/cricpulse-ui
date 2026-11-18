@@ -71,7 +71,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   async switchScene(): Promise<void> {
-    if (!this.obs.connected || !this.selectedScene || this.selectedScene === this.currentScene) return;
+    if (!this.obs.connected || !this.selectedScene || this.selectedScene === this.currentScene)
+      return;
     this.error = '';
     this.notice = '';
     this.switching = true;
