@@ -1568,10 +1568,20 @@ export class LiveScoringV2Component implements OnDestroy {
    * through server idempotency instead of asking the scorer to re-enter it.
    */
   private async persistFailedNetworkDelivery(payload: QueuedDelivery['payload'], commandId: string, error: any): Promise<void> {
-    if (!this.offlineSnapshotReady || !this.score) {
+    if (!this.score) {
       this.syncState = 'ERROR';
-      this.message = error?.message || 'Network failed and no confirmed offline snapshot is available. Delivery was not queued; retry the same action.';
+      this.message = error?.message || 'Network failed and no score is available to safely queue this delivery. Retry the same action.';
       return;
+    }
+    if (!this.offlineSnapshotReady) {
+      try {
+        await this.offlineStore.saveSnapshot(this.score);
+        this.offlineSnapshotReady = true;
+      } catch (storageError: any) {
+        this.syncState = 'ERROR';
+        this.message = storageError?.message || 'Offline snapshot could not be saved. Delivery was not queued; retry the same action.';
+        return;
+      }
     }
     const queued: QueuedDelivery = {
       commandId,
