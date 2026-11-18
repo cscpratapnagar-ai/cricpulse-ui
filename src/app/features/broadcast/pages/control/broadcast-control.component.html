@@ -159,25 +159,39 @@
       <div>
         <label>LIVE BROADCAST PREVIEW</label>
         <h2 id="live-preview-title">Preview the actual OBS overlay</h2>
-        <p>Uses the match's live overlay feed. Theme changes apply immediately; refresh reloads the feed.</p>
+        <p>
+          Uses the match's live overlay feed. Theme changes apply immediately; refresh reloads the
+          feed.
+        </p>
       </div>
       <div class="preview-controls">
-        <button type="button" (click)="previewEnabled = !previewEnabled">{{ previewEnabled ? 'Hide preview' : 'Show preview' }}</button>
+        <button type="button" (click)="previewEnabled = !previewEnabled">
+          {{ previewEnabled ? 'Hide preview' : 'Show preview' }}
+        </button>
         <button type="button" class="preview" (click)="refreshPreview()">Refresh</button>
-        <button type="button" class="preview" (click)="fullscreenPreview(previewFrame)">Fullscreen</button>
+        <button type="button" class="preview" (click)="fullscreenPreview(previewFrame)">
+          Fullscreen
+        </button>
         <button type="button" class="preview" (click)="open('auto')">Open standalone ↗</button>
       </div>
     </div>
     @if (previewEnabled) {
       <div class="preview-stage">
-        <iframe #previewFrame [src]="previewUrl()" title="Live CricPulse overlay preview" loading="eager"></iframe>
+        <iframe
+          #previewFrame
+          [src]="previewUrl()"
+          title="Live CricPulse overlay preview"
+          loading="eager"
+        ></iframe>
       </div>
       <div class="preview-meta">
         <span><i class="preview-live-indicator"></i> Live feed · match {{ matchId }}</span>
         <span>{{ resolutionPreset().width }} × {{ resolutionPreset().height }} canvas</span>
       </div>
     } @else {
-      <div class="preview-hidden">Preview paused visually. The overlay URL remains available for OBS.</div>
+      <div class="preview-hidden">
+        Preview paused visually. The overlay URL remains available for OBS.
+      </div>
     }
   </section>
 
