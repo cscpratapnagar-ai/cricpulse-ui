@@ -1279,3 +1279,172 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Responsive polish for the intelligence dashboard and compact screens */
+.insight-summary {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+.insight-summary-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+.insight-summary-heading span {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+.insight-summary-heading b {
+  color: var(--ink);
+  font-size: 11px;
+}
+.insight-summary p {
+  margin: 8px 0 4px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 750;
+}
+.insight-summary small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+@media (max-width: 520px) {
+  .match-page {
+    padding: 20px 12px 48px;
+  }
+  .back {
+    margin-bottom: 18px;
+  }
+  .match-hero {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .hero-top {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hero-title-row {
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .hero-title-row h1 {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: clamp(23px, 7vw, 30px);
+  }
+  .hero-actions {
+    gap: 8px;
+  }
+  .primary {
+    min-width: 0;
+    padding: 0 10px;
+    gap: 7px;
+    font-size: 11px;
+  }
+  .icon-action {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+  }
+  .fixture-board {
+    padding: 12px 0;
+  }
+  .team,
+  .team-copy {
+    min-width: 0;
+  }
+  .team-copy strong {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .panel {
+    padding: 15px;
+    border-radius: 16px;
+  }
+  .panel-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .panel h2 {
+    font-size: 18px;
+  }
+  .intel-scoreboard {
+    gap: 8px;
+    padding: 12px;
+    grid-template-columns: minmax(0, 1fr) 72px;
+  }
+  .intel-score strong {
+    font-size: clamp(27px, 9vw, 36px);
+  }
+  .intel-live-ring {
+    width: 70px;
+    height: 70px;
+  }
+  .intel-live-ring b {
+    font-size: 17px;
+  }
+  .intel-live-ring small {
+    font-size: 8px;
+  }
+  .intel-signal {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .signal-wave {
+    max-width: 100%;
+  }
+  .intel-advanced {
+    gap: 8px;
+  }
+  .advanced-card {
+    min-width: 0;
+    padding: 12px;
+  }
+  .advanced-copy strong {
+    font-size: 22px;
+  }
+  .chase-strip > div {
+    min-width: 0;
+  }
+  .chase-strip strong {
+    font-size: 22px;
+  }
+  .insight-summary {
+    padding: 12px;
+  }
+}
+@media (max-width: 360px) {
+  .match-page {
+    padding-inline: 9px;
+  }
+  .match-hero,
+  .panel {
+    padding: 12px;
+  }
+  .hero-title-row h1 {
+    font-size: 23px;
+  }
+  .intel-scoreboard {
+    grid-template-columns: minmax(0, 1fr) 64px;
+  }
+  .intel-live-ring {
+    width: 64px;
+    height: 64px;
+  }
+  .intel-score > span,
+  .intel-rate > span,
+  .advanced-copy > span,
+  .chase-strip span {
+    font-size: 8px;
+  }
+}
