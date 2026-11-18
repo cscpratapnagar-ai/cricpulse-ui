@@ -117,7 +117,10 @@ export class LiveScoringV2Component implements OnDestroy {
   private feedbackTimer?: ReturnType<typeof setTimeout>;
   lastAction = '';
   syncState: 'SYNCED' | 'SAVING' | 'QUEUED' | 'ERROR' = 'SYNCED';
-  pendingOfflineCount = 0;\n  offlineQueueDiagnostics: OfflineQueueDiagnostic[] = [];\n  offlineConflictPositions: string[] = [];\n  offlineRecoveryReport = '';
+  pendingOfflineCount = 0;
+  offlineQueueDiagnostics: OfflineQueueDiagnostic[] = [];
+  offlineConflictPositions: string[] = [];
+  offlineRecoveryReport = '';
   private offlineSnapshotReady = false;
   private flushingOfflineQueue = false;
   private offlineQueueBlocked = false;
