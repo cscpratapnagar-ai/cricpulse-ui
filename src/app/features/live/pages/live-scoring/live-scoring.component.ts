@@ -72,6 +72,62 @@ export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
   { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the Field' },
 ];
 
+export function buildOfflineQueueDiagnostics(
+  queue: QueuedDelivery[],
+  matchId: string,
+  inningsId: string,
+): { items: OfflineQueueDiagnostic[]; conflictPositions: string[]; report: string } {
+  const legalPositionCounts = new Map<string, number>();
+  for (const item of queue) {
+    const payload = item.payload;
+    const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+    if (!legal) continue;
+    const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
+    legalPositionCounts.set(position, (legalPositionCounts.get(position) || 0) + 1);
+  }
+  const conflictPositions = getOfflineQueueConflictPositions(queue);
+  const items = queue.map((item) => {
+    const payload = item.payload;
+    const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
+    const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+    const conflict = legal && (legalPositionCounts.get(position) || 0) > 1;
+    const extras = payload.extraType ? `${payload.extraType} +${payload.extraRuns}` : '';
+    const wicket = payload.wicketType
+      ? `WICKET: ${payload.wicketType} (dismissed ${payload.dismissedPlayerId || payload.strikerId}, new batter ${payload.newBatterId || 'not specified'})`
+      : '';
+    const summary = [
+      `${payload.batRuns} bat run(s)`,
+      `${payload.extraRuns} extra run(s)`,
+      extras,
+      `Total ${payload.batRuns + payload.extraRuns}`,
+      legal ? 'LEGAL DELIVERY' : 'NON-LEGAL DELIVERY',
+      wicket,
+    ].filter(Boolean).join(' · ');
+    const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
+    return {
+      commandId: item.commandId,
+      position,
+      summary,
+      identities,
+      syncStatus: item.syncStatus || 'PENDING',
+      createdAt: new Date(item.createdAt).toLocaleString(),
+      conflict,
+    };
+  });
+  const report = [
+    'CricPulse Offline Queue Recovery Report',
+    `Match: ${matchId}`,
+    `Innings: ${inningsId}`,
+    `Pending deliveries: ${queue.length}`,
+    `Conflicting legal-ball positions: ${conflictPositions.join(', ') || 'none identified'}`,
+    ...items.map((item) =>
+      `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
+    ),
+    'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
+  ].join('\\n');
+  return { items, conflictPositions, report };
+}
+
 @Component({
   selector: 'app-live-scoring-v2',
   standalone: true,
@@ -1210,45 +1266,10 @@ export class LiveScoringV2Component implements OnDestroy {
 
   // prettier-ignore
   private setOfflineQueueDiagnostics(queue: QueuedDelivery[]): void {
-    const legalPositionCounts = new Map<string, number>();
-    for (const item of queue) {
-      const payload = item.payload;
-      const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
-      if (!legal) continue;
-      const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
-      legalPositionCounts.set(position, (legalPositionCounts.get(position) || 0) + 1);
-    }
-    this.offlineConflictPositions = getOfflineQueueConflictPositions(queue);
-    this.offlineQueueDiagnostics = queue.map((item) => {
-      const payload = item.payload;
-      const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
-      const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
-      const conflict = legal && (legalPositionCounts.get(position) || 0) > 1;
-      const extras = payload.extraType ? `${payload.extraType} +${payload.extraRuns}` : '';
-      const wicket = payload.wicketType ? `WICKET: ${payload.wicketType}` : '';
-      const summary = [`${payload.batRuns} bat run(s)`, extras, wicket].filter(Boolean).join(' · ');
-      const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
-      return {
-        commandId: item.commandId,
-        position,
-        summary,
-        identities,
-        syncStatus: item.syncStatus || 'PENDING',
-        createdAt: new Date(item.createdAt).toLocaleString(),
-        conflict,
-      };
-    });
-    this.offlineRecoveryReport = [
-      'CricPulse Offline Queue Recovery Report',
-      `Match: ${this.matchId}`,
-      `Innings: ${this.inningsId}`,
-      `Pending deliveries: ${queue.length}`,
-      `Conflicting legal-ball positions: ${this.offlineConflictPositions.join(', ') || 'none identified'}`,
-      ...this.offlineQueueDiagnostics.map((item) =>
-        `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
-      ),
-      'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
-    ].join('\n');
+    const diagnostics = buildOfflineQueueDiagnostics(queue, this.matchId, this.inningsId);
+    this.offlineConflictPositions = diagnostics.conflictPositions;
+    this.offlineQueueDiagnostics = diagnostics.items;
+    this.offlineRecoveryReport = diagnostics.report;
   }
 
   async copyOfflineRecoveryReport(): Promise<void> {
