@@ -79,10 +79,15 @@ export function appendAuthoritativeScoreDiagnostics(
   reason: string,
 ): string {
   if (!score) {
-    return [report, 'Reconciliation reason: ' + reason, 'Authoritative server snapshot: unavailable locally'].join('\\n');
+    return [
+      report,
+      'Reconciliation reason: ' + reason,
+      'Authoritative server snapshot: unavailable locally',
+    ].join('\\n');
   }
-  const recent = (score.recentBalls || []).map((ball) =>
-    `  ${ball.overNumber + 1}.${ball.ballNumber} | delivery=${ball.deliveryId || 'unknown'} | ${ball.strikerId}/${ball.nonStrikerId} | bowler=${ball.bowlerId} | runs=${ball.totalRuns} | legal=${ball.legalDelivery}`,
+  const recent = (score.recentBalls || []).map(
+    (ball) =>
+      `  ${ball.overNumber + 1}.${ball.ballNumber} | delivery=${ball.deliveryId || 'unknown'} | ${ball.strikerId}/${ball.nonStrikerId} | bowler=${ball.bowlerId} | runs=${ball.totalRuns} | legal=${ball.legalDelivery}`,
   );
   return [
     report,
