@@ -165,7 +165,9 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
     ]);
   });
 
-  it('blocks and preserves a persisted multi-device fork after a cold restart without partially applying either delivery', async () => {
+  it(
+    'blocks and preserves a persisted multi-device fork after a cold restart without partially applying either delivery',
+    async () => {
     const runId = `runtime-device-conflict-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const matchId = `${runId}-match`;
     const inningsId = `${runId}-innings`;
