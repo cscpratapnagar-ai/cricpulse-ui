@@ -10,7 +10,10 @@ import {
   OfflineScoringStore,
   QueuedDelivery,
 } from '../../../../core/services/offline-scoring.store';
-import { isTransientOfflineSyncStatus, projectOfflineDelivery } from '../../../../core/services/offline-score.reducer';
+import {
+  isTransientOfflineSyncStatus,
+  projectOfflineDelivery,
+} from '../../../../core/services/offline-score.reducer';
 import {
   LiveScoreSocketService,
   LiveSocketState,
