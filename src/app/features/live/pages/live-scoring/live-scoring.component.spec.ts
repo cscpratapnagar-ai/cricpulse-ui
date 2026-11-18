@@ -21,9 +21,10 @@ describe('LiveScoringV2Component', () => {
   });
 });
 
-
 describe('socket reconnect score recovery', () => {
-  it('requests immediate authoritative recovery after a disconnected socket reconnects when score is loaded', () => {
+  it(
+    'requests immediate authoritative recovery after a disconnected socket reconnects when score is loaded',
+    () => {
     expect(
       shouldRecoverLiveScoreAfterSocketConnect('DISCONNECTED', 'CONNECTED', true),
     ).toBeTrue();
