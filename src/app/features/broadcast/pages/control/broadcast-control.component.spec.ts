@@ -70,6 +70,33 @@ describe('BroadcastControlComponent', () => {
       'PLAYER_OF_THE_MATCH',
     ]);
   });
+  it('uses the automatic overlay URL for live preview and refreshes it on demand', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+    component.selectedTheme = 'blue';
+
+    const preview = new URL(component.previewUrl());
+    expect(preview.pathname).toBe('/broadcast/match-123/overlay');
+    expect(preview.searchParams.get('mode')).toBe('auto');
+    expect(preview.searchParams.get('theme')).toBe('blue');
+    expect(preview.searchParams.get('previewRefresh')).toBe('0');
+
+    component.refreshPreview();
+    expect(new URL(component.previewUrl()).searchParams.get('previewRefresh')).toBe('1');
+  });
+
+  it('requests fullscreen for the live preview iframe', async () => {
+    const fixture = TestBed.createComponent(BroadcastControlComponent);
+    fixture.detectChanges();
+    const frame = fixture.nativeElement.querySelector('iframe') as HTMLIFrameElement;
+    const requestFullscreen = jasmine
+      .createSpy('requestFullscreen')
+      .and.returnValue(Promise.resolve());
+    Object.defineProperty(frame, 'requestFullscreen', { value: requestFullscreen });
+
+    await fixture.componentInstance.fullscreenPreview();
+
+    expect(requestFullscreen).toHaveBeenCalled();
+  });
   it('builds a shareable sponsor URL with encoded details and bounded duration', () => {
     const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
     component.sponsorName = 'Shree Motors & Sons';

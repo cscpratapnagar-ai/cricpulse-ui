@@ -116,35 +116,6 @@ export class MatchDetailComponent {
     return value.toLowerCase();
   }
 
-  runRateDifference(): number {
-    const value = this.intelligence;
-    return value?.requiredRate == null ? 0 : value.requiredRate - value.inningsRunRate;
-  }
-
-  runRateDifferenceLabel(): string {
-    const gap = this.runRateDifference();
-    if (Math.abs(gap) < 0.05) return 'Required rate is almost matching current rate.';
-    return gap > 0
-      ? `Chase needs ${gap.toFixed(2)} more runs per over than the current rate.`
-      : `Current rate is ${Math.abs(gap).toFixed(2)} runs per over above the required rate.`;
-  }
-
-  chaseSituation(): string {
-    const value = this.intelligence;
-    if (!value || value.requiredRuns == null || value.ballsRemaining == null) {
-      return 'First-innings scoring phase. Projection uses the recorded scoring rate.';
-    }
-    if (value.requiredRuns <= 0) return 'Target reached — chase completed.';
-    if (value.ballsRemaining <= 0) return 'No balls remaining — chase is decided.';
-    if (value.requiredRuns > value.ballsRemaining * 6)
-      return 'The chase requires more than six per ball from here.';
-    if (value.requiredRate != null && value.requiredRate <= value.inningsRunRate)
-      return 'The chase is currently ahead of the required pace.';
-    if (value.requiredRate != null && value.requiredRate - value.inningsRunRate >= 3)
-      return 'A high-pressure chase: the required rate is climbing well above current pace.';
-    return 'The chase remains achievable, but the required pace is above current scoring.';
-  }
-
   intelligenceSignal(): string {
     const value = this.intelligence;
     if (!value) return 'Waiting for live scoring data.';

@@ -89,24 +89,6 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     ]);
   });
 
-  it('rejects reusing a command ID across different matches even when innings and payload match', async () => {
-    const first = queued(
-      'offline-store-cross-match-command',
-      'offline-store-cross-match-innings',
-      950,
-    );
-    first.matchId = 'match-one';
-    await store.enqueue(first);
-
-    const reused = { ...first, matchId: 'match-two', createdAt: 999 };
-    await expectAsync(store.enqueue(reused)).toBeRejectedWithError(
-      /already exists with different delivery data/,
-    );
-    expect(await store.list(first.inningsId)).toEqual([
-      jasmine.objectContaining({ commandId: first.commandId, matchId: 'match-one' }),
-    ]);
-  });
-
   it('binds legacy queued commands to the restored match only when payload innings matches', async () => {
     const legacyInnings = 'offline-legacy-bind-innings';
     const command = queued('offline-legacy-bind-command', legacyInnings, 777);

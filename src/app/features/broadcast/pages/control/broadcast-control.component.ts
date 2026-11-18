@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
 
@@ -62,6 +63,7 @@ interface SponsorReport {
 export class BroadcastControlComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
+  private readonly sanitizer = inject(DomSanitizer);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
   selectedResolution = '1080p';
@@ -77,6 +79,29 @@ export class BroadcastControlComponent {
     );
   }
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
+  previewEnabled = true;
+  previewRefreshToken = 0;
+  @ViewChild('previewFrame') private previewFrame?: ElementRef<HTMLIFrameElement>;
+
+  previewUrl() {
+    const params = new URL(this.autoUrl());
+    params.searchParams.set('previewRefresh', String(this.previewRefreshToken));
+    return params.toString();
+  }
+
+  previewSafeUrl(): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.previewUrl());
+  }
+
+  refreshPreview() {
+    this.previewRefreshToken += 1;
+  }
+
+  async fullscreenPreview() {
+    const frame = this.previewFrame?.nativeElement;
+    if (!frame?.requestFullscreen) return;
+    await frame.requestFullscreen();
+  }
   sponsorType: SponsorType = 'MAIN_SPONSOR';
   sponsorName = '';
   sponsorTagline = '';

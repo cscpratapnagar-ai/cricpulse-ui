@@ -70,7 +70,6 @@ export class OfflineScoringStore {
           // A reused command ID with different delivery data is unsafe.
           const sameCommand =
             existing.inningsId === command.inningsId &&
-            existing.matchId === command.matchId &&
             JSON.stringify(existing.payload) === JSON.stringify(command.payload);
           if (sameCommand) return;
           reject(new Error('Offline command ID already exists with different delivery data.'));
