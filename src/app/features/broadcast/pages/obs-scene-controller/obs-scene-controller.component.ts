@@ -24,7 +24,10 @@ interface AutomationRule {
   sceneName: string;
 }
 
-interface AutomationFeedState { match: { status?: string; name?: string; currentInningsId?: string | null }; innings: Array<{ score: ObsAutomationScore }>; }
+interface AutomationFeedState {
+  match: { status?: string; name?: string; currentInningsId?: string | null };
+  innings: Array<{ score: ObsAutomationScore }>;
+}
 
 interface AutomationScoreMessage {
   source?: string;
@@ -441,21 +444,34 @@ export class ObsSceneControllerComponent implements OnDestroy {
     if (!this.automationEnabled || !this.matchId || this.automationFeedInFlight) return;
     this.automationFeedInFlight = true;
     const context = new HttpContext().set(SKIP_GLOBAL_LOADING, true);
-    this.http.get<AutomationFeedState>(API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state', { context })
+    this.http
+      .get<AutomationFeedState>(
+        API_ORIGIN + '/api/public/matches/' + this.matchId + '/broadcast-state',
+        { context },
+      )
       .pipe(catchError(() => of(null)))
       .subscribe((state) => {
         this.automationFeedInFlight = false;
         if (!state || !this.automationEnabled) return;
         const innings = state.innings || [];
-        const currentId = state.match.currentInningsId || innings.find((item) => item.score.status === 'LIVE')?.score.inningsId || innings.at(-1)?.score.inningsId || '';
+        const currentId =
+          state.match.currentInningsId ||
+          innings.find((item) => item.score.status === 'LIVE')?.score.inningsId ||
+          innings.at(-1)?.score.inningsId ||
+          '';
         const snapshot = innings.find((item) => item.score.inningsId === currentId)?.score;
         if (snapshot) this.onAutomationScore(snapshot, state.match);
         if (!currentId || currentId === this.automationWatchedInningsId) return;
         this.automationScoreSubscription?.unsubscribe();
         this.automationWatchedInningsId = currentId;
         this.automationScoreSubscription = this.liveScore.watch(currentId).subscribe({
-          next: (score: LiveScore) => { if (this.automationEnabled && score.matchId === this.matchId) this.onAutomationScore(score, state.match); },
-          error: () => { this.automationWatchedInningsId = ''; },
+          next: (score: LiveScore) => {
+            if (this.automationEnabled && score.matchId === this.matchId)
+              this.onAutomationScore(score, state.match);
+          },
+          error: () => {
+            this.automationWatchedInningsId = '';
+          },
         });
       });
   }
