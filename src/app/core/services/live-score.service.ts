@@ -109,7 +109,10 @@ export function withCommandId(commandId: string): { 'X-Command-Id': string } {
 }
 
 /** Headers required for every delivery write, including offline replay. */
-export function scoringDeliveryHeaders(commandId: string, scorerLeaseToken: string): Record<string, string> {
+export function scoringDeliveryHeaders(
+  commandId: string,
+  scorerLeaseToken: string,
+): Record<string, string> {
   return {
     'X-Command-Id': commandId,
     'X-Scorer-Lease': scorerLeaseToken,
