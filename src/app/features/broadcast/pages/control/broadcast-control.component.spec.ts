@@ -88,7 +88,9 @@ describe('BroadcastControlComponent', () => {
     const fixture = TestBed.createComponent(BroadcastControlComponent);
     fixture.detectChanges();
     const frame = fixture.nativeElement.querySelector('iframe') as HTMLIFrameElement;
-    const requestFullscreen = jasmine.createSpy('requestFullscreen').and.returnValue(Promise.resolve());
+    const requestFullscreen = jasmine
+      .createSpy('requestFullscreen')
+      .and.returnValue(Promise.resolve());
     Object.defineProperty(frame, 'requestFullscreen', { value: requestFullscreen });
 
     await fixture.componentInstance.fullscreenPreview();
