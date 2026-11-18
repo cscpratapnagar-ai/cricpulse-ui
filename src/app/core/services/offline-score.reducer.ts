@@ -1,6 +1,22 @@
 import { LiveScore } from './live-score.service';
 import { QueuedDelivery } from './offline-scoring.store';
 
+/**
+ * Refuse queue replay unless command, payload and active scoring session agree.
+ * Legacy commands may be safely bound by the store to their restored match.
+ */
+export function offlineQueueIdentityError(
+  command: QueuedDelivery,
+  activeMatchId: string,
+  activeInningsId: string,
+): string | null {
+  if (!activeMatchId || !activeInningsId) return 'The active match or innings identity is missing.';
+  if (command.matchId !== activeMatchId) return 'The queued delivery belongs to a different match or has no verified match identity.';
+  if (command.inningsId !== activeInningsId) return 'The queued delivery belongs to a different innings.';
+  if (command.payload?.inningsId !== activeInningsId) return 'The queued delivery payload innings does not match its queue record.';
+  return null;
+}
+
 function strikeChangingRuns(p: QueuedDelivery['payload']): number {
   switch (p.extraType ?? '') {
     case 'WIDE':
