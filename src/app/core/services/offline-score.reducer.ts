@@ -299,3 +299,23 @@ export function isTransientOfflineSyncStatus(status: unknown): boolean {
     (normalized >= 500 && normalized < 600)
   );
 }
+
+/**
+ * Detect a multi-device fork before replay starts. Two legal deliveries recorded
+ * at the same innings position cannot both be valid; retain the entire queue for
+ * manual reconciliation rather than syncing one branch and partially merging.
+ * Repeated wides/no-balls at the same position remain valid because they do not
+ * advance the legal-ball cursor.
+ */
+export function hasOfflineQueuePositionConflict(queue: QueuedDelivery[]): boolean {
+  const legalPositions = new Set<string>();
+  for (const command of queue) {
+    const p = command.payload;
+    const legal = p.legalDelivery ?? (p.extraType !== 'WIDE' && p.extraType !== 'NO_BALL');
+    if (!legal) continue;
+    const key = `${p.overNumber}:${p.ballNumber}`;
+    if (legalPositions.has(key)) return true;
+    legalPositions.add(key);
+  }
+  return false;
+}
