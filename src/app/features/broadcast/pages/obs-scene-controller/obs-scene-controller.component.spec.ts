@@ -154,15 +154,17 @@ describe('ObsSceneControllerComponent', () => {
     expect(component.favoriteScenes.map((scene) => scene.sceneName)).toEqual(['Camera + Score']);
   });
 
-  it('clears preset and favorite references when scenes disappear on refresh', () => {
+  it('clears preset and favorite references when scenes disappear on refresh', async () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.presets = component.presets.map((preset) =>
       preset.key === 'main' ? { ...preset, sceneName: 'Deleted Scene' } : preset,
     );
     component.favoriteSceneNames = ['Deleted Scene'];
-    component.scenes = [{ sceneName: 'Camera', sceneIndex: 0 }];
+    obs.refreshScenes.and.resolveTo([{ sceneName: 'Camera', sceneIndex: 0 }]);
+    component.currentScene = 'Camera';
+    component.selectedScene = 'Camera';
 
-    component['reconcilePreferences']();
+    await component.refresh();
 
     expect(component.presets.find((preset) => preset.key === 'main')?.sceneName).toBe('');
     expect(component.favoriteSceneNames).toEqual([]);
