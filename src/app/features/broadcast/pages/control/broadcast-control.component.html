@@ -141,18 +141,10 @@
       </button>
     </div>
     <div class="obs-setting-chips">
-      <span>
-        <b>Width</b> {{ resolutionPreset().width }}
-      </span>
-      <span>
-        <b>Height</b> {{ resolutionPreset().height }}
-      </span>
-      <span>
-        <b>FPS</b> 60 (or match OBS)
-      </span>
-      <span>
-        <b>Background</b> Transparent
-      </span>
+      <span> <b>Width</b> {{ resolutionPreset().width }} </span>
+      <span> <b>Height</b> {{ resolutionPreset().height }} </span>
+      <span> <b>FPS</b> 60 (or match OBS) </span>
+      <span> <b>Background</b> Transparent </span>
     </div>
     <ol>
       <li>OBS → Sources → <b>+</b> → Browser</li>
@@ -361,10 +353,7 @@
       </label>
       <label>
         Display duration
-        <select
-          [value]="sponsorDuration"
-          (change)="sponsorDuration = +$any($event.target).value"
-        >
+        <select [value]="sponsorDuration" (change)="sponsorDuration = +$any($event.target).value">
           <option [value]="5">5 seconds</option>
           <option [value]="10">10 seconds</option>
           <option [value]="15">15 seconds</option>
