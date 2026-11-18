@@ -61,22 +61,40 @@ export class OfflineScoringStore {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(QUEUE_STORE, 'readwrite');
       const store = transaction.objectStore(QUEUE_STORE);
-      const allRequest = store.getAll();
-      allRequest.onsuccess = () => {
-        const all = allRequest.result as QueuedDelivery[];
-        const lastCreatedAt = all
-          .filter((item) => item.inningsId === command.inningsId)
-          .reduce((latest, item) => Math.max(latest, item.createdAt), 0);
-        const write = store.add({
-          ...command,
-          createdAt: Math.max(command.createdAt, lastCreatedAt + 1),
-        });
-        write.onerror = () => {
-          reject(write.error ?? new Error('Could not queue offline delivery.'));
+      const existingRequest = store.get(command.commandId);
+      existingRequest.onsuccess = () => {
+        const existing = existingRequest.result as QueuedDelivery | undefined;
+        if (existing) {
+          // Re-enqueueing the same command after a retry/restart is idempotent.
+          // A reused command ID with different delivery data is unsafe.
+          const sameCommand =
+            existing.inningsId === command.inningsId &&
+            JSON.stringify(existing.payload) === JSON.stringify(command.payload);
+          if (sameCommand) return;
+          reject(new Error('Offline command ID already exists with different delivery data.'));
+          transaction.abort();
+          return;
+        }
+
+        const allRequest = store.getAll();
+        allRequest.onsuccess = () => {
+          const all = allRequest.result as QueuedDelivery[];
+          const lastCreatedAt = all
+            .filter((item) => item.inningsId === command.inningsId)
+            .reduce((latest, item) => Math.max(latest, item.createdAt), 0);
+          const write = store.add({
+            ...command,
+            createdAt: Math.max(command.createdAt, lastCreatedAt + 1),
+          });
+          write.onerror = () => {
+            reject(write.error ?? new Error('Could not queue offline delivery.'));
+          };
         };
+        allRequest.onerror = () =>
+          reject(allRequest.error ?? new Error('Could not read offline queue.'));
       };
-      allRequest.onerror = () =>
-        reject(allRequest.error ?? new Error('Could not read offline queue.'));
+      existingRequest.onerror = () =>
+        reject(existingRequest.error ?? new Error('Could not inspect offline command ID.'));
       transaction.oncomplete = () => resolve();
       transaction.onerror = () =>
         reject(transaction.error ?? new Error('Offline queue transaction failed.'));
