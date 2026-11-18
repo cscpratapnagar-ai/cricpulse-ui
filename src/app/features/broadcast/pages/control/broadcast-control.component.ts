@@ -5,6 +5,13 @@ import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
 
 type Mode = 'strip' | 'batter' | 'bowler' | 'partnership';
+type SceneControllerSelection = 'auto' | Mode | `event:${EventKind}`;
+interface SceneControllerOption {
+  value: SceneControllerSelection;
+  title: string;
+  description: string;
+  category: 'automatic' | 'overlay' | 'event';
+}
 type EventKind =
   | 'FOUR'
   | 'SIX'
@@ -81,12 +88,52 @@ export class BroadcastControlComponent {
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   previewEnabled = true;
   previewRefreshToken = 0;
+  selectedControllerScene: SceneControllerSelection = 'auto';
   @ViewChild('previewFrame') private previewFrame?: ElementRef<HTMLIFrameElement>;
 
   previewUrl() {
-    const params = new URL(this.autoUrl());
+    const params = new URL(this.controllerUrl());
     params.searchParams.set('previewRefresh', String(this.previewRefreshToken));
     return params.toString();
+  }
+
+  controllerUrl(selection: SceneControllerSelection = this.selectedControllerScene) {
+    if (selection === 'auto') return this.autoUrl();
+    if (selection.startsWith('event:')) return this.eventUrl(selection.slice(6) as EventKind);
+    return this.url(selection);
+  }
+
+  selectControllerScene(selection: SceneControllerSelection) {
+    this.selectedControllerScene = selection;
+    this.refreshPreview();
+  }
+
+  get controllerOptions(): SceneControllerOption[] {
+    return [
+      {
+        value: 'auto',
+        title: 'Automatic match feed',
+        description: 'Score strip and event moments, driven by live match state.',
+        category: 'automatic',
+      },
+      ...this.scenes.map((scene) => ({
+        value: scene.mode,
+        title: scene.title,
+        description: scene.description,
+        category: 'overlay' as const,
+      })),
+      ...this.events.map((event) => ({
+        value: `event:${event.kind}` as SceneControllerSelection,
+        title: event.title,
+        description: 'One-shot event graphic. Opens as a standalone overlay URL.',
+        category: 'event' as const,
+      })),
+    ];
+  }
+
+  get selectedControllerOption(): SceneControllerOption {
+    return this.controllerOptions.find((option) => option.value === this.selectedControllerScene) ??
+      this.controllerOptions[0];
   }
 
   previewSafeUrl(): SafeResourceUrl {
@@ -423,6 +470,10 @@ export class BroadcastControlComponent {
     await navigator.clipboard.writeText(value);
     this.copied = key;
     setTimeout(() => (this.copied = ''), 1800);
+  }
+
+  openControllerScene() {
+    window.open(this.controllerUrl(), '_blank', 'noopener,noreferrer');
   }
 
   openEvent(kind: EventKind) {
