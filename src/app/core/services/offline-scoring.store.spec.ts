@@ -69,7 +69,7 @@ describe('OfflineScoringStore (IndexedDB)', () => {
 
     await store.acknowledgeDelivery(command.commandId, authoritative);
 
-    expect(await store.list(inningsId)).not.toContain(jasmine.objectContaining({ commandId: command.commandId }));
+    expect((await store.list(inningsId)).some((item) => item.commandId === command.commandId)).toBeFalse();
     expect(await store.loadSnapshot(inningsId)).toEqual(authoritative);
   });
 
@@ -78,10 +78,14 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     await store.enqueue(command);
 
     await store.markInningsQueueBlocked(inningsId);
-    expect((await store.list(inningsId)).find((item) => item.commandId === command.commandId)?.syncStatus).toBe('BLOCKED');
+    expect(
+      (await store.list(inningsId)).find((item) => item.commandId === command.commandId)?.syncStatus,
+    ).toBe('BLOCKED');
 
     await store.markInningsQueuePending(inningsId);
-    expect((await store.list(inningsId)).find((item) => item.commandId === command.commandId)?.syncStatus).toBe('PENDING');
+    expect(
+      (await store.list(inningsId)).find((item) => item.commandId === command.commandId)?.syncStatus,
+    ).toBe('PENDING');
   });
 
   it('restores a saved match session after reload', async () => {
