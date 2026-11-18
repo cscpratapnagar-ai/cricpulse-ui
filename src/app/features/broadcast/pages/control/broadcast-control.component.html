@@ -105,7 +105,10 @@
       <button type="button" class="preview" (click)="open('auto')">Preview ↗</button>
       <label class="resolution-picker">
         OBS canvas
-        <select [value]="selectedResolution" (change)="selectedResolution = $any($event.target).value">
+        <select
+          [value]="selectedResolution"
+          (change)="selectedResolution = $any($event.target).value"
+        >
           @for (preset of resolutionPresets; track preset.value) {
             <option [value]="preset.value">{{ preset.label }}</option>
           }
@@ -228,11 +231,11 @@
               }
               <div class="sponsor-record-copy">
                 <b>{{ sponsor.name }}</b>
-                <small
-                  >{{ sponsor.sponsorType.replaceAll('_', ' ') }} ·
+                <small>
+                  {{ sponsor.sponsorType.replaceAll('_', ' ') }} ·
                   {{ sponsor.displayDurationSeconds }} sec ·
-                  {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}</small
-                >
+                  {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}
+                </small>
                 <small>{{ placementLabels(sponsor) }}</small>
               </div>
               <div class="sponsor-record-actions">
@@ -341,7 +344,10 @@
       </label>
       <label
         >Display duration
-        <select [value]="sponsorDuration" (change)="sponsorDuration = +$any($event.target).value">
+        <select
+          [value]="sponsorDuration"
+          (change)="sponsorDuration = +$any($event.target).value"
+        >
           <option [value]="5">5 seconds</option>
           <option [value]="10">10 seconds</option>
           <option [value]="15">15 seconds</option>
@@ -389,13 +395,13 @@
         [checked]="overSponsorEnabled"
         (change)="overSponsorEnabled = $any($event.target).checked"
       />
-      <span
-        ><b>Automatically show this sponsor after every completed over</b
-        ><small
-          >When enabled, use the Automatic OBS URL above. The sponsor graphic appears after each
-          over for the selected duration.</small
-        ></span
-      >
+      <span>
+        <b>Automatically show this sponsor after every completed over</b>
+        <small>
+          When enabled, use the Automatic OBS URL above. The sponsor graphic appears after each over
+          for the selected duration.
+        </small>
+      </span>
     </label>
     <div class="sponsor-url-row">
       <code>{{ sponsorUrl() }}</code>
