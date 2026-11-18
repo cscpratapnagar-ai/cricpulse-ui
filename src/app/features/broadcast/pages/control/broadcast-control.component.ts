@@ -342,7 +342,8 @@ export class BroadcastControlComponent {
   }
 
   autoUrl() {
-    const params = new URLSearchParams({ mode: 'auto', theme: this.selectedTheme });
+    const params = new URLSearchParams({ mode: 'auto' });
+    if (this.selectedTheme !== 'lime') params.set('theme', this.selectedTheme);
     if (this.overSponsorEnabled) {
       params.set('overSponsor', 'true');
       params.set('sponsorType', 'OVER_SPONSOR');
