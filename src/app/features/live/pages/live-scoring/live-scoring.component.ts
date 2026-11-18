@@ -17,6 +17,7 @@ import {
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
   projectOfflineDelivery,
+  restoreOfflineQueueProjection,
 } from '../../../../core/services/offline-score.reducer';
 import {
   LiveScoreSocketService,
@@ -666,55 +667,37 @@ export class LiveScoringV2Component implements OnDestroy {
       }
 
       this.offlineSnapshotReady = true;
-      let projected = snapshot;
       await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.setOfflineQueueDiagnostics(queue);
-      this.offlineQueueBlocked = queue.some((item) => item.syncStatus === 'BLOCKED');
       this.pendingOfflineCount = queue.length;
 
-      // Detect a forked multi-device queue before any command is replayed.
-      // This avoids partially syncing one branch and then discovering the other.
-      if (hasOfflineQueuePositionConflict(queue)) {
-        await this.blockOfflineQueue(
-          'Multiple devices recorded different legal deliveries at the same ball position. Reconcile the score on the scorer device before syncing.',
-        );
-        return;
-      }
-
-      for (const item of queue) {
-        try {
-          const identityError = offlineQueueIdentityError(item, this.matchId, this.inningsId);
-          if (identityError) throw new Error(identityError);
-          projected = projectOfflineDelivery(projected, item);
-        } catch (error: any) {
-          this.offlineQueueBlocked = true;
-          this.syncState = 'ERROR';
-          this.message =
-            error?.message ||
-            'Saved offline deliveries need reconciliation. Pending deliveries were retained.';
-          break;
-        }
-      }
-
-      this.applyScore(projected);
+      // Restore the queue atomically: an unsafe item prevents the entire
+      // projection, so the displayed score never reflects a partial replay.
+      const restoration = restoreOfflineQueueProjection(
+        snapshot,
+        queue,
+        this.matchId,
+        this.inningsId,
+      );
+      this.offlineQueueBlocked = restoration.blocked;
+      this.applyScore(restoration.score);
       this.connectionState = navigator.onLine ? 'RECONNECTING' : 'OFFLINE';
-      if (this.offlineQueueBlocked) {
+
+      if (restoration.blocked) {
         await this.offlineStore.markInningsQueueBlocked(this.inningsId).catch(() => undefined);
         this.syncState = 'ERROR';
-        if (!this.message) {
-          this.message =
-            'Offline sync is paused. Pending deliveries are retained until the innings is reconciled.';
-        }
+        this.message = restoration.error
+          ? `${restoration.error} Pending deliveries are retained; no partial score was restored.`
+          : 'Offline sync is paused. Pending deliveries are retained until the innings is reconciled.';
       } else {
         this.syncState = queue.length ? 'QUEUED' : 'SYNCED';
         this.message = queue.length
-          ? `${queue.length} saved offline delivery/deliveries restored on this device.`
+          ? `${restoration.restoredDeliveries} saved offline delivery/deliveries restored on this device.`
           : 'Saved score restored. New deliveries will be stored locally until internet returns.';
       }
       this.loading = false;
-      // The online event may have fired before the saved innings was restored.
-      // Re-check connectivity now that inningsId and the pending queue are ready.
+      // Re-check connectivity after the saved innings and queue have loaded.
       if (navigator.onLine && !this.offlineQueueBlocked) {
         this.handleReconnect();
       }
