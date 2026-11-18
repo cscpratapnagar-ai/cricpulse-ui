@@ -12,6 +12,7 @@ import {
 } from '../../../../core/services/offline-scoring.store';
 import {
   isTransientOfflineSyncStatus,
+  offlineQueueIdentityError,
   projectOfflineDelivery,
 } from '../../../../core/services/offline-score.reducer';
 import {
@@ -564,12 +565,15 @@ export class LiveScoringV2Component implements OnDestroy {
 
       this.offlineSnapshotReady = true;
       let projected = snapshot;
+      await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.offlineQueueBlocked = queue.some((item) => item.syncStatus === 'BLOCKED');
       this.pendingOfflineCount = queue.length;
 
       for (const item of queue) {
         try {
+          const identityError = offlineQueueIdentityError(item, this.matchId, this.inningsId);
+          if (identityError) throw new Error(identityError);
           projected = projectOfflineDelivery(projected, item);
         } catch (error: any) {
           this.offlineQueueBlocked = true;
@@ -848,6 +852,7 @@ export class LiveScoringV2Component implements OnDestroy {
     )
       return;
     try {
+      await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
       if (!queue.length) {
@@ -1191,10 +1196,20 @@ export class LiveScoringV2Component implements OnDestroy {
       );
       await this.acquireScorerLease();
       this.applyScore(authoritative);
+      await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
 
       for (const item of queue) {
+        const identityError = offlineQueueIdentityError(item, this.matchId, this.inningsId);
+        if (identityError) {
+          await this.blockOfflineQueue(identityError);
+          return;
+        }
+        if (authoritative.matchId && authoritative.matchId !== this.matchId) {
+          await this.blockOfflineQueue('The server score belongs to a different match.');
+          return;
+        }
         const expectedOver = Math.floor(authoritative.legalBalls / 6);
         const expectedBall = (authoritative.legalBalls % 6) + 1;
         const position = item.payload.overNumber * 6 + item.payload.ballNumber;
@@ -1495,6 +1510,7 @@ export class LiveScoringV2Component implements OnDestroy {
       }
       const queued: QueuedDelivery = {
         commandId,
+        matchId: this.matchId,
         inningsId: this.inningsId,
         createdAt: Date.now(),
         payload,
@@ -1610,6 +1626,7 @@ export class LiveScoringV2Component implements OnDestroy {
     }
     const queued: QueuedDelivery = {
       commandId,
+      matchId: this.matchId,
       inningsId: this.inningsId,
       createdAt: Date.now(),
       payload,
