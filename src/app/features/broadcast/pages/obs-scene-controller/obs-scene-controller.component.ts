@@ -369,7 +369,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
     previous: ObsAutomationScore | null,
     matchStatus?: string,
   ): AutomationEvent | null {
-    if (!previous || previous.inningsId !== score.inningsId) return null;
+    if (!previous) return null;
+    if (previous.inningsId !== score.inningsId) return 'INNINGS_BREAK';
     const latest = score.recentBalls?.at(-1);
     const priorDeliveryId = previous.recentBalls?.at(-1)?.deliveryId;
     const newDelivery = !!latest && latest.deliveryId !== priorDeliveryId;
