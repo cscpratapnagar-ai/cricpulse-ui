@@ -380,10 +380,10 @@ export function restoreOfflineQueueProjection(
         score: snapshot,
         restoredDeliveries: 0,
         blocked: true,
-        error: error instanceof Error ? error.message : 'Saved offline deliveries need reconciliation.',
+        error:
+          error instanceof Error ? error.message : 'Saved offline deliveries need reconciliation.',
       };
     }
   }
   return { score: projected, restoredDeliveries: queue.length, blocked: false, error: null };
 }
-
