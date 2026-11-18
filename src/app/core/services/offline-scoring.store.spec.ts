@@ -97,4 +97,61 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     await store.saveSession('offline-store-test-match', session);
     expect(await store.loadSession('offline-store-test-match')).toEqual(session);
   });
+  it('recovers the saved session, confirmed snapshot and pending queue from a fresh store instance', async () => {
+    const recoveryInningsId = 'offline-recovery-test-innings';
+    const recoveryMatchId = 'offline-recovery-test-match';
+    const recoveryCommandId = 'offline-recovery-test-command';
+    const authoritative = score(recoveryInningsId, 12);
+    const session = {
+      matchId: recoveryMatchId,
+      inningsId: recoveryInningsId,
+      selectedBowlerId: 'bowler-2',
+      match: { id: recoveryMatchId },
+    };
+
+    await store.saveSession(recoveryMatchId, session);
+    await store.saveSnapshot(authoritative);
+    await store.enqueue(queued(recoveryCommandId, recoveryInningsId, 500));
+
+    // A new service instance has no cached database promise; it must read the
+    // same durable IndexedDB records, as it would after a page reload.
+    const restartedStore = new OfflineScoringStore();
+
+    expect(await restartedStore.loadSession(recoveryMatchId)).toEqual(session);
+    expect(await restartedStore.loadSnapshot(recoveryInningsId)).toEqual(authoritative);
+    expect(await restartedStore.list(recoveryInningsId)).toEqual([
+      jasmine.objectContaining({ commandId: recoveryCommandId, inningsId: recoveryInningsId }),
+    ]);
+  });
+
+  it('keeps pending delivery queues isolated between innings', async () => {
+    const inningsA = 'offline-isolation-innings-a';
+    const inningsB = 'offline-isolation-innings-b';
+    await store.enqueue(queued('offline-isolation-a-1', inningsA, 600));
+    await store.enqueue(queued('offline-isolation-a-2', inningsA, 600));
+    await store.enqueue(queued('offline-isolation-b-1', inningsB, 600));
+
+    expect((await store.list(inningsA)).map((item) => item.commandId)).toEqual([
+      'offline-isolation-a-1',
+      'offline-isolation-a-2',
+    ]);
+    expect((await store.list(inningsB)).map((item) => item.commandId)).toEqual([
+      'offline-isolation-b-1',
+    ]);
+    expect(await store.count(inningsA)).toBe(2);
+    expect(await store.count(inningsB)).toBe(1);
+  });
+
+  it('removes only the selected pending command without affecting later commands', async () => {
+    const removalInningsId = 'offline-removal-test-innings';
+    await store.enqueue(queued('offline-removal-first', removalInningsId, 700));
+    await store.enqueue(queued('offline-removal-second', removalInningsId, 700));
+
+    await store.remove('offline-removal-first');
+
+    expect((await store.list(removalInningsId)).map((item) => item.commandId)).toEqual([
+      'offline-removal-second',
+    ]);
+  });
+
 });
