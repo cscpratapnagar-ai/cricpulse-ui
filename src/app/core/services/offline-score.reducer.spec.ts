@@ -243,6 +243,24 @@ describe('offlineDeliveryMatchesRecentBall', () => {
     ).toBeFalse();
   });
 
+  it('rejects a different server delivery ID even when the fingerprint is identical', () => {
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, {
+        ...matchingBall,
+        deliveryId: 'another-command-id',
+      }),
+    ).toBeFalse();
+  });
+
+  it('accepts the matching command ID when the server returns it', () => {
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, {
+        ...matchingBall,
+        deliveryId: queuedCommand.commandId,
+      }),
+    ).toBeTrue();
+  });
+
   it('rejects a same-position ball with different total runs', () => {
     expect(
       offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, totalRuns: 3 }),
