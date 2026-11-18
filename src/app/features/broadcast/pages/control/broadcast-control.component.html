@@ -119,7 +119,10 @@
       <div>
         <label>OBS BROWSER SOURCE SETTINGS</label>
         <h2>Selected canvas: {{ resolutionPreset().width }} × {{ resolutionPreset().height }}</h2>
-        <p>Use these exact dimensions for the Browser Source. Keep the source active and place it above your camera/video layer.</p>
+        <p>
+          Use these exact dimensions for the Browser Source. Keep the source active and place it
+          above your camera/video layer.
+        </p>
       </div>
       <button type="button" (click)="copySetup(autoUrl(), 'resolution-url')">
         {{ copied === 'resolution-url' ? 'URL Copied' : 'Copy current overlay URL' }}
