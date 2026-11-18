@@ -34,7 +34,17 @@ interface Match {
   teamAName?: string;
   teamBName?: string;
 }
-interface OfflineQueueDiagnostic {\n  commandId: string;\n  position: string;\n  summary: string;\n  identities: string;\n  syncStatus: string;\n  createdAt: string;\n  conflict: boolean;\n}\n\ninterface XIPlayer {
+interface OfflineQueueDiagnostic {
+  commandId: string;
+  position: string;
+  summary: string;
+  identities: string;
+  syncStatus: string;
+  createdAt: string;
+  conflict: boolean;
+}
+
+interface XIPlayer {
   teamId: string;
   playerId: string;
   name: string;
