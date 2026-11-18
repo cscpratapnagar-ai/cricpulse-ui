@@ -3,6 +3,7 @@ import { LiveScore } from './live-score.service';
 
 export interface QueuedDelivery {
   commandId: string;
+  matchId?: string;
   inningsId: string;
   createdAt: number;
   syncStatus?: 'PENDING' | 'BLOCKED';
@@ -119,6 +120,37 @@ export class OfflineScoringStore {
       db.transaction(SESSION_STORE, 'readonly').objectStore(SESSION_STORE).get(matchId),
     );
     return value?.session ?? null;
+  }
+
+  /**
+   * Bind pre-matchId queue records to the match session that restored their
+   * innings. Only records whose payload also names that innings are eligible.
+   * Unsafe records remain untouched and are blocked by identity validation.
+   */
+  async bindLegacyQueueToMatch(inningsId: string, matchId: string): Promise<number> {
+    const db = await this.open();
+    return new Promise<number>((resolve, reject) => {
+      const transaction = db.transaction(QUEUE_STORE, 'readwrite');
+      const store = transaction.objectStore(QUEUE_STORE);
+      const request = store.getAll();
+      let bound = 0;
+      request.onsuccess = () => {
+        for (const item of request.result as QueuedDelivery[]) {
+          if (
+            item.inningsId === inningsId &&
+            !item.matchId &&
+            item.payload?.inningsId === inningsId
+          ) {
+            store.put({ ...item, matchId });
+            bound += 1;
+          }
+        }
+      };
+      request.onerror = () => reject(request.error ?? new Error('Could not inspect legacy offline queue.'));
+      transaction.oncomplete = () => resolve(bound);
+      transaction.onerror = () => reject(transaction.error ?? new Error('Could not bind offline queue to match.'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Offline queue match binding was aborted.'));
+    });
   }
 
   async list(inningsId: string): Promise<QueuedDelivery[]> {
