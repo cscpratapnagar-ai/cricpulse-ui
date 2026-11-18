@@ -1,5 +1,6 @@
 import { LiveScore } from './live-score.service';
 import {
+  hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
@@ -267,5 +268,37 @@ describe('isTransientOfflineSyncStatus', () => {
     [400, 401, 403, 404, 409, 422, 499, 600, 'invalid'].forEach((status) => {
       expect(isTransientOfflineSyncStatus(status)).withContext(String(status)).toBeFalse();
     });
+  });
+});
+
+
+describe('hasOfflineQueuePositionConflict', () => {
+  it('detects two legal deliveries forked at the same ball position', () => {
+    expect(hasOfflineQueuePositionConflict([
+      command('fork-device-a', { batRuns: 1 }),
+      command('fork-device-b', { batRuns: 4 }),
+    ])).toBeTrue();
+  });
+
+  it('allows consecutive wides/no-balls at the same position before a legal ball', () => {
+    expect(hasOfflineQueuePositionConflict([
+      command('fork-wide-1', { extraType: 'WIDE', extraRuns: 1, legalDelivery: false }),
+      command('fork-wide-2', { extraType: 'WIDE', extraRuns: 2, legalDelivery: false }),
+      command('fork-legal-1', { batRuns: 1 }),
+    ])).toBeFalse();
+  });
+
+  it('allows a normal queue with sequential legal-ball positions', () => {
+    expect(hasOfflineQueuePositionConflict([
+      command('fork-sequential-1', { ballNumber: 1 }),
+      command('fork-sequential-2', { ballNumber: 2 }),
+    ])).toBeFalse();
+  });
+
+  it('treats explicitly non-legal no-ball delivery as non-advancing', () => {
+    expect(hasOfflineQueuePositionConflict([
+      command('fork-nb', { extraType: 'NO_BALL', legalDelivery: false }),
+      command('fork-legal-after-nb', { ballNumber: 1 }),
+    ])).toBeFalse();
   });
 });
