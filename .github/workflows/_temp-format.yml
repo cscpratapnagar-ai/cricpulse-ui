@@ -16,9 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.22.3'
-      - name: Check the exact PR merge ref
+      - name: Inspect formatter on failed CI merge
         run: |
           git fetch origin +refs/pull/52/merge:refs/remotes/origin/pr52merge
-          git checkout refs/remotes/origin/pr52merge
+          git checkout 53ffbd1ec5b5a77993d6bbf256b7023b3f6c0366
           npx --yes prettier@3.5.3 --write src/app/features/broadcast/pages/control/broadcast-control.component.html
           git diff -- src/app/features/broadcast/pages/control/broadcast-control.component.html
