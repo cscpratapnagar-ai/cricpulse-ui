@@ -23,7 +23,7 @@ First frontend implementation slice is committed on `develop`. Automated CI and 
 - Queue insertion assigns a strictly increasing per-innings timestamp inside one IndexedDB read-write transaction, preserving replay order.
 - The primary Live Scoring route projects offline runs, extras, wickets, batter/bowler figures, overs, partnership, fall of wickets, and recent-ball state.
 - The scorer can restore the last saved session and replay its pending queue after a reload while offline.
-- On reconnection, pending commands are sent sequentially with their original `X-Command-Id`; successful commands are removed only after the server response.
+- On reconnection, pending commands are sent sequentially with their original `X-Command-Id` and current `X-Scorer-Lease`; successful commands are removed only after the server response.
 - Offline undo cancels only the latest unsent local command. It refuses to undo a server-confirmed delivery without connectivity.
 - Pending queue count and sync state are shown in the scorer UI.
 - Reducer unit tests cover boundaries, wides, wicket replacement, stale batting state, and innings-over completion.
