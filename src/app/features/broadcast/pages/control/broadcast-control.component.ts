@@ -71,7 +71,10 @@ export class BroadcastControlComponent {
     { value: '900p', label: 'HD+ · 1600 × 900', width: 1600, height: 900 },
   ];
   resolutionPreset() {
-    return this.resolutionPresets.find((preset) => preset.value === this.selectedResolution) ?? this.resolutionPresets[0];
+    return (
+      this.resolutionPresets.find((preset) => preset.value === this.selectedResolution) ??
+      this.resolutionPresets[0]
+    );
   }
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   sponsorType: SponsorType = 'MAIN_SPONSOR';
