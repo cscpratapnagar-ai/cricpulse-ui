@@ -11,6 +11,9 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
 
   beforeEach(async () => {
+    localStorage.removeItem('cricketpulse_access_token');
+    localStorage.removeItem('cricketpulse_team');
+    localStorage.removeItem('cricketpulse_active_team_id');
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [provideHttpClient(), provideRouter([])],
