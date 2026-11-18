@@ -10,7 +10,7 @@ import {
   OfflineScoringStore,
   QueuedDelivery,
 } from '../../../../core/services/offline-scoring.store';
-import { projectOfflineDelivery } from '../../../../core/services/offline-score.reducer';
+import { isTransientOfflineSyncStatus, projectOfflineDelivery } from '../../../../core/services/offline-score.reducer';
 import {
   LiveScoreSocketService,
   LiveSocketState,
@@ -1228,20 +1228,34 @@ export class LiveScoringV2Component implements OnDestroy {
             this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
             continue;
           } catch (error: any) {
-            // If the command was not committed, the server rejects the stale
-            // position. Keep it in IndexedDB; never infer success from score totals.
+            // Reconcile before deciding whether the response was lost after commit.
             try {
               const latest = this.unwrapApiPayload<LiveScore>(
                 await firstValueFrom(
                   this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
                 ),
               );
+              if (this.isDeliveryAlreadyRecorded(item, latest)) {
+                authoritative = latest;
+                await this.offlineStore.acknowledgeDelivery(item.commandId, latest);
+                this.applyScore(latest);
+                this.pendingOfflineCount = await this.offlineStore.count(this.inningsId);
+                continue;
+              }
               authoritative = latest;
               this.applyScore(latest);
             } catch {
               // Preserve the queued command if the authoritative score is unavailable.
             }
             const serverMessage = error?.error?.message || error?.message;
+            if (isTransientOfflineSyncStatus(error?.status)) {
+              this.syncState = 'QUEUED';
+              this.message =
+                serverMessage ||
+                'Temporary sync failure. The delivery is retained and will retry automatically.';
+              this.scheduleOfflineSyncRetry();
+              return;
+            }
             await this.blockOfflineQueue(
               serverMessage ||
                 `Offline delivery ${item.payload.overNumber + 1}.${item.payload.ballNumber} could not be verified by its command ID.`,
@@ -1306,7 +1320,7 @@ export class LiveScoringV2Component implements OnDestroy {
           // Network loss, throttling and server failures are transient. Keep the
           // command PENDING and retry automatically; only domain/client errors
           // should pause the queue for explicit reconciliation.
-          if (status === 0 || status === 408 || status === 425 || status === 429 || status >= 500) {
+          if (isTransientOfflineSyncStatus(status)) {
             this.syncState = 'QUEUED';
             this.message = serverMessage || 'Temporary sync failure. The delivery is retained and will retry automatically.';
             this.scheduleOfflineSyncRetry();
