@@ -168,54 +168,54 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
   it(
     'blocks and preserves a persisted multi-device fork after a cold restart without partially applying either delivery',
     async () => {
-    const runId = `runtime-device-conflict-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const matchId = `${runId}-match`;
-    const inningsId = `${runId}-innings`;
-    const snapshot = score(inningsId, matchId);
-    const deviceA = delivery(`${runId}-device-a`, matchId, inningsId, 300, {
-      batRuns: 1,
-      ballNumber: 1,
-    });
-    const deviceB = delivery(`${runId}-device-b`, matchId, inningsId, 301, {
-      batRuns: 4,
-      ballNumber: 1,
-    });
+      const runId = `runtime-device-conflict-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const matchId = `${runId}-match`;
+      const inningsId = `${runId}-innings`;
+      const snapshot = score(inningsId, matchId);
+      const deviceA = delivery(`${runId}-device-a`, matchId, inningsId, 300, {
+        batRuns: 1,
+        ballNumber: 1,
+      });
+      const deviceB = delivery(`${runId}-device-b`, matchId, inningsId, 301, {
+        batRuns: 4,
+        ballNumber: 1,
+      });
 
-    await store.saveSnapshot(snapshot);
-    await store.enqueue(deviceA);
-    await store.enqueue(deviceB);
+      await store.saveSnapshot(snapshot);
+      await store.enqueue(deviceA);
+      await store.enqueue(deviceB);
 
-    // Reload boundary: neither device's locally queued delivery is trusted
-    // until the queue is reconciled against the authoritative server state.
-    const restartedStore = new OfflineScoringStore();
-    const restoredSnapshot = await restartedStore.loadSnapshot(inningsId);
-    const restoredQueue = await restartedStore.list(inningsId);
+      // Reload boundary: neither device's locally queued delivery is trusted
+      // until the queue is reconciled against the authoritative server state.
+      const restartedStore = new OfflineScoringStore();
+      const restoredSnapshot = await restartedStore.loadSnapshot(inningsId);
+      const restoredQueue = await restartedStore.list(inningsId);
 
-    expect(restoredQueue.map((item) => item.commandId)).toEqual([
-      deviceA.commandId,
-      deviceB.commandId,
-    ]);
-    const restored = restoreOfflineQueueProjection(
-      restoredSnapshot!,
-      restoredQueue,
-      matchId,
-      inningsId,
-    );
+      expect(restoredQueue.map((item) => item.commandId)).toEqual([
+        deviceA.commandId,
+        deviceB.commandId,
+      ]);
+      const restored = restoreOfflineQueueProjection(
+        restoredSnapshot!,
+        restoredQueue,
+        matchId,
+        inningsId,
+      );
 
-    expect(restored.blocked).toBeTrue();
-    expect(restored.error).toContain('Multiple devices recorded different legal deliveries');
-    expect(restored.restoredDeliveries).toBe(0);
-    expect(restored.score).toBe(restoredSnapshot);
-    expect(restored.score.runs).toBe(0);
-    expect(restored.score.legalBalls).toBe(0);
+      expect(restored.blocked).toBeTrue();
+      expect(restored.error).toContain('Multiple devices recorded different legal deliveries');
+      expect(restored.restoredDeliveries).toBe(0);
+      expect(restored.score).toBe(restoredSnapshot);
+      expect(restored.score.runs).toBe(0);
+      expect(restored.score.legalBalls).toBe(0);
 
-    // A conflict is not silently discarded: both original commands remain
-    // available for manual reconciliation.
-    const retainedQueue = await restartedStore.list(inningsId);
-    expect(retainedQueue.map((item) => item.commandId)).toEqual([
-      deviceA.commandId,
-      deviceB.commandId,
-    ]);
-  });
-
+      // A conflict is not silently discarded: both original commands remain
+      // available for manual reconciliation.
+      const retainedQueue = await restartedStore.list(inningsId);
+      expect(retainedQueue.map((item) => item.commandId)).toEqual([
+        deviceA.commandId,
+        deviceB.commandId,
+      ]);
+    },
+  );
 });
