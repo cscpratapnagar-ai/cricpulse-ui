@@ -1,6 +1,7 @@
 import { LiveScore } from './live-score.service';
 import {
-  getOfflineQueueConflictPositions,\n  hasOfflineQueuePositionConflict,
+  getOfflineQueueConflictPositions,
+  hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
