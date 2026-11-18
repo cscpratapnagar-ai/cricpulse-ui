@@ -63,6 +63,32 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     expect(await store.count(orderingInningsId)).toBe(3);
   });
 
+  it('treats a repeated enqueue with the same command ID and payload as idempotent', async () => {
+    const id = 'offline-store-idempotent-command';
+    const first = queued(id, 'offline-store-idempotent-innings', 800);
+    await store.enqueue(first);
+    await store.enqueue({ ...first, createdAt: 900 });
+
+    const items = await store.list(first.inningsId);
+    expect(items.length).toBe(1);
+    expect(items[0].commandId).toBe(id);
+    expect(items[0].createdAt).toBe(800);
+  });
+
+  it('rejects a reused command ID when delivery data differs', async () => {
+    const first = queued('offline-store-command-conflict', 'offline-store-conflict-innings', 850);
+    await store.enqueue(first);
+    const conflicting = queued(first.commandId, first.inningsId, 900);
+    conflicting.payload = { ...conflicting.payload, batRuns: 4 };
+
+    await expectAsync(store.enqueue(conflicting)).toBeRejectedWithError(
+      /already exists with different delivery data/,
+    );
+    expect(await store.list(first.inningsId)).toEqual([
+      jasmine.objectContaining({ commandId: first.commandId, payload: first.payload }),
+    ]);
+  });
+
   it('atomically acknowledges a command by removing it and saving the authoritative snapshot', async () => {
     const command = queued('offline-store-ack', inningsId, 200);
     await store.enqueue(command);
