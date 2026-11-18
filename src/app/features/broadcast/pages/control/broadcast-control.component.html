@@ -90,7 +90,15 @@
       <code>{{ autoUrl() }}</code>
     </div>
     <div class="auto-actions">
-      <label class="theme-picker">Theme<select [value]="selectedTheme" (change)="selectedTheme = $any($event.target).value"><option value="lime">CricPulse Lime</option><option value="blue">Stadium Blue</option><option value="purple">Royal Purple</option><option value="orange">Sunset Orange</option></select></label>
+      <label class="theme-picker">
+        Theme
+        <select [value]="selectedTheme" (change)="selectedTheme = $any($event.target).value">
+          <option value="lime">CricPulse Lime</option>
+          <option value="blue">Stadium Blue</option>
+          <option value="purple">Royal Purple</option>
+          <option value="orange">Sunset Orange</option>
+        </select>
+      </label>
       <button type="button" (click)="copy('auto')">
         {{ copied === 'auto' ? 'Copied!' : 'Copy OBS URL' }}
       </button>
