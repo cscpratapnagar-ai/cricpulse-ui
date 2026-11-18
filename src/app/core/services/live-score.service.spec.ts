@@ -4,6 +4,7 @@ import {
   LiveScoreService,
   decideLiveScoreFrame,
   shouldAcceptLiveScoreSnapshot,
+  scoringDeliveryHeaders,
 } from './live-score.service';
 
 describe('LiveScoreService', () => {
@@ -59,5 +60,14 @@ describe('shouldAcceptLiveScoreSnapshot', () => {
   it('accepts snapshots without a usable version for backward compatibility', () => {
     expect(shouldAcceptLiveScoreSnapshot(undefined, 7)).toBe(true);
     expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 7)).toBe(true);
+  });
+});
+
+describe('scoringDeliveryHeaders', () => {
+  it('includes the stable command id and current scorer lease for replay writes', () => {
+    expect(scoringDeliveryHeaders('command-123', 'lease-456')).toEqual({
+      'X-Command-Id': 'command-123',
+      'X-Scorer-Lease': 'lease-456',
+    });
   });
 });
