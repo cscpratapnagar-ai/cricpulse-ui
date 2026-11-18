@@ -260,6 +260,11 @@
                       Conflicting legal-ball positions: {{ offlineConflictPositions.join(', ') }}
                     </div>
                   }
+                  <div class="offline-conflict-warning">
+                    Recovery report also includes the last locally available authoritative score,
+                    event version, active batters/bowler and recent delivery IDs. Copy it before
+                    contacting the scorer; it is diagnostic and does not resolve the queue.
+                  </div>
                   <div class="offline-queue-diagnostics">
                     @for (item of offlineQueueDiagnostics; track item.commandId) {
                       <article class="offline-queue-item" [class.conflict]="item.conflict">
