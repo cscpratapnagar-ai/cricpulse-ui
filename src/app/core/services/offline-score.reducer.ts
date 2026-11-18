@@ -237,7 +237,6 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   };
 }
 
-
 /**
  * Network, throttling and server availability failures are retryable.
  * Client/domain errors require scorer reconciliation instead of blind replay.

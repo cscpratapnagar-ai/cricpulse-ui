@@ -169,7 +169,7 @@ describe('projectOfflineDelivery', () => {
     expect(next.status).toBe('COMPLETED');
   });
 });
-  
+
 describe('isTransientOfflineSyncStatus', () => {
   it('retries network, timeout, early, throttling and server errors', () => {
     [0, 408, 425, 429, 500, 502, 503, 599].forEach((status) => {
