@@ -1,0 +1,167 @@
+import { LiveScore } from './live-score.service';
+import { restoreOfflineQueueProjection } from './offline-score.reducer';
+import { OfflineScoringStore, QueuedDelivery } from './offline-scoring.store';
+
+/**
+ * Runtime-level IndexedDB regression tests that join the durable store and the
+ * offline projection. Existing unit tests cover each in isolation; these tests
+ * exercise the browser-persistence boundary across fresh store instances.
+ */
+describe('Offline scoring runtime certification (IndexedDB + projection)', () => {
+  const store = new OfflineScoringStore();
+
+  function score(inningsId: string, matchId: string): LiveScore {
+    return {
+      inningsId,
+      matchId,
+      inningsNumber: 1,
+      runs: 0,
+      wickets: 0,
+      legalBalls: 0,
+      totalOvers: 20,
+      status: 'LIVE',
+      targetRuns: null,
+      currentOver: 0,
+      currentBall: 0,
+      strikerId: 'batter-1',
+      nonStrikerId: 'batter-2',
+      currentBowlerId: 'bowler-1',
+      batters: [],
+      bowlers: [],
+      overs: [],
+      recentBalls: [],
+      fallOfWickets: [],
+      partnership: { batterOneId: 'batter-1', batterTwoId: 'batter-2', runs: 0, balls: 0 },
+    };
+  }
+
+  function delivery(
+    commandId: string,
+    matchId: string,
+    inningsId: string,
+    createdAt: number,
+    payload: Partial<QueuedDelivery['payload']>,
+  ): QueuedDelivery {
+    return {
+      commandId,
+      matchId,
+      inningsId,
+      createdAt,
+      payload: {
+        inningsId,
+        overNumber: 0,
+        ballNumber: 1,
+        strikerId: 'batter-1',
+        nonStrikerId: 'batter-2',
+        bowlerId: 'bowler-1',
+        batRuns: 0,
+        extraRuns: 0,
+        extraType: null,
+        wicketType: null,
+        legalDelivery: true,
+        ...payload,
+      },
+    };
+  }
+
+  it('restores snapshot, session and ordered pending deliveries after a cold store restart without duplicating projection', async () => {
+    const runId = `runtime-restart-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const commandIds = [`${runId}-wide`, `${runId}-four`, `${runId}-single`];
+    const snapshot = score(inningsId, matchId);
+    const session = { matchId, inningsId, selectedBowlerId: 'bowler-1' };
+
+    const queue = [
+      delivery(commandIds[0], matchId, inningsId, 100, {
+        extraType: 'WIDE',
+        extraRuns: 1,
+        legalDelivery: false,
+      }),
+      delivery(commandIds[1], matchId, inningsId, 101, { batRuns: 4 }),
+      delivery(commandIds[2], matchId, inningsId, 102, { ballNumber: 2, batRuns: 1 }),
+    ];
+
+    await store.saveSession(matchId, session);
+    await store.saveSnapshot(snapshot);
+    for (const item of queue) await store.enqueue(item);
+
+    // A new instance simulates the service being recreated after a page reload.
+    const restartedStore = new OfflineScoringStore();
+    const restoredSession = await restartedStore.loadSession<typeof session>(matchId);
+    const restoredSnapshot = await restartedStore.loadSnapshot(inningsId);
+    const restoredQueue = await restartedStore.list(inningsId);
+
+    expect(restoredSession).toEqual(session);
+    expect(restoredSnapshot).toEqual(snapshot);
+    expect(restoredQueue.map((item) => item.commandId)).toEqual(commandIds);
+
+    const restored = restoreOfflineQueueProjection(
+      restoredSnapshot!,
+      restoredQueue,
+      matchId,
+      inningsId,
+    );
+
+    expect(restored.blocked).toBeFalse();
+    expect(restored.error).toBeNull();
+    expect(restored.restoredDeliveries).toBe(3);
+    expect(restored.score.runs).toBe(6);
+    expect(restored.score.legalBalls).toBe(2);
+    expect(restored.score.recentBalls?.map((ball) => ball.deliveryId)).toEqual(commandIds);
+
+    // Re-enqueueing after restart with the original command IDs must not fork
+    // the local projection or create duplicate queue records.
+    await restartedStore.enqueue(queue[0]);
+    const afterRetry = await restartedStore.list(inningsId);
+    expect(afterRetry.length).toBe(3);
+    expect(afterRetry.map((item) => item.commandId)).toEqual(commandIds);
+  });
+
+  it('acknowledges a delivery by persisting the confirmed snapshot and removing only that command', async () => {
+    const runId = `runtime-ack-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const first = delivery(`${runId}-first`, matchId, inningsId, 200, { batRuns: 4 });
+    const second = delivery(`${runId}-second`, matchId, inningsId, 201, {
+      ballNumber: 2,
+      batRuns: 1,
+    });
+    await store.enqueue(first);
+    await store.enqueue(second);
+
+    const authoritative = {
+      ...score(inningsId, matchId),
+      runs: 4,
+      legalBalls: 1,
+      currentOver: 0,
+      currentBall: 1,
+      recentBalls: [
+        {
+          deliveryId: first.commandId,
+          overNumber: 0,
+          ballNumber: 1,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 4,
+          extraRuns: 0,
+          extraType: null,
+          wicketType: null,
+          legalDelivery: true,
+          totalRuns: 4,
+        },
+      ],
+    };
+
+    // A fresh store instance observes the same records, then commits the
+    // acknowledgement transaction across the queue and confirmed snapshot.
+    const restartedStore = new OfflineScoringStore();
+    await restartedStore.acknowledgeDelivery(first.commandId, authoritative);
+
+    expect(await restartedStore.loadSnapshot(inningsId)).toEqual(authoritative);
+    expect(await restartedStore.list(inningsId)).toEqual([
+      jasmine.objectContaining({ commandId: second.commandId }),
+    ]);
+  });
+});
