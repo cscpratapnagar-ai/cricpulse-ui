@@ -73,6 +73,30 @@ export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
   { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the Field' },
 ];
 
+export function appendAuthoritativeScoreDiagnostics(
+  report: string,
+  score: LiveScore | null,
+  reason: string,
+): string {
+  if (!score) {
+    return [report, 'Reconciliation reason: ' + reason, 'Authoritative server snapshot: unavailable locally'].join('\\n');
+  }
+  const recent = (score.recentBalls || []).map((ball) =>
+    `  ${ball.overNumber + 1}.${ball.ballNumber} | delivery=${ball.deliveryId || 'unknown'} | ${ball.strikerId}/${ball.nonStrikerId} | bowler=${ball.bowlerId} | runs=${ball.totalRuns} | legal=${ball.legalDelivery}`,
+  );
+  return [
+    report,
+    'Reconciliation reason: ' + reason,
+    'Authoritative snapshot (last fetched/local authoritative state):',
+    `Match=${score.matchId} | Innings=${score.inningsId} | Version=${score.eventVersion ?? 'unknown'}`,
+    `Score=${score.runs}/${score.wickets} | Legal balls=${score.legalBalls} | Status=${score.status || 'unknown'}`,
+    `Striker=${score.strikerId || 'unknown'} | Non-striker=${score.nonStrikerId || 'unknown'} | Bowler=${score.currentBowlerId || 'unknown'}`,
+    'Recent authoritative balls (server response retention may be limited):',
+    ...(recent.length ? recent : ['  none available']),
+    'Important: this snapshot is diagnostic only. Confirm against the live server/official scorer before resolving or replaying retained commands.',
+  ].join('\\n');
+}
+
 export function buildOfflineQueueDiagnostics(
   queue: QueuedDelivery[],
   matchId: string,
@@ -1282,6 +1306,11 @@ export class LiveScoringV2Component implements OnDestroy {
     const queue = await this.offlineStore.list(this.inningsId).catch(() => [] as QueuedDelivery[]);
     this.pendingOfflineCount = queue.length || this.pendingOfflineCount;
     this.setOfflineQueueDiagnostics(queue);
+    this.offlineRecoveryReport = appendAuthoritativeScoreDiagnostics(
+      this.offlineRecoveryReport,
+      this.score,
+      message,
+    );
     this.message = `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
 
