@@ -133,20 +133,22 @@ describe('authoritative score divergence report', () => {
       strikerId: 'batter-a',
       nonStrikerId: 'batter-b',
       currentBowlerId: 'bowler-c',
-      recentBalls: [{
-        deliveryId: 'server-command-123',
-        overNumber: 9,
-        ballNumber: 4,
-        strikerId: 'batter-a',
-        nonStrikerId: 'batter-b',
-        bowlerId: 'bowler-c',
-        batRuns: 1,
-        extraRuns: 0,
-        extraType: null,
-        wicketType: null,
-        legalDelivery: true,
-        totalRuns: 1,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'server-command-123',
+          overNumber: 9,
+          ballNumber: 4,
+          strikerId: 'batter-a',
+          nonStrikerId: 'batter-b',
+          bowlerId: 'bowler-c',
+          batRuns: 1,
+          extraRuns: 0,
+          extraType: null,
+          wicketType: null,
+          legalDelivery: true,
+          totalRuns: 1,
+        },
+      ],
     };
     const report = appendAuthoritativeScoreDiagnostics('queue report', score, 'position mismatch');
     expect(report).toContain('Reconciliation reason: position mismatch');
