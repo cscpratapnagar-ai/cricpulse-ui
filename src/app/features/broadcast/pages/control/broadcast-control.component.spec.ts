@@ -70,6 +70,36 @@ describe('BroadcastControlComponent', () => {
       'PLAYER_OF_THE_MATCH',
     ]);
   });
+  it('selects persistent scenes and creates their Browser Source URLs', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+
+    component.selectControllerScene('batter');
+    expect(component.controllerUrl()).toContain('mode=batter');
+    expect(component.selectedControllerOption.title).toBe('Batter Card');
+
+    component.selectControllerScene('bowler');
+    expect(component.controllerUrl()).toContain('mode=bowler');
+  });
+
+  it('selects manual event graphics and updates the preview URL', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+
+    component.selectControllerScene('event:WICKET');
+    const selectedUrl = new URL(component.controllerUrl());
+    expect(selectedUrl.searchParams.get('mode')).toBe('event');
+    expect(selectedUrl.searchParams.get('event')).toBe('WICKET');
+    expect(new URL(component.previewUrl()).searchParams.get('event')).toBe('WICKET');
+    expect(component.selectedControllerOption.category).toBe('event');
+  });
+
+  it('keeps automatic mode selected by default and exposes all controller choices', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+
+    expect(component.selectedControllerScene).toBe('auto');
+    expect(component.controllerOptions.length).toBe(12);
+    expect(component.controllerOptions.map((option) => option.value)).toContain('event:SIX');
+  });
+
   it('uses the automatic overlay URL for live preview and refreshes it on demand', () => {
     const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
     component.selectedTheme = 'blue';

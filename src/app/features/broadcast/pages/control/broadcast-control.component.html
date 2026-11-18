@@ -154,6 +154,53 @@
     </ol>
   </section>
 
+  <section class="scene-controller" aria-labelledby="scene-controller-title">
+    <div class="scene-controller-heading">
+      <div>
+        <label>SCENE CONTROL DECK</label>
+        <h2 id="scene-controller-title">Choose a CricPulse overlay</h2>
+        <p>Pick a graphic, preview it here, then copy or open its Browser Source URL for OBS.</p>
+      </div>
+      <span class="scene-controller-note">URL CONTROL · OBS REMOTE SWITCHING NOT CONNECTED</span>
+    </div>
+    <div class="scene-controller-options">
+      @for (option of controllerOptions; track option.value) {
+        <button
+          type="button"
+          class="scene-controller-option"
+          [class.selected]="selectedControllerScene === option.value"
+          [attr.aria-pressed]="selectedControllerScene === option.value"
+          (click)="selectControllerScene(option.value)"
+        >
+          <span class="scene-controller-type">{{
+            option.category === 'automatic'
+              ? 'AUTO'
+              : option.category === 'event'
+                ? 'EVENT'
+                : 'OVERLAY'
+          }}</span>
+          <b>{{ option.title }}</b>
+          <small>{{ option.description }}</small>
+        </button>
+      }
+    </div>
+    <div class="scene-controller-actions">
+      <div class="scene-controller-current">
+        <span>SELECTED GRAPHIC</span>
+        <strong>{{ selectedControllerOption.title }}</strong>
+        <code>{{ controllerUrl() }}</code>
+      </div>
+      <div class="scene-controller-buttons">
+        <button type="button" (click)="copySetup(controllerUrl(), 'controller-url')">
+          {{ copied === 'controller-url' ? 'URL Copied!' : 'Copy Selected URL' }}
+        </button>
+        <button type="button" class="preview" (click)="openControllerScene()">
+          Open Graphic ↗
+        </button>
+      </div>
+    </div>
+  </section>
+
   <section class="live-overlay-preview" aria-labelledby="live-preview-title">
     <div class="preview-heading">
       <div>
