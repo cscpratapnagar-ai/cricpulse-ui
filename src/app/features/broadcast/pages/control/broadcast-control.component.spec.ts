@@ -70,6 +70,20 @@ describe('BroadcastControlComponent', () => {
       'PLAYER_OF_THE_MATCH',
     ]);
   });
+  it('uses the automatic overlay URL for live preview and refreshes it on demand', () => {
+    const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
+    component.selectedTheme = 'blue';
+
+    const preview = new URL(component.previewUrl());
+    expect(preview.pathname).toBe('/broadcast/match-123/overlay');
+    expect(preview.searchParams.get('mode')).toBe('auto');
+    expect(preview.searchParams.get('theme')).toBe('blue');
+    expect(preview.searchParams.get('previewRefresh')).toBe('0');
+
+    component.refreshPreview();
+    expect(new URL(component.previewUrl()).searchParams.get('previewRefresh')).toBe('1');
+  });
+
   it('builds a shareable sponsor URL with encoded details and bounded duration', () => {
     const component = TestBed.createComponent(BroadcastControlComponent).componentInstance;
     component.sponsorName = 'Shree Motors & Sons';
