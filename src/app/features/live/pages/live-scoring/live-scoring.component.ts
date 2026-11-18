@@ -1261,7 +1261,8 @@ export class LiveScoringV2Component implements OnDestroy {
       await navigator.clipboard.writeText(this.offlineRecoveryReport);
       this.message = 'Offline recovery report copied. Pending deliveries remain unchanged.';
     } catch {
-      this.message = 'Copy failed. Review the conflict details below; pending deliveries remain unchanged.';
+      this.message =
+        'Copy failed. Review the conflict details below; pending deliveries remain unchanged.';
     }
   }
 
@@ -1272,8 +1273,7 @@ export class LiveScoringV2Component implements OnDestroy {
     const queue = await this.offlineStore.list(this.inningsId).catch(() => [] as QueuedDelivery[]);
     this.pendingOfflineCount = queue.length || this.pendingOfflineCount;
     this.setOfflineQueueDiagnostics(queue);
-    this.message =
-      `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
+    this.message = `${message} Offline sync is paused. Pending deliveries have been retained; do not clear them.`;
   }
 
   // prettier-ignore

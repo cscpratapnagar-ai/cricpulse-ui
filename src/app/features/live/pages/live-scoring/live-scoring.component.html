@@ -247,7 +247,11 @@
                       <strong>Retained offline deliveries</strong>
                       <small>Queue is paused. Nothing below has been deleted or replayed.</small>
                     </div>
-                    <button type="button" class="secondary-button" (click)="copyOfflineRecoveryReport()">
+                    <button
+                      type="button"
+                      class="secondary-button"
+                      (click)="copyOfflineRecoveryReport()"
+                    >
                       Copy recovery report
                     </button>
                   </div>
@@ -276,10 +280,22 @@
                   <div class="offline-recovery-steps">
                     <strong>Safe recovery</strong>
                     <ol>
-                      <li>Compare the listed deliveries with the official scorer and authoritative server score.</li>
-                      <li>Choose which sequence is official; confirm batter, bowler, extras and wickets.</li>
-                      <li>Do not retry sync or cancel queue entries until the official sequence is confirmed.</li>
-                      <li>Use the recovery report for another scorer/admin if needed. Then reconcile through the scorer workflow.</li>
+                      <li>
+                        Compare the listed deliveries with the official scorer and authoritative
+                        server score.
+                      </li>
+                      <li>
+                        Choose which sequence is official; confirm batter, bowler, extras and
+                        wickets.
+                      </li>
+                      <li>
+                        Do not retry sync or cancel queue entries until the official sequence is
+                        confirmed.
+                      </li>
+                      <li>
+                        Use the recovery report for another scorer/admin if needed. Then reconcile
+                        through the scorer workflow.
+                      </li>
                     </ol>
                   </div>
                 </section>

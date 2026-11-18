@@ -323,10 +323,12 @@ describe('getOfflineQueueConflictPositions', () => {
   });
 
   it('does not report repeated non-legal deliveries as a legal-ball fork', () => {
-    expect(getOfflineQueueConflictPositions([
-      command('report-wide-a', { extraType: 'WIDE', legalDelivery: false }),
-      command('report-wide-b', { extraType: 'WIDE', legalDelivery: false }),
-      command('report-no-ball', { extraType: 'NO_BALL', legalDelivery: false }),
-    ])).toEqual([]);
+    expect(
+      getOfflineQueueConflictPositions([
+        command('report-wide-a', { extraType: 'WIDE', legalDelivery: false }),
+        command('report-wide-b', { extraType: 'WIDE', legalDelivery: false }),
+        command('report-no-ball', { extraType: 'NO_BALL', legalDelivery: false }),
+      ]),
+    ).toEqual([]);
   });
 });
