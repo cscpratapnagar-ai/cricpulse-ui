@@ -103,6 +103,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
+  readonly theme: 'lime' | 'blue' | 'purple' | 'orange' =
+    (this.route.snapshot.queryParamMap.get('theme') as 'lime' | 'blue' | 'purple' | 'orange') || 'lime';
   readonly mode: OverlayMode =
     (this.route.snapshot.queryParamMap.get('mode') as OverlayMode) || 'strip';
   readonly eventKind: EventKind =
