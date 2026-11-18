@@ -405,16 +405,89 @@ ol b {
   }
 }
 
-.automation-card { padding: clamp(16px, 2.5vw, 24px); border: 1px solid var(--cp-border); border-radius: 18px; background: var(--cp-surface); display: grid; gap: 14px; }
-.automation-toggle { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid var(--cp-border); border-radius: 999px; background: var(--cp-surface-hover); color: var(--cp-text); }
-.automation-toggle input { width: 18px; min-height: auto; accent-color: var(--cp-accent); }
-.automation-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.automation-rule-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
-.automation-rule { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px; border: 1px solid var(--cp-border); border-radius: 12px; background: var(--cp-surface-hover); }
-.automation-rule span { display: grid; gap: 3px; color: var(--cp-text); }
-.automation-rule small { color: var(--cp-text-muted); font-size: 9px; letter-spacing: .7px; }
-.automation-rule select { max-width: 170px; font-size: 11px; }
-.automation-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.automation-status { color: var(--cp-text-muted); font-size: 11px; }
-.automation-note { margin: 0; font-size: 11px; }
-@media (max-width: 680px) { .automation-settings { grid-template-columns: 1fr; } .automation-rule { align-items: stretch; flex-direction: column; } .automation-rule select { max-width: none; } .card-head { flex-direction: column; } }
+.automation-card {
+  padding: clamp(16px, 2.5vw, 24px);
+  border: 1px solid var(--cp-border);
+  border-radius: 18px;
+  background: var(--cp-surface);
+  display: grid;
+  gap: 14px;
+}
+.automation-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border: 1px solid var(--cp-border);
+  border-radius: 999px;
+  background: var(--cp-surface-hover);
+  color: var(--cp-text);
+}
+.automation-toggle input {
+  width: 18px;
+  min-height: auto;
+  accent-color: var(--cp-accent);
+}
+.automation-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.automation-rule-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.automation-rule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px;
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  background: var(--cp-surface-hover);
+}
+.automation-rule span {
+  display: grid;
+  gap: 3px;
+  color: var(--cp-text);
+}
+.automation-rule small {
+  color: var(--cp-text-muted);
+  font-size: 9px;
+  letter-spacing: 0.7px;
+}
+.automation-rule select {
+  max-width: 170px;
+  font-size: 11px;
+}
+.automation-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.automation-status {
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.automation-note {
+  margin: 0;
+  font-size: 11px;
+}
+@media (max-width: 680px) {
+  .automation-settings {
+    grid-template-columns: 1fr;
+  }
+  .automation-rule {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .automation-rule select {
+    max-width: none;
+  }
+  .card-head {
+    flex-direction: column;
+  }
+}

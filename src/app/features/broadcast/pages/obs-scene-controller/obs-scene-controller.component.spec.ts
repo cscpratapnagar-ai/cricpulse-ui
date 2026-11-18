@@ -191,8 +191,13 @@ describe('ObsSceneControllerComponent', () => {
   it('keeps event automation disabled by default and persists configured rules', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     expect(component.automationEnabled).toBeFalse();
-    component.scenes = [{ sceneName: 'Camera', sceneIndex: 0 }, { sceneName: 'Wicket', sceneIndex: 1 }];
-    component.automationRules = component.automationRules.map((rule) => rule.event === 'WICKET' ? { ...rule, sceneName: 'Wicket' } : rule);
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Wicket', sceneIndex: 1 },
+    ];
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'WICKET' ? { ...rule, sceneName: 'Wicket' } : rule,
+    );
     component.automationReturnScene = 'Camera';
     component.automationReturnDelay = 10;
     component.saveAutomationRules();
@@ -200,19 +205,39 @@ describe('ObsSceneControllerComponent', () => {
     expect(saved.automationEnabled).toBeFalse();
     expect(saved.automationReturnScene).toBe('Camera');
     expect(saved.automationReturnDelay).toBe(10);
-    expect(saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET').sceneName).toBe('Wicket');
+    expect(
+      saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET').sceneName,
+    ).toBe('Wicket');
   });
 
   it('automatically switches to a configured scene for a new six event', async () => {
     const fixture = TestBed.createComponent(ObsSceneControllerComponent);
     const component = fixture.componentInstance;
     component.automationEnabled = true;
-    component.scenes = [{ sceneName: 'Camera', sceneIndex: 0 }, { sceneName: 'Six', sceneIndex: 1 }];
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Six', sceneIndex: 1 },
+    ];
     component.currentScene = 'Camera';
-    component.automationRules = component.automationRules.map((rule) => rule.event === 'SIX' ? { ...rule, sceneName: 'Six' } : rule);
-    const baseline = { inningsId: 'inn-1', runs: 10, wickets: 0, legalBalls: 1, eventVersion: 1, recentBalls: [{ deliveryId: 'd-1', totalRuns: 1, legalDelivery: true }] };
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'SIX' ? { ...rule, sceneName: 'Six' } : rule,
+    );
+    const baseline = {
+      inningsId: 'inn-1',
+      runs: 10,
+      wickets: 0,
+      legalBalls: 1,
+      eventVersion: 1,
+      recentBalls: [{ deliveryId: 'd-1', totalRuns: 1, legalDelivery: true }],
+    };
     component.onAutomationScore(baseline);
-    component.onAutomationScore({ ...baseline, runs: 16, legalBalls: 2, eventVersion: 2, recentBalls: [{ deliveryId: 'd-2', totalRuns: 6, legalDelivery: true }] });
+    component.onAutomationScore({
+      ...baseline,
+      runs: 16,
+      legalBalls: 2,
+      eventVersion: 2,
+      recentBalls: [{ deliveryId: 'd-2', totalRuns: 6, legalDelivery: true }],
+    });
     await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledWith('Six');
     expect(component.automationStatus).toContain('Six');
@@ -222,8 +247,14 @@ describe('ObsSceneControllerComponent', () => {
   it('ignores scorer messages from another match', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.automationEnabled = true;
-    const message = { source: 'cricpulse-scorer', matchId: 'other-match', score: { inningsId: 'inn-1', runs: 10, wickets: 0, legalBalls: 1 } };
-    (component as unknown as { acceptAutomationMessage: (value: typeof message) => void }).acceptAutomationMessage(message);
+    const message = {
+      source: 'cricpulse-scorer',
+      matchId: 'other-match',
+      score: { inningsId: 'inn-1', runs: 10, wickets: 0, legalBalls: 1 },
+    };
+    (
+      component as unknown as { acceptAutomationMessage: (value: typeof message) => void }
+    ).acceptAutomationMessage(message);
     expect(component['previousAutomationScore']).toBeNull();
   });
   it('reports connection failures and resets scene state', async () => {
