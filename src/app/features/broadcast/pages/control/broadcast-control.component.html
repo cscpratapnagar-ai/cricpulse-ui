@@ -103,7 +103,40 @@
         {{ copied === 'auto' ? 'Copied!' : 'Copy OBS URL' }}
       </button>
       <button type="button" class="preview" (click)="open('auto')">Preview ↗</button>
+      <label class="resolution-picker">
+        OBS canvas
+        <select [value]="selectedResolution" (change)="selectedResolution = $any($event.target).value">
+          @for (preset of resolutionPresets; track preset.value) {
+            <option [value]="preset.value">{{ preset.label }}</option>
+          }
+        </select>
+      </label>
     </div>
+  </section>
+
+  <section class="obs-quick-setup">
+    <div class="obs-quick-heading">
+      <div>
+        <label>OBS BROWSER SOURCE SETTINGS</label>
+        <h2>Selected canvas: {{ resolutionPreset().width }} × {{ resolutionPreset().height }}</h2>
+        <p>Use these exact dimensions for the Browser Source. Keep the source active and place it above your camera/video layer.</p>
+      </div>
+      <button type="button" (click)="copy(autoUrl(), 'resolution-url')">
+        {{ copied === 'resolution-url' ? 'URL Copied' : 'Copy current overlay URL' }}
+      </button>
+    </div>
+    <div class="obs-setting-chips">
+      <span><b>Width</b> {{ resolutionPreset().width }}</span>
+      <span><b>Height</b> {{ resolutionPreset().height }}</span>
+      <span><b>FPS</b> 60 (or match OBS)</span>
+      <span><b>Background</b> Transparent</span>
+    </div>
+    <ol>
+      <li>OBS → Sources → <b>+</b> → Browser</li>
+      <li>Paste the copied URL and set width/height above.</li>
+      <li>Turn OFF <b>Shutdown source when not visible</b>.</li>
+      <li>Move CricPulse above camera/video. Do not add a background color.</li>
+    </ol>
   </section>
 
   <section class="scene-grid">
