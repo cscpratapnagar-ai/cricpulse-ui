@@ -332,3 +332,58 @@ export function hasOfflineQueuePositionConflict(queue: QueuedDelivery[]): boolea
   }
   return false;
 }
+
+export interface OfflineQueueRestoreResult {
+  score: LiveScore;
+  restoredDeliveries: number;
+  blocked: boolean;
+  error: string | null;
+}
+
+/**
+ * Restore a pending queue atomically in memory. If any delivery is unsafe,
+ * return the untouched snapshot rather than a partially projected score.
+ */
+export function restoreOfflineQueueProjection(
+  snapshot: LiveScore,
+  queue: QueuedDelivery[],
+  activeMatchId: string,
+  activeInningsId: string,
+): OfflineQueueRestoreResult {
+  if (hasOfflineQueuePositionConflict(queue)) {
+    return {
+      score: snapshot,
+      restoredDeliveries: 0,
+      blocked: true,
+      error: 'Multiple devices recorded different legal deliveries at the same ball position.',
+    };
+  }
+  if (queue.some((item) => item.syncStatus === 'BLOCKED')) {
+    return {
+      score: snapshot,
+      restoredDeliveries: 0,
+      blocked: true,
+      error: 'The saved offline queue is marked blocked and requires reconciliation.',
+    };
+  }
+
+  let projected = snapshot;
+  for (const item of queue) {
+    const identityError = offlineQueueIdentityError(item, activeMatchId, activeInningsId);
+    if (identityError) {
+      return { score: snapshot, restoredDeliveries: 0, blocked: true, error: identityError };
+    }
+    try {
+      projected = projectOfflineDelivery(projected, item);
+    } catch (error: unknown) {
+      return {
+        score: snapshot,
+        restoredDeliveries: 0,
+        blocked: true,
+        error: error instanceof Error ? error.message : 'Saved offline deliveries need reconciliation.',
+      };
+    }
+  }
+  return { score: projected, restoredDeliveries: queue.length, blocked: false, error: null };
+}
+
