@@ -217,6 +217,17 @@ describe('ObsSceneControllerComponent', () => {
     ).toBe('Wicket');
   });
 
+  it('cancels automatic return when the operator manually switches scenes', async () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.currentScene = 'Event Scene';
+    component.selectedScene = 'Manual Scene';
+    component.automationBaseScene = 'Main Scene';
+    component['automationReturnTimer'] = setTimeout(() => undefined, 5000);
+    await component.switchScene();
+    expect(component['automationReturnTimer']).toBeUndefined();
+    expect(component.automationBaseScene).toBe('');
+    expect(obs.switchScene).toHaveBeenCalledWith('Manual Scene');
+  });
   it('automatically switches to a configured scene for a new six event', async () => {
     const fixture = TestBed.createComponent(ObsSceneControllerComponent);
     const component = fixture.componentInstance;
