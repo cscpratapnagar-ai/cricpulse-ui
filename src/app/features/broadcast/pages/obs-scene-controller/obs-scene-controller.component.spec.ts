@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
 import { ObsWebSocketService } from '../../services/obs-websocket.service';
 import { ObsSceneControllerComponent } from './obs-scene-controller.component';
 
 describe('ObsSceneControllerComponent', () => {
   let obs: jasmine.SpyObj<ObsWebSocketService>;
+  let sceneChanged$: Subject<string>;
+  let connectionLost$: Subject<string>;
 
   beforeEach(() => {
     obs = jasmine.createSpyObj<ObsWebSocketService>('ObsWebSocketService', [
@@ -14,7 +17,11 @@ describe('ObsSceneControllerComponent', () => {
       'refreshScenes',
       'switchScene',
     ]);
+    sceneChanged$ = new Subject<string>();
+    connectionLost$ = new Subject<string>();
     Object.defineProperty(obs, 'connected', { get: () => true });
+    Object.defineProperty(obs, 'sceneChanged$', { value: sceneChanged$ });
+    Object.defineProperty(obs, 'connectionLost$', { value: connectionLost$ });
     obs.connect.and.resolveTo([
       { sceneName: 'Camera', sceneIndex: 0 },
       { sceneName: 'Camera + Score', sceneIndex: 1 },
@@ -56,6 +63,31 @@ describe('ObsSceneControllerComponent', () => {
     expect(component.currentScene).toBe('Camera');
     expect(component.selectedScene).toBe('Camera');
     expect(component.notice).toContain('2 scenes');
+  });
+
+  it('synchronizes selection when OBS changes its program scene externally', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.currentScene = 'Camera';
+    component.selectedScene = 'Camera + Score';
+
+    sceneChanged$.next('Camera + Score');
+
+    expect(component.currentScene).toBe('Camera + Score');
+    expect(component.selectedScene).toBe('Camera + Score');
+    expect(component.notice).toContain('Camera + Score');
+  });
+
+  it('reports connection loss and clears active operation states', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.connecting = true;
+    component.switching = true;
+
+    connectionLost$.next('OBS connection closed. Reconnect to restore scene control.');
+
+    expect(component.error).toContain('Reconnect');
+    expect(component.notice).toBe('');
+    expect(component.connecting).toBeFalse();
+    expect(component.switching).toBeFalse();
   });
 
   it('switches only when the selected scene differs from current scene', async () => {
