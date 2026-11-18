@@ -102,7 +102,7 @@ export class BroadcastControlComponent {
     if (selection.startsWith('event:')) {
       return this.eventUrl(selection.slice(6) as EventKind);
     }
-    return this.url(selection);
+    return this.url(selection as Mode);
   }
 
   selectControllerScene(selection: SceneControllerSelection) {
