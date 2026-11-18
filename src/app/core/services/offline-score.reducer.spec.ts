@@ -1,6 +1,7 @@
 import { LiveScore } from './live-score.service';
 import {
   isTransientOfflineSyncStatus,
+  offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
   projectOfflineDelivery,
 } from './offline-score.reducer';
@@ -209,6 +210,47 @@ describe('projectOfflineDelivery', () => {
     expect(next.wickets).toBe(10);
     expect(next.strikerId).toBeNull();
     expect(next.status).toBe('COMPLETED');
+  });
+});
+
+describe('offlineDeliveryMatchesRecentBall', () => {
+  const queuedCommand = command('match-ball-1', { batRuns: 2, legalDelivery: true });
+  const matchingBall = {
+    deliveryId: 'match-ball-1',
+    overNumber: 0,
+    ballNumber: 1,
+    strikerId: 'batter-1',
+    nonStrikerId: 'batter-2',
+    bowlerId: 'bowler-1',
+    batRuns: 2,
+    extraRuns: 0,
+    extraType: null,
+    wicketType: null,
+    legalDelivery: true,
+    totalRuns: 2,
+  };
+
+  it('matches exact delivery data and legal-ball state', () => {
+    expect(offlineDeliveryMatchesRecentBall(queuedCommand, matchingBall)).toBeTrue();
+  });
+
+  it('rejects a same-position ball with a different legal-delivery flag', () => {
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, legalDelivery: false }),
+    ).toBeFalse();
+  });
+
+  it('rejects a same-position ball with different total runs', () => {
+    expect(offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, totalRuns: 3 })).toBeFalse();
+  });
+
+  it('rejects a same-position ball with different wicket or extra data', () => {
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, wicketType: 'BOWLED' }),
+    ).toBeFalse();
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, extraType: 'WIDE' }),
+    ).toBeFalse();
   });
 });
 
