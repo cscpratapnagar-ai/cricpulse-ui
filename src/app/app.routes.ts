@@ -28,6 +28,7 @@ import { LandingComponent } from './features/public/pages/landing/landing.compon
 import { PublicLiveScoreComponent } from './features/public/pages/live-score/public-live-score.component';
 import { BroadcastOverlayComponent } from './features/broadcast/pages/overlay/broadcast-overlay.component';
 import { BroadcastControlComponent } from './features/broadcast/pages/control/broadcast-control.component';
+import { ObsSceneControllerComponent } from './features/broadcast/pages/obs-scene-controller/obs-scene-controller.component';
 import { SettingsComponent } from './features/settings/pages/settings/settings.component';
 import { NotFoundComponent } from './features/system/pages/not-found/not-found.component';
 import { NotificationsComponent } from './features/system/pages/notifications/notifications.component';
@@ -120,6 +121,11 @@ export const routes: Routes = [
   {
     path: 'broadcast/:id/control',
     component: BroadcastControlComponent,
+    canActivate: [authGuard, canAccessBroadcastControl],
+  },
+  {
+    path: 'broadcast/:id/obs',
+    component: ObsSceneControllerComponent,
     canActivate: [authGuard, canAccessBroadcastControl],
   },
   { path: 'dashboard', ...dashboardRoute() },
