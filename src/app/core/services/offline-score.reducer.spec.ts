@@ -1,5 +1,5 @@
 import { LiveScore } from './live-score.service';
-import { projectOfflineDelivery } from './offline-score.reducer';
+import { isTransientOfflineSyncStatus, projectOfflineDelivery } from './offline-score.reducer';
 import { QueuedDelivery } from './offline-scoring.store';
 
 const baseScore = (): LiveScore => ({
@@ -167,5 +167,19 @@ describe('projectOfflineDelivery', () => {
     expect(next.wickets).toBe(10);
     expect(next.strikerId).toBeNull();
     expect(next.status).toBe('COMPLETED');
+  });
+});
+  
+describe('isTransientOfflineSyncStatus', () => {
+  it('retries network, timeout, early, throttling and server errors', () => {
+    [0, 408, 425, 429, 500, 502, 503, 599].forEach((status) => {
+      expect(isTransientOfflineSyncStatus(status)).withContext(String(status)).toBeTrue();
+    });
+  });
+
+  it('does not retry permanent client or invalid statuses', () => {
+    [400, 401, 403, 404, 409, 422, 499, 600, 'invalid'].forEach((status) => {
+      expect(isTransientOfflineSyncStatus(status)).withContext(String(status)).toBeFalse();
+    });
   });
 });
