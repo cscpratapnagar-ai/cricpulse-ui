@@ -12,6 +12,7 @@ import {
 } from '../../../../core/services/offline-scoring.store';
 import {
   isTransientOfflineSyncStatus,
+  offlineDeliveryMatchesRecentBall,
   offlineQueueIdentityError,
   projectOfflineDelivery,
 } from '../../../../core/services/offline-score.reducer';
@@ -1177,17 +1178,8 @@ export class LiveScoringV2Component implements OnDestroy {
   // prettier-ignore
   private isDeliveryAlreadyRecorded(item: QueuedDelivery, score: LiveScore): boolean {
     const payload = item.payload;
-    return (score.recentBalls || []).some(
-      (ball) =>
-        ball.overNumber === payload.overNumber &&
-        ball.ballNumber === payload.ballNumber &&
-        ball.strikerId === payload.strikerId &&
-        ball.nonStrikerId === payload.nonStrikerId &&
-        ball.bowlerId === payload.bowlerId &&
-        ball.batRuns === payload.batRuns &&
-        ball.extraRuns === payload.extraRuns &&
-        (ball.extraType || null) === (payload.extraType || null) &&
-        (ball.wicketType || null) === (payload.wicketType || null),
+    return (score.recentBalls || []).some((ball) =>
+      offlineDeliveryMatchesRecentBall(item, ball),
     );
   }
 
