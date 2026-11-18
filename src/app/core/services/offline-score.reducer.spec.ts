@@ -133,6 +133,12 @@ describe('projectOfflineDelivery', () => {
     expect(next.fallOfWickets?.length).toBe(1);
   });
 
+  it('rejects a queued delivery whose match ID differs from the score snapshot', () => {
+    const item = command('cmd-match-mismatch');
+    item.matchId = 'other-match';
+    expect(() => projectOfflineDelivery(baseScore(), item)).toThrowError(/different match/);
+  });
+
   it('rejects a queued command based on a stale batting state', () => {
     const score = { ...baseScore(), strikerId: 'changed-batter' };
     expect(() => projectOfflineDelivery(score, command('cmd-4'))).toThrowError(/does not match/);
