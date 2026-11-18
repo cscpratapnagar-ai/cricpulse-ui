@@ -10,6 +10,7 @@ describe('ObsSceneControllerComponent', () => {
   let connectionLost$: Subject<string>;
 
   beforeEach(() => {
+    localStorage.removeItem('cricpulse.obs-scene-presets.match-123');
     obs = jasmine.createSpyObj<ObsWebSocketService>('ObsWebSocketService', [
       'connect',
       'disconnect',
