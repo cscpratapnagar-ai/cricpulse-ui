@@ -1,4 +1,5 @@
 import {
+  appendAuthoritativeScoreDiagnostics,
   buildOfflineQueueDiagnostics,
   DELIVERY_WICKET_OPTIONS,
   LiveScoringV2Component,
@@ -116,5 +117,49 @@ describe('offline queue recovery diagnostics', () => {
     expect(result.items).toEqual([]);
     expect(result.conflictPositions).toEqual([]);
     expect(result.report).toContain('Pending deliveries: 0');
+  });
+});
+
+describe('authoritative score divergence report', () => {
+  it('includes server snapshot identity, version, score, player state and recent balls', () => {
+    const score: any = {
+      matchId: 'match-1',
+      inningsId: 'innings-1',
+      eventVersion: 42,
+      runs: 81,
+      wickets: 3,
+      legalBalls: 57,
+      status: 'LIVE',
+      strikerId: 'batter-a',
+      nonStrikerId: 'batter-b',
+      currentBowlerId: 'bowler-c',
+      recentBalls: [{
+        deliveryId: 'server-command-123',
+        overNumber: 9,
+        ballNumber: 4,
+        strikerId: 'batter-a',
+        nonStrikerId: 'batter-b',
+        bowlerId: 'bowler-c',
+        batRuns: 1,
+        extraRuns: 0,
+        extraType: null,
+        wicketType: null,
+        legalDelivery: true,
+        totalRuns: 1,
+      }],
+    };
+    const report = appendAuthoritativeScoreDiagnostics('queue report', score, 'position mismatch');
+    expect(report).toContain('Reconciliation reason: position mismatch');
+    expect(report).toContain('Version=42');
+    expect(report).toContain('Score=81/3');
+    expect(report).toContain('Striker=batter-a');
+    expect(report).toContain('server-command-123');
+    expect(report).toContain('diagnostic only');
+  });
+
+  it('clearly records when no authoritative snapshot is available', () => {
+    const report = appendAuthoritativeScoreDiagnostics('queue report', null, 'network down');
+    expect(report).toContain('Reconciliation reason: network down');
+    expect(report).toContain('Authoritative server snapshot: unavailable locally');
   });
 });
