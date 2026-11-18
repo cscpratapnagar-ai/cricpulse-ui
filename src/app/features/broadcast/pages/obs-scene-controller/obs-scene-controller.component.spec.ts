@@ -46,6 +46,23 @@ describe('ObsSceneControllerComponent', () => {
     });
   });
 
+  it('restores saved presets and favorites for this match from browser storage', () => {
+    localStorage.setItem(
+      'cricpulse.obs-scene-presets.match-123',
+      JSON.stringify({
+        presets: [{ key: 'score', label: 'Scoreboard', sceneName: 'Camera + Score' }],
+        favorites: ['Camera'],
+      }),
+    );
+
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+
+    expect(component.presets.find((preset) => preset.key === 'score')?.sceneName).toBe(
+      'Camera + Score',
+    );
+    expect(component.favoriteSceneNames).toEqual(['Camera']);
+  });
+
   it('uses sensible local OBS defaults and match context', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     expect(component.host).toBe('127.0.0.1');
