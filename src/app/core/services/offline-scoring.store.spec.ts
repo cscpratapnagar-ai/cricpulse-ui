@@ -89,6 +89,20 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     ]);
   });
 
+  it('binds legacy queued commands to the restored match only when payload innings matches', async () => {
+    const legacyInnings = 'offline-legacy-bind-innings';
+    const command = queued('offline-legacy-bind-command', legacyInnings, 777);
+    await store.enqueue(command);
+
+    const boundCount = await store.bindLegacyQueueToMatch(legacyInnings, 'match-legacy');
+    expect(boundCount).toBe(1);
+    expect(await store.list(legacyInnings)).toEqual([
+      jasmine.objectContaining({ commandId: command.commandId, matchId: 'match-legacy' }),
+    ]);
+    expect(await store.bindLegacyQueueToMatch(legacyInnings, 'different-match')).toBe(0);
+    expect((await store.list(legacyInnings))[0].matchId).toBe('match-legacy');
+  });
+
   it('atomically acknowledges a command by removing it and saving the authoritative snapshot', async () => {
     const command = queued('offline-store-ack', inningsId, 200);
     await store.enqueue(command);
