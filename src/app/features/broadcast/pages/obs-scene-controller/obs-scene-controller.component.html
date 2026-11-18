@@ -1,0 +1,163 @@
+<main class="obs-controller">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">CRICPULSE · LIVE PRODUCTION</span>
+      <h1>OBS Scene Controller</h1>
+      <p>Connect to OBS Studio and switch program scenes directly from CricPulse.</p>
+    </div>
+    <a class="back-link" [routerLink]="['/broadcast', matchId, 'control']">← Broadcast control</a>
+  </header>
+
+  <section class="connection-card">
+    <div class="card-head">
+      <div>
+        <span class="eyebrow">OBS WEBSOCKET v5</span>
+        <h2>Connection</h2>
+      </div>
+      <span class="status" [class.connected]="obs.connected"
+        ><i></i>{{ obs.connected ? 'CONNECTED' : connecting ? 'CONNECTING' : 'DISCONNECTED' }}</span
+      >
+    </div>
+    <div class="connection-grid">
+      <label
+        >Protocol
+        <select [value]="protocol" (change)="protocol = $any($event.target).value">
+          <option value="ws">ws · Local network</option>
+          <option value="wss">wss · Secure</option>
+        </select>
+      </label>
+      <label
+        >OBS host / IP
+        <input
+          [value]="host"
+          (input)="host = $any($event.target).value"
+          placeholder="127.0.0.1"
+          autocomplete="off"
+        />
+      </label>
+      <label
+        >Port
+        <input
+          [value]="port"
+          (input)="port = $any($event.target).value"
+          inputmode="numeric"
+          placeholder="4455"
+        />
+      </label>
+      <label
+        >Password <span class="optional">optional if OBS auth disabled</span>
+        <input
+          type="password"
+          [value]="password"
+          (input)="password = $any($event.target).value"
+          autocomplete="new-password"
+          placeholder="OBS WebSocket password"
+        />
+      </label>
+    </div>
+    <div class="actions">
+      @if (!obs.connected) {
+        <button
+          class="primary"
+          type="button"
+          (click)="connect()"
+          [disabled]="connecting || !host.trim() || !port.trim()"
+        >
+          {{ connecting ? 'Connecting…' : 'Connect to OBS' }}
+        </button>
+      } @else {
+        <button class="secondary" type="button" (click)="refresh()">Refresh scenes</button>
+        <button class="danger" type="button" (click)="disconnect()">Disconnect</button>
+      }
+    </div>
+    <p class="security-note">
+      <span>🔒</span> Password stays in memory only and is never saved. Use OBS → Tools → WebSocket
+      Server Settings to enable the server.
+    </p>
+    @if (error) {
+      <div class="message error" role="alert">{{ error }}</div>
+    }
+    @if (notice) {
+      <div class="message success" role="status">{{ notice }}</div>
+    }
+  </section>
+
+  <section class="scene-card">
+    <div class="card-head">
+      <div>
+        <span class="eyebrow">PROGRAM OUTPUT</span>
+        <h2>Scene switching</h2>
+        <p>Changes the active OBS Program scene—not just the CricPulse preview.</p>
+      </div>
+      <span class="scene-count">{{ scenes.length }} scenes</span>
+    </div>
+    @if (obs.connected) {
+      @if (scenes.length) {
+        <div class="scene-select">
+          <label
+            >Choose a scene
+            <select [value]="selectedScene" (change)="selectedScene = $any($event.target).value">
+              @for (scene of scenes; track scene.sceneName) {
+                <option [value]="scene.sceneName">
+                  {{ scene.sceneName }}{{ scene.sceneName === currentScene ? ' · LIVE' : '' }}
+                </option>
+              }
+            </select>
+          </label>
+          <button
+            class="primary switch-button"
+            type="button"
+            (click)="switchScene()"
+            [disabled]="switching || !selectedScene || selectedScene === currentScene"
+          >
+            {{ switching ? 'Switching…' : 'Switch Program Scene' }}
+          </button>
+        </div>
+        <div class="scene-list">
+          @for (scene of scenes; track scene.sceneName) {
+            <button
+              type="button"
+              class="scene-item"
+              [class.active]="scene.sceneName === currentScene"
+              [class.selected]="scene.sceneName === selectedScene"
+              (click)="selectedScene = scene.sceneName"
+            >
+              <span class="scene-icon">▣</span><span class="scene-name">{{ scene.sceneName }}</span>
+              @if (scene.sceneName === currentScene) {
+                <span class="live-tag">ON AIR</span>
+              }
+              <span class="scene-index">#{{ scene.sceneIndex + 1 }}</span>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="empty">Connected, but OBS did not return any scenes.</div>
+      }
+    } @else {
+      <div class="empty">
+        <div class="empty-icon">▣</div>
+        <strong>Connect OBS to control your scenes</strong
+        ><span>OBS WebSocket is built into OBS Studio 28+. Default port is 4455.</span>
+      </div>
+    }
+  </section>
+
+  <section class="setup-card">
+    <h2>First-time setup</h2>
+    <ol>
+      <li>In OBS Studio, open <b>Tools → WebSocket Server Settings</b>.</li>
+      <li>Enable <b>WebSocket Server</b>. Keep the default port <b>4455</b> or set your own.</li>
+      <li>Enable authentication and enter the password above (recommended).</li>
+      <li>
+        For a same-PC setup, host is <b>127.0.0.1</b>. For another device, use the streaming PC’s
+        LAN IP and allow the port in its firewall.
+      </li>
+      <li>Connect, select a scene, and confirm the scene marked <b>ON AIR</b> changes.</li>
+    </ol>
+    <p class="warning">
+      <b>Browser security:</b> A CricPulse page served over HTTPS cannot connect to an insecure
+      <code>ws://</code> endpoint. Use the local HTTP CricPulse page for local OBS, or configure
+      secure <code>wss://</code> access. Never expose OBS WebSocket directly to the public internet.
+    </p>
+  </section>
+</main>
