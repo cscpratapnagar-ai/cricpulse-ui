@@ -236,3 +236,19 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
     fallOfWickets,
   };
 }
+
+
+/**
+ * Network, throttling and server availability failures are retryable.
+ * Client/domain errors require scorer reconciliation instead of blind replay.
+ */
+export function isTransientOfflineSyncStatus(status: unknown): boolean {
+  const normalized = Number(status ?? 0);
+  return (
+    normalized === 0 ||
+    normalized === 408 ||
+    normalized === 425 ||
+    normalized === 429 ||
+    (normalized >= 500 && normalized < 600)
+  );
+}
