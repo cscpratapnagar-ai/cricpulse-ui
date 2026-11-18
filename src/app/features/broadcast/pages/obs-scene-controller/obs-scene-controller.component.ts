@@ -117,7 +117,10 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   assignSelectedToPreset(key: ScenePresetKey): void {
-    if (!this.selectedScene || !this.scenes.some((scene) => scene.sceneName === this.selectedScene)) {
+    if (
+      !this.selectedScene ||
+      !this.scenes.some((scene) => scene.sceneName === this.selectedScene)
+    ) {
       this.error = 'Select a valid OBS scene before assigning a preset.';
       return;
     }
@@ -173,11 +176,16 @@ export class ObsSceneControllerComponent implements OnDestroy {
       if (Array.isArray(saved.presets)) {
         this.presets = this.presets.map((preset) => {
           const stored = saved.presets?.find((item) => item.key === preset.key);
-          return { ...preset, sceneName: typeof stored?.sceneName === 'string' ? stored.sceneName : '' };
+          return {
+            ...preset,
+            sceneName: typeof stored?.sceneName === 'string' ? stored.sceneName : '',
+          };
         });
       }
       if (Array.isArray(saved.favorites)) {
-        this.favoriteSceneNames = saved.favorites.filter((name): name is string => typeof name === 'string');
+        this.favoriteSceneNames = saved.favorites.filter(
+          (name): name is string => typeof name === 'string',
+        );
       }
     } catch {
       this.presets = this.presets.map((preset) => ({ ...preset, sceneName: '' }));
