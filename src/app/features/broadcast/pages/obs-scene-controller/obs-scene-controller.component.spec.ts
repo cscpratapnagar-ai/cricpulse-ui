@@ -221,11 +221,11 @@ describe('ObsSceneControllerComponent', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.currentScene = 'Event Scene';
     component.selectedScene = 'Manual Scene';
-    component.automationBaseScene = 'Main Scene';
+    component['automationBaseScene'] = 'Main Scene';
     component['automationReturnTimer'] = setTimeout(() => undefined, 5000);
     await component.switchScene();
     expect(component['automationReturnTimer']).toBeUndefined();
-    expect(component.automationBaseScene).toBe('');
+    expect(component['automationBaseScene']).toBe('');
     expect(obs.switchScene).toHaveBeenCalledWith('Manual Scene');
   });
   it('automatically switches to a configured scene for a new six event', async () => {
