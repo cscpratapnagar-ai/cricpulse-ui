@@ -6,7 +6,7 @@ on:
       - feat/obs-broadcast-setup-workflow
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   format:
@@ -16,15 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.22.3'
-      - run: npx --yes prettier@3.5.3 --write src/app/features/broadcast/pages/control/broadcast-control.component.html
-      - name: Commit exact Prettier output
+      - name: Check the exact PR merge ref
         run: |
-          if git diff --quiet; then
-            echo "Already formatted."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/app/features/broadcast/pages/control/broadcast-control.component.html
-          git commit -m "fix: apply exact Prettier formatting to OBS control template"
-          git push
+          git fetch origin +refs/pull/52/merge:refs/remotes/origin/pr52merge
+          git checkout refs/remotes/origin/pr52merge
+          npx --yes prettier@3.5.3 --write src/app/features/broadcast/pages/control/broadcast-control.component.html
+          git diff -- src/app/features/broadcast/pages/control/broadcast-control.component.html
