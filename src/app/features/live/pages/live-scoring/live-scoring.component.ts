@@ -5,7 +5,7 @@ import { firstValueFrom, timeout } from 'rxjs';
 import { Component, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
-import { LiveScore } from '../../../../core/services/live-score.service';
+import { LiveScore, scoringDeliveryHeaders } from '../../../../core/services/live-score.service';
 import {
   OfflineScoringStore,
   QueuedDelivery,
@@ -1218,10 +1218,7 @@ export class LiveScoringV2Component implements OnDestroy {
                   `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
                   item.payload,
                   {
-                    headers: new HttpHeaders({
-                      'X-Command-Id': item.commandId,
-                      'X-Scorer-Lease': this.scorerLeaseToken,
-                    }),
+                    headers: new HttpHeaders(scoringDeliveryHeaders(item.commandId, this.scorerLeaseToken)),
                   },
                 ),
               ),
@@ -1276,7 +1273,7 @@ export class LiveScoringV2Component implements OnDestroy {
               this.http.post<any>(
                 `${this.api}/scoring/innings/${this.inningsId}/deliveries`,
                 item.payload,
-                { headers: new HttpHeaders({ 'X-Command-Id': item.commandId }) },
+                { headers: new HttpHeaders(scoringDeliveryHeaders(item.commandId, this.scorerLeaseToken)) },
               ),
             ),
           );
