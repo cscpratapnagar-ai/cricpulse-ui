@@ -40,7 +40,10 @@ function bowlerWicket(type: string | null): boolean {
 /** Deterministic local projection that mirrors the backend delivery rules for the scorer flow. */
 export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery): LiveScore {
   const p = command.payload;
-  if (score.inningsId !== p.inningsId || score.status !== 'LIVE') {
+  if (command.matchId && score.matchId && command.matchId !== score.matchId) {
+    throw new Error('The pending delivery belongs to a different match.');
+  }
+  if (command.inningsId !== score.inningsId || score.inningsId !== p.inningsId || score.status !== 'LIVE') {
     throw new Error('The saved innings is not available for offline scoring.');
   }
   if (p.strikerId !== score.strikerId || p.nonStrikerId !== score.nonStrikerId) {
