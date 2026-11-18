@@ -31,7 +31,10 @@ describe('authInterceptor', () => {
       if (calls.length === 1) {
         expect(next.url).toContain('/api/auth/csrf');
         expect(next.withCredentials).toBeTrue();
-        return concat(of(new HttpSentEvent()), of(new HttpResponse({ body: { token: 'csrf-123' } })));
+        return concat(
+          of(new HttpSentEvent()),
+          of(new HttpResponse({ body: { token: 'csrf-123' } })),
+        );
       }
       expect(next.headers.get('X-XSRF-TOKEN')).toBe('csrf-123');
       expect(next.withCredentials).toBeTrue();
