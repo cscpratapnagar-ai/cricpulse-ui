@@ -240,6 +240,50 @@
                 }
                 <button type="button" (click)="dismissError()">Dismiss</button>
               </div>
+              @if (pendingOfflineCount > 0 && offlineQueueDiagnostics.length > 0) {
+                <section class="offline-conflict-panel" aria-label="Offline queue recovery details">
+                  <div class="offline-conflict-heading">
+                    <div>
+                      <strong>Retained offline deliveries</strong>
+                      <small>Queue is paused. Nothing below has been deleted or replayed.</small>
+                    </div>
+                    <button type="button" class="secondary-button" (click)="copyOfflineRecoveryReport()">
+                      Copy recovery report
+                    </button>
+                  </div>
+                  @if (offlineConflictPositions.length > 0) {
+                    <div class="offline-conflict-warning">
+                      Conflicting legal-ball positions: {{ offlineConflictPositions.join(', ') }}
+                    </div>
+                  }
+                  <div class="offline-queue-diagnostics">
+                    @for (item of offlineQueueDiagnostics; track item.commandId) {
+                      <article class="offline-queue-item" [class.conflict]="item.conflict">
+                        <div class="offline-queue-item-heading">
+                          <strong>Over {{ item.position }}</strong>
+                          <span>{{ item.syncStatus }}</span>
+                          @if (item.conflict) {
+                            <b class="conflict-tag">POSITION CONFLICT</b>
+                          }
+                        </div>
+                        <p>{{ item.summary }}</p>
+                        <small>{{ item.identities }}</small>
+                        <small>Saved: {{ item.createdAt }}</small>
+                        <small class="command-id">Command: {{ item.commandId }}</small>
+                      </article>
+                    }
+                  </div>
+                  <div class="offline-recovery-steps">
+                    <strong>Safe recovery</strong>
+                    <ol>
+                      <li>Compare the listed deliveries with the official scorer and authoritative server score.</li>
+                      <li>Choose which sequence is official; confirm batter, bowler, extras and wickets.</li>
+                      <li>Do not retry sync or cancel queue entries until the official sequence is confirmed.</li>
+                      <li>Use the recovery report for another scorer/admin if needed. Then reconcile through the scorer workflow.</li>
+                    </ol>
+                  </div>
+                </section>
+              }
             }
 
             <div class="bowler-bar" [class.attention]="needsBowlerChange">
