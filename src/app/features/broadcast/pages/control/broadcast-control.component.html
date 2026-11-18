@@ -18,11 +18,20 @@
       </p>
     </div>
     <div class="flow-steps" aria-label="Broadcast flow">
-      <div><b>01</b><span>CricPulse scoring</span></div>
+      <div>
+        <b>01</b>
+        <span>CricPulse scoring</span>
+      </div>
       <i>→</i>
-      <div><b>02</b><span>OBS Browser Source</span></div>
+      <div>
+        <b>02</b>
+        <span>OBS Browser Source</span>
+      </div>
       <i>→</i>
-      <div><b>03</b><span>YouTube Live</span></div>
+      <div>
+        <b>03</b>
+        <span>YouTube Live</span>
+      </div>
     </div>
   </section>
 
@@ -103,7 +112,46 @@
         {{ copied === 'auto' ? 'Copied!' : 'Copy OBS URL' }}
       </button>
       <button type="button" class="preview" (click)="open('auto')">Preview ↗</button>
+      <label class="resolution-picker">
+        OBS canvas
+        <select
+          [value]="selectedResolution"
+          (change)="selectedResolution = $any($event.target).value"
+        >
+          @for (preset of resolutionPresets; track preset.value) {
+            <option [value]="preset.value">{{ preset.label }}</option>
+          }
+        </select>
+      </label>
     </div>
+  </section>
+
+  <section class="obs-quick-setup">
+    <div class="obs-quick-heading">
+      <div>
+        <label>OBS BROWSER SOURCE SETTINGS</label>
+        <h2>Selected canvas: {{ resolutionPreset().width }} × {{ resolutionPreset().height }}</h2>
+        <p>
+          Use these exact dimensions for the Browser Source. Keep the source active and place it
+          above your camera/video layer.
+        </p>
+      </div>
+      <button type="button" (click)="copySetup(autoUrl(), 'resolution-url')">
+        {{ copied === 'resolution-url' ? 'URL Copied' : 'Copy current overlay URL' }}
+      </button>
+    </div>
+    <div class="obs-setting-chips">
+      <span> <b>Width</b> {{ resolutionPreset().width }} </span>
+      <span> <b>Height</b> {{ resolutionPreset().height }} </span>
+      <span> <b>FPS</b> 60 (or match OBS) </span>
+      <span> <b>Background</b> Transparent </span>
+    </div>
+    <ol>
+      <li>OBS → Sources → <b>+</b> → Browser</li>
+      <li>Paste the copied URL and set width/height above.</li>
+      <li>Turn OFF <b>Shutdown source when not visible</b>.</li>
+      <li>Move CricPulse above camera/video. Do not add a background color.</li>
+    </ol>
   </section>
 
   <section class="scene-grid">
@@ -192,11 +240,11 @@
               }
               <div class="sponsor-record-copy">
                 <b>{{ sponsor.name }}</b>
-                <small
-                  >{{ sponsor.sponsorType.replaceAll('_', ' ') }} ·
+                <small>
+                  {{ sponsor.sponsorType.replaceAll('_', ' ') }} ·
                   {{ sponsor.displayDurationSeconds }} sec ·
-                  {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}</small
-                >
+                  {{ sponsor.active ? 'ACTIVE' : 'PAUSED' }}
+                </small>
                 <small>{{ placementLabels(sponsor) }}</small>
               </div>
               <div class="sponsor-record-actions">
@@ -229,9 +277,9 @@
         <div class="sponsor-report-list">
           @for (item of sponsorReport; track item.sponsorId) {
             <div>
-              <b>{{ item.sponsorName }}</b
-              ><span>{{ item.impressions }} impressions</span
-              ><small>{{ item.lastDisplayedAt || 'Not displayed yet' }}</small>
+              <b>{{ item.sponsorName }}</b>
+              <span>{{ item.impressions }} impressions</span>
+              <small>{{ item.lastDisplayedAt || 'Not displayed yet' }}</small>
             </div>
           }
         </div>
@@ -242,16 +290,16 @@
       <span>Match-specific sponsor inventory</span>
     </div>
     <div class="sponsor-manager-grid">
-      <label
-        >Graphic type
+      <label>
+        Graphic type
         <select [value]="sponsorType" (change)="changeSponsorType($any($event.target).value)">
           @for (type of sponsorTypes; track type.value) {
             <option [value]="type.value">{{ type.label }}</option>
           }
         </select>
       </label>
-      <label
-        >Sponsor / brand name
+      <label>
+        Sponsor / brand name
         <input
           type="text"
           maxlength="60"
@@ -260,8 +308,8 @@
           (input)="sponsorName = $any($event.target).value"
         />
       </label>
-      <label
-        >Tagline
+      <label>
+        Tagline
         <input
           type="text"
           maxlength="100"
@@ -270,8 +318,8 @@
           (input)="sponsorTagline = $any($event.target).value"
         />
       </label>
-      <label
-        >Upload logo image
+      <label>
+        Upload logo image
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp"
@@ -285,8 +333,8 @@
           <span>{{ sponsorLogoFile?.name || 'Current sponsor logo' }}</span>
         </div>
       }
-      <label
-        >Or use an external logo URL
+      <label>
+        Or use an external logo URL
         <input
           type="url"
           placeholder="https://example.com/logo.png"
@@ -294,8 +342,8 @@
           (input)="sponsorLogo = $any($event.target).value; clearSponsorLogoFile()"
         />
       </label>
-      <label
-        >Top label
+      <label>
+        Top label
         <input
           type="text"
           maxlength="32"
@@ -303,8 +351,8 @@
           (input)="sponsorLabel = $any($event.target).value"
         />
       </label>
-      <label
-        >Display duration
+      <label>
+        Display duration
         <select [value]="sponsorDuration" (change)="sponsorDuration = +$any($event.target).value">
           <option [value]="5">5 seconds</option>
           <option [value]="10">10 seconds</option>
@@ -353,13 +401,13 @@
         [checked]="overSponsorEnabled"
         (change)="overSponsorEnabled = $any($event.target).checked"
       />
-      <span
-        ><b>Automatically show this sponsor after every completed over</b
-        ><small
-          >When enabled, use the Automatic OBS URL above. The sponsor graphic appears after each
-          over for the selected duration.</small
-        ></span
-      >
+      <span>
+        <b>Automatically show this sponsor after every completed over</b>
+        <small>
+          When enabled, use the Automatic OBS URL above. The sponsor graphic appears after each over
+          for the selected duration.
+        </small>
+      </span>
     </label>
     <div class="sponsor-url-row">
       <code>{{ sponsorUrl() }}</code>

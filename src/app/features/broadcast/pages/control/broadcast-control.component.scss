@@ -904,3 +904,105 @@ header p {
   align-items: flex-end;
   flex-wrap: wrap;
 }
+
+.resolution-picker {
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.resolution-picker select {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--cp-border);
+  border-radius: 9px;
+  background: var(--cp-surface-hover);
+  color: var(--cp-text);
+  font: inherit;
+}
+.obs-quick-setup {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid var(--cp-border);
+  border-radius: 18px;
+  background: var(--cp-surface);
+}
+.obs-quick-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.obs-quick-heading h2 {
+  margin: 7px 0;
+  font-size: 19px;
+}
+.obs-quick-heading p {
+  margin: 0;
+  max-width: 680px;
+  color: var(--cp-text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.obs-quick-heading button {
+  flex: none;
+  padding: 10px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--cp-accent);
+  color: var(--cp-on-accent, #07130f);
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.obs-setting-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+.obs-setting-chips span {
+  padding: 8px 10px;
+  border: 1px solid var(--cp-border);
+  border-radius: 9px;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+}
+.obs-setting-chips b {
+  color: var(--cp-text);
+  margin-right: 5px;
+}
+.obs-quick-setup ol {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding-left: 20px;
+  color: var(--cp-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.obs-quick-setup li b {
+  color: var(--cp-text);
+}
+@media (max-width: 700px) {
+  .obs-quick-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .obs-quick-heading button {
+    width: 100%;
+  }
+  .resolution-picker {
+    min-width: min(100%, 220px);
+  }
+}
+@media (max-width: 480px) {
+  .obs-quick-setup {
+    padding: 14px;
+  }
+  .obs-setting-chips span {
+    flex: 1 1 calc(50% - 8px);
+  }
+}

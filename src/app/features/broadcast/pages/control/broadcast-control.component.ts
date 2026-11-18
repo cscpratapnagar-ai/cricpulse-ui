@@ -64,6 +64,18 @@ export class BroadcastControlComponent {
   private readonly http = inject(HttpClient);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
+  selectedResolution = '1080p';
+  readonly resolutionPresets = [
+    { value: '1080p', label: 'Full HD · 1920 × 1080', width: 1920, height: 1080 },
+    { value: '720p', label: 'HD · 1280 × 720', width: 1280, height: 720 },
+    { value: '900p', label: 'HD+ · 1600 × 900', width: 1600, height: 900 },
+  ];
+  resolutionPreset() {
+    return (
+      this.resolutionPresets.find((preset) => preset.value === this.selectedResolution) ??
+      this.resolutionPresets[0]
+    );
+  }
   selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   sponsorType: SponsorType = 'MAIN_SPONSOR';
   sponsorName = '';
