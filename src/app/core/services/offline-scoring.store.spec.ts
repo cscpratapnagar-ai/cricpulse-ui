@@ -22,7 +22,11 @@ function score(inningsId: string, runs = 0): LiveScore {
   };
 }
 
-function queued(commandId: string, inningsId: string, createdAt: number): QueuedDelivery {
+function queued(
+  commandId: string,
+  inningsId: string,
+  createdAt: number,
+): QueuedDelivery {
   return {
     commandId,
     inningsId,
@@ -46,7 +50,9 @@ describe('OfflineScoringStore (IndexedDB)', () => {
   const store = new OfflineScoringStore();
   const inningsId = 'offline-store-test-innings';
 
-  it('persists queued commands and enforces increasing local sequence timestamps per innings', async () => {
+  it(
+    'persists queued commands and enforces increasing local sequence timestamps per innings',
+    async () => {
     await store.enqueue(queued('offline-store-cmd-1', inningsId, 100));
     await store.enqueue(queued('offline-store-cmd-2', inningsId, 100));
     await store.enqueue(queued('offline-store-cmd-3', inningsId, 50));
@@ -62,14 +68,18 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     expect(await store.count(inningsId)).toBe(3);
   });
 
-  it('atomically acknowledges a command by removing it and saving the authoritative snapshot', async () => {
+  it(
+    'atomically acknowledges a command by removing it and saving the authoritative snapshot',
+    async () => {
     const command = queued('offline-store-ack', inningsId, 200);
     await store.enqueue(command);
     const authoritative = score(inningsId, 4);
 
     await store.acknowledgeDelivery(command.commandId, authoritative);
 
-    expect((await store.list(inningsId)).some((item) => item.commandId === command.commandId)).toBeFalse();
+    expect(
+      (await store.list(inningsId)).some((item) => item.commandId === command.commandId),
+    ).toBeFalse();
     expect(await store.loadSnapshot(inningsId)).toEqual(authoritative);
   });
 
