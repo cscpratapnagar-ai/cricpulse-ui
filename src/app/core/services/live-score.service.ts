@@ -108,6 +108,14 @@ export function withCommandId(commandId: string): { 'X-Command-Id': string } {
   return { 'X-Command-Id': commandId };
 }
 
+/** Headers required for every delivery write, including offline replay. */
+export function scoringDeliveryHeaders(commandId: string, scorerLeaseToken: string): Record<string, string> {
+  return {
+    'X-Command-Id': commandId,
+    'X-Scorer-Lease': scorerLeaseToken,
+  };
+}
+
 /** Prevent a late REST snapshot from overwriting a newer websocket event. */
 export function shouldAcceptLiveScoreSnapshot(
   version: number | undefined,
