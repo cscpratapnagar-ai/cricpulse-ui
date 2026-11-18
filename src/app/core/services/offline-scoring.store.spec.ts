@@ -47,11 +47,12 @@ describe('OfflineScoringStore (IndexedDB)', () => {
   const inningsId = 'offline-store-test-innings';
 
   it('persists queued commands and enforces increasing local sequence timestamps per innings', async () => {
-    await store.enqueue(queued('offline-store-cmd-1', inningsId, 100));
-    await store.enqueue(queued('offline-store-cmd-2', inningsId, 100));
-    await store.enqueue(queued('offline-store-cmd-3', inningsId, 50));
+    const orderingInningsId = 'offline-store-ordering-test-innings';
+    await store.enqueue(queued('offline-store-cmd-1', orderingInningsId, 100));
+    await store.enqueue(queued('offline-store-cmd-2', orderingInningsId, 100));
+    await store.enqueue(queued('offline-store-cmd-3', orderingInningsId, 50));
 
-    const items = await store.list(inningsId);
+    const items = await store.list(orderingInningsId);
     expect(items.map((item) => item.commandId)).toEqual([
       'offline-store-cmd-1',
       'offline-store-cmd-2',
@@ -59,7 +60,7 @@ describe('OfflineScoringStore (IndexedDB)', () => {
     ]);
     expect(items[1].createdAt).toBeGreaterThan(items[0].createdAt);
     expect(items[2].createdAt).toBeGreaterThan(items[1].createdAt);
-    expect(await store.count(inningsId)).toBe(3);
+    expect(await store.count(orderingInningsId)).toBe(3);
   });
 
   it('atomically acknowledges a command by removing it and saving the authoritative snapshot', async () => {
