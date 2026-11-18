@@ -80,7 +80,8 @@ export function buildOfflineQueueDiagnostics(
   const legalPositionCounts = new Map<string, number>();
   for (const item of queue) {
     const payload = item.payload;
-    const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+    const legal =
+      payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
     if (!legal) continue;
     const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
     legalPositionCounts.set(position, (legalPositionCounts.get(position) || 0) + 1);
@@ -89,7 +90,8 @@ export function buildOfflineQueueDiagnostics(
   const items = queue.map((item) => {
     const payload = item.payload;
     const position = `${payload.overNumber + 1}.${payload.ballNumber}`;
-    const legal = payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
+    const legal =
+      payload.legalDelivery ?? (payload.extraType !== 'WIDE' && payload.extraType !== 'NO_BALL');
     const conflict = legal && (legalPositionCounts.get(position) || 0) > 1;
     const extras = payload.extraType ? `${payload.extraType} +${payload.extraRuns}` : '';
     const wicket = payload.wicketType
@@ -102,7 +104,9 @@ export function buildOfflineQueueDiagnostics(
       `Total ${payload.batRuns + payload.extraRuns}`,
       legal ? 'LEGAL DELIVERY' : 'NON-LEGAL DELIVERY',
       wicket,
-    ].filter(Boolean).join(' · ');
+    ]
+      .filter(Boolean)
+      .join(' · ');
     const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
     return {
       commandId: item.commandId,
@@ -120,8 +124,9 @@ export function buildOfflineQueueDiagnostics(
     `Innings: ${inningsId}`,
     `Pending deliveries: ${queue.length}`,
     `Conflicting legal-ball positions: ${conflictPositions.join(', ') || 'none identified'}`,
-    ...items.map((item) =>
-      `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
+    ...items.map(
+      (item) =>
+        `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
     ),
     'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
   ].join('\\n');

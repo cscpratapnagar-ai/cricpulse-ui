@@ -72,7 +72,12 @@ describe('offline queue recovery diagnostics', () => {
     const result = buildOfflineQueueDiagnostics(
       [
         queued(0, 1, 'cmd-a', { batRuns: 4 }),
-        queued(0, 1, 'cmd-b', { batRuns: 1, wicketType: 'RUN_OUT', dismissedPlayerId: 'striker-2', newBatterId: 'striker-3' }),
+        queued(0, 1, 'cmd-b', {
+          batRuns: 1,
+          wicketType: 'RUN_OUT',
+          dismissedPlayerId: 'striker-2',
+          newBatterId: 'striker-3',
+        }),
       ],
       'match-1',
       'innings-1',
