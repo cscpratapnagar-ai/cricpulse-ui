@@ -64,6 +64,7 @@ export class BroadcastControlComponent {
   private readonly http = inject(HttpClient);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
+  selectedTheme: 'lime' | 'blue' | 'purple' | 'orange' = 'lime';
   sponsorType: SponsorType = 'MAIN_SPONSOR';
   sponsorName = '';
   sponsorTagline = '';
@@ -337,11 +338,11 @@ export class BroadcastControlComponent {
   ];
 
   url(mode: Mode) {
-    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=${mode}`;
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=${mode}&theme=${this.selectedTheme}`;
   }
 
   autoUrl() {
-    const params = new URLSearchParams({ mode: 'auto' });
+    const params = new URLSearchParams({ mode: 'auto', theme: this.selectedTheme });
     if (this.overSponsorEnabled) {
       params.set('overSponsor', 'true');
       params.set('sponsorType', 'OVER_SPONSOR');
@@ -357,6 +358,7 @@ export class BroadcastControlComponent {
   sponsorUrl() {
     const params = new URLSearchParams({
       mode: 'sponsor',
+      theme: this.selectedTheme,
       sponsorType: this.sponsorType,
       sponsorName: this.sponsorName.trim() || 'YOUR BRAND',
       sponsorTagline: this.sponsorTagline.trim(),
@@ -368,7 +370,7 @@ export class BroadcastControlComponent {
   }
 
   eventUrl(kind: EventKind) {
-    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=event&event=${kind}`;
+    return `${window.location.origin}/broadcast/${this.matchId}/overlay?mode=event&event=${kind}&theme=${this.selectedTheme}`;
   }
 
   async copy(mode: Mode | 'auto') {
