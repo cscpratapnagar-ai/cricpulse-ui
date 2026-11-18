@@ -533,6 +533,9 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   async switchScene(): Promise<void> {
+    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
+    this.automationReturnTimer = undefined;
+    this.automationBaseScene = '';
     if (
       !this.obs.connected ||
       !this.selectedScene ||
