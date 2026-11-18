@@ -241,7 +241,9 @@ describe('offlineDeliveryMatchesRecentBall', () => {
   });
 
   it('rejects a same-position ball with different total runs', () => {
-    expect(offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, totalRuns: 3 })).toBeFalse();
+    expect(
+      offlineDeliveryMatchesRecentBall(queuedCommand, { ...matchingBall, totalRuns: 3 }),
+    ).toBeFalse();
   });
 
   it('rejects a same-position ball with different wicket or extra data', () => {
