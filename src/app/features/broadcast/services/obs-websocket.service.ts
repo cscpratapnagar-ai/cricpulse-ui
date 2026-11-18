@@ -16,7 +16,11 @@ export class ObsWebSocketService {
   private requestSequence = 0;
   private readonly pending = new Map<
     string,
-    { resolve: (value: Record<string, unknown>) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
+    {
+      resolve: (value: Record<string, unknown>) => void;
+      reject: (error: Error) => void;
+      timer: ReturnType<typeof setTimeout>;
+    }
   >();
   private identified = false;
 
@@ -29,33 +33,33 @@ export class ObsWebSocketService {
     const socket = new WebSocket(url);
     this.socket = socket;
     await new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => {
+      const handshakeTimeout = setTimeout(() => {
         socket.close();
         reject(new Error('OBS connection timed out. Check host, port and firewall.'));
       }, 8000);
-      socket.onopen = () => clearTimeout(timeout);
-      socket.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error('Could not connect to OBS WebSocket. Enable it in OBS Tools → WebSocket Server Settings.'));
+      const fail = (error: Error) => {
+        clearTimeout(handshakeTimeout);
+        reject(error);
       };
+      socket.onerror = () =>
+        fail(new Error('Could not connect to OBS WebSocket. Enable it in OBS Tools → WebSocket Server Settings.'));
       socket.onclose = () => {
-        clearTimeout(timeout);
+        clearTimeout(handshakeTimeout);
         this.identified = false;
         this.rejectPending(new Error('OBS connection closed.'));
+        fail(new Error('OBS closed the connection. Verify the password and WebSocket settings.'));
       };
       socket.onmessage = async (event) => {
         try {
           const envelope = JSON.parse(String(event.data)) as ObsEnvelope;
           if (envelope.op === 0) {
-            try {
-              const identify = await this.createIdentifyPayload(envelope.d, password);
-              if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ op: 1, d: identify }));
-            } catch (error) {
-              reject(error instanceof Error ? error : new Error('OBS authentication failed.'));
-              socket.close();
+            const identify = await this.createIdentifyPayload(envelope.d, password);
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(JSON.stringify({ op: 1, d: identify }));
             }
           } else if (envelope.op === 2) {
             this.identified = true;
+            clearTimeout(handshakeTimeout);
             resolve();
           } else if (envelope.op === 7) {
             const requestId = String(envelope.d['requestId'] ?? '');
@@ -63,27 +67,23 @@ export class ObsWebSocketService {
             if (!pending) return;
             clearTimeout(pending.timer);
             this.pending.delete(requestId);
-            if (envelope.d['requestStatus'] && (envelope.d['requestStatus'] as { result?: boolean }).result) {
+            const status = envelope.d['requestStatus'] as { result?: boolean; code?: number; comment?: string } | undefined;
+            if (status?.result) {
               pending.resolve((envelope.d['responseData'] as Record<string, unknown>) || {});
             } else {
-              const status = envelope.d['requestStatus'] as { code?: number; comment?: string } | undefined;
               pending.reject(new Error(status?.comment || `OBS request failed (${status?.code ?? 'unknown'}).`));
             }
-          } else if (envelope.op === 5) {
-            // OBS events are informational; scenes are refreshed on demand.
           }
-        } catch {
-          reject(new Error('Received an invalid OBS WebSocket message.'));
+        } catch (error) {
+          fail(error instanceof Error ? error : new Error('OBS handshake failed.'));
+          socket.close();
         }
       };
     });
 
     if (this.socket !== socket || !this.identified) throw new Error('OBS identification failed.');
     const response = await this.request('GetSceneList');
-    return ((response['scenes'] as Array<Record<string, unknown>>) || []).map((scene, index) => ({
-      sceneName: String(scene['sceneName'] || ''),
-      sceneIndex: Number(scene['sceneIndex'] ?? index),
-    }));
+    return this.parseScenes(response);
   }
 
   async currentScene(): Promise<string> {
@@ -96,11 +96,7 @@ export class ObsWebSocketService {
   }
 
   async refreshScenes(): Promise<ObsScene[]> {
-    const response = await this.request('GetSceneList');
-    return ((response['scenes'] as Array<Record<string, unknown>>) || []).map((scene, index) => ({
-      sceneName: String(scene['sceneName'] || ''),
-      sceneIndex: Number(scene['sceneIndex'] ?? index),
-    }));
+    return this.parseScenes(await this.request('GetSceneList'));
   }
 
   disconnect(): void {
@@ -109,6 +105,13 @@ export class ObsWebSocketService {
     const oldSocket = this.socket;
     this.socket = undefined;
     if (oldSocket && oldSocket.readyState < WebSocket.CLOSING) oldSocket.close();
+  }
+
+  private parseScenes(response: Record<string, unknown>): ObsScene[] {
+    return ((response['scenes'] as Array<Record<string, unknown>>) || []).map((scene, index) => ({
+      sceneName: String(scene['sceneName'] || ''),
+      sceneIndex: Number(scene['sceneIndex'] ?? index),
+    }));
   }
 
   private request(requestType: string, requestData: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
@@ -132,7 +135,10 @@ export class ObsWebSocketService {
     this.pending.clear();
   }
 
-  private async createIdentifyPayload(hello: Record<string, unknown>, password: string): Promise<Record<string, unknown>> {
+  private async createIdentifyPayload(
+    hello: Record<string, unknown>,
+    password: string,
+  ): Promise<Record<string, unknown>> {
     const rpcVersion = Number(hello['rpcVersion'] || 1);
     const auth = hello['authentication'] as { salt?: string; challenge?: string } | undefined;
     if (!auth) return { rpcVersion };
