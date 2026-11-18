@@ -153,5 +153,4 @@ describe('OfflineScoringStore (IndexedDB)', () => {
       'offline-removal-second',
     ]);
   });
-
 });
