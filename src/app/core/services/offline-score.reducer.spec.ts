@@ -1,5 +1,5 @@
 import { LiveScore } from './live-score.service';
-import { isTransientOfflineSyncStatus, projectOfflineDelivery } from './offline-score.reducer';
+import { isTransientOfflineSyncStatus, offlineQueueIdentityError, projectOfflineDelivery } from './offline-score.reducer';
 import { QueuedDelivery } from './offline-scoring.store';
 
 const baseScore = (): LiveScore => ({
@@ -28,6 +28,7 @@ const baseScore = (): LiveScore => ({
 function command(id: string, overrides: Partial<QueuedDelivery['payload']> = {}): QueuedDelivery {
   return {
     commandId: id,
+    matchId: 'match-1',
     inningsId: 'innings-1',
     createdAt: Number(id),
     payload: {
@@ -45,6 +46,33 @@ function command(id: string, overrides: Partial<QueuedDelivery['payload']> = {})
     },
   };
 }
+
+describe('offlineQueueIdentityError', () => {
+  it('allows a delivery only when match, queue innings and payload innings all match', () => {
+    expect(offlineQueueIdentityError(command('identity-1'), 'match-1', 'innings-1')).toBeNull();
+  });
+
+  it('rejects a command from another match', () => {
+    expect(offlineQueueIdentityError(command('identity-2'), 'match-2', 'innings-1')).toMatch(/different match/);
+  });
+
+  it('rejects a command from another innings', () => {
+    const item = command('identity-3');
+    item.inningsId = 'innings-2';
+    expect(offlineQueueIdentityError(item, 'match-1', 'innings-1')).toMatch(/different innings/);
+  });
+
+  it('rejects payload innings mismatch even if queue metadata is correct', () => {
+    const item = command('identity-4', { inningsId: 'other-innings' });
+    expect(offlineQueueIdentityError(item, 'match-1', 'innings-1')).toMatch(/payload innings/);
+  });
+
+  it('rejects legacy commands without a verified match identity', () => {
+    const item = command('identity-5');
+    delete item.matchId;
+    expect(offlineQueueIdentityError(item, 'match-1', 'innings-1')).toMatch(/no verified match identity/);
+  });
+});
 
 describe('projectOfflineDelivery', () => {
   it('projects a legal boundary and advances batter and bowler figures', () => {
