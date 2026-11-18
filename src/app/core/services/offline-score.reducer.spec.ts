@@ -1,5 +1,9 @@
 import { LiveScore } from './live-score.service';
-import { isTransientOfflineSyncStatus, offlineQueueIdentityError, projectOfflineDelivery } from './offline-score.reducer';
+import {
+  isTransientOfflineSyncStatus,
+  offlineQueueIdentityError,
+  projectOfflineDelivery,
+} from './offline-score.reducer';
 import { QueuedDelivery } from './offline-scoring.store';
 
 const baseScore = (): LiveScore => ({
@@ -53,7 +57,9 @@ describe('offlineQueueIdentityError', () => {
   });
 
   it('rejects a command from another match', () => {
-    expect(offlineQueueIdentityError(command('identity-2'), 'match-2', 'innings-1')).toMatch(/different match/);
+    expect(offlineQueueIdentityError(command('identity-2'), 'match-2', 'innings-1')).toMatch(
+      /different match/,
+    );
   });
 
   it('rejects a command from another innings', () => {
@@ -70,7 +76,9 @@ describe('offlineQueueIdentityError', () => {
   it('rejects legacy commands without a verified match identity', () => {
     const item = command('identity-5');
     delete item.matchId;
-    expect(offlineQueueIdentityError(item, 'match-1', 'innings-1')).toMatch(/no verified match identity/);
+    expect(offlineQueueIdentityError(item, 'match-1', 'innings-1')).toMatch(
+      /no verified match identity/,
+    );
   });
 });
 

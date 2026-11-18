@@ -1752,7 +1752,9 @@ export class LiveScoringV2Component implements OnDestroy {
         .then(async (queue) => {
           const latest = queue[queue.length - 1];
           if (latest && offlineQueueIdentityError(latest, this.matchId, this.inningsId)) {
-            await this.blockOfflineQueue('The last pending delivery belongs to a different match or innings.');
+            await this.blockOfflineQueue(
+              'The last pending delivery belongs to a different match or innings.',
+            );
             this.busy = false;
             return;
           }

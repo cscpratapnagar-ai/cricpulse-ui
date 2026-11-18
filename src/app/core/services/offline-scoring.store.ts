@@ -146,10 +146,13 @@ export class OfflineScoringStore {
           }
         }
       };
-      request.onerror = () => reject(request.error ?? new Error('Could not inspect legacy offline queue.'));
+      request.onerror = () =>
+        reject(request.error ?? new Error('Could not inspect legacy offline queue.'));
       transaction.oncomplete = () => resolve(bound);
-      transaction.onerror = () => reject(transaction.error ?? new Error('Could not bind offline queue to match.'));
-      transaction.onabort = () => reject(transaction.error ?? new Error('Offline queue match binding was aborted.'));
+      transaction.onerror = () =>
+        reject(transaction.error ?? new Error('Could not bind offline queue to match.'));
+      transaction.onabort = () =>
+        reject(transaction.error ?? new Error('Offline queue match binding was aborted.'));
     });
   }
 

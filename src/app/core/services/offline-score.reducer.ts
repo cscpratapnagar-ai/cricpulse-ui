@@ -11,9 +11,12 @@ export function offlineQueueIdentityError(
   activeInningsId: string,
 ): string | null {
   if (!activeMatchId || !activeInningsId) return 'The active match or innings identity is missing.';
-  if (command.matchId !== activeMatchId) return 'The queued delivery belongs to a different match or has no verified match identity.';
-  if (command.inningsId !== activeInningsId) return 'The queued delivery belongs to a different innings.';
-  if (command.payload?.inningsId !== activeInningsId) return 'The queued delivery payload innings does not match its queue record.';
+  if (command.matchId !== activeMatchId)
+    return 'The queued delivery belongs to a different match or has no verified match identity.';
+  if (command.inningsId !== activeInningsId)
+    return 'The queued delivery belongs to a different innings.';
+  if (command.payload?.inningsId !== activeInningsId)
+    return 'The queued delivery payload innings does not match its queue record.';
   return null;
 }
 
@@ -43,7 +46,11 @@ export function projectOfflineDelivery(score: LiveScore, command: QueuedDelivery
   if (command.matchId && score.matchId && command.matchId !== score.matchId) {
     throw new Error('The pending delivery belongs to a different match.');
   }
-  if (command.inningsId !== score.inningsId || score.inningsId !== p.inningsId || score.status !== 'LIVE') {
+  if (
+    command.inningsId !== score.inningsId ||
+    score.inningsId !== p.inningsId ||
+    score.status !== 'LIVE'
+  ) {
     throw new Error('The saved innings is not available for offline scoring.');
   }
   if (p.strikerId !== score.strikerId || p.nonStrikerId !== score.nonStrikerId) {
