@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { API_BASE_URL, API_ORIGIN } from '../../../../core/config/api.config';
@@ -62,6 +63,7 @@ interface SponsorReport {
 export class BroadcastControlComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
+  private readonly sanitizer = inject(DomSanitizer);
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
   copied = '';
   selectedResolution = '1080p';
@@ -85,6 +87,10 @@ export class BroadcastControlComponent {
     const params = new URL(this.autoUrl());
     params.searchParams.set('previewRefresh', String(this.previewRefreshToken));
     return params.toString();
+  }
+
+  previewSafeUrl(): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.previewUrl());
   }
 
   refreshPreview() {
