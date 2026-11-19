@@ -43,9 +43,7 @@ describe('AdminUsersComponent', () => {
   it('sends a role update to the protected admin API', () => {
     const fixture = TestBed.createComponent(AdminUsersComponent);
     fixture.detectChanges();
-    http
-      .expectOne((req) => req.url === `${API_BASE_URL}/admin/users`)
-      .flush([]);
+    http.expectOne((req) => req.url === `${API_BASE_URL}/admin/users`).flush([]);
 
     const user = {
       id: 'user-2',
