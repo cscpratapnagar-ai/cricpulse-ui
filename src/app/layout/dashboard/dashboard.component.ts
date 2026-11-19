@@ -36,6 +36,7 @@ export class DashboardComponent {
     { label: 'Leaderboards', group: 'Intelligence', route: '/leaderboards', icon: '↗' },
     { label: 'Notifications', group: 'Activity center', route: '/notifications', icon: '♢' },
     { label: 'Settings', group: 'Workspace', route: '/settings', icon: '⚙' },
+    { label: 'User & Roles', group: 'Platform administration', route: '/admin/users', icon: '♙' },
   ];
   sidebarOpen = false;
   workspaceOpen = false;
@@ -86,6 +87,10 @@ export class DashboardComponent {
     }
   }
 
+  get isAdmin() {
+    return this.user?.role?.toUpperCase() === 'ADMIN';
+  }
+
   get hasWorkspaceManagementAccess() {
     return !!this.team?.canManage || this.user?.role?.toUpperCase() === 'ADMIN';
   }
@@ -114,9 +119,11 @@ export class DashboardComponent {
   }
 
   private get accessibleCommandItems() {
-    return this.hasWorkspaceAccess
-      ? this.commandItems
-      : this.commandItems.filter((item) => ['Dashboard', 'Teams', 'Settings'].includes(item.label));
+    return this.commandItems.filter((item) => {
+      if (item.label === 'User & Roles') return this.isAdmin;
+      if (this.hasWorkspaceAccess) return true;
+      return ['Dashboard', 'Teams', 'Settings'].includes(item.label);
+    });
   }
 
   openCommand() {

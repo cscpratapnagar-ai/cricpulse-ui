@@ -93,6 +93,12 @@
           ><i>◇</i><span>Teams</span><b class="count">01</b></a
         ><a routerLink="/players" routerLinkActive="active"><i>♙</i><span>Players</span></a
         ><a routerLink="/tournaments" routerLinkActive="active"><i>♜</i><span>Tournaments</span></a>
+        @if (isAdmin) {
+          <div class="nav-label"><span>PLATFORM</span></div>
+          <a routerLink="/admin/users" routerLinkActive="active"
+            ><i>♙</i><span>User &amp; Roles</span></a
+          >
+        }
         <div class="nav-label"><span>INTELLIGENCE</span></div>
         @if (hasWorkspaceAccess) {
           <a routerLink="/analytics" routerLinkActive="active"

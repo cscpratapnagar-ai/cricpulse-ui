@@ -44,6 +44,8 @@ import { TournamentScheduleComponent } from './features/tournaments/pages/schedu
 import { TournamentDetailComponent } from './features/tournaments/pages/tournament-detail/tournament-detail.component';
 import { TournamentsComponent } from './features/tournaments/pages/tournament-list/tournaments.component';
 import { authGuard } from './core/auth/auth';
+import { adminGuard } from './core/routing/admin.guard';
+import { AdminUsersComponent } from './features/admin/pages/users/admin-users.component';
 import {
   canAccessLiveScoring,
   canAccessMatchOpening,
@@ -100,6 +102,7 @@ const dashboardChildren: Routes = [
   { path: 'analytics', component: AnalyticsComponent },
   { path: 'leaderboards', component: LeaderboardsComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'admin/users', component: AdminUsersComponent, canActivate: [adminGuard] },
   { path: 'notifications', component: NotificationsComponent },
   { path: 'account', component: AccountProfileComponent },
   { path: 'ui-states', component: StateGalleryComponent },
