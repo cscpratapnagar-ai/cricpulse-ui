@@ -1,88 +1,125 @@
 <section class="page">
-  <a class="back" [routerLink]="['/tournaments', id]">← Tournament</a>
+  <a class="back" [routerLink]="['/tournaments', id]">← Tournament command center</a>
+
   @if (loading) {
-    <section class="card state">Loading qualification preview…</section>
+    <section class="surface state" role="status" aria-live="polite">
+      <span class="loader" aria-hidden="true"></span>
+      <div><strong>Loading playoff workspace</strong><p>Fetching standings and confirmed fixtures…</p></div>
+    </section>
   } @else if (preview) {
-    <header class="hero card">
-      <div>
-        <span class="eyebrow">CRICPULSE · PLAYOFF ENGINE</span>
-        <h1>Qualification</h1>
-        <p>Current projection from the live points table.</p>
+    <header class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">CRICPULSE · TOURNAMENT INTELLIGENCE</span>
+        <h1>Playoff <span>bracket</span></h1>
+        <p>Follow the road from league qualification to the tournament final.</p>
       </div>
-      <span class="badge">{{ preview.eligible ? 'TOP 4' : 'NOT READY' }}</span>
+      <div class="hero-mark" aria-hidden="true">🏆</div>
     </header>
-    <div class="notice" [class.warn]="!preview.eligible">{{ preview.message }}</div>
-    @if (preview.eligible) {
-      <section class="bracket">
-        <article class="card playoff">
-          <span class="eyebrow">QUALIFIER 1</span>
-          <h2>#1 {{ preview.qualifiers[0].higherSeed.teamName }}</h2>
-          <div class="vs">vs</div>
-          <h2>#4 {{ preview.qualifiers[0].lowerSeed.teamName }}</h2>
-          <small>Current seeds · no matches created</small>
-        </article>
-        <article class="card playoff">
-          <span class="eyebrow">QUALIFIER 2</span>
-          <h2>#2 {{ preview.qualifiers[1].higherSeed.teamName }}</h2>
-          <div class="vs">vs</div>
-          <h2>#3 {{ preview.qualifiers[1].lowerSeed.teamName }}</h2>
-          <small>Current seeds · no matches created</small>
-        </article>
+
+    <section class="control surface" aria-label="Playoff progression controls">
+      <div class="control-copy">
+        <span class="eyebrow">STAGE PROGRESSION</span>
+        <strong>{{ leagueComplete ? 'League stage completed' : 'League stage in progress' }}</strong>
+        <p>{{ leagueComplete ? 'All league fixtures are complete. An authorised organiser can generate or advance the playoff bracket.' : 'Complete every league fixture before generating the playoff bracket.' }}</p>
+      </div>
+      <button type="button" class="primary" [disabled]="!canProgress" (click)="syncPlayoffs()">
+        {{ progressBusy ? 'Updating bracket…' : 'Generate / advance playoffs' }}
+        <span aria-hidden="true">→</span>
+      </button>
+    </section>
+
+    @if (progressMessage) {
+      <div class="feedback success" role="status">{{ progressMessage }}</div>
+    }
+    @if (error) {
+      <div class="feedback error" role="alert">{{ error }}</div>
+    }
+    @if (!preview.eligible) {
+      <div class="feedback warning">{{ preview.message }}</div>
+    }
+
+    @if (championName) {
+      <section class="champion surface" aria-live="polite">
+        <span class="champion-icon" aria-hidden="true">🏆</span>
+        <div><span class="eyebrow">TOURNAMENT CHAMPION</span><h2>{{ championName }}</h2><p>Confirmed from the completed Final result.</p></div>
       </section>
     }
-    <section class="card panel">
-      <div class="head">
-        <div>
-          <span class="eyebrow">LIVE STANDINGS</span>
-          <h2>Qualification order</h2>
-        </div>
+
+    <section class="bracket-shell" aria-label="Tournament playoff bracket">
+      <div class="section-heading">
+        <div><span class="eyebrow">KNOCKOUT ROADMAP</span><h2>Top-four playoff</h2></div>
+        <span class="stage-count">{{ fixtures.length }} total fixtures</span>
+      </div>
+
+      <div class="bracket-grid">
+        @for (stage of stages; track stage.key) {
+          <article class="stage surface" [class.final-stage]="stage.key === 'FINAL'">
+            <div class="stage-top">
+              <span class="stage-number">{{ stage.number }}</span>
+              <span class="stage-status" [class.complete]="fixtureStatus(stage.key) === 'COMPLETED'">{{ fixtureStatus(stage.key) }}</span>
+            </div>
+            <span class="eyebrow">{{ stageTitle(stage.key) }}</span>
+            <div class="teams">
+              @for (team of teamNames(stage.key); track $index) {
+                <div class="team-row" [class.winner]="winnerName(stage.key) === team && winnerName(stage.key) !== ''">
+                  <span>{{ team }}</span>
+                  @if (winnerName(stage.key) === team && winnerName(stage.key) !== '') {
+                    <span class="winner-tag">WINNER</span>
+                  }
+                </div>
+              }
+            </div>
+            <p class="stage-hint">{{ stage.hint }}</p>
+            @if (winnerName(stage.key)) {
+              <div class="winner-result"><span>ADVANCES</span><strong>{{ winnerName(stage.key) }}</strong></div>
+            }
+            @if (fixtureRoute(stage.key); as route) {
+              <a class="match-link" [routerLink]="route">Open match centre <span>↗</span></a>
+            } @else {
+              <span class="pending-link">Waiting for previous stage</span>
+            }
+          </article>
+        }
+      </div>
+      <p class="bracket-note">Bracket positions are projected until the backend confirms the fixture. Winners are shown only from completed match results.</p>
+    </section>
+
+    <section class="standings surface">
+      <div class="section-heading">
+        <div><span class="eyebrow">LEAGUE PHASE</span><h2>Qualification standings</h2></div>
+        <span class="qualified-count">{{ preview.eligible ? 'TOP 4 QUALIFICATION' : 'QUALIFICATION PENDING' }}</span>
       </div>
       @if (preview.table.length) {
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>TEAM</th>
-                <th>P</th>
-                <th>W</th>
-                <th>L</th>
-                <th>PTS</th>
-                <th>NRR</th>
-              </tr>
-            </thead>
+            <thead><tr><th>#</th><th>TEAM</th><th>P</th><th>W</th><th>L</th><th>NR</th><th>PTS</th><th>NRR</th></tr></thead>
             <tbody>
-              @for (p of preview.table; track p.teamId; let i = $index) {
+              @for (team of preview.table; track team.teamId; let i = $index) {
                 <tr [class.qualified]="preview.eligible && i < 4">
-                  <td>{{ i + 1 }}</td>
-                  <td>
-                    <strong>{{ p.teamName }}</strong>
-                  </td>
-                  <td>{{ p.played }}</td>
-                  <td>{{ p.wins }}</td>
-                  <td>{{ p.losses }}</td>
-                  <td>{{ p.points }}</td>
-                  <td>{{ p.nrr | number: '1.3-3' }}</td>
+                  <td><span class="rank">{{ i + 1 }}</span></td>
+                  <td><strong>{{ team.teamName }}</strong></td>
+                  <td>{{ team.played }}</td><td>{{ team.wins }}</td><td>{{ team.losses }}</td>
+                  <td>{{ team.noResults ?? 0 }}</td><td class="points">{{ team.points }}</td>
+                  <td>{{ team.nrr | number: '1.3-3' }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
       } @else {
-        <p class="muted">
-          No standings yet. Complete tournament matches to build qualification order.
-        </p>
+        <p class="empty">Standings will appear when tournament results are recorded.</p>
       }
     </section>
-    <div class="actions">
-      <a [routerLink]="['/tournaments', id]">Tournament Control →</a
-      ><a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures →</a>
+
+    <div class="footer-actions">
+      <a [routerLink]="['/tournaments', id, 'schedule']">View fixture schedule</a>
+      <a [routerLink]="['/tournaments', id]">Back to tournament control</a>
     </div>
   } @else {
-    <section class="card state">
-      <h2>Qualification unavailable</h2>
-      <p>{{ error || 'Unable to load qualification data.' }}</p>
-      <a [routerLink]="['/tournaments', id]">Back to tournament →</a>
+    <section class="surface state error-state" role="alert">
+      <h2>Playoff workspace unavailable</h2>
+      <p>{{ error || 'Tournament data could not be loaded.' }}</p>
+      <button type="button" class="secondary" (click)="load()">Try again</button>
     </section>
   }
 </section>
