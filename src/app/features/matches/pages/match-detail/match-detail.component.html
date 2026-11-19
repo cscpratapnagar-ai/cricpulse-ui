@@ -299,6 +299,70 @@
       </article>
     </section>
 
+
+    <section class="panel matchup-panel" aria-labelledby="matchup-title">
+      <div class="panel-head matchup-head">
+        <div>
+          <span class="kicker">MATCH INTELLIGENCE V3</span>
+          <h2 id="matchup-title">Batter vs bowler matchups</h2>
+          <p class="matchup-intro">Actual delivery-by-delivery numbers from this fixture.</p>
+        </div>
+        <span class="matchup-count">{{ matchups.length }} PAIRS</span>
+      </div>
+
+      @if (matchupsLoading) {
+        <div class="matchup-loading" role="status" aria-label="Loading matchup statistics">
+          <span></span><span></span><span></span>
+        </div>
+      } @else if (matchupsError) {
+        <div class="matchup-empty" role="status">
+          <b>Matchup data unavailable</b>
+          <span>We could not load this match's delivery breakdown. Try again after refreshing the page.</span>
+        </div>
+      } @else if (matchups.length === 0) {
+        <div class="matchup-empty">
+          <b>No matchup data yet</b>
+          <span>Recorded deliveries will build batter-versus-bowler statistics as the match progresses.</span>
+        </div>
+      } @else {
+        <div class="matchup-grid">
+          @for (matchup of matchups; track matchup.batterId + '-' + matchup.bowlerId) {
+            <article class="matchup-card">
+              <div class="matchup-names">
+                <div>
+                  <span>BATTER</span>
+                  <strong [title]="matchup.batterName">{{ matchup.batterName }}</strong>
+                </div>
+                <span class="matchup-versus">VS</span>
+                <div class="bowler-name">
+                  <span>BOWLER</span>
+                  <strong [title]="matchup.bowlerName">{{ matchup.bowlerName }}</strong>
+                </div>
+              </div>
+              <div class="matchup-primary">
+                <div><strong>{{ matchup.runs }}</strong><span>RUNS</span></div>
+                <div><strong>{{ matchup.ballsFaced }}</strong><span>BALLS</span></div>
+                <div><strong>{{ matchup.strikeRate | number: '1.0-2' }}</strong><span>STRIKE RATE</span></div>
+              </div>
+              <div class="matchup-secondary">
+                <span>{{ matchup.fours }} fours</span>
+                <span>{{ matchup.sixes }} sixes</span>
+                <span>{{ matchup.dotBalls }} dots</span>
+                <span>{{ matchup.dismissals }} dismissals</span>
+              </div>
+              <div class="matchup-foot">
+                <span>{{ matchup.dotBallPercentage | number: '1.0-1' }}% dot balls</span>
+                <span class="matchup-sample">{{ matchup.sampleLabel }}</span>
+              </div>
+            </article>
+          }
+        </div>
+        <p class="matchup-disclaimer">
+          Based on deliveries recorded in this match only. Early samples are descriptive, not a reliable prediction of future performance.
+        </p>
+      }
+    </section>
+
     <section class="lower-grid">
       <article class="panel next-panel">
         <div class="panel-head">
