@@ -170,6 +170,22 @@
       </section>
     }
   } @else if (isLive) {
+    @if (connectionState$ | async; as connectionState) {
+      <div
+        class="connection-notice"
+        role="status"
+        aria-live="polite"
+        [class.connected]="connectionState === 'CONNECTED'"
+        [class.reconnecting]="connectionState === 'RECONNECTING' || connectionState === 'CONNECTING'"
+        [class.error]="connectionState === 'ERROR'"
+      >
+        <span class="connection-indicator"></span>
+        <div>
+          <strong>{{ connectionLabel(connectionState) }}</strong>
+          <small>{{ connectionMessage(connectionState) }}</small>
+        </div>
+      </div>
+    }
     @if (score$ | async; as score) {
       @if (score) {
         <section class="score-card">
