@@ -95,7 +95,9 @@
         ><a routerLink="/tournaments" routerLinkActive="active"><i>♜</i><span>Tournaments</span></a>
         @if (isAdmin) {
           <div class="nav-label"><span>PLATFORM</span></div>
-          <a routerLink="/admin/users" routerLinkActive="active"><i>♙</i><span>User &amp; Roles</span></a>
+          <a routerLink="/admin/users" routerLinkActive="active"
+            ><i>♙</i><span>User &amp; Roles</span></a
+          >
         }
         <div class="nav-label"><span>INTELLIGENCE</span></div>
         @if (hasWorkspaceAccess) {
