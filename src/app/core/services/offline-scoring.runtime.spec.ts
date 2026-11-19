@@ -1,5 +1,8 @@
 import { LiveScore } from './live-score.service';
-import { restoreOfflineQueueProjection } from './offline-score.reducer';
+import {
+  offlineDeliveryMatchesRecentBall,
+  restoreOfflineQueueProjection,
+} from './offline-score.reducer';
 import { OfflineScoringStore, QueuedDelivery } from './offline-scoring.store';
 
 /**
@@ -215,4 +218,83 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       deviceB.commandId,
     ]);
   });
+
+  it('reconciles a lost POST response by exact command ID after reconnect and atomically acknowledges it', async () => {
+    const runId = `runtime-lost-response-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const command = delivery(`${runId}-command`, matchId, inningsId, 400, {
+      batRuns: 4,
+      ballNumber: 1,
+    });
+    await store.saveSnapshot(score(inningsId, matchId));
+    await store.enqueue(command);
+
+    // The server committed the POST, but the browser lost its response. On
+    // reconnect, the authoritative GET contains the original command ID.
+    const serverBall = {
+      deliveryId: command.commandId,
+      overNumber: 0,
+      ballNumber: 1,
+      strikerId: 'batter-1',
+      nonStrikerId: 'batter-2',
+      bowlerId: 'bowler-1',
+      batRuns: 4,
+      extraRuns: 0,
+      extraType: null,
+      wicketType: null,
+      legalDelivery: true,
+      totalRuns: 4,
+    };
+    const authoritative = {
+      ...score(inningsId, matchId),
+      runs: 4,
+      legalBalls: 1,
+      recentBalls: [serverBall],
+    };
+
+    const restartedStore = new OfflineScoringStore();
+    const pending = await restartedStore.list(inningsId);
+    expect(pending).toEqual([jasmine.objectContaining({ commandId: command.commandId })]);
+    expect(offlineDeliveryMatchesRecentBall(pending[0], serverBall)).toBeTrue();
+
+    await restartedStore.acknowledgeDelivery(command.commandId, authoritative);
+
+    expect(await restartedStore.list(inningsId)).toEqual([]);
+    expect(await restartedStore.loadSnapshot(inningsId)).toEqual(authoritative);
+  });
+
+  it('does not clear a pending command when the reconnect snapshot contains a different delivery ID', async () => {
+    const runId = `runtime-unmatched-response-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const command = delivery(`${runId}-queued-command`, matchId, inningsId, 500, {
+      batRuns: 2,
+      ballNumber: 1,
+    });
+    await store.enqueue(command);
+
+    const unrelatedServerBall = {
+      deliveryId: `${runId}-different-command`,
+      overNumber: 0,
+      ballNumber: 1,
+      strikerId: 'batter-1',
+      nonStrikerId: 'batter-2',
+      bowlerId: 'bowler-1',
+      batRuns: 2,
+      extraRuns: 0,
+      extraType: null,
+      wicketType: null,
+      legalDelivery: true,
+      totalRuns: 2,
+    };
+    const restartedStore = new OfflineScoringStore();
+    const pending = await restartedStore.list(inningsId);
+
+    expect(offlineDeliveryMatchesRecentBall(pending[0], unrelatedServerBall)).toBeFalse();
+    expect(await restartedStore.list(inningsId)).toEqual([
+      jasmine.objectContaining({ commandId: command.commandId }),
+    ]);
+  });
+
 });
