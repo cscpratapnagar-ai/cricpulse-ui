@@ -31,6 +31,17 @@ describe('TournamentDetailComponent', () => {
     component.staffBusy = false;
     component.staffError = '';
     component.staffMessage = '';
+    component.managerPanelOpen = false;
+    component.tournamentManagers = [];
+    component.managerCandidates = [];
+    component.managerSearch = '';
+    component.selectedManagerCandidateId = '';
+    component.managerLoading = false;
+    component.managerSearching = false;
+    component.managerBusy = false;
+    component.managerError = '';
+    component.managerMessage = '';
+    component.canManageManagers = false;
     (component as any).staffRoles = [
       { value: 'SCORER', label: 'Scorer' },
       { value: 'STREAMER', label: 'Broadcast operator' },
@@ -113,6 +124,77 @@ describe('TournamentDetailComponent', () => {
     );
     expect(component.staffMessage).toContain('Broadcast Operator assigned');
     expect(component.staffBusy).toBeFalse();
+  });
+
+  it('loads tournament managers and the owner-only management capability', () => {
+    const component = createComponent();
+    const managers = [
+      {
+        tournamentId: 't-1',
+        userId: 'u-2',
+        fullName: 'Tournament Manager',
+        email: 'manager@example.com',
+        role: 'MANAGER' as const,
+        assignedAt: '2026-11-19T10:00:00Z',
+      },
+    ];
+    (component as any).http.get.and.returnValue(of({ managers, canManage: true }));
+
+    component.toggleManagerPanel();
+
+    expect((component as any).http.get).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1/staff',
+    );
+    expect(component.tournamentManagers).toEqual(managers);
+    expect(component.canManageManagers).toBeTrue();
+    expect(component.managerPanelOpen).toBeTrue();
+  });
+
+  it('searches only after at least two characters are entered', () => {
+    const component = createComponent();
+    component.managerSearch = 'a';
+
+    component.searchManagerCandidates();
+
+    expect(component.managerError).toContain('at least 2 characters');
+    expect((component as any).http.get).not.toHaveBeenCalled();
+  });
+
+  it('assigns a selected registered user as tournament manager', () => {
+    const component = createComponent();
+    component.selectedManagerCandidateId = 'u-3';
+    (component as any).http.put.and.returnValue(of({}));
+    (component as any).http.get.and.returnValue(of({ managers: [], canManage: true }));
+
+    component.assignTournamentManager();
+
+    expect((component as any).http.put).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1/staff/manager',
+      { userId: 'u-3' },
+    );
+    expect(component.managerMessage).toContain('access granted');
+    expect(component.managerBusy).toBeFalse();
+  });
+
+  it('removes a delegated tournament manager through the owner-scoped API', () => {
+    const component = createComponent();
+    const manager = {
+      tournamentId: 't-1',
+      userId: 'u-4',
+      fullName: 'Former Manager',
+      email: 'former@example.com',
+      role: 'MANAGER' as const,
+      assignedAt: '2026-11-19T10:00:00Z',
+    };
+    (component as any).http.delete.and.returnValue(of({}));
+    (component as any).http.get.and.returnValue(of({ managers: [], canManage: true }));
+
+    component.removeTournamentManager(manager);
+
+    expect((component as any).http.delete).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1/staff/manager/u-4',
+    );
+    expect(component.managerMessage).toContain('no longer has tournament manager access');
   });
 
   it('routes each fixture to the correct next operator action', () => {
