@@ -5,6 +5,7 @@ import {
   LiveScoringV2Component,
   isScorerLeaseConflict,
   resolveScorerLeaseToken,
+  requiresWicketFielder,
   shouldRecoverLiveScoreAfterSocketConnect,
 } from './live-scoring.component';
 
@@ -22,6 +23,21 @@ describe('LiveScoringV2Component', () => {
       'HIT_BALL_TWICE',
       'OBSTRUCTING_THE_FIELD',
     ]);
+  });
+});
+
+describe('fielding attribution requirements', () => {
+  it('requires a selected fielder for caught, run-out and stumped dismissals', () => {
+    expect(requiresWicketFielder('CAUGHT')).toBeTrue();
+    expect(requiresWicketFielder('RUN_OUT')).toBeTrue();
+    expect(requiresWicketFielder('STUMPED')).toBeTrue();
+  });
+
+  it('does not require a fielder for other dismissal types', () => {
+    expect(requiresWicketFielder('BOWLED')).toBeFalse();
+    expect(requiresWicketFielder('LBW')).toBeFalse();
+    expect(requiresWicketFielder('HIT_WICKET')).toBeFalse();
+    expect(requiresWicketFielder(null)).toBeFalse();
   });
 });
 
