@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   NavigationCancel,
   NavigationEnd,
@@ -19,19 +19,20 @@ import { LoadingService } from './core/services/loading.service';
 })
 export class AppComponent {
   readonly loading = inject(LoadingService);
+  readonly navigationPending = signal(false);
   private readonly router = inject(Router);
 
   constructor() {
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationStart) {
-        this.loading.start();
+        this.navigationPending.set(true);
       }
       if (
         event instanceof NavigationEnd ||
         event instanceof NavigationCancel ||
         event instanceof NavigationError
       ) {
-        this.loading.stop();
+        this.navigationPending.set(false);
       }
     });
   }
