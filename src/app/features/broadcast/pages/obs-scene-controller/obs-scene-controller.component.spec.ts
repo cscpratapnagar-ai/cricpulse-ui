@@ -328,6 +328,7 @@ describe('ObsSceneControllerComponent', () => {
       recentBalls: [{ deliveryId: 'd-2', totalRuns: 6, legalDelivery: true }],
     });
     await Promise.resolve();
+    await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledWith('Six');
     expect(component.automationStatus).toContain('Six');
     fixture.destroy();
@@ -382,6 +383,70 @@ describe('ObsSceneControllerComponent', () => {
     ).acceptAutomationMessage(message);
     expect(component['previousAutomationScore']).toBeNull();
   });
+  it('serializes rapid automation events and applies only the latest requested scene', async () => {
+    const fixture = TestBed.createComponent(ObsSceneControllerComponent);
+    const component = fixture.componentInstance;
+    component.automationEnabled = true;
+    component.currentScene = 'Camera';
+    let finishFirst!: () => void;
+    obs.switchScene.and.callFake((sceneName: string) => {
+      if (sceneName === 'Wicket') return new Promise<void>((resolve) => (finishFirst = resolve));
+      return Promise.resolve();
+    });
+    const runAutomation = (
+      component as unknown as {
+        runAutomationScene: (scene: string, label: string) => Promise<void>;
+      }
+    ).runAutomationScene.bind(component);
+
+    const first = runAutomation('Wicket', 'Wicket');
+    await Promise.resolve();
+    const latest = runAutomation('Six', 'Six');
+
+    expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
+    finishFirst();
+    await first;
+    await latest;
+
+    expect(obs.switchScene.calls.allArgs()).toEqual([['Wicket'], ['Six']]);
+    expect(component.currentScene).toBe('Six');
+    expect(component.automationStatus).toContain('Six');
+    fixture.destroy();
+  });
+
+  it('prevents an in-flight automation response from overwriting a manual scene choice', async () => {
+    const fixture = TestBed.createComponent(ObsSceneControllerComponent);
+    const component = fixture.componentInstance;
+    component.automationEnabled = true;
+    component.currentScene = 'Camera';
+    let finishAutomation!: () => void;
+    obs.switchScene.and.callFake((sceneName: string) => {
+      if (sceneName === 'Wicket')
+        return new Promise<void>((resolve) => (finishAutomation = resolve));
+      return Promise.resolve();
+    });
+    obs.currentScene.and.resolveTo('Manual');
+    const runAutomation = (
+      component as unknown as {
+        runAutomationScene: (scene: string, label: string) => Promise<void>;
+      }
+    ).runAutomationScene.bind(component);
+
+    const automation = runAutomation('Wicket', 'Wicket');
+    await Promise.resolve();
+    component.selectedScene = 'Manual';
+    const manual = component.switchScene();
+    finishAutomation();
+    await automation;
+    await manual;
+
+    expect(obs.switchScene.calls.allArgs()).toEqual([['Wicket'], ['Manual']]);
+    expect(component.currentScene).toBe('Manual');
+    expect(component.automationStatus).not.toContain('Auto switched');
+    expect(component['automationReturnTimer']).toBeUndefined();
+    fixture.destroy();
+  });
+
   it('reports connection failures and resets scene state', async () => {
     obs.connect.and.rejectWith(new Error('Connection refused'));
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
