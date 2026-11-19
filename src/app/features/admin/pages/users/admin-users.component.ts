@@ -71,11 +71,9 @@ export class AdminUsersComponent implements OnInit {
     this.savingUserId.set(user.id);
     this.error.set('');
     this.notice.set('');
-    this.http
-      .patch<AdminUser>(`${API_BASE_URL}/admin/users/${user.id}/role`, {
-        role: user.role,
-      })
-      .subscribe({
+    this.http.patch<AdminUser>(`${API_BASE_URL}/admin/users/${user.id}/role`, {
+      role: user.role,
+    }).subscribe({
         next: (updated) => {
           this.users.update((users) =>
             users.map((item) => (item.id === updated.id ? updated : item)),
