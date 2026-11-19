@@ -1,9 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, finalize, of, timeout } from 'rxjs';
 
-import { API_BASE_URL } from '../../core/config/api.config';
+import { API_BASE_URL, API_ORIGIN } from '../../core/config/api.config';
 import { CurrentUserService } from '../../core/services/current-user.service';
+
+export type DashboardSystemHealth = 'checking' | 'operational' | 'degraded' | 'unavailable';
 
 export interface DashboardTeam {
   id: string;
@@ -23,12 +25,39 @@ export class DashboardService {
   private readonly workspacesState = signal<DashboardTeam[]>([]);
   private readonly teamLoadingState = signal(false);
   private readonly teamErrorState = signal(false);
+  private readonly systemHealthState = signal<DashboardSystemHealth>('checking');
+  private readonly systemHealthLoadingState = signal(false);
 
   readonly user = computed(() => this.currentUserService.user());
   readonly team = this.teamState.asReadonly();
   readonly workspaces = this.workspacesState.asReadonly();
   readonly teamLoading = this.teamLoadingState.asReadonly();
   readonly teamError = this.teamErrorState.asReadonly();
+  readonly systemHealth = this.systemHealthState.asReadonly();
+  readonly systemHealthLoading = this.systemHealthLoadingState.asReadonly();
+
+  loadSystemHealth(): void {
+    if (this.systemHealthLoadingState()) return;
+
+    this.systemHealthLoadingState.set(true);
+    this.systemHealthState.set('checking');
+
+    this.http
+      .get<{ status?: string }>(`${API_ORIGIN}/actuator/health`)
+      .pipe(
+        timeout(8000),
+        catchError((error: { error?: { status?: string } }) => {
+          this.systemHealthState.set(error.error?.status === 'DOWN' ? 'degraded' : 'unavailable');
+          return of(null);
+        }),
+        finalize(() => this.systemHealthLoadingState.set(false)),
+      )
+      .subscribe((health) => {
+        if (health) {
+          this.systemHealthState.set(health.status === 'UP' ? 'operational' : 'degraded');
+        }
+      });
+  }
 
   loadWorkspace(): void {
     if (this.teamLoadingState()) return;
