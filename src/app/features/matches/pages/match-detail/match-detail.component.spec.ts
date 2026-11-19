@@ -57,6 +57,13 @@ describe('MatchDetailComponent', () => {
     expect(component.bowlingSpellsError).toBe(false);
   });
 
+  it('formats dismissal labels for bowling wicket events', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+
+    expect(component.dismissalLabel('RUN_OUT')).toBe('RUN OUT');
+    expect(component.dismissalLabel('HIT_WICKET')).toBe('HIT WICKET');
+  });
+
   it('returns no tactical readout before intelligence data is available', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.intelligence = null;
