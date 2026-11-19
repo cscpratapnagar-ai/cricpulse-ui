@@ -134,6 +134,35 @@ describe('ObsWebSocketService', () => {
     expect(service.connected).toBeFalse();
   });
 
+  it('ignores a stale socket close after a replacement connection is established', async () => {
+    await connectService();
+    const staleSocket = socket;
+    const staleClose = staleSocket.onclose;
+    service.disconnect();
+
+    socket = new FakeWebSocket('ws://127.0.0.1:4455');
+    (window.WebSocket as unknown as jasmine.Spy).and.returnValue(socket as unknown as WebSocket);
+    await connectService();
+
+    const currentScene = service.currentScene();
+    const request = socket.lastRequest();
+    staleClose?.({} as CloseEvent);
+
+    expect(service.connected).toBeTrue();
+
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: true, code: 100 },
+        responseData: { currentProgramSceneName: 'Camera' },
+      },
+    });
+
+    await expectAsync(currentScene).toBeResolvedTo('Camera');
+    expect(service.connected).toBeTrue();
+  });
+
   it('publishes external program scene changes from OBS events', async () => {
     await connectService();
     const changed: string[] = [];

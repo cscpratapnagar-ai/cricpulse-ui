@@ -55,13 +55,15 @@ export class ObsWebSocketService {
           ),
         );
       socket.onclose = () => {
+        if (this.socket !== socket) {
+          fail(new Error('OBS connection was superseded.'));
+          return;
+        }
         clearTimeout(handshakeTimeout);
         this.identified = false;
         this.rejectPending(new Error('OBS connection closed.'));
-        if (this.socket === socket) {
-          this.socket = undefined;
-          this.connectionLost$.next('OBS connection closed. Reconnect to restore scene control.');
-        }
+        this.socket = undefined;
+        this.connectionLost$.next('OBS connection closed. Reconnect to restore scene control.');
         fail(new Error('OBS closed the connection. Verify the password and WebSocket settings.'));
       };
       socket.onmessage = async (event) => {
