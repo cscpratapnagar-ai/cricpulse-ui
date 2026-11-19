@@ -16,6 +16,13 @@ interface Match {
   teamBName?: string;
 }
 
+interface TacticalInsight {
+  title: string;
+  signal: string;
+  explanation: string;
+  tone: 'positive' | 'caution' | 'neutral';
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -127,6 +134,89 @@ export class MatchDetailComponent {
       return 'Momentum is accelerating based on the recent scoring phase.';
     if (value.momentumScore <= 35) return 'Momentum has softened across the recent scoring phase.';
     return 'Match conditions are currently balanced across the latest recorded phase.';
+  }
+
+  tacticalInsights(): TacticalInsight[] {
+    const value = this.intelligence;
+    if (!value) return [];
+
+    const isChase = value.requiredRuns !== null && value.requiredRate !== null;
+    const battingSignal = isChase
+      ? value.requiredRate! > value.recentRunRate + 2
+        ? 'Scoring acceleration needed'
+        : value.requiredRate! > value.recentRunRate
+          ? 'Build scoring pressure'
+          : 'Rate is currently manageable'
+      : value.projectedScore !== null
+        ? `Pace indicator: ${value.projectedScore} runs`
+        : 'More scoring data needed';
+    const battingExplanation = isChase
+      ? value.requiredRate! > value.recentRunRate + 2
+        ? 'The required rate is more than two runs per over above the recent rate. Boundary options and strike rotation both matter.'
+        : value.requiredRate! > value.recentRunRate
+          ? 'The required rate is above the recent rate. Keep the innings moving and avoid allowing dot-ball clusters to build.'
+          : 'The recent scoring rate is meeting the chase demand. Preserve wickets while maintaining the current tempo.'
+      : value.projectedScore !== null
+        ? 'This is a pace-based projection using the recent scoring rate, not a guaranteed final score.'
+        : 'A projection will become available after enough legal deliveries are recorded.';
+    const battingTone: TacticalInsight['tone'] = isChase && value.requiredRate! > value.recentRunRate + 2
+      ? 'caution'
+      : 'neutral';
+
+    const bowlingSignal = value.recentWickets >= 2
+      ? 'Recent wickets create an opportunity'
+      : value.recentDots >= 5
+        ? 'Dot-ball pressure is building'
+        : value.recentFours + value.recentSixes >= 3
+          ? 'Boundary control is the priority'
+          : 'Stay disciplined';
+    const bowlingExplanation = value.recentWickets >= 2
+      ? 'Two or more wickets have fallen in the recent sample. Keep plans simple and make the incoming batter earn the scoring options.'
+      : value.recentDots >= 5
+        ? 'At least five dot deliveries appear in the recent sample. Maintain line and length rather than forcing a risky change.'
+        : value.recentFours + value.recentSixes >= 3
+          ? 'The recent sample contains several boundaries. Review the scoring areas and adjust line, length or field with the captain.'
+          : 'The recent sample does not show a dominant wicket or boundary pattern. Continue executing the current plan.';
+    const bowlingTone: TacticalInsight['tone'] = value.recentWickets >= 2 || value.recentDots >= 5
+      ? 'positive'
+      : value.recentFours + value.recentSixes >= 3
+        ? 'caution'
+        : 'neutral';
+
+    const pressureSignal = value.collapseRisk >= 70
+      ? 'High wicket-risk signal'
+      : value.pressureIndex >= 70
+        ? 'High pressure signal'
+        : value.momentumScore >= 75
+          ? 'Momentum favours the batting side'
+          : value.momentumScore <= 35
+            ? 'Momentum has softened'
+            : 'No dominant pressure signal';
+    const pressureExplanation = value.collapseRisk >= 70
+      ? 'The recent wicket and dot-ball indicators are elevated. Protect the next partnership and reduce avoidable risk.'
+      : value.pressureIndex >= 70
+        ? 'The current pressure indicators are elevated. Reassess the required rate, wickets in hand and recent scoring pattern together.'
+        : value.momentumScore >= 75
+          ? 'Recent scoring indicators are strong. The bowling side may need to interrupt rhythm with a clear field and bowling plan.'
+          : value.momentumScore <= 35
+            ? 'Recent scoring indicators have slowed. Rotate strike and look for low-risk scoring options.'
+            : 'Current indicators are relatively balanced. Re-evaluate after the next meaningful scoring phase.';
+
+    return [
+      { title: 'Batting approach', signal: battingSignal, explanation: battingExplanation, tone: battingTone },
+      { title: 'Bowling opportunity', signal: bowlingSignal, explanation: bowlingExplanation, tone: bowlingTone },
+      {
+        title: 'Match pressure',
+        signal: pressureSignal,
+        explanation: pressureExplanation,
+        tone: value.collapseRisk >= 70 || value.pressureIndex >= 70 ? 'caution' : 'neutral',
+      },
+    ];
+  }
+
+  intelligenceSampleLabel(): string {
+    const count = this.intelligence?.recentDeliveries ?? 0;
+    return count >= 8 ? 'RECENT SAMPLE' : 'LIMITED SAMPLE';
   }
 
   displayMatchTitle(value?: string): string {
