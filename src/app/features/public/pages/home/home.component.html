@@ -14,6 +14,32 @@
       <a routerLink="/matches/new" class="primary">Create match <b>→</b></a>
     </div>
   </header>
+  @if (dashboard.error() || dashboard.refreshing()) {
+    <div class="dashboard-data-status" role="status" aria-live="polite">
+      <div>
+        @if (dashboard.refreshing()) {
+          <strong>Refreshing workspace data…</strong>
+        } @else {
+          <strong>Some dashboard data could not be updated.</strong>
+        }
+        @if (dashboard.matchesError()) {
+          <span>Matches unavailable.</span>
+        }
+        @if (dashboard.teamsError()) {
+          <span>Teams unavailable.</span>
+        }
+        @if (dashboard.playerCountError()) {
+          <span>Player count unavailable.</span>
+        }
+        @if (dashboard.error()) {
+          <span>Your last available data is still shown.</span>
+        }
+      </div>
+      <button type="button" (click)="dashboard.load()" [disabled]="dashboard.refreshing()">
+        {{ dashboard.refreshing() ? 'Refreshing…' : 'Retry refresh' }}
+      </button>
+    </div>
+  }
   <div class="ambient ambient-a"></div>
   <div class="ambient ambient-b"></div>
   <section class="overview">
