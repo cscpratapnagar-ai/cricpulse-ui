@@ -49,6 +49,25 @@ describe('TeamsComponent', () => {
     expect(component.loading).toBeFalse();
   });
 
+  it('preserves the current team workspace when a background refresh fails', () => {
+    const http = (component as any).http;
+    const existing = [{ id: 'team-1', name: 'First XI', ownerId: 'owner-1' }];
+    component.teams = existing;
+    component.activeTeam = existing[0];
+    component.activeTeamId = existing[0].id;
+    (component as any).hasLoaded = true;
+    spyOn(http, 'get').and.returnValue(throwError(() => new Error('offline')));
+
+    component.loadTeams();
+
+    expect(component.teams).toBe(existing);
+    expect(component.activeTeam?.id).toBe('team-1');
+    expect(component.refreshError).toBeTrue();
+    expect(component.error).toBeFalse();
+    expect(component.loading).toBeFalse();
+    expect(component.refreshing).toBeFalse();
+  });
+
   it('persists selection and navigates to the selected team', () => {
     const router = TestBed.inject(Router);
     const team = { id: 'team-7', name: 'Cricket Club', ownerId: 'owner-1' };
