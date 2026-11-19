@@ -87,10 +87,9 @@ describe('DashboardService workspace selection', () => {
 
   it('reports degraded when the health endpoint returns DOWN', () => {
     service.loadSystemHealth();
-    http.expectOne(`${API_ORIGIN}/actuator/health`).flush(
-      { status: 'DOWN' },
-      { status: 503, statusText: 'Service Unavailable' },
-    );
+    http
+      .expectOne(`${API_ORIGIN}/actuator/health`)
+      .flush({ status: 'DOWN' }, { status: 503, statusText: 'Service Unavailable' });
 
     expect(service.systemHealth()).toBe('degraded');
     expect(service.systemHealthLoading()).toBeFalse();
