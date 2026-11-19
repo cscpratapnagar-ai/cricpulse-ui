@@ -491,3 +491,46 @@ ol b {
     flex-direction: column;
   }
 }
+
+.profile-manager {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--cp-border);
+  border-radius: 12px;
+  background: var(--cp-surface-hover);
+}
+.profile-controls {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) auto auto;
+  align-items: end;
+  gap: 10px;
+}
+.profile-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.profile-controls input,
+.profile-controls select {
+  width: 100%;
+  min-width: 0;
+}
+.profile-controls button {
+  min-height: 40px;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .profile-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .profile-controls {
+    grid-template-columns: 1fr;
+  }
+  .profile-controls button {
+    width: 100%;
+  }
+}
