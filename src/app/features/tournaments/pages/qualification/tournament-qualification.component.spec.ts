@@ -7,10 +7,54 @@ describe('TournamentQualificationComponent', () => {
     eligible: true,
     message: 'Top four teams are projected.',
     table: [
-      { teamId: 't1', teamName: 'Titans', played: 3, wins: 3, losses: 0, ties: 0, points: 6, runsFor: 300, runsAgainst: 210, nrr: 1.5 },
-      { teamId: 't2', teamName: 'Riders', played: 3, wins: 2, losses: 1, ties: 0, points: 4, runsFor: 260, runsAgainst: 230, nrr: 0.5 },
-      { teamId: 't3', teamName: 'Kings', played: 3, wins: 1, losses: 2, ties: 0, points: 2, runsFor: 220, runsAgainst: 250, nrr: -0.5 },
-      { teamId: 't4', teamName: 'Warriors', played: 3, wins: 0, losses: 3, ties: 0, points: 0, runsFor: 190, runsAgainst: 280, nrr: -1.5 },
+      {
+        teamId: 't1',
+        teamName: 'Titans',
+        played: 3,
+        wins: 3,
+        losses: 0,
+        ties: 0,
+        points: 6,
+        runsFor: 300,
+        runsAgainst: 210,
+        nrr: 1.5,
+      },
+      {
+        teamId: 't2',
+        teamName: 'Riders',
+        played: 3,
+        wins: 2,
+        losses: 1,
+        ties: 0,
+        points: 4,
+        runsFor: 260,
+        runsAgainst: 230,
+        nrr: 0.5,
+      },
+      {
+        teamId: 't3',
+        teamName: 'Kings',
+        played: 3,
+        wins: 1,
+        losses: 2,
+        ties: 0,
+        points: 2,
+        runsFor: 220,
+        runsAgainst: 250,
+        nrr: -0.5,
+      },
+      {
+        teamId: 't4',
+        teamName: 'Warriors',
+        played: 3,
+        wins: 0,
+        losses: 3,
+        ties: 0,
+        points: 0,
+        runsFor: 190,
+        runsAgainst: 280,
+        nrr: -1.5,
+      },
     ],
     qualifiers: [],
   };
@@ -93,22 +137,21 @@ describe('TournamentQualificationComponent', () => {
       'Qualifier 1 loser',
       'Eliminator winner',
     ]);
-    expect(component.projectedTeams('FINAL')).toEqual([
-      'Qualifier 1 winner',
-      'Qualifier 2 winner',
-    ]);
+    expect(component.projectedTeams('FINAL')).toEqual(['Qualifier 1 winner', 'Qualifier 2 winner']);
   });
 
   it('loads qualification standings and persisted tournament fixtures together', () => {
     const component = createComponent();
     const fixtures = [fixture('QUALIFIER_1', 'q1')];
-    (component as any).http.get.and.returnValues(of({ status: 'ACTIVE' }), of(preview), of(fixtures));
+    (component as any).http.get.and.returnValues(
+      of({ status: 'ACTIVE' }),
+      of(preview),
+      of(fixtures),
+    );
 
     component.load();
 
-    expect((component as any).http.get).toHaveBeenCalledWith(
-      'http://api.test/api/tournaments/t-1',
-    );
+    expect((component as any).http.get).toHaveBeenCalledWith('http://api.test/api/tournaments/t-1');
     expect((component as any).http.get).toHaveBeenCalledWith(
       'http://api.test/api/tournaments/t-1/qualification',
     );

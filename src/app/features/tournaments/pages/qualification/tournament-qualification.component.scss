@@ -124,7 +124,9 @@
   font-size: 13px;
   font-weight: 850;
   cursor: pointer;
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 
 .primary:not(:disabled):hover,
@@ -490,7 +492,9 @@ tr.qualified .rank,
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 760px) {

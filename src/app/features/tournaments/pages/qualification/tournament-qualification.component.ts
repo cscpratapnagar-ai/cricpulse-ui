@@ -26,7 +26,10 @@ interface Qualifier {
   lowerSeed: Point;
 }
 
-interface TournamentSummary { status: string; name?: string; }
+interface TournamentSummary {
+  status: string;
+  name?: string;
+}
 
 interface Preview {
   eligible: boolean;
@@ -103,19 +106,30 @@ export class TournamentQualificationComponent {
   }
 
   get leagueComplete(): boolean {
-    return this.leagueFixtures.length > 0 &&
-      this.leagueFixtures.every((fixture) => fixture.status === 'COMPLETED');
+    return (
+      this.leagueFixtures.length > 0 &&
+      this.leagueFixtures.every((fixture) => fixture.status === 'COMPLETED')
+    );
   }
 
   get canProgress(): boolean {
-    return Boolean(this.preview?.eligible && this.tournamentStatus === 'ACTIVE' && this.leagueComplete && !this.progressBusy);
+    return Boolean(
+      this.preview?.eligible &&
+        this.tournamentStatus === 'ACTIVE' &&
+        this.leagueComplete &&
+        !this.progressBusy,
+    );
   }
 
   get championName(): string {
     const championId = this.progress?.championTeamId;
     const final = this.fixtureFor('FINAL');
     if (championId && final) {
-      return final.teamAId === championId ? final.teamAName : final.teamBId === championId ? final.teamBName : '';
+      return final.teamAId === championId
+        ? final.teamAName
+        : final.teamBId === championId
+          ? final.teamBName
+          : '';
     }
     return this.winnerName('FINAL');
   }
@@ -148,18 +162,22 @@ export class TournamentQualificationComponent {
     this.progressBusy = true;
     this.error = '';
     this.progressMessage = '';
-    this.http.post<PlayoffProgress>(`${this.api}/tournaments/${this.id}/playoffs/progress`, null).subscribe({
-      next: (response) => {
-        this.progress = response;
-        this.progressMessage = response.message || 'Playoff progression updated.';
-        this.progressBusy = false;
-        this.load();
-      },
-      error: (e) => {
-        this.error = e?.error?.message || 'Unable to progress playoff stages. Check tournament access and match results.';
-        this.progressBusy = false;
-      },
-    });
+    this.http
+      .post<PlayoffProgress>(`${this.api}/tournaments/${this.id}/playoffs/progress`, null)
+      .subscribe({
+        next: (response) => {
+          this.progress = response;
+          this.progressMessage = response.message || 'Playoff progression updated.';
+          this.progressBusy = false;
+          this.load();
+        },
+        error: (e) => {
+          this.error =
+            e?.error?.message ||
+            'Unable to progress playoff stages. Check tournament access and match results.';
+          this.progressBusy = false;
+        },
+      });
   }
 
   fixtureFor(stage: PlayoffStage): Fixture | undefined {
@@ -177,8 +195,10 @@ export class TournamentQualificationComponent {
 
   projectedTeams(stage: PlayoffStage): [string, string] {
     const seeds = this.preview?.table ?? [];
-    if (stage === 'QUALIFIER_1') return [seeds[0]?.teamName ?? '1st place', seeds[1]?.teamName ?? '2nd place'];
-    if (stage === 'ELIMINATOR') return [seeds[2]?.teamName ?? '3rd place', seeds[3]?.teamName ?? '4th place'];
+    if (stage === 'QUALIFIER_1')
+      return [seeds[0]?.teamName ?? '1st place', seeds[1]?.teamName ?? '2nd place'];
+    if (stage === 'ELIMINATOR')
+      return [seeds[2]?.teamName ?? '3rd place', seeds[3]?.teamName ?? '4th place'];
     if (stage === 'QUALIFIER_2') return ['Qualifier 1 loser', 'Eliminator winner'];
     return ['Qualifier 1 winner', 'Qualifier 2 winner'];
   }
@@ -208,9 +228,11 @@ export class TournamentQualificationComponent {
   }
 
   private loadCompletedMatchResults(): void {
-    for (const fixture of this.fixtures.filter((item) =>
-      ['QUALIFIER_1', 'ELIMINATOR', 'QUALIFIER_2', 'FINAL'].includes(this.normalizedStage(item.stage)) &&
-      item.status === 'COMPLETED'
+    for (const fixture of this.fixtures.filter(
+      (item) =>
+        ['QUALIFIER_1', 'ELIMINATOR', 'QUALIFIER_2', 'FINAL'].includes(
+          this.normalizedStage(item.stage),
+        ) && item.status === 'COMPLETED',
     )) {
       this.http.get<MatchResult>(`${this.api}/matches/${fixture.matchId}/result`).subscribe({
         next: (result) => {
