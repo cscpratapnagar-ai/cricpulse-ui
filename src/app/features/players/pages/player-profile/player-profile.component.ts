@@ -45,7 +45,7 @@ interface TrendPoint {
 interface PerformanceTrend {
   points: TrendPoint[];
 }
-interface Career {
+interface FieldingStatistics {\n  playerId: string;\n  playerName: string;\n  catches: number;\n  runOuts: number;\n  stumpings: number;\n  totalContributions: number;\n}\ninterface Career {
   playerId: string;
   playerName: string;
   matches: number;
