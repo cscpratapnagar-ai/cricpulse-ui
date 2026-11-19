@@ -3,6 +3,7 @@ import {
   buildOfflineQueueDiagnostics,
   DELIVERY_WICKET_OPTIONS,
   LiveScoringV2Component,
+  isScorerLeaseConflict,
   shouldRecoverLiveScoreAfterSocketConnect,
 } from './live-scoring.component';
 
@@ -20,6 +21,15 @@ describe('LiveScoringV2Component', () => {
       'HIT_BALL_TWICE',
       'OBSTRUCTING_THE_FIELD',
     ]);
+  });
+});
+
+describe('scorer lease conflict recovery', () => {
+  it('offers retry only for an active lease conflict', () => {
+    expect(isScorerLeaseConflict({ status: 409 })).toBeTrue();
+    expect(isScorerLeaseConflict({ status: 0 })).toBeFalse();
+    expect(isScorerLeaseConflict({ status: 403 })).toBeFalse();
+    expect(isScorerLeaseConflict(null)).toBeFalse();
   });
 });
 

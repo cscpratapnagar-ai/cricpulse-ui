@@ -54,6 +54,15 @@ interface XIPlayer {
   wicketKeeper: boolean;
 }
 
+export function isScorerLeaseConflict(error: unknown): boolean {
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    'status' in error &&
+    (error as { status?: unknown }).status === 409
+  );
+}
+
 export function shouldRecoverLiveScoreAfterSocketConnect(
   previousState: LiveSocketState,
   nextState: LiveSocketState,
@@ -253,6 +262,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private destroyed = false;
   private scorerLeaseToken = '';
   private scorerLeaseReady = false;
+  scorerLeaseConflict = false;
   private scorerLeaseRenewalTimer?: ReturnType<typeof setInterval>;
   private socketRecoveryInFlight = false;
 
@@ -860,6 +870,12 @@ export class LiveScoringV2Component implements OnDestroy {
     return value as T;
   }
 
+  retryScorerLease() {
+    if (!this.scorerLeaseConflict || !navigator.onLine || this.loading) return;
+    this.scorerLeaseConflict = false;
+    this.retrySessionLoad();
+  }
+
   retrySessionLoad() {
     if (!this.matchId) {
       this.matchId =
@@ -1040,6 +1056,7 @@ export class LiveScoringV2Component implements OnDestroy {
         }),
       );
       this.scorerLeaseReady = true;
+      this.scorerLeaseConflict = false;
       if (this.scorerLeaseRenewalTimer) clearInterval(this.scorerLeaseRenewalTimer);
       this.scorerLeaseRenewalTimer = setInterval(() => {
         if (!navigator.onLine || !this.inningsId || !this.scorerLeaseToken) return;
@@ -1049,6 +1066,7 @@ export class LiveScoringV2Component implements OnDestroy {
           }),
         ).catch((error) => {
           this.scorerLeaseReady = false;
+          this.scorerLeaseConflict = isScorerLeaseConflict(error);
           this.message =
             error?.error?.message ||
             'Scoring lease lost. Another scorer may have taken control; refresh before continuing.';
@@ -1057,6 +1075,7 @@ export class LiveScoringV2Component implements OnDestroy {
       }, 8000);
     } catch (error: any) {
       this.scorerLeaseReady = false;
+      this.scorerLeaseConflict = isScorerLeaseConflict(error);
       this.message =
         error?.error?.message ||
         'Another scorer currently controls this innings. This device is read-only until the lease is available.';
