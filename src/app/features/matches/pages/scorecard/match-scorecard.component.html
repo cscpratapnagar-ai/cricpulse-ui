@@ -154,7 +154,9 @@
                         b.out ? b.dismissal || 'Dismissed' : 'Not out'
                       }}</span>
                       @if (b.out && b.fielderName) {
-                        <small class="fielder-attribution">Fielder: {{ b.fielderName }}</small>
+                        <small class="fielder-attribution"
+                          >Fielder: {{ b.fielderName }}</small
+                        >
                       }
                     </td>
                     <td class="num runs">{{ b.runs }}</td>
@@ -287,7 +289,9 @@
                     <span><b>{{ fielder.runOuts }}</b> RO</span>
                     <span><b>{{ fielder.stumpings }}</b> ST</span>
                   </div>
-                  <strong class="fielding-total">{{ fielder.totalDismissalContributions }}</strong>
+                  <strong class="fielding-total">{{
+                    fielder.totalDismissalContributions
+                  }}</strong>
                 </article>
               }
             </div>
