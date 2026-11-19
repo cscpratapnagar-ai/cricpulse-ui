@@ -39,6 +39,18 @@ describe('fielding attribution requirements', () => {
     expect(requiresWicketFielder('HIT_WICKET')).toBeFalse();
     expect(requiresWicketFielder(null)).toBeFalse();
   });
+
+  it('offers only the bowling side Playing XI as fielder options', () => {
+    const component = Object.create(LiveScoringV2Component.prototype) as LiveScoringV2Component;
+    component.score = {} as any;
+    component.bowlingTeamId = 'team-b';
+    component.xi = [
+      { teamId: 'team-a', playerId: 'batter-1', name: 'Batter', captain: false, viceCaptain: false, wicketKeeper: false },
+      { teamId: 'team-b', playerId: 'fielder-1', name: 'Fielder', captain: false, viceCaptain: false, wicketKeeper: true },
+    ];
+
+    expect(component.fieldingOptions).toEqual([{ value: 'fielder-1', label: 'Fielder' }]);
+  });
 });
 
 describe('scorer lease token isolation across tabs', () => {
