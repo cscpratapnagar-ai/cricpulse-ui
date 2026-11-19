@@ -3,7 +3,11 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, distinctUntilChanged, filter, of, retry, switchMap, tap, timer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
+import {
+  LiveScore,
+  LiveScoreConnectionState,
+  LiveScoreService,
+} from '../../../../core/services/live-score.service';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 
 interface Match {
@@ -87,6 +91,7 @@ export class PublicLiveScoreComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly liveScore = inject(LiveScoreService);
+  readonly connectionState$ = this.liveScore.connectionState$;
   private readonly api = `${API_ORIGIN}/api`;
   readonly matchId = this.route.snapshot.paramMap.get('id') || '';
 
@@ -187,6 +192,36 @@ export class PublicLiveScoreComponent {
 
   runRate(score: LiveScore): string {
     return score.legalBalls ? (score.runs / (score.legalBalls / 6)).toFixed(2) : '0.00';
+  }
+
+  connectionLabel(state: LiveScoreConnectionState): string {
+    switch (state) {
+      case 'CONNECTED':
+        return 'LIVE UPDATES CONNECTED';
+      case 'RECONNECTING':
+        return 'RECONNECTING';
+      case 'ERROR':
+        return 'LIVE FEED INTERRUPTED';
+      case 'CONNECTING':
+        return 'CONNECTING TO LIVE SCORE';
+      default:
+        return 'LIVE FEED DISCONNECTED';
+    }
+  }
+
+  connectionMessage(state: LiveScoreConnectionState): string {
+    switch (state) {
+      case 'CONNECTED':
+        return 'Instant score updates are active.';
+      case 'RECONNECTING':
+        return 'Connection interrupted. Showing the last confirmed score while reconnecting.';
+      case 'ERROR':
+        return 'The live feed reported an error. Retrying automatically.';
+      case 'CONNECTING':
+        return 'Connecting to the current innings.';
+      default:
+        return 'The live score feed is not connected.';
+    }
   }
 
   statusLabel(score: LiveScore): string {
