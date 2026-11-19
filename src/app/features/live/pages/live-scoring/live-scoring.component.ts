@@ -1445,7 +1445,6 @@ export class LiveScoringV2Component implements OnDestroy {
           this.http.get<any>(`${this.api}/scoring/innings/${this.inningsId}`),
         ),
       );
-      await this.acquireScorerLease();
       this.applyScore(authoritative);
       await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
@@ -1465,6 +1464,7 @@ export class LiveScoringV2Component implements OnDestroy {
         return;
       }
 
+      await this.acquireScorerLease();
       for (const item of queue) {
         const identityError = offlineQueueIdentityError(item, this.matchId, this.inningsId);
         if (identityError) {
