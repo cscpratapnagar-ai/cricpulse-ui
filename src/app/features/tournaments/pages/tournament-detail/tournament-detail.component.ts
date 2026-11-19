@@ -234,7 +234,7 @@ export class TournamentDetailComponent {
     return this.fixtures.filter((x) => x.status === 'SCHEDULED').length;
   }
   get pending() {
-    return this.fixtures.length - this.completed - this.scheduled;
+    return this.fixtures.length - this.completed - this.scheduled - this.liveFixtures.length;
   }
   get completion() {
     return this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0;
