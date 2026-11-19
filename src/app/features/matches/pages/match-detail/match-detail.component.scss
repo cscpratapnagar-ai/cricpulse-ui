@@ -1940,3 +1940,263 @@
     transition: none;
   }
 }
+
+
+.bowling-panel {
+  margin-top: 16px;
+}
+.bowling-heading {
+  align-items: center;
+}
+.bowling-intro {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.bowling-count {
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .07em;
+}
+.bowling-spell-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 11px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--cp-text) 2%, var(--surface));
+  transition: border-color .2s ease, transform .2s ease;
+}
+.bowling-spell-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+}
+.bowling-spell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.bowling-spell-head > div:first-child {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.bowling-spell-head > div:first-child > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+.bowling-spell-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+.bowling-main-figures {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+.bowling-main-figures strong {
+  color: var(--accent);
+  font-size: 24px;
+  letter-spacing: -.04em;
+}
+.bowling-main-figures span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+}
+.bowling-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.bowling-metrics > div {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+}
+.bowling-metrics span {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .05em;
+}
+.bowling-metrics b {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 850;
+}
+.bowling-subsection {
+  display: grid;
+  gap: 9px;
+}
+.bowling-subsection h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 850;
+}
+.bowling-over-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bowling-over {
+  display: grid;
+  min-width: 105px;
+  gap: 5px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.bowling-over > span:first-child {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .05em;
+}
+.bowling-over strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+.bowling-over small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.bowling-over > span:not(:first-child) {
+  color: var(--muted);
+  font-size: 9px;
+}
+.bowling-over b,
+.bowling-over em {
+  color: var(--accent);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 850;
+}
+.bowling-wicket-list {
+  display: grid;
+  gap: 7px;
+}
+.bowling-wicket {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.bowling-wicket span {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bowling-wicket strong,
+.bowling-wicket small,
+.bowling-wicket em {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+.bowling-wicket em {
+  color: var(--accent);
+  font-style: normal;
+}
+.bowling-wicket em.not-credited {
+  color: var(--muted);
+}
+.bowling-disclaimer {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+.bowling-loading {
+  display: grid;
+  gap: 9px;
+  padding: 10px 0;
+}
+.bowling-loading span {
+  height: 64px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cp-text) 3%, transparent), color-mix(in srgb, var(--accent) 9%, transparent), color-mix(in srgb, var(--cp-text) 3%, transparent));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+.bowling-loading span:last-child {
+  width: 76%;
+}
+.bowling-empty {
+  display: grid;
+  min-height: 100px;
+  align-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.bowling-empty b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.bowling-empty span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+@media (max-width: 720px) {
+  .bowling-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bowling-wicket {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+@media (max-width: 480px) {
+  .bowling-panel {
+    padding: 16px;
+  }
+  .bowling-heading {
+    align-items: flex-start;
+  }
+  .bowling-count {
+    font-size: 8px;
+  }
+  .bowling-spell-card {
+    padding: 12px;
+  }
+  .bowling-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bowling-wicket {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .bowling-wicket em {
+    grid-column: 1 / -1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bowling-spell-card,
+  .bowling-loading span {
+    animation: none;
+    transition: none;
+  }
+}
