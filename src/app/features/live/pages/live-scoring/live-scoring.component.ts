@@ -105,8 +105,7 @@ export function appendAuthoritativeScoreDiagnostics(
       report,
       'Reconciliation reason: ' + reason,
       'Authoritative server snapshot: unavailable locally',
-    ].join('\
-');
+    ].join('\\n');
   }
   const recent = (score.recentBalls || []).map(
     (ball) =>
@@ -122,8 +121,7 @@ export function appendAuthoritativeScoreDiagnostics(
     'Recent authoritative balls (server response retention may be limited):',
     ...(recent.length ? recent : ['  none available']),
     'Important: this snapshot is diagnostic only. Confirm against the live server/official scorer before resolving or replaying retained commands.',
-  ].join('\
-');
+  ].join('\\n');
 }
 
 export function buildOfflineQueueDiagnostics(
@@ -183,8 +181,7 @@ export function buildOfflineQueueDiagnostics(
         `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
     ),
     'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
-  ].join('\
-');
+  ].join('\\n');
   return { items, conflictPositions, report };
 }
 
