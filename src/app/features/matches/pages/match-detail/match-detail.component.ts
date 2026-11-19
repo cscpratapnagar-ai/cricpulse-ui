@@ -119,6 +119,17 @@ interface BowlerSpell {
   wicketBreakdown: BowlerWicketEvent[];
 }
 
+interface FielderContribution {
+  inningsNumber: number;
+  bowlingTeam: string;
+  fielderId: string;
+  fielderName: string;
+  catches: number;
+  runOuts: number;
+  stumpings: number;
+  totalDismissalContributions: number;
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -173,7 +184,7 @@ export class MatchDetailComponent {
   partnershipsError = false;
   bowlingSpells: BowlerSpell[] = [];
   bowlingSpellsLoading = false;
-  bowlingSpellsError = false;
+  bowlingSpellsError = false;\n  fieldingAnalysis: FielderContribution[] = [];\n  fieldingAnalysisLoading = false;\n  fieldingAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -190,11 +201,11 @@ export class MatchDetailComponent {
         this.loadMatchups(id);
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
-        this.loadBowlingSpells(id);
+        this.loadBowlingSpells(id);\n        this.loadFieldingAnalysis(id);
         if (match.status === 'LIVE') {
           interval(10000)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => this.loadBowlingSpells(id));
+            .subscribe(() => {\n              this.loadBowlingSpells(id);\n              this.loadFieldingAnalysis(id);\n            });
         }
       },
       error: () => {
@@ -280,6 +291,23 @@ export class MatchDetailComponent {
         this.bowlingSpells = [];
         this.bowlingSpellsError = true;
         this.bowlingSpellsLoading = false;
+      },
+    });
+  }
+
+  private loadFieldingAnalysis(matchId: string): void {
+    if (this.fieldingAnalysisLoading) return;
+    this.fieldingAnalysisLoading = true;
+    this.fieldingAnalysisError = false;
+    this.http.get<FielderContribution[]>(`${this.api}/matches/${matchId}/fielding-analysis`).subscribe({
+      next: (value) => {
+        this.fieldingAnalysis = Array.isArray(value) ? value : [];
+        this.fieldingAnalysisLoading = false;
+      },
+      error: () => {
+        this.fieldingAnalysis = [];
+        this.fieldingAnalysisError = true;
+        this.fieldingAnalysisLoading = false;
       },
     });
   }
