@@ -11,11 +11,12 @@ describe('AppComponent', () => {
     }).compileComponents();
   });
 
-  it('should create and expose the loading service', () => {
+  it('exposes explicit global loading and independent navigation progress state', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.componentInstance;
 
     expect(component).toBeTruthy();
     expect(component.loading).toBe(TestBed.inject(LoadingService));
+    expect(component.navigationPending()).toBeFalse();
   });
 });
