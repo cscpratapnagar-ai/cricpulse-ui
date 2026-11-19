@@ -1,6 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -154,6 +156,7 @@ interface MatchIntelligence {
 export class MatchDetailComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = API_BASE_URL;
   loading = true;
   error = '';
@@ -188,6 +191,11 @@ export class MatchDetailComponent {
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
         this.loadBowlingSpells(id);
+        if (match.status === 'LIVE') {
+          interval(10000)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.loadBowlingSpells(id));
+        }
       },
       error: () => {
         this.match = null;
@@ -260,6 +268,7 @@ export class MatchDetailComponent {
   }
 
   private loadBowlingSpells(matchId: string): void {
+    if (this.bowlingSpellsLoading) return;
     this.bowlingSpellsLoading = true;
     this.bowlingSpellsError = false;
     this.http.get<BowlerSpell[]>(`${this.api}/matches/${matchId}/bowling-spells`).subscribe({
