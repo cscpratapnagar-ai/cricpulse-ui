@@ -27,6 +27,10 @@ interface Snapshot {
   sixes: number;
   bestScore?: string;
   bestBowling?: string;
+  catches?: number;
+  runOuts?: number;
+  stumpings?: number;
+  totalFieldingContributions?: number;
 }
 interface Comparison {
   left: Snapshot;
@@ -122,6 +126,15 @@ export class PlayerComparisonComponent implements OnInit {
       { label: 'AVERAGE', left: a.average, right: b.average, direction: 'higher' },
       { label: 'STRIKE RATE', left: a.strikeRate, right: b.strikeRate, direction: 'higher' },
       { label: 'WICKETS', left: a.wickets, right: b.wickets, direction: 'higher' },
+      {
+        label: 'FIELDING CONTRIBUTIONS',
+        left: a.totalFieldingContributions || 0,
+        right: b.totalFieldingContributions || 0,
+        direction: 'higher',
+      },
+      { label: 'CATCHES', left: a.catches || 0, right: b.catches || 0, direction: 'higher' },
+      { label: 'RUN-OUTS', left: a.runOuts || 0, right: b.runOuts || 0, direction: 'higher' },
+      { label: 'STUMPINGS', left: a.stumpings || 0, right: b.stumpings || 0, direction: 'higher' },
       { label: 'ECONOMY', left: a.economy, right: b.economy, direction: 'lower' },
     ];
   }
