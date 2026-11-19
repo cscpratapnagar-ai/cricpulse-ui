@@ -32,7 +32,7 @@ export class AdminUsersComponent implements OnInit {
   readonly query = signal('');
   readonly page = signal(0);
   readonly pageSize = 25;
-  readonly roles = ['ADMIN', 'PLAYER', 'SCORER', 'UMPIRE', 'COMMENTATOR', 'STREAMER'];
+  readonly roles = ['ADMIN', 'PLAYER', 'SCORER'];
 
   ngOnInit(): void {
     this.loadUsers();
