@@ -80,7 +80,11 @@ export function shouldRecoverLiveScoreAfterSocketConnect(
   return previousState !== 'CONNECTED' && nextState === 'CONNECTED' && hasLoadedScore;
 }
 
-export function requiresWicketFielder(wicketType: string | null | undefined): boolean {\n  return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(wicketType || '');\n}\n\nexport const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
+export function requiresWicketFielder(wicketType: string | null | undefined): boolean {
+  return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(wicketType || '');
+}
+
+export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
   { value: 'BOWLED', label: 'Bowled' },
   { value: 'CAUGHT', label: 'Caught' },
   { value: 'LBW', label: 'LBW' },
