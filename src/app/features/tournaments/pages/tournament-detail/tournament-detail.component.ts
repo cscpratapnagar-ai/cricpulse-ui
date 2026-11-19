@@ -41,6 +41,20 @@ interface Fixture {
   status: string;
   scheduledAt?: string | null;
 }
+type MatchStaffRole = 'SCORER' | 'UMPIRE' | 'COMMENTATOR' | 'STREAMER';
+interface MatchStaff {
+  matchId: string;
+  userId: string;
+  fullName: string;
+  email: string | null;
+  role: MatchStaffRole;
+  assignedAt: string;
+}
+interface StaffCandidate {
+  userId: string;
+  fullName: string;
+  email: string | null;
+}
 interface Point {
   teamId: string;
   teamName: string;
@@ -95,6 +109,23 @@ export class TournamentDetailComponent {
   points: Point[] = [];
   teamToAdd = '';
   matchToAdd = '';
+  staffPanelMatchId: string | null = null;
+  staffAssignments: MatchStaff[] = [];
+  staffCandidates: StaffCandidate[] = [];
+  staffSearch = '';
+  selectedStaffCandidateId = '';
+  selectedStaffRole: MatchStaffRole = 'SCORER';
+  staffLoading = false;
+  staffSearching = false;
+  staffBusy = false;
+  staffError = '';
+  staffMessage = '';
+  readonly staffRoles: { value: MatchStaffRole; label: string }[] = [
+    { value: 'SCORER', label: 'Scorer' },
+    { value: 'STREAMER', label: 'Broadcast operator' },
+    { value: 'UMPIRE', label: 'Umpire' },
+    { value: 'COMMENTATOR', label: 'Commentator' },
+  ];
   constructor() {
     if (this.id) this.load();
     else this.loading = false;
@@ -266,6 +297,109 @@ export class TournamentDetailComponent {
     return Number.isNaN(date.getTime())
       ? 'Schedule needs review'
       : date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+  toggleStaffPanel(fixture: Fixture) {
+    if (this.staffPanelMatchId === fixture.matchId) {
+      this.staffPanelMatchId = null;
+      return;
+    }
+    this.staffPanelMatchId = fixture.matchId;
+    this.staffAssignments = [];
+    this.staffCandidates = [];
+    this.staffSearch = '';
+    this.selectedStaffCandidateId = '';
+    this.staffError = '';
+    this.staffMessage = '';
+    this.loadMatchStaff(fixture.matchId);
+  }
+  loadMatchStaff(matchId = this.staffPanelMatchId) {
+    if (!matchId) return;
+    this.staffLoading = true;
+    this.staffError = '';
+    this.http.get<MatchStaff[]>(`${this.api}/matches/${matchId}/staff`).subscribe({
+      next: (staff) => {
+        if (this.staffPanelMatchId === matchId) this.staffAssignments = staff || [];
+        this.staffLoading = false;
+      },
+      error: (e) => {
+        this.staffLoading = false;
+        this.staffError = e?.status === 403
+          ? 'Only the tournament owner, team owner, manager or captain can manage match staff.'
+          : e?.error?.message || 'Unable to load assigned match staff.';
+      },
+    });
+  }
+  searchStaffCandidates() {
+    const matchId = this.staffPanelMatchId;
+    const query = this.staffSearch.trim();
+    if (!matchId) return;
+    if (query.length < 2) {
+      this.staffError = 'Enter at least 2 characters to search user accounts.';
+      return;
+    }
+    this.staffSearching = true;
+    this.staffError = '';
+    this.http.get<StaffCandidate[]>(
+      `${this.api}/matches/${matchId}/staff/candidates?q=${encodeURIComponent(query)}`,
+    ).subscribe({
+      next: (candidates) => {
+        this.staffCandidates = candidates || [];
+        this.selectedStaffCandidateId = this.staffCandidates[0]?.userId || '';
+        this.staffSearching = false;
+      },
+      error: (e) => {
+        this.staffSearching = false;
+        this.staffError = e?.error?.message || 'Unable to search user accounts.';
+      },
+    });
+  }
+  assignMatchStaff() {
+    const matchId = this.staffPanelMatchId;
+    if (!matchId || !this.selectedStaffCandidateId) {
+      this.staffError = 'Search and select a registered user account first.';
+      return;
+    }
+    this.staffBusy = true;
+    this.staffError = '';
+    this.staffMessage = '';
+    this.http.put<MatchStaff>(
+      `${this.api}/matches/${matchId}/staff/${this.selectedStaffRole.toLowerCase()}`,
+      { userId: this.selectedStaffCandidateId },
+    ).subscribe({
+      next: (assignment) => {
+        this.staffBusy = false;
+        this.staffMessage = `${assignment.fullName} assigned as ${this.staffRoleLabel(assignment.role)}.`;
+        this.selectedStaffCandidateId = '';
+        this.loadMatchStaff(matchId);
+      },
+      error: (e) => {
+        this.staffBusy = false;
+        this.staffError = e?.error?.message || 'Unable to assign match staff.';
+      },
+    });
+  }
+  removeMatchStaff(assignment: MatchStaff) {
+    const matchId = this.staffPanelMatchId;
+    if (!matchId) return;
+    this.staffBusy = true;
+    this.staffError = '';
+    this.staffMessage = '';
+    this.http.delete(
+      `${this.api}/matches/${matchId}/staff/${assignment.role.toLowerCase()}/${assignment.userId}`,
+    ).subscribe({
+      next: () => {
+        this.staffBusy = false;
+        this.staffMessage = `${assignment.fullName} removed from this match.`;
+        this.loadMatchStaff(matchId);
+      },
+      error: (e) => {
+        this.staffBusy = false;
+        this.staffError = e?.error?.message || 'Unable to remove match staff.';
+      },
+    });
+  }
+  staffRoleLabel(role: MatchStaffRole) {
+    return this.staffRoles.find((item) => item.value === role)?.label || role;
   }
   refresh() {
     this.loading = true;
