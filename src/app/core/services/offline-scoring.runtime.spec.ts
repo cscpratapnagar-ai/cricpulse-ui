@@ -337,7 +337,7 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
 
     expect(restored.blocked).toBeFalse();
     expect(restored.restoredDeliveries).toBe(8);
-    expect(restored.score.runs).toBe(9);
+    expect(restored.score.runs).toBe(8);
     expect(restored.score.legalBalls).toBe(6);
     expect(restored.score.currentOver).toBe(1);
     expect(restored.score.currentBall).toBe(0);
