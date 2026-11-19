@@ -6,7 +6,15 @@
       <p>Manage your cricket teams, squad entry points and active workspace from one place.</p>
     </div>
     <div class="head-actions">
-      <button class="secondary" type="button" (click)="loadTeams()" [disabled]="refreshing" aria-label="Refresh teams">↻ Refresh</button>
+      <button
+        class="secondary"
+        type="button"
+        (click)="loadTeams()"
+        [disabled]="refreshing"
+        aria-label="Refresh teams"
+      >
+        ↻ Refresh
+      </button>
       <span class="sync-state"><i></i> Workspace synced</span>
       <button class="primary" type="button" (click)="createTeam()">
         <span>+</span> Create team <b>→</b>
@@ -18,7 +26,10 @@
     <p role="status" aria-live="polite">Refreshing teams…</p>
   }
   @if (refreshError) {
-    <p role="alert">Could not refresh teams. Your previous data is still available. <button type="button" (click)="loadTeams()">Retry</button></p>
+    <p role="alert">
+      Could not refresh teams. Your previous data is still available.
+      <button type="button" (click)="loadTeams()">Retry</button>
+    </p>
   }
 
   <section class="workspace-strip" aria-label="Team workspace summary">
