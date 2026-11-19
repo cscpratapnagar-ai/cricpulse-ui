@@ -5,6 +5,7 @@ import {
   LiveScoringV2Component,
   isScorerLeaseConflict,
   resolveScorerLeaseToken,
+  requiresWicketFielder,
   shouldRecoverLiveScoreAfterSocketConnect,
 } from './live-scoring.component';
 
@@ -22,6 +23,61 @@ describe('LiveScoringV2Component', () => {
       'HIT_BALL_TWICE',
       'OBSTRUCTING_THE_FIELD',
     ]);
+  });
+});
+
+describe('fielding attribution requirements', () => {
+  it('requires a selected fielder for caught, run-out and stumped dismissals', () => {
+    expect(requiresWicketFielder('CAUGHT')).toBeTrue();
+    expect(requiresWicketFielder('RUN_OUT')).toBeTrue();
+    expect(requiresWicketFielder('STUMPED')).toBeTrue();
+  });
+
+  it('does not require a fielder for other dismissal types', () => {
+    expect(requiresWicketFielder('BOWLED')).toBeFalse();
+    expect(requiresWicketFielder('LBW')).toBeFalse();
+    expect(requiresWicketFielder('HIT_WICKET')).toBeFalse();
+    expect(requiresWicketFielder(null)).toBeFalse();
+  });
+
+  it('offers only the bowling side Playing XI as fielder options', () => {
+    const component = Object.create(LiveScoringV2Component.prototype) as LiveScoringV2Component;
+    component.score = {} as any;
+    component.bowlingTeamId = 'team-b';
+    component.xi = [
+      {
+        teamId: 'team-a',
+        playerId: 'batter-1',
+        name: 'Batter',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: false,
+      },
+      {
+        teamId: 'team-b',
+        playerId: 'fielder-1',
+        name: 'Fielder',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: true,
+      },
+      {
+        teamId: 'team-b',
+        playerId: 'fielder-2',
+        name: 'Cover',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: false,
+      },
+    ];
+    component.wicketType = 'RUN_OUT';
+    expect(component.fieldingOptions).toEqual([
+      { value: 'fielder-1', label: 'Fielder' },
+      { value: 'fielder-2', label: 'Cover' },
+    ]);
+
+    component.wicketType = 'STUMPED';
+    expect(component.fieldingOptions).toEqual([{ value: 'fielder-1', label: 'Fielder' }]);
   });
 });
 

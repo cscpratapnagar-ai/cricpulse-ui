@@ -80,6 +80,10 @@ export function shouldRecoverLiveScoreAfterSocketConnect(
   return previousState !== 'CONNECTED' && nextState === 'CONNECTED' && hasLoadedScore;
 }
 
+export function requiresWicketFielder(wicketType: string | null | undefined): boolean {
+  return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(wicketType || '');
+}
+
 export const DELIVERY_WICKET_OPTIONS: SelectOption[] = [
   { value: 'BOWLED', label: 'Bowled' },
   { value: 'CAUGHT', label: 'Caught' },
@@ -155,7 +159,7 @@ export function buildOfflineQueueDiagnostics(
     ]
       .filter(Boolean)
       .join(' · ');
-    const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
+    const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}${payload.wicketFielderId ? ` / Fielder ${payload.wicketFielderId}` : ''}`;
     return {
       commandId: item.commandId,
       position,
@@ -241,6 +245,7 @@ export class LiveScoringV2Component implements OnDestroy {
   wicketType = '';
   newBatterId = '';
   dismissedPlayerId = '';
+  wicketFielderId = '';
   wicketRuns = 0;
   wicketLegalDelivery = true;
   completionReason = '';
@@ -633,6 +638,21 @@ export class LiveScoringV2Component implements OnDestroy {
       .map((p) => ({ value: p.playerId, label: p.name }));
   }
 
+  get requiresFielder(): boolean {
+    return requiresWicketFielder(this.wicketType);
+  }
+
+  get fieldingOptions(): SelectOption[] {
+    if (!this.score) return [];
+    return this.xi
+      .filter(
+        (player) =>
+          player.teamId === this.bowlingTeamId &&
+          (this.wicketType !== 'STUMPED' || player.wicketKeeper),
+      )
+      .map((player) => ({ value: player.playerId, label: player.name }));
+  }
+
   get newBatterOptions(): SelectOption[] {
     if (!this.score || this.score.wickets >= 9) return [];
     const used = new Set([
@@ -657,6 +677,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.canDeliver) return this.validationHint;
     if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
       return 'Choose which batter was dismissed.';
+    if (this.requiresFielder && !this.wicketFielderId)
+      return 'Choose the fielder credited with this dismissal.';
     if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
       return 'Select a valid number of completed runs.';
     if (this.score && this.score.wickets < 9 && !this.newBatterId)
@@ -671,6 +693,7 @@ export class LiveScoringV2Component implements OnDestroy {
       return false;
     if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
       return false;
+    if (this.requiresFielder && !this.wicketFielderId) return false;
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
 
@@ -1920,6 +1943,7 @@ export class LiveScoringV2Component implements OnDestroy {
       this.wicketType = '';
       this.newBatterId = '';
       this.dismissedPlayerId = this.score?.strikerId || '';
+      this.wicketFielderId = '';
       this.wicketRuns = 0;
       this.wicketLegalDelivery = true;
     }
@@ -1938,6 +1962,7 @@ export class LiveScoringV2Component implements OnDestroy {
         ? this.dismissedPlayerId
         : this.score.strikerId,
       newBatterId: ten ? null : this.newBatterId,
+      wicketFielderId: this.requiresFielder ? this.wicketFielderId : null,
     });
     this.wicketOpen = false;
   }

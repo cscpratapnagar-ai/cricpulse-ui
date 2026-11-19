@@ -496,6 +496,14 @@
                       [(value)]="newBatterId"
                     />
                   }
+                  @if (requiresFielder) {
+                    <app-select-field
+                      label="Credited fielder"
+                      placeholder="Select bowling-side fielder"
+                      [options]="fieldingOptions"
+                      [(value)]="wicketFielderId"
+                    />
+                  }
                 </div>
                 <div class="drawer-grid wicket-runs">
                   <div>

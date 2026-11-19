@@ -119,6 +119,17 @@ interface BowlerSpell {
   wicketBreakdown: BowlerWicketEvent[];
 }
 
+interface FielderContribution {
+  inningsNumber: number;
+  bowlingTeam: string;
+  fielderId: string;
+  fielderName: string;
+  catches: number;
+  runOuts: number;
+  stumpings: number;
+  totalDismissalContributions: number;
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -174,6 +185,9 @@ export class MatchDetailComponent {
   bowlingSpells: BowlerSpell[] = [];
   bowlingSpellsLoading = false;
   bowlingSpellsError = false;
+  fieldingAnalysis: FielderContribution[] = [];
+  fieldingAnalysisLoading = false;
+  fieldingAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -191,10 +205,14 @@ export class MatchDetailComponent {
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
         this.loadBowlingSpells(id);
+        this.loadFieldingAnalysis(id);
         if (match.status === 'LIVE') {
           interval(10000)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => this.loadBowlingSpells(id));
+            .subscribe(() => {
+              this.loadBowlingSpells(id);
+              this.loadFieldingAnalysis(id);
+            });
         }
       },
       error: () => {
@@ -282,6 +300,25 @@ export class MatchDetailComponent {
         this.bowlingSpellsLoading = false;
       },
     });
+  }
+
+  private loadFieldingAnalysis(matchId: string): void {
+    if (this.fieldingAnalysisLoading) return;
+    this.fieldingAnalysisLoading = true;
+    this.fieldingAnalysisError = false;
+    this.http
+      .get<FielderContribution[]>(`${this.api}/matches/${matchId}/fielding-analysis`)
+      .subscribe({
+        next: (value) => {
+          this.fieldingAnalysis = Array.isArray(value) ? value : [];
+          this.fieldingAnalysisLoading = false;
+        },
+        error: () => {
+          this.fieldingAnalysis = [];
+          this.fieldingAnalysisError = true;
+          this.fieldingAnalysisLoading = false;
+        },
+      });
   }
 
   dismissalLabel(value: string): string {
