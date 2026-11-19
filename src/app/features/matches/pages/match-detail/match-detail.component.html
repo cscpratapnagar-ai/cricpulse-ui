@@ -274,7 +274,11 @@
             </div>
             <div class="tactical-grid">
               @for (insight of tacticalInsights(); track insight.title) {
-                <article class="tactical-card" [class.caution]="insight.tone === 'caution'" [class.positive]="insight.tone === 'positive'">
+                <article
+                  class="tactical-card"
+                  [class.caution]="insight.tone === 'caution'"
+                  [class.positive]="insight.tone === 'positive'"
+                >
                   <span class="tactical-title">{{ insight.title }}</span>
                   <strong>{{ insight.signal }}</strong>
                   <p>{{ insight.explanation }}</p>
@@ -282,7 +286,8 @@
               }
             </div>
             <p class="intelligence-disclaimer">
-              Rule-based insights from recorded match data. They are decision-support signals, not guaranteed outcomes or calibrated win probabilities.
+              Rule-based insights from recorded match data. They are decision-support signals, not
+              guaranteed outcomes or calibrated win probabilities.
             </p>
           </section>
         } @else {
