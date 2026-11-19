@@ -1,3 +1,4 @@
+import { throwError } from 'rxjs';
 import { MatchesComponent } from './matches.component';
 
 describe('MatchesComponent', () => {
@@ -6,6 +7,22 @@ describe('MatchesComponent', () => {
   }
 
   it('should expose the component class', () => expect(MatchesComponent).toBeTruthy());
+
+  it('keeps existing matches visible when a refresh fails', () => {
+    const component = createComponent();
+    const existing = [{ id: 'm1', name: 'Final', format: 'T20', status: 'LIVE', teamAId: 'a', teamBId: 'b' }];
+    component.matches = existing;
+    (component as any).hasLoaded = true;
+    (component as any).http = { get: () => throwError(() => new Error('offline')) };
+
+    component.load();
+
+    expect(component.matches).toBe(existing);
+    expect(component.refreshError).toBeTrue();
+    expect(component.error).toBeFalse();
+    expect(component.loading).toBeFalse();
+    expect(component.refreshing).toBeFalse();
+  });
 
   it('normalizes backend match statuses for the UI filters', () => {
     const component = createComponent();
