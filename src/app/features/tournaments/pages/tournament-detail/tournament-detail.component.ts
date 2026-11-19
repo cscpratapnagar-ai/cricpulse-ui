@@ -323,9 +323,10 @@ export class TournamentDetailComponent {
       },
       error: (e) => {
         this.staffLoading = false;
-        this.staffError = e?.status === 403
-          ? 'Only the tournament owner, team owner, manager or captain can manage match staff.'
-          : e?.error?.message || 'Unable to load assigned match staff.';
+        this.staffError =
+          e?.status === 403
+            ? 'Only the tournament owner, team owner, manager or captain can manage match staff.'
+            : e?.error?.message || 'Unable to load assigned match staff.';
       },
     });
   }
@@ -339,19 +340,21 @@ export class TournamentDetailComponent {
     }
     this.staffSearching = true;
     this.staffError = '';
-    this.http.get<StaffCandidate[]>(
-      `${this.api}/matches/${matchId}/staff/candidates?q=${encodeURIComponent(query)}`,
-    ).subscribe({
-      next: (candidates) => {
-        this.staffCandidates = candidates || [];
-        this.selectedStaffCandidateId = this.staffCandidates[0]?.userId || '';
-        this.staffSearching = false;
-      },
-      error: (e) => {
-        this.staffSearching = false;
-        this.staffError = e?.error?.message || 'Unable to search user accounts.';
-      },
-    });
+    this.http
+      .get<
+        StaffCandidate[]
+      >(`${this.api}/matches/${matchId}/staff/candidates?q=${encodeURIComponent(query)}`)
+      .subscribe({
+        next: (candidates) => {
+          this.staffCandidates = candidates || [];
+          this.selectedStaffCandidateId = this.staffCandidates[0]?.userId || '';
+          this.staffSearching = false;
+        },
+        error: (e) => {
+          this.staffSearching = false;
+          this.staffError = e?.error?.message || 'Unable to search user accounts.';
+        },
+      });
   }
   assignMatchStaff() {
     const matchId = this.staffPanelMatchId;
@@ -362,21 +365,23 @@ export class TournamentDetailComponent {
     this.staffBusy = true;
     this.staffError = '';
     this.staffMessage = '';
-    this.http.put<MatchStaff>(
-      `${this.api}/matches/${matchId}/staff/${this.selectedStaffRole.toLowerCase()}`,
-      { userId: this.selectedStaffCandidateId },
-    ).subscribe({
-      next: (assignment) => {
-        this.staffBusy = false;
-        this.staffMessage = `${assignment.fullName} assigned as ${this.staffRoleLabel(assignment.role)}.`;
-        this.selectedStaffCandidateId = '';
-        this.loadMatchStaff(matchId);
-      },
-      error: (e) => {
-        this.staffBusy = false;
-        this.staffError = e?.error?.message || 'Unable to assign match staff.';
-      },
-    });
+    this.http
+      .put<MatchStaff>(
+        `${this.api}/matches/${matchId}/staff/${this.selectedStaffRole.toLowerCase()}`,
+        { userId: this.selectedStaffCandidateId },
+      )
+      .subscribe({
+        next: (assignment) => {
+          this.staffBusy = false;
+          this.staffMessage = `${assignment.fullName} assigned as ${this.staffRoleLabel(assignment.role)}.`;
+          this.selectedStaffCandidateId = '';
+          this.loadMatchStaff(matchId);
+        },
+        error: (e) => {
+          this.staffBusy = false;
+          this.staffError = e?.error?.message || 'Unable to assign match staff.';
+        },
+      });
   }
   removeMatchStaff(assignment: MatchStaff) {
     const matchId = this.staffPanelMatchId;
@@ -384,19 +389,21 @@ export class TournamentDetailComponent {
     this.staffBusy = true;
     this.staffError = '';
     this.staffMessage = '';
-    this.http.delete(
-      `${this.api}/matches/${matchId}/staff/${assignment.role.toLowerCase()}/${assignment.userId}`,
-    ).subscribe({
-      next: () => {
-        this.staffBusy = false;
-        this.staffMessage = `${assignment.fullName} removed from this match.`;
-        this.loadMatchStaff(matchId);
-      },
-      error: (e) => {
-        this.staffBusy = false;
-        this.staffError = e?.error?.message || 'Unable to remove match staff.';
-      },
-    });
+    this.http
+      .delete(
+        `${this.api}/matches/${matchId}/staff/${assignment.role.toLowerCase()}/${assignment.userId}`,
+      )
+      .subscribe({
+        next: () => {
+          this.staffBusy = false;
+          this.staffMessage = `${assignment.fullName} removed from this match.`;
+          this.loadMatchStaff(matchId);
+        },
+        error: (e) => {
+          this.staffBusy = false;
+          this.staffError = e?.error?.message || 'Unable to remove match staff.';
+        },
+      });
   }
   staffRoleLabel(role: MatchStaffRole) {
     return this.staffRoles.find((item) => item.value === role)?.label || role;
