@@ -108,7 +108,10 @@ export class MatchDetailComponent {
   intelligence: MatchIntelligence | null = null;
   matchups: Matchup[] = [];
   matchupsLoading = false;
-  matchupsError = false;\n  phaseAnalysis: PhaseSummary[] = [];\n  phaseAnalysisLoading = false;\n  phaseAnalysisError = false;
+  matchupsError = false;
+  phaseAnalysis: PhaseSummary[] = [];
+  phaseAnalysisLoading = false;
+  phaseAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -122,7 +125,8 @@ export class MatchDetailComponent {
         this.match = match;
         this.loading = false;
         this.loadIntelligence(id);
-        this.loadMatchups(id);\n        this.loadPhaseAnalysis(id);
+        this.loadMatchups(id);
+        this.loadPhaseAnalysis(id);
       },
       error: () => {
         this.match = null;
