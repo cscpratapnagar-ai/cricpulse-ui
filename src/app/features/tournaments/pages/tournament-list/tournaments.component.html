@@ -3,12 +3,12 @@
     <div class="hero-copy">
       <div class="eyebrow-row">
         <i></i><span class="eyebrow">COMPETITION COMMAND CENTER</span
-        ><span class="live-sync">LIVE SYNC</span>
+        ><span class="live-sync">TOURNAMENT STATUS</span>
       </div>
       <h1>Tournaments<span>.</span></h1>
       <p>
-        Run every competition from setup to final. Monitor readiness, progress and operational
-        status from one workspace.
+        Run every competition from setup to final. Track tournament status and manage each competition
+        from one workspace.
       </p>
     </div>
     <div class="hero-actions">
@@ -59,40 +59,6 @@
       ><small>Competition structures used</small><i class="metric-mark">04</i>
     </article>
   </section>
-
-  @if (tournaments.length && !loading) {
-    <section class="card intelligence">
-      <div class="intel-head">
-        <div>
-          <span class="eyebrow">COMPETITION INTELLIGENCE</span>
-          <h2>Workspace health</h2>
-        </div>
-        <span class="health-badge"><i></i>{{ workspaceHealth }}% healthy</span>
-      </div>
-      <div class="intel-grid">
-        <div class="health-orb" [style.--health]="workspaceHealth">
-          <strong>{{ workspaceHealth }}%</strong><span>READY</span>
-        </div>
-        <div class="intel-copy">
-          <h3>{{ healthMessage }}</h3>
-          <p>
-            Competition signals are calculated from the current tournament lifecycle and workspace
-            activity.
-          </p>
-          <div class="signal-row">
-            <span><i class="ok"></i>{{ activeCount }} active</span
-            ><span><i></i>{{ upcomingCount }} upcoming</span
-            ><span><i class="muted"></i>{{ completedCount }} completed</span>
-          </div>
-        </div>
-        <div class="lifecycle">
-          <span class="eyebrow">LIFECYCLE COVERAGE</span>
-          <div class="life-track"><i [style.width.%]="workspaceHealth"></i></div>
-          <div class="life-labels"><span>SETUP</span><span>LIVE</span><span>FINAL</span></div>
-        </div>
-      </div>
-    </section>
-  }
 
   <section class="card directory">
     <div class="directory-top">
