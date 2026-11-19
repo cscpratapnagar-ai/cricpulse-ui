@@ -296,4 +296,65 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       jasmine.objectContaining({ commandId: command.commandId }),
     ]);
   });
+
+
+  it('restores wides and no-balls without advancing the legal-ball cursor across an over boundary', async () => {
+    const runId = `runtime-over-boundary-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const snapshot = score(inningsId, matchId);
+    const queue = [
+      delivery(`${runId}-wide`, matchId, inningsId, 600, {
+        ballNumber: 1,
+        extraType: 'WIDE',
+        extraRuns: 1,
+        legalDelivery: false,
+      }),
+      delivery(`${runId}-no-ball`, matchId, inningsId, 601, {
+        ballNumber: 2,
+        batRuns: 1,
+        extraType: 'NO_BALL',
+        extraRuns: 1,
+        legalDelivery: false,
+      }),
+      ...Array.from({ length: 6 }, (_, index) =>
+        delivery(`${runId}-legal-${index + 1}`, matchId, inningsId, 602 + index, {
+          ballNumber: index + 1,
+          batRuns: 1,
+        }),
+      ),
+    ];
+
+    await store.saveSnapshot(snapshot);
+    for (const item of queue) await store.enqueue(item);
+
+    const restartedStore = new OfflineScoringStore();
+    const restored = restoreOfflineQueueProjection(
+      (await restartedStore.loadSnapshot(inningsId))!,
+      await restartedStore.list(inningsId),
+      matchId,
+      inningsId,
+    );
+
+    expect(restored.blocked).toBeFalse();
+    expect(restored.restoredDeliveries).toBe(8);
+    expect(restored.score.runs).toBe(9);
+    expect(restored.score.legalBalls).toBe(6);
+    expect(restored.score.currentOver).toBe(1);
+    expect(restored.score.currentBall).toBe(0);
+    expect(restored.score.overs).toEqual([
+      jasmine.objectContaining({
+        overNumber: 0,
+        runs: 9,
+        legalBalls: 6,
+        wides: 1,
+        noBalls: 1,
+        completed: true,
+      }),
+    ]);
+    expect(restored.score.recentBalls?.map((ball) => ball.deliveryId)).toEqual(
+      queue.map((item) => item.commandId),
+    );
+  });
+
 });
