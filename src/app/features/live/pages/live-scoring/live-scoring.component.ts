@@ -161,7 +161,7 @@ export function buildOfflineQueueDiagnostics(
     ]
       .filter(Boolean)
       .join(' · ');
-    const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}`;
+    const identities = `Striker ${payload.strikerId} / Non-striker ${payload.nonStrikerId} / Bowler ${payload.bowlerId}${payload.wicketFielderId ? ` / Fielder ${payload.wicketFielderId}` : ''}`;
     return {
       commandId: item.commandId,
       position,
