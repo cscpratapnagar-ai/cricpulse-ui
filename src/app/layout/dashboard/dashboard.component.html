@@ -111,7 +111,10 @@
         aria-live="polite"
       >
         <span class="pulse" aria-hidden="true"></span>
-        <div><small>SYSTEM STATUS</small><strong>{{ systemHealthLabel }}</strong></div>
+        <div>
+          <small>SYSTEM STATUS</small>
+          <strong>{{ systemHealthLabel }}</strong>
+        </div>
         <button
           class="health-retry"
           type="button"
@@ -119,7 +122,9 @@
           title="Refresh system status"
           [disabled]="dashboard.systemHealthLoading()"
           (click)="dashboard.loadSystemHealth()"
-        >↻</button>
+        >
+          ↻
+        </button>
       </div>
       <a routerLink="/settings"><i>⚙</i><span>Settings</span><b>⌘,</b></a
       ><button (click)="logout()"><i>↪</i><span>Sign out</span></button>
