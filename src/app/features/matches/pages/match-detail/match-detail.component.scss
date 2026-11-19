@@ -1337,8 +1337,8 @@
 }
 
 .tactical-card.caution {
-  border-color: color-mix(in srgb, #d99a42 38%, var(--line));
-  background: color-mix(in srgb, #d99a42 6%, var(--surface));
+  border-color: color-mix(in srgb, var(--cp-warning, #d99a42) 38%, var(--line));
+  background: color-mix(in srgb, var(--cp-warning, #d99a42) 6%, var(--surface));
 }
 
 .tactical-title {
