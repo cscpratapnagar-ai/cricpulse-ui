@@ -226,11 +226,7 @@
               <div class="error-actions">
                 <span>{{ message }}</span>
                 @if (scorerLeaseConflict && connectionState !== 'OFFLINE') {
-                  <button
-                    type="button"
-                    (click)="retryScorerLease()"
-                    [disabled]="busy || loading"
-                  >
+                  <button type="button" (click)="retryScorerLease()" [disabled]="busy || loading">
                     Retry scorer control
                   </button>
                 }
