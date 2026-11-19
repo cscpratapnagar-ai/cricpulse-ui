@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { API_BASE_URL } from '../../core/config/api.config';
+import { API_BASE_URL, API_ORIGIN } from '../../core/config/api.config';
 import { DashboardService, DashboardTeam } from './dashboard.service';
 
 describe('DashboardService workspace selection', () => {
@@ -72,6 +72,35 @@ describe('DashboardService workspace selection', () => {
     expect(localStorage.getItem('cricketpulse_active_team_id')).toBe('team-member');
     expect(service.selectWorkspace('unknown-team')).toBeFalse();
     expect(service.team()).toEqual(workspaces[1]);
+  });
+
+  it('reports operational only when the live health endpoint returns UP', () => {
+    service.loadSystemHealth();
+
+    const request = http.expectOne(`${API_ORIGIN}/actuator/health`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ status: 'UP' });
+
+    expect(service.systemHealth()).toBe('operational');
+    expect(service.systemHealthLoading()).toBeFalse();
+  });
+
+  it('reports degraded when the health endpoint returns DOWN', () => {
+    service.loadSystemHealth();
+    http
+      .expectOne(`${API_ORIGIN}/actuator/health`)
+      .flush({ status: 'DOWN' }, { status: 503, statusText: 'Service Unavailable' });
+
+    expect(service.systemHealth()).toBe('degraded');
+    expect(service.systemHealthLoading()).toBeFalse();
+  });
+
+  it('reports unavailable when the health endpoint cannot be reached', () => {
+    service.loadSystemHealth();
+    http.expectOne(`${API_ORIGIN}/actuator/health`).error(new ProgressEvent('error'));
+
+    expect(service.systemHealth()).toBe('unavailable');
+    expect(service.systemHealthLoading()).toBeFalse();
   });
 
   it('keeps the previous workspace visible when a background reload fails', () => {

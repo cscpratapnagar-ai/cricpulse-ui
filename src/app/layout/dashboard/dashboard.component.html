@@ -104,9 +104,27 @@
       </nav>
     </div>
     <div class="sidebar-footer">
-      <div class="system-status">
-        <span class="pulse"></span>
-        <div><small>SYSTEM STATUS</small><strong>All systems operational</strong></div>
+      <div
+        class="system-status"
+        [attr.data-status]="dashboard.systemHealth()"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="pulse" aria-hidden="true"></span>
+        <div>
+          <small>SYSTEM STATUS</small>
+          <strong>{{ systemHealthLabel }}</strong>
+        </div>
+        <button
+          class="health-retry"
+          type="button"
+          aria-label="Refresh system status"
+          title="Refresh system status"
+          [disabled]="dashboard.systemHealthLoading()"
+          (click)="dashboard.loadSystemHealth()"
+        >
+          ↻
+        </button>
       </div>
       <a routerLink="/settings"><i>⚙</i><span>Settings</span><b>⌘,</b></a
       ><button (click)="logout()"><i>↪</i><span>Sign out</span></button>

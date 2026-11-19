@@ -42,6 +42,7 @@ export class DashboardComponent {
 
   constructor() {
     this.dashboard.loadWorkspace();
+    this.dashboard.loadSystemHealth();
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) this.closeSidebar();
     });
@@ -70,6 +71,19 @@ export class DashboardComponent {
 
   get hasWorkspaceAccess() {
     return !!this.team;
+  }
+
+  get systemHealthLabel() {
+    switch (this.dashboard.systemHealth()) {
+      case 'operational':
+        return 'All systems operational';
+      case 'degraded':
+        return 'Service degraded';
+      case 'unavailable':
+        return 'Status unavailable';
+      default:
+        return 'Checking system…';
+    }
   }
 
   get hasWorkspaceManagementAccess() {

@@ -433,9 +433,36 @@
   position: relative;
   width: 8px;
   height: 8px;
+  flex: none;
   border-radius: 50%;
   background: var(--cp-accent);
   box-shadow: 0 0 0 5px var(--cp-accent-soft);
+}
+.system-status[data-status='degraded'] .pulse {
+  background: #e5a12a;
+  box-shadow: 0 0 0 5px color-mix(in srgb, #e5a12a 16%, transparent);
+}
+.system-status[data-status='unavailable'] .pulse {
+  background: var(--cp-danger);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--cp-danger) 16%, transparent);
+}
+.health-retry {
+  margin-left: auto;
+  padding: 3px 6px;
+  border: 1px solid var(--cp-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--cp-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.health-retry:hover:not(:disabled) {
+  border-color: var(--cp-accent);
+  color: var(--cp-accent);
+}
+.health-retry:disabled {
+  cursor: wait;
+  opacity: 0.45;
 }
 .sidebar-footer a:hover,
 .sidebar-footer button:hover {
