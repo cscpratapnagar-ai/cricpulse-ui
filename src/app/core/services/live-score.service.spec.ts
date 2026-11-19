@@ -14,7 +14,9 @@ describe('LiveScoreService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(LiveScoreService);
     httpMock = TestBed.inject(HttpTestingController);
     spyOn(Client.prototype, 'activate').and.stub();

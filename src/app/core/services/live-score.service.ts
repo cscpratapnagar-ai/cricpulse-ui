@@ -179,31 +179,31 @@ export class LiveScoreService {
           this.http
             .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
             .subscribe({
-            next: (score) => {
-              if (!stopped && score?.inningsId === inningsId) {
-                const version = score.eventVersion;
-                if (!shouldAcceptLiveScoreSnapshot(version, lastEventVersion)) return;
-                if (typeof version === 'number' && Number.isFinite(version)) {
-                  lastEventVersion = Math.max(lastEventVersion, version);
+              next: (score) => {
+                if (!stopped && score?.inningsId === inningsId) {
+                  const version = score.eventVersion;
+                  if (!shouldAcceptLiveScoreSnapshot(version, lastEventVersion)) return;
+                  if (typeof version === 'number' && Number.isFinite(version)) {
+                    lastEventVersion = Math.max(lastEventVersion, version);
+                  }
+                  subscriber.next(score);
                 }
-                subscriber.next(score);
-              }
-            },
-            error: () => {
-              reconciling = false;
-              if (reconcileQueued) {
-                reconcileQueued = false;
-                reconcile();
-              }
-            },
-            complete: () => {
-              reconciling = false;
-              if (reconcileQueued) {
-                reconcileQueued = false;
-                reconcile();
-              }
-            },
-          }),
+              },
+              error: () => {
+                reconciling = false;
+                if (reconcileQueued) {
+                  reconcileQueued = false;
+                  reconcile();
+                }
+              },
+              complete: () => {
+                reconciling = false;
+                if (reconcileQueued) {
+                  reconcileQueued = false;
+                  reconcile();
+                }
+              },
+            }),
         );
       };
 
@@ -211,15 +211,15 @@ export class LiveScoreService {
         this.http
           .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
           .subscribe({
-          next: emitAuthoritative,
-          error: (error) => {
-            if (!stopped) {
-              subscriber.error(
-                new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
-              );
-            }
-          },
-        }),
+            next: emitAuthoritative,
+            error: (error) => {
+              if (!stopped) {
+                subscriber.error(
+                  new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
+                );
+              }
+            },
+          }),
       );
 
       const client = new Client({
