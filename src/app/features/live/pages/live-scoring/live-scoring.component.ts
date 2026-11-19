@@ -240,7 +240,7 @@ export class LiveScoringV2Component implements OnDestroy {
   extraBatRuns = 0;
   wicketType = '';
   newBatterId = '';
-  dismissedPlayerId = '';
+  dismissedPlayerId = '';\n  wicketFielderId = '';
   wicketRuns = 0;
   wicketLegalDelivery = true;
   completionReason = '';
@@ -633,7 +633,7 @@ export class LiveScoringV2Component implements OnDestroy {
       .map((p) => ({ value: p.playerId, label: p.name }));
   }
 
-  get newBatterOptions(): SelectOption[] {
+  get requiresFielder(): boolean {\n    return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(this.wicketType);\n  }\n\n  get fieldingOptions(): SelectOption[] {\n    if (!this.score) return [];\n    return this.xi\n      .filter((player) => player.teamId === this.bowlingTeamId)\n      .map((player) => ({ value: player.playerId, label: player.name }));\n  }\n\n  get newBatterOptions(): SelectOption[] {
     if (!this.score || this.score.wickets >= 9) return [];
     const used = new Set([
       this.score.strikerId,
@@ -1937,7 +1937,7 @@ export class LiveScoringV2Component implements OnDestroy {
       dismissedPlayerId: ['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType)
         ? this.dismissedPlayerId
         : this.score.strikerId,
-      newBatterId: ten ? null : this.newBatterId,
+      newBatterId: ten ? null : this.newBatterId,\n      wicketFielderId: this.requiresFielder ? this.wicketFielderId : null,
     });
     this.wicketOpen = false;
   }
