@@ -299,7 +299,9 @@ export class LiveScoreService {
       client.activate();
       return () => {
         stopped = true;
-        setConnectionState('DISCONNECTED');
+        if (this.connectionStateSubject.value !== 'ERROR') {
+          setConnectionState('DISCONNECTED');
+        }
         subscription?.unsubscribe();
         httpSubscriptions.unsubscribe();
         void client.deactivate();
