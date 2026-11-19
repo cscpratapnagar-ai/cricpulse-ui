@@ -244,7 +244,6 @@
   }
 }
 
-
 .navigation-progress {
   position: fixed;
   inset: 0 0 auto;
@@ -267,10 +266,16 @@
 }
 
 @keyframes navigation-progress {
-  from { transform: translateX(-110%); }
-  to { transform: translateX(290%); }
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(290%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navigation-progress::after { animation-duration: 2.5s; }
+  .navigation-progress::after {
+    animation-duration: 2.5s;
+  }
 }
