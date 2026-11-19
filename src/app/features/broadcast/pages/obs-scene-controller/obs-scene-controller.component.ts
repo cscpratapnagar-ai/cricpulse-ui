@@ -22,6 +22,9 @@ interface AutomationRule {
   event: AutomationEvent;
   label: string;
   sceneName: string;
+  enabled: boolean;
+  priority: number;
+  cooldownSeconds: number;
 }
 
 interface AutomationFeedState {
@@ -114,13 +117,13 @@ export class ObsSceneControllerComponent implements OnDestroy {
   activeAutomationProfileId = '';
   newAutomationProfileName = '';
   automationRules: AutomationRule[] = [
-    { event: 'FOUR', label: 'Four', sceneName: '' },
-    { event: 'SIX', label: 'Six', sceneName: '' },
-    { event: 'WICKET', label: 'Wicket', sceneName: '' },
-    { event: 'OVER_COMPLETE', label: 'Over complete', sceneName: '' },
-    { event: 'MILESTONE', label: 'Milestone', sceneName: '' },
-    { event: 'INNINGS_BREAK', label: 'Innings break', sceneName: '' },
-    { event: 'RESULT', label: 'Match result', sceneName: '' },
+    { event: 'FOUR', label: 'Four', sceneName: '', enabled: true, priority: 70, cooldownSeconds: 3 },
+    { event: 'SIX', label: 'Six', sceneName: '', enabled: true, priority: 80, cooldownSeconds: 3 },
+    { event: 'WICKET', label: 'Wicket', sceneName: '', enabled: true, priority: 100, cooldownSeconds: 5 },
+    { event: 'OVER_COMPLETE', label: 'Over complete', sceneName: '', enabled: true, priority: 40, cooldownSeconds: 2 },
+    { event: 'MILESTONE', label: 'Milestone', sceneName: '', enabled: true, priority: 50, cooldownSeconds: 5 },
+    { event: 'INNINGS_BREAK', label: 'Innings break', sceneName: '', enabled: true, priority: 90, cooldownSeconds: 10 },
+    { event: 'RESULT', label: 'Match result', sceneName: '', enabled: true, priority: 100, cooldownSeconds: 10 },
   ];
   private automationChannel?: BroadcastChannel;
   private automationRelay?: WebSocket;
@@ -135,6 +138,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   private previousAutomationScore: ObsAutomationScore | null = null;
   private previousAutomationMatchStatus = '';
   private readonly processedAutomationEvents = new Set<string>();
+  private readonly automationLastTriggeredAt = new Map<AutomationEvent, number>();
 
   constructor() {
     this.loadPreferences();
@@ -280,10 +284,17 @@ export class ObsSceneControllerComponent implements OnDestroy {
           .map((profile) => ({
             id: profile.id,
             name: profile.name.slice(0, 40),
-            rules: this.automationRules.map((rule) => ({
-              ...rule,
-              sceneName: profile.rules?.find((item) => item.event === rule.event)?.sceneName || '',
-            })),
+            rules: this.automationRules.map((rule) => {
+              const stored = profile.rules?.find((item) => item.event === rule.event);
+              return {
+                ...rule,
+                ...stored,
+                sceneName: typeof stored?.sceneName === 'string' ? stored.sceneName : '',
+                enabled: stored?.enabled !== false,
+                priority: Math.min(100, Math.max(1, Number(stored?.priority) || rule.priority)),
+                cooldownSeconds: Math.min(120, Math.max(0, Number(stored?.cooldownSeconds) || 0)),
+              };
+            }),
             returnScene: typeof profile.returnScene === 'string' ? profile.returnScene : '',
             returnDelay: Math.min(30, Math.max(2, Number(profile.returnDelay) || 8)),
           }));
@@ -304,7 +315,11 @@ export class ObsSceneControllerComponent implements OnDestroy {
           const savedRule = saved.automationRules?.find((item) => item.event === rule.event);
           return {
             ...rule,
+            ...savedRule,
             sceneName: typeof savedRule?.sceneName === 'string' ? savedRule.sceneName : '',
+            enabled: savedRule?.enabled !== false,
+            priority: Math.min(100, Math.max(1, Number(savedRule?.priority) || rule.priority)),
+            cooldownSeconds: Math.min(120, Math.max(0, Number(savedRule?.cooldownSeconds) || 0)),
           };
         });
       }
@@ -388,14 +403,54 @@ export class ObsSceneControllerComponent implements OnDestroy {
     this.automationStatus = `Profile “${name}” saved.`;
   }
 
+  duplicateAutomationProfile(): void {
+    const name = this.newAutomationProfileName.trim().slice(0, 40);
+    if (!name) {
+      this.error = 'Enter a name for the duplicated profile.';
+      return;
+    }
+    const source = this.automationProfiles.find((profile) => profile.id === this.activeAutomationProfileId);
+    const id = `profile-${Date.now()}-${this.automationProfiles.length}`;
+    const duplicate: AutomationProfile = {
+      id,
+      name,
+      rules: (source?.rules || this.automationRules).map((rule) => ({ ...rule })),
+      returnScene: source?.returnScene ?? this.automationReturnScene,
+      returnDelay: source?.returnDelay ?? this.automationReturnDelay,
+    };
+    this.automationProfiles = [...this.automationProfiles, duplicate];
+    this.activeAutomationProfileId = id;
+    this.newAutomationProfileName = '';
+    this.persistPreferences();
+    this.error = '';
+    this.automationStatus = `Profile duplicated as “${name}”.`;
+  }
+
+  resetAutomationRules(): void {
+    this.automationRules = this.automationRules.map((rule, index) => ({
+      ...rule,
+      sceneName: '',
+      enabled: true,
+      priority: [70, 80, 100, 40, 50, 90, 100][index] || 50,
+      cooldownSeconds: [3, 3, 5, 2, 5, 10, 10][index] || 0,
+    }));
+    this.activeAutomationProfileId = '';
+    this.persistPreferences();
+    this.automationStatus = 'Default event rules restored. Assign scenes and save when ready.';
+  }
+
   applyAutomationProfile(id: string): void {
     const profile = this.automationProfiles.find((item) => item.id === id);
     if (!profile) return;
     const available = new Set(this.scenes.map((scene) => scene.sceneName));
-    this.automationRules = profile.rules.map((rule) => ({
-      ...rule,
-      sceneName: available.has(rule.sceneName) ? rule.sceneName : '',
-    }));
+    this.automationRules = this.automationRules.map((defaultRule) => {
+      const rule = profile.rules.find((item) => item.event === defaultRule.event);
+      return {
+        ...defaultRule,
+        ...rule,
+        sceneName: rule && available.has(rule.sceneName) ? rule.sceneName : '',
+      };
+    });
     this.automationReturnScene = available.has(profile.returnScene) ? profile.returnScene : '';
     this.automationReturnDelay = Math.min(30, Math.max(2, profile.returnDelay || 8));
     this.activeAutomationProfileId = profile.id;
@@ -418,6 +473,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
     this.automationRules = this.automationRules.map((rule) => ({
       ...rule,
       sceneName: available.has(rule.sceneName) ? rule.sceneName : '',
+      priority: Math.min(100, Math.max(1, Number(rule.priority) || 1)),
+      cooldownSeconds: Math.min(120, Math.max(0, Number(rule.cooldownSeconds) || 0)),
     }));
     if (this.automationReturnScene && !available.has(this.automationReturnScene))
       this.automationReturnScene = '';
@@ -462,11 +519,25 @@ export class ObsSceneControllerComponent implements OnDestroy {
       const oldest = this.processedAutomationEvents.values().next().value;
       if (oldest) this.processedAutomationEvents.delete(oldest);
     }
-    const rule = this.automationRules.find((item) => item.event === event);
-    if (!rule?.sceneName || !this.scenes.some((scene) => scene.sceneName === rule.sceneName)) {
-      this.automationStatus = `${rule?.label || event} detected · no scene is assigned.`;
+    const rule = this.automationRules
+      .filter((item) => item.event === event)
+      .sort((a, b) => b.priority - a.priority)[0];
+    if (!rule?.enabled) {
+      this.automationStatus = `${rule?.label || event} detected · rule is disabled.`;
       return;
     }
+    const now = Date.now();
+    const lastTriggered = this.automationLastTriggeredAt.get(event) || 0;
+    if (now - lastTriggered < rule.cooldownSeconds * 1000) {
+      const remaining = Math.ceil((rule.cooldownSeconds * 1000 - (now - lastTriggered)) / 1000);
+      this.automationStatus = `${rule.label} ignored · cooldown (${remaining}s remaining).`;
+      return;
+    }
+    if (!rule.sceneName || !this.scenes.some((scene) => scene.sceneName === rule.sceneName)) {
+      this.automationStatus = `${rule.label} detected · no scene is assigned.`;
+      return;
+    }
+    this.automationLastTriggeredAt.set(event, now);
     void this.runAutomationScene(rule.sceneName, rule.label);
   }
 
