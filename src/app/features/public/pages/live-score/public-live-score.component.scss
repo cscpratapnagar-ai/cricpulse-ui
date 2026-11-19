@@ -631,3 +631,74 @@ td small {
     grid-template-columns: 1fr;
   }
 }
+
+
+.connection-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0 auto 14px;
+  padding: 12px 16px;
+  border: 1px solid #ffffff16;
+  border-radius: 14px;
+  background: #ffffff06;
+  color: #a7bcb2;
+}
+
+.connection-notice strong {
+  display: block;
+  color: #d9e9df;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+.connection-notice small {
+  display: block;
+  margin-top: 4px;
+  color: #789386;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.connection-indicator {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #789386;
+}
+
+.connection-notice.connected {
+  border-color: #b8f45c30;
+}
+
+.connection-notice.connected .connection-indicator {
+  background: #b8f45c;
+  box-shadow: 0 0 12px #b8f45c80;
+}
+
+.connection-notice.reconnecting {
+  border-color: #f4c76a40;
+}
+
+.connection-notice.reconnecting .connection-indicator {
+  background: #f4c76a;
+  box-shadow: 0 0 12px #f4c76a70;
+}
+
+.connection-notice.error {
+  border-color: #ff726755;
+}
+
+.connection-notice.error .connection-indicator {
+  background: #ff7267;
+  box-shadow: 0 0 12px #ff726780;
+}
+
+@media (max-width: 600px) {
+  .connection-notice {
+    align-items: flex-start;
+    padding: 11px 12px;
+  }
+}
