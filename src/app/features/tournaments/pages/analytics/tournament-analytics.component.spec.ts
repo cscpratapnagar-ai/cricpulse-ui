@@ -58,7 +58,6 @@ describe('TournamentAnalyticsComponent', () => {
     expect(fixture.componentInstance.playerPerformances.length).toBe(1);
     expect(fixture.componentInstance.playerPerformances[0].totalFieldingContributions).toBe(4);
   });
-});
 
   it('compares only the selected players using tournament performance rows', () => {
     const fixture = TestBed.createComponent(TournamentAnalyticsComponent);
@@ -76,3 +75,4 @@ describe('TournamentAnalyticsComponent', () => {
     component.setCompareRight('p1');
     expect(component.tournamentComparison).toBeNull();
   });
+});
