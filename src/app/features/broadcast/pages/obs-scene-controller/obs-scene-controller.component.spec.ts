@@ -217,6 +217,45 @@ describe('ObsSceneControllerComponent', () => {
     ).toBe('Wicket');
   });
 
+  it('supports disabling rules, priority, cooldown, and persists advanced settings', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [{ sceneName: 'Wicket', sceneIndex: 0 }];
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'WICKET'
+        ? { ...rule, sceneName: 'Wicket', enabled: false, priority: 95, cooldownSeconds: 30 }
+        : rule,
+    );
+    component.saveAutomationRules();
+    const saved = JSON.parse(localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}');
+    const wicket = saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET');
+    expect(wicket.enabled).toBeFalse();
+    expect(wicket.priority).toBe(95);
+    expect(wicket.cooldownSeconds).toBe(30);
+  });
+
+  it('resets advanced automation rules to safe defaults', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.automationRules[0].enabled = false;
+    component.automationRules[0].priority = 1;
+    component.automationRules[0].cooldownSeconds = 99;
+    component.resetAutomationRules();
+    expect(component.automationRules[0].enabled).toBeTrue();
+    expect(component.automationRules[0].priority).toBe(70);
+    expect(component.automationRules[0].cooldownSeconds).toBe(3);
+  });
+
+  it('duplicates the active automation profile under a new name', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.newAutomationProfileName = 'Copy';
+    component.saveAutomationProfile();
+    const originalId = component.activeAutomationProfileId;
+    component.newAutomationProfileName = 'Copy 2';
+    component.duplicateAutomationProfile();
+    expect(component.automationProfiles.length).toBe(2);
+    expect(component.activeAutomationProfileId).not.toBe(originalId);
+    expect(component.automationProfiles[1].name).toBe('Copy 2');
+  });
+
   it('saves, applies, and deletes match-scoped automation profiles', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.scenes = [
