@@ -12,6 +12,7 @@ import {
 } from '../../../../core/services/offline-scoring.store';
 import {
   getOfflineQueueConflictPositions,
+  hasBlockedOfflineQueueItems,
   hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
@@ -999,7 +1000,7 @@ export class LiveScoringV2Component implements OnDestroy {
       if (this.inningsId && !this.flushingOfflineQueue) {
         const queue = await this.offlineStore.list(this.inningsId);
         this.pendingOfflineCount = queue.length;
-        if (queue.some((item) => item.syncStatus !== 'BLOCKED')) {
+        if (queue.length > 0 && !hasBlockedOfflineQueueItems(queue)) {
           await this.resumePendingOfflineSync();
         }
       }
@@ -1011,7 +1012,7 @@ export class LiveScoringV2Component implements OnDestroy {
         if (this.inningsId && !this.flushingOfflineQueue) {
           const queue = await this.offlineStore.list(this.inningsId);
           this.pendingOfflineCount = queue.length;
-          if (queue.some((item) => item.syncStatus !== 'BLOCKED')) {
+          if (queue.length > 0 && !hasBlockedOfflineQueueItems(queue)) {
             await this.resumePendingOfflineSync();
           }
         }
@@ -1046,6 +1047,14 @@ export class LiveScoringV2Component implements OnDestroy {
       await this.offlineStore.bindLegacyQueueToMatch(this.inningsId, this.matchId);
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
+      if (hasBlockedOfflineQueueItems(queue)) {
+        this.offlineQueueBlocked = true;
+        this.syncState = 'ERROR';
+        this.setOfflineQueueDiagnostics(queue);
+        this.message =
+          'Saved offline deliveries are paused for manual reconciliation. Review the queue before explicitly retrying sync.';
+        return;
+      }
       if (!queue.length) {
         this.syncState = 'SYNCED';
         this.offlineSyncRetryDelay = 3000;
@@ -1442,6 +1451,13 @@ export class LiveScoringV2Component implements OnDestroy {
       const queue = await this.offlineStore.list(this.inningsId);
       this.pendingOfflineCount = queue.length;
       this.setOfflineQueueDiagnostics(queue);
+      if (hasBlockedOfflineQueueItems(queue)) {
+        this.offlineQueueBlocked = true;
+        this.syncState = 'ERROR';
+        this.message =
+          'Saved offline deliveries are paused for manual reconciliation. Automatic replay was not started.';
+        return;
+      }
       if (this.offlineConflictPositions.length) {
         await this.blockOfflineQueue(
           `Conflicting offline deliveries detected at legal-ball position(s) ${this.offlineConflictPositions.join(', ')}.`,
