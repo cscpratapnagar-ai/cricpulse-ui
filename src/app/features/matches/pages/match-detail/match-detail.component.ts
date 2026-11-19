@@ -306,7 +306,9 @@ export class MatchDetailComponent {
     if (this.fieldingAnalysisLoading) return;
     this.fieldingAnalysisLoading = true;
     this.fieldingAnalysisError = false;
-    this.http.get<FielderContribution[]>(`${this.api}/matches/${matchId}/fielding-analysis`).subscribe({
+    this.http
+      .get<FielderContribution[]>(`${this.api}/matches/${matchId}/fielding-analysis`)
+      .subscribe({
       next: (value) => {
         this.fieldingAnalysis = Array.isArray(value) ? value : [];
         this.fieldingAnalysisLoading = false;
