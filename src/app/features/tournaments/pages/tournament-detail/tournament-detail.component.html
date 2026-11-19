@@ -293,7 +293,9 @@
                           class="manager-remove"
                           [disabled]="managerBusy"
                           (click)="removeTournamentManager(manager)"
-                        >Remove</button>
+                        >
+                          Remove
+                        </button>
                       }
                     </article>
                   }
@@ -317,7 +319,9 @@
                     class="manager-search"
                     [disabled]="managerSearching || managerSearch.trim().length < 2"
                     (click)="searchManagerCandidates()"
-                  >{{ managerSearching ? 'Searching…' : 'Search' }}</button>
+                  >
+                    {{ managerSearching ? 'Searching…' : 'Search' }}
+                  </button>
                   @if (managerCandidates.length) {
                     <label>
                       <span>Select organiser</span>
@@ -334,11 +338,15 @@
                       class="manager-assign"
                       [disabled]="managerBusy || !selectedManagerCandidateId"
                       (click)="assignTournamentManager()"
-                    >{{ managerBusy ? 'Saving…' : 'Grant manager access' }}</button>
+                    >
+                      {{ managerBusy ? 'Saving…' : 'Grant manager access' }}
+                    </button>
                   }
                 </div>
               } @else {
-                <p class="manager-footnote">Only the tournament owner can grant or revoke manager access.</p>
+                <p class="manager-footnote">
+                  Only the tournament owner can grant or revoke manager access.
+                </p>
               }
               @if (managerError) {
                 <p class="manager-feedback error" role="alert">{{ managerError }}</p>

@@ -356,9 +356,9 @@ export class TournamentDetailComponent {
     this.managerSearching = true;
     this.managerError = '';
     this.http
-      .get<ManagerCandidate[]>(
-        `${this.api}/tournaments/${this.id}/staff/candidates?q=${encodeURIComponent(query)}`,
-      )
+      .get<
+        ManagerCandidate[]
+      >(`${this.api}/tournaments/${this.id}/staff/candidates?q=${encodeURIComponent(query)}`)
       .subscribe({
         next: (candidates) => {
           this.managerCandidates = candidates || [];
@@ -380,10 +380,9 @@ export class TournamentDetailComponent {
     this.managerError = '';
     this.managerMessage = '';
     this.http
-      .put(
-        `${this.api}/tournaments/${this.id}/staff/manager`,
-        { userId: this.selectedManagerCandidateId },
-      )
+      .put(`${this.api}/tournaments/${this.id}/staff/manager`, {
+        userId: this.selectedManagerCandidateId,
+      })
       .subscribe({
         next: () => {
           this.managerBusy = false;
