@@ -17,7 +17,7 @@
         <div class="team-avatar">{{ teamInitial }}</div>
         <div>
           <small>ACTIVE WORKSPACE</small><strong>{{ team?.name || 'Personal workspace' }}</strong
-          ><span>Switch workspace <b>⌄</b></span>
+          ><span>{{ workspaceRoleLabel(team?.role) }} · Switch workspace <b>⌄</b></span>
         </div>
       </button>
       @if (workspaceOpen) {
