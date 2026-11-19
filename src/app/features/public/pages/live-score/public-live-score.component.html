@@ -176,7 +176,9 @@
         role="status"
         aria-live="polite"
         [class.connected]="connectionState === 'CONNECTED'"
-        [class.reconnecting]="connectionState === 'RECONNECTING' || connectionState === 'CONNECTING'"
+        [class.reconnecting]="
+          connectionState === 'RECONNECTING' || connectionState === 'CONNECTING'
+        "
         [class.error]="connectionState === 'ERROR'"
       >
         <span class="connection-indicator"></span>
