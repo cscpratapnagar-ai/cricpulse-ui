@@ -39,6 +39,25 @@ interface Matchup {
   sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
 }
 
+interface PhaseSummary {
+  inningsNumber: number;
+  battingTeam: string;
+  format: string;
+  phase: 'POWERPLAY' | 'MIDDLE' | 'DEATH';
+  runs: number;
+  wickets: number;
+  legalBalls: number;
+  dotBalls: number;
+  fours: number;
+  sixes: number;
+  oversCovered: number;
+  fromOver: number;
+  toOver: number;
+  runRate: number;
+  dotBallPercentage: number;
+  sampleLabel: 'LIMITED SAMPLE' | 'EARLY SAMPLE' | 'RECORDED SAMPLE';
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -83,7 +102,7 @@ export class MatchDetailComponent {
   intelligence: MatchIntelligence | null = null;
   matchups: Matchup[] = [];
   matchupsLoading = false;
-  matchupsError = false;
+  matchupsError = false;\n  phaseAnalysis: PhaseSummary[] = [];\n  phaseAnalysisLoading = false;\n  phaseAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -97,7 +116,7 @@ export class MatchDetailComponent {
         this.match = match;
         this.loading = false;
         this.loadIntelligence(id);
-        this.loadMatchups(id);
+        this.loadMatchups(id);\n        this.loadPhaseAnalysis(id);
       },
       error: () => {
         this.match = null;
@@ -135,6 +154,34 @@ export class MatchDetailComponent {
         this.matchupsLoading = false;
       },
     });
+  }
+
+  private loadPhaseAnalysis(matchId: string): void {
+    this.phaseAnalysisLoading = true;
+    this.phaseAnalysisError = false;
+    this.http
+      .get<PhaseSummary[]>(`${this.api}/matches/${matchId}/phase-analysis`)
+      .subscribe({
+        next: (value) => {
+          this.phaseAnalysis = Array.isArray(value) ? value : [];
+          this.phaseAnalysisLoading = false;
+        },
+        error: () => {
+          this.phaseAnalysis = [];
+          this.phaseAnalysisError = true;
+          this.phaseAnalysisLoading = false;
+        },
+      });
+  }
+
+  phaseLabel(phase: PhaseSummary['phase']): string {
+    if (phase === 'POWERPLAY') return 'Powerplay';
+    if (phase === 'MIDDLE') return 'Middle overs';
+    return 'Death overs';
+  }
+
+  phaseTone(phase: PhaseSummary['phase']): string {
+    return phase.toLowerCase();
   }
 
   intelligenceTone(value: number): string {
