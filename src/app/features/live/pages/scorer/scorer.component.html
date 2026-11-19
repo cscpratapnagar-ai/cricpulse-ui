@@ -28,7 +28,6 @@
           placeholder="Choose batting team"
           [options]="teamOptions"
           [(value)]="battingTeamId"
-          (valueChange)="onBattingTeamChange()"
         />
         <app-select-field
           label="Innings"
@@ -118,42 +117,6 @@
               [options]="bowlingOptions"
               [(value)]="bowlerId"
             />
-          </div>
-          <div class="wicket-setup">
-            <div class="wicket-setup-heading">
-              <strong>Wicket details</strong>
-              <span>Complete these fields before tapping WICKET</span>
-            </div>
-            <div class="wicket-fields">
-              <app-select-field
-                label="Dismissal type"
-                placeholder="Choose dismissal"
-                [options]="wicketTypeOptions"
-                [(value)]="wicketType"
-              />
-              <app-select-field
-                label="Dismissed batter"
-                placeholder="Select dismissed batter"
-                [options]="battingOptions"
-                [(value)]="dismissedPlayerId"
-              />
-              @if (currentWickets < 9) {
-                <app-select-field
-                  label="Incoming batter"
-                  placeholder="Select incoming batter"
-                  [options]="newBatterOptions"
-                  [(value)]="newBatterId"
-                />
-              }
-              @if (requiresFielder) {
-                <app-select-field
-                  label="Credited fielder"
-                  placeholder="Select bowling-side fielder"
-                  [options]="bowlingOptions"
-                  [(value)]="wicketFielderId"
-                />
-              }
-            </div>
           </div>
         </article>
       </div>
