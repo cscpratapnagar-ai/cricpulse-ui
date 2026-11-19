@@ -13,10 +13,7 @@ export const SHOW_GLOBAL_LOADING = new HttpContextToken<boolean>(() => false);
 export const SKIP_GLOBAL_LOADING = new HttpContextToken<boolean>(() => false);
 
 export const loadingInterceptor: HttpInterceptorFn = (request, next) => {
-  if (
-    !request.context.get(SHOW_GLOBAL_LOADING) ||
-    request.context.get(SKIP_GLOBAL_LOADING)
-  ) {
+  if (!request.context.get(SHOW_GLOBAL_LOADING) || request.context.get(SKIP_GLOBAL_LOADING)) {
     return next(request);
   }
 
