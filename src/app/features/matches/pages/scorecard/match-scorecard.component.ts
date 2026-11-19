@@ -78,7 +78,9 @@ export class MatchScorecardComponent {
     else this.loading = false;
   }
   load() {
-    this.http.get<InningsScorecard[]>(`${this.api}/matches/${this.matchId}/scorecard`).subscribe({
+    this.http
+      .get<InningsScorecard[]>(`${this.api}/matches/${this.matchId}/scorecard`)
+      .subscribe({
       next: (data) => {
         this.scorecards = data || [];
         this.selectedInnings = this.scorecards[0]?.inningsNumber || 1;
@@ -100,7 +102,9 @@ export class MatchScorecardComponent {
       });
   }
   get currentInningsFielders() {
-    return this.fieldingAnalysis.filter((fielder) => fielder.inningsNumber === this.selectedInnings);
+    return this.fieldingAnalysis.filter(
+      (fielder) => fielder.inningsNumber === this.selectedInnings,
+    );
   }
   get currentInnings() {
     return this.scorecards.find((x) => x.inningsNumber === this.selectedInnings) || null;
