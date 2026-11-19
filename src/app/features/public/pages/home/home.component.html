@@ -14,7 +14,15 @@
       <a routerLink="/matches/new" class="primary">Create match <b>→</b></a>
     </div>
   </header>
-  @if (dashboard.error() || dashboard.refreshing()) {\n    <div class="dashboard-data-status" role="status" aria-live="polite">\n      <div>\n        @if (dashboard.refreshing()) {\n          <strong>Refreshing workspace data…</strong>\n        } @else {\n          <strong>Some dashboard data could not be updated.</strong>\n        }\n        @if (dashboard.matchesError()) { <span>Matches unavailable.</span> }\n        @if (dashboard.teamsError()) { <span>Teams unavailable.</span> }\n        @if (dashboard.playerCountError()) { <span>Player count unavailable.</span> }\n        @if (dashboard.error()) { <span>Your last available data is still shown.</span> }\n      </div>\n      <button type="button" (click)="dashboard.load()" [disabled]="dashboard.refreshing()">\n        {{ dashboard.refreshing() ? 'Refreshing…' : 'Retry refresh' }}\n      </button>\n    </div>\n  }\n  <div class="ambient ambient-a"></div>
+  @if (dashboard.error() || dashboard.refreshing()) {\n    <div class="dashboard-data-status" role="status" aria-live="polite">\n      <div>\n        @if (dashboard.refreshing()) {\n          <strong>Refreshing workspace data…</strong>\n        } @else {\n          <strong>Some dashboard data could not be updated.</strong>\n        }\n        @if (dashboard.matchesError()) {
+          <span>Matches unavailable.</span>
+        }\n        @if (dashboard.teamsError()) {
+          <span>Teams unavailable.</span>
+        }\n        @if (dashboard.playerCountError()) {
+          <span>Player count unavailable.</span>
+        }\n        @if (dashboard.error()) {
+          <span>Your last available data is still shown.</span>
+        }\n      </div>\n      <button type="button" (click)="dashboard.load()" [disabled]="dashboard.refreshing()">\n        {{ dashboard.refreshing() ? 'Refreshing…' : 'Retry refresh' }}\n      </button>\n    </div>\n  }\n  <div class="ambient ambient-a"></div>
   <div class="ambient ambient-b"></div>
   <section class="overview">
     <div class="signal-card">
