@@ -263,6 +263,33 @@
               </div>
             </div>
           }
+
+          <section class="tactical-readout" aria-label="Explainable match insights">
+            <div class="tactical-heading">
+              <div>
+                <span class="kicker">TACTICAL READOUT</span>
+                <h3>What the numbers suggest</h3>
+              </div>
+              <span class="sample-label">{{ intelligenceSampleLabel() }}</span>
+            </div>
+            <div class="tactical-grid">
+              @for (insight of tacticalInsights(); track insight.title) {
+                <article
+                  class="tactical-card"
+                  [class.caution]="insight.tone === 'caution'"
+                  [class.positive]="insight.tone === 'positive'"
+                >
+                  <span class="tactical-title">{{ insight.title }}</span>
+                  <strong>{{ insight.signal }}</strong>
+                  <p>{{ insight.explanation }}</p>
+                </article>
+              }
+            </div>
+            <p class="intelligence-disclaimer">
+              Rule-based insights from recorded match data. They are decision-support signals, not
+              guaranteed outcomes or calibrated win probabilities.
+            </p>
+          </section>
         } @else {
           <div class="intel-empty">
             <b>Intelligence unavailable</b>

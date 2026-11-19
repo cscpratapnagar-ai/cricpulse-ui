@@ -1,4 +1,52 @@
 import { MatchDetailComponent } from './match-detail.component';
+
 describe('MatchDetailComponent', () => {
   it('should expose the component class', () => expect(MatchDetailComponent).toBeTruthy());
+
+  it('returns no tactical readout before intelligence data is available', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.intelligence = null;
+
+    expect(component.tacticalInsights()).toEqual([]);
+    expect(component.intelligenceSampleLabel()).toBe('LIMITED SAMPLE');
+  });
+
+  it('explains chase pressure from the existing match intelligence payload', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.intelligence = {
+      inningsNumber: 2,
+      battingTeam: 'Falcons',
+      status: 'LIVE',
+      runs: 90,
+      wickets: 4,
+      legalBalls: 60,
+      totalOvers: 20,
+      inningsRunRate: 9,
+      recentRuns: 12,
+      recentDeliveries: 8,
+      recentDots: 2,
+      recentFours: 1,
+      recentSixes: 1,
+      recentWickets: 0,
+      recentRunRate: 12,
+      momentum: 'RISING',
+      momentumScore: 80,
+      projectedScore: 180,
+      pressureIndex: 20,
+      collapseRisk: 0,
+      requiredRuns: 60,
+      ballsRemaining: 60,
+      requiredRate: 6,
+      chasePressure: 'LOW',
+    };
+
+    const insights = component.tacticalInsights();
+
+    expect(insights.length).toBe(3);
+    expect(insights[0].title).toBe('Batting approach');
+    expect(insights[0].signal).toBe('Rate is currently manageable');
+    expect(insights[1].title).toBe('Bowling opportunity');
+    expect(insights[2].signal).toBe('Momentum favours the batting side');
+    expect(component.intelligenceSampleLabel()).toBe('RECENT SAMPLE');
+  });
 });
