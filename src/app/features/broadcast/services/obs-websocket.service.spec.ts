@@ -141,7 +141,7 @@ describe('ObsWebSocketService', () => {
     service.disconnect();
 
     socket = new FakeWebSocket('ws://127.0.0.1:4455');
-    (window.WebSocket as jasmine.Spy).and.returnValue(socket as unknown as WebSocket);
+    (window.WebSocket as unknown as jasmine.Spy).and.returnValue(socket as unknown as WebSocket);
     await connectService();
 
     const currentScene = service.currentScene();
