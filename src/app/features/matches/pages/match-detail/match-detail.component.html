@@ -378,7 +378,6 @@
       }
     </section>
 
-
     <section class="panel phase-panel" aria-labelledby="phase-analysis-title">
       <div class="panel-head phase-heading">
         <div>
@@ -412,34 +411,46 @@
             </div>
             <div class="phase-grid">
               @for (phase of innings.phases; track phase.phase) {
-                  <article class="phase-card" [class]="phaseTone(phase.phase)">
-                    <div class="phase-card-head">
-                      <span>{{ phaseLabel(phase.phase) }}</span>
-                      <small>{{ phase.sampleLabel }}</small>
+                <article class="phase-card" [class]="phaseTone(phase.phase)">
+                  <div class="phase-card-head">
+                    <span>{{ phaseLabel(phase.phase) }}</span>
+                    <small>{{ phase.sampleLabel }}</small>
+                  </div>
+                  <div class="phase-runs">
+                    <strong>{{ phase.runs }}</strong>
+                    <span>/ {{ phase.wickets }}</span>
+                  </div>
+                  <div class="phase-meta">
+                    Overs {{ phase.fromOver }}–{{ phase.toOver }} · {{ phase.oversCovered }} overs
+                    recorded
+                  </div>
+                  <div class="phase-stats">
+                    <div>
+                      <b>{{ phase.runRate | number: '1.0-2' }}</b
+                      ><span>RUN RATE</span>
                     </div>
-                    <div class="phase-runs">
-                      <strong>{{ phase.runs }}</strong>
-                      <span>/ {{ phase.wickets }}</span>
+                    <div>
+                      <b>{{ phase.dotBallPercentage | number: '1.0-1' }}%</b><span>DOT BALLS</span>
                     </div>
-                    <div class="phase-meta">Overs {{ phase.fromOver }}–{{ phase.toOver }} · {{ phase.oversCovered }} overs recorded</div>
-                    <div class="phase-stats">
-                      <div><b>{{ phase.runRate | number: '1.0-2' }}</b><span>RUN RATE</span></div>
-                      <div><b>{{ phase.dotBallPercentage | number: '1.0-1' }}%</b><span>DOT BALLS</span></div>
-                      <div><b>{{ phase.legalBalls }}</b><span>LEGAL BALLS</span></div>
+                    <div>
+                      <b>{{ phase.legalBalls }}</b
+                      ><span>LEGAL BALLS</span>
                     </div>
-                    <div class="phase-boundaries">
-                      <span>{{ phase.fours }} fours</span>
-                      <span>{{ phase.sixes }} sixes</span>
-                      <span>{{ phase.dotBalls }} dots</span>
-                    </div>
-                  </article>
+                  </div>
+                  <div class="phase-boundaries">
+                    <span>{{ phase.fours }} fours</span>
+                    <span>{{ phase.sixes }} sixes</span>
+                    <span>{{ phase.dotBalls }} dots</span>
+                  </div>
+                </article>
               }
             </div>
           </div>
         }
         <p class="phase-disclaimer">
           T20 and ODI use their standard over phases. Custom formats use proportional over ranges.
-          Rates use legal deliveries only; phase cards reflect recorded deliveries, not projected outcomes.
+          Rates use legal deliveries only; phase cards reflect recorded deliveries, not projected
+          outcomes.
         </p>
       }
     </section>

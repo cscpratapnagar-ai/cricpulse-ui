@@ -169,19 +169,17 @@ export class MatchDetailComponent {
   private loadPhaseAnalysis(matchId: string): void {
     this.phaseAnalysisLoading = true;
     this.phaseAnalysisError = false;
-    this.http
-      .get<PhaseSummary[]>(`${this.api}/matches/${matchId}/phase-analysis`)
-      .subscribe({
-        next: (value) => {
-          this.phaseAnalysis = Array.isArray(value) ? value : [];
-          this.phaseAnalysisLoading = false;
-        },
-        error: () => {
-          this.phaseAnalysis = [];
-          this.phaseAnalysisError = true;
-          this.phaseAnalysisLoading = false;
-        },
-      });
+    this.http.get<PhaseSummary[]>(`${this.api}/matches/${matchId}/phase-analysis`).subscribe({
+      next: (value) => {
+        this.phaseAnalysis = Array.isArray(value) ? value : [];
+        this.phaseAnalysisLoading = false;
+      },
+      error: () => {
+        this.phaseAnalysis = [];
+        this.phaseAnalysisError = true;
+        this.phaseAnalysisLoading = false;
+      },
+    });
   }
 
   phaseInnings(): PhaseInningsGroup[] {
