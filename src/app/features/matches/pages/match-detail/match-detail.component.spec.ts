@@ -14,6 +14,26 @@ describe('MatchDetailComponent', () => {
     expect(component.matchupsError).toBe(false);
   });
 
+  it('starts with an empty phase analysis state', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.phaseAnalysis = [];
+    component.phaseAnalysisLoading = false;
+    component.phaseAnalysisError = false;
+
+    expect(component.phaseAnalysis).toEqual([]);
+    expect(component.phaseAnalysisLoading).toBe(false);
+    expect(component.phaseAnalysisError).toBe(false);
+  });
+
+  it('labels innings phases for the phase analysis cards', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+
+    expect(component.phaseLabel('POWERPLAY')).toBe('Powerplay');
+    expect(component.phaseLabel('MIDDLE')).toBe('Middle overs');
+    expect(component.phaseLabel('DEATH')).toBe('Death overs');
+    expect(component.phaseTone('DEATH')).toBe('death');
+  });
+
   it('returns no tactical readout before intelligence data is available', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.intelligence = null;

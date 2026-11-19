@@ -39,6 +39,31 @@ interface Matchup {
   sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
 }
 
+interface PhaseSummary {
+  inningsNumber: number;
+  battingTeam: string;
+  format: string;
+  phase: 'POWERPLAY' | 'MIDDLE' | 'DEATH';
+  runs: number;
+  wickets: number;
+  legalBalls: number;
+  dotBalls: number;
+  fours: number;
+  sixes: number;
+  oversCovered: number;
+  fromOver: number;
+  toOver: number;
+  runRate: number;
+  dotBallPercentage: number;
+  sampleLabel: 'LIMITED SAMPLE' | 'EARLY SAMPLE' | 'RECORDED SAMPLE';
+}
+
+interface PhaseInningsGroup {
+  inningsNumber: number;
+  battingTeam: string;
+  phases: PhaseSummary[];
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -84,6 +109,9 @@ export class MatchDetailComponent {
   matchups: Matchup[] = [];
   matchupsLoading = false;
   matchupsError = false;
+  phaseAnalysis: PhaseSummary[] = [];
+  phaseAnalysisLoading = false;
+  phaseAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -98,6 +126,7 @@ export class MatchDetailComponent {
         this.loading = false;
         this.loadIntelligence(id);
         this.loadMatchups(id);
+        this.loadPhaseAnalysis(id);
       },
       error: () => {
         this.match = null;
@@ -135,6 +164,49 @@ export class MatchDetailComponent {
         this.matchupsLoading = false;
       },
     });
+  }
+
+  private loadPhaseAnalysis(matchId: string): void {
+    this.phaseAnalysisLoading = true;
+    this.phaseAnalysisError = false;
+    this.http.get<PhaseSummary[]>(`${this.api}/matches/${matchId}/phase-analysis`).subscribe({
+      next: (value) => {
+        this.phaseAnalysis = Array.isArray(value) ? value : [];
+        this.phaseAnalysisLoading = false;
+      },
+      error: () => {
+        this.phaseAnalysis = [];
+        this.phaseAnalysisError = true;
+        this.phaseAnalysisLoading = false;
+      },
+    });
+  }
+
+  phaseInnings(): PhaseInningsGroup[] {
+    const groups = new Map<number, PhaseInningsGroup>();
+    for (const phase of this.phaseAnalysis) {
+      let group = groups.get(phase.inningsNumber);
+      if (!group) {
+        group = {
+          inningsNumber: phase.inningsNumber,
+          battingTeam: phase.battingTeam,
+          phases: [],
+        };
+        groups.set(phase.inningsNumber, group);
+      }
+      group.phases.push(phase);
+    }
+    return Array.from(groups.values()).sort((a, b) => a.inningsNumber - b.inningsNumber);
+  }
+
+  phaseLabel(phase: PhaseSummary['phase']): string {
+    if (phase === 'POWERPLAY') return 'Powerplay';
+    if (phase === 'MIDDLE') return 'Middle overs';
+    return 'Death overs';
+  }
+
+  phaseTone(phase: PhaseSummary['phase']): string {
+    return phase.toLowerCase();
   }
 
   intelligenceTone(value: number): string {
