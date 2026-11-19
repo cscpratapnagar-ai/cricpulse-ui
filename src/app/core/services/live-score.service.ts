@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../interceptors/loading.interceptor';
 
@@ -141,9 +141,22 @@ export function decideLiveScoreFrame(
   return 'accept';
 }
 
+export type LiveScoreConnectionState =
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'RECONNECTING'
+  | 'ERROR';
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
+  private connectionId = 0;
+  private readonly connectionStateSubject = new BehaviorSubject<LiveScoreConnectionState>(
+    'DISCONNECTED',
+  );
+
+  readonly connectionState$ = this.connectionStateSubject.asObservable();
 
   watch(inningsId: string): Observable<LiveScore> {
     return new Observable<LiveScore>((subscriber) => {
@@ -151,6 +164,12 @@ export class LiveScoreService {
         subscriber.error(new Error('Innings ID is required'));
         return;
       }
+
+      const connectionId = ++this.connectionId;
+      const setConnectionState = (state: LiveScoreConnectionState) => {
+        if (connectionId === this.connectionId) this.connectionStateSubject.next(state);
+      };
+      setConnectionState('CONNECTING');
 
       let subscription: StompSubscription | undefined;
       const httpSubscriptions = new Subscription();
@@ -217,6 +236,7 @@ export class LiveScoreService {
             next: emitAuthoritative,
             error: (error) => {
               if (!stopped) {
+                setConnectionState('ERROR');
                 subscriber.error(
                   new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
                 );
@@ -231,6 +251,7 @@ export class LiveScoreService {
         connectionTimeout: 10000,
         onConnect: () => {
           if (stopped) return;
+          setConnectionState('CONNECTED');
           subscription?.unsubscribe();
           // Subscribe before recovery so no event can fall into the
           // snapshot-to-subscription gap. The REST snapshot is authoritative.
@@ -259,16 +280,28 @@ export class LiveScoreService {
           reconcile();
         },
         onStompError: () => {
-          if (!stopped) reconcile();
+          if (!stopped) {
+            setConnectionState('ERROR');
+            reconcile();
+          }
         },
         onWebSocketError: () => {
-          if (!stopped) reconcile();
+          if (!stopped) {
+            setConnectionState('RECONNECTING');
+            reconcile();
+          }
+        },
+        onWebSocketClose: () => {
+          if (!stopped) setConnectionState('RECONNECTING');
         },
       });
 
       client.activate();
       return () => {
         stopped = true;
+        if (this.connectionStateSubject.value !== 'ERROR') {
+          setConnectionState('DISCONNECTED');
+        }
         subscription?.unsubscribe();
         httpSubscriptions.unsubscribe();
         void client.deactivate();
