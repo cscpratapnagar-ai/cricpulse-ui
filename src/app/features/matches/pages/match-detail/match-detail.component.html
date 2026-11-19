@@ -460,7 +460,9 @@
         <div>
           <span class="kicker">MATCH INTELLIGENCE V5</span>
           <h2 id="partnership-title">Batting partnerships</h2>
-          <p class="partnership-intro">Partnership runs, balls and batter contributions from recorded deliveries.</p>
+          <p class="partnership-intro">
+            Partnership runs, balls and batter contributions from recorded deliveries.
+          </p>
         </div>
         <span class="partnership-count">{{ partnerships.length }} STANDS</span>
       </div>
@@ -471,7 +473,10 @@
       } @else if (partnershipsError) {
         <div class="partnership-empty" role="status">
           <b>Partnership data unavailable</b>
-          <span>We could not load this match's partnership breakdown. Refresh the page to try again.</span>
+          <span
+            >We could not load this match's partnership breakdown. Refresh the page to try
+            again.</span
+          >
         </div>
       } @else if (partnerships.length === 0) {
         <div class="partnership-empty">
@@ -479,7 +484,10 @@
           <span>Partnerships will appear after the first delivery is recorded.</span>
         </div>
       } @else {
-        @for (partnership of partnerships; track partnership.inningsNumber + '-' + partnership.partnershipNumber) {
+        @for (
+          partnership of partnerships;
+          track partnership.inningsNumber + '-' + partnership.partnershipNumber
+        ) {
           <article class="partnership-card">
             <div class="partnership-card-head">
               <div>
@@ -493,8 +501,9 @@
               }
             </div>
             <div class="partnership-score">
-              <strong>{{ partnership.runs }}</strong><span>runs</span>
-              <b>{{ partnership.balls }}</b><span>balls</span>
+              <strong>{{ partnership.runs }}</strong
+              ><span>runs</span> <b>{{ partnership.balls }}</b
+              ><span>balls</span>
             </div>
             <div class="partnership-batters">
               <div>
@@ -507,13 +516,17 @@
               </div>
             </div>
             <div class="partnership-foot">
-              <span>{{ partnership.startOver }}.{{ partnership.startBall }} – {{ partnership.endOver }}.{{ partnership.endBall }} overs</span>
+              <span
+                >{{ partnership.startOver }}.{{ partnership.startBall }} –
+                {{ partnership.endOver }}.{{ partnership.endBall }} overs</span
+              >
               <span>{{ partnership.sampleLabel }}</span>
             </div>
           </article>
         }
         <p class="partnership-disclaimer">
-          Partnership totals include all team runs; individual batter contributions count bat runs only. Data is reconstructed from this match's delivery ledger.
+          Partnership totals include all team runs; individual batter contributions count bat runs
+          only. Data is reconstructed from this match's delivery ledger.
         </p>
       }
     </section>

@@ -34,7 +34,6 @@ describe('MatchDetailComponent', () => {
     expect(component.phaseTone('DEATH')).toBe('death');
   });
 
-
   it('starts with an honest empty partnership state', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.partnerships = [];

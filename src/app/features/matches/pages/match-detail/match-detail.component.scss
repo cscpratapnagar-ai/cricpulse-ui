@@ -1737,7 +1737,6 @@
   }
 }
 
-
 .partnership-panel {
   margin-top: 16px;
 }
@@ -1760,7 +1759,7 @@
   color: var(--muted);
   font-size: 9px;
   font-weight: 850;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
 }
 .partnership-live {
   display: inline-flex;
@@ -1785,7 +1784,9 @@
   border: 1px solid var(--line);
   border-radius: 15px;
   background: color-mix(in srgb, var(--cp-text) 2%, var(--surface));
-  transition: border-color .2s ease, transform .2s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 .partnership-card:hover {
   transform: translateY(-2px);
@@ -1810,7 +1811,7 @@
   color: var(--muted);
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
 }
 .partnership-card-head strong {
   color: var(--ink);
@@ -1883,12 +1884,21 @@
 .partnership-loading span {
   height: 46px;
   border-radius: 12px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--cp-text) 3%, transparent), color-mix(in srgb, var(--accent) 9%, transparent), color-mix(in srgb, var(--cp-text) 3%, transparent));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cp-text) 3%, transparent),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    color-mix(in srgb, var(--cp-text) 3%, transparent)
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
-.partnership-loading span:nth-child(2) { width: 84%; }
-.partnership-loading span:nth-child(3) { width: 68%; }
+.partnership-loading span:nth-child(2) {
+  width: 84%;
+}
+.partnership-loading span:nth-child(3) {
+  width: 68%;
+}
 .partnership-empty {
   display: grid;
   min-height: 100px;
@@ -1906,14 +1916,27 @@
   line-height: 1.5;
 }
 @media (max-width: 640px) {
-  .partnership-panel { padding: 16px; }
-  .partnership-heading { align-items: flex-start; }
-  .partnership-count { font-size: 8px; }
-  .partnership-card { padding: 13px; }
-  .partnership-foot { align-items: flex-start; }
+  .partnership-panel {
+    padding: 16px;
+  }
+  .partnership-heading {
+    align-items: flex-start;
+  }
+  .partnership-count {
+    font-size: 8px;
+  }
+  .partnership-card {
+    padding: 13px;
+  }
+  .partnership-foot {
+    align-items: flex-start;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .partnership-card,
   .partnership-live i,
-  .partnership-loading span { animation: none; transition: none; }
+  .partnership-loading span {
+    animation: none;
+    transition: none;
+  }
 }
