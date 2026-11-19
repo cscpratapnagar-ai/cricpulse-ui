@@ -528,7 +528,7 @@
                   @for (wicket of spell.wicketBreakdown; track wicket.overNumber + '-' + wicket.ballNumber + '-' + wicket.dismissedBatter) {
                     <div class="bowling-wicket">
                       <span>{{ wicket.dismissedBatter }}</span>
-                      <strong>{{ wicket.dismissal.replaceAll('_', ' ') }}</strong>
+                      <strong>{{ dismissalLabel(wicket.dismissal) }}</strong>
                       <small>{{ wicket.overNumber }}.{{ wicket.ballNumber }}</small>
                       <em [class.not-credited]="!wicket.creditedToBowler">
                         {{ wicket.creditedToBowler ? 'BOWLER WICKET' : 'NOT CREDITED' }}
