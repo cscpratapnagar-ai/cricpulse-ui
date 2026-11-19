@@ -64,6 +64,26 @@ interface PhaseInningsGroup {
   phases: PhaseSummary[];
 }
 
+interface Partnership {
+  inningsNumber: number;
+  battingTeam: string;
+  wicketNumber: number;
+  batterOneId: string;
+  batterOneName: string;
+  batterTwoId: string;
+  batterTwoName: string;
+  runs: number;
+  balls: number;
+  batterOneRuns: number;
+  batterTwoRuns: number;
+  startOver: number;
+  startBall: number;
+  endOver: number;
+  endBall: number;
+  current: boolean;
+  sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -112,6 +132,9 @@ export class MatchDetailComponent {
   phaseAnalysis: PhaseSummary[] = [];
   phaseAnalysisLoading = false;
   phaseAnalysisError = false;
+  partnerships: Partnership[] = [];
+  partnershipsLoading = false;
+  partnershipsError = false;
   match: Match | null = null;
 
   constructor() {
@@ -127,6 +150,7 @@ export class MatchDetailComponent {
         this.loadIntelligence(id);
         this.loadMatchups(id);
         this.loadPhaseAnalysis(id);
+        this.loadPartnerships(id);
       },
       error: () => {
         this.match = null;
@@ -178,6 +202,22 @@ export class MatchDetailComponent {
         this.phaseAnalysis = [];
         this.phaseAnalysisError = true;
         this.phaseAnalysisLoading = false;
+      },
+    });
+  }
+
+  private loadPartnerships(matchId: string): void {
+    this.partnershipsLoading = true;
+    this.partnershipsError = false;
+    this.http.get<Partnership[]>(`${this.api}/matches/${matchId}/partnerships`).subscribe({
+      next: (value) => {
+        this.partnerships = Array.isArray(value) ? value : [];
+        this.partnershipsLoading = false;
+      },
+      error: () => {
+        this.partnerships = [];
+        this.partnershipsError = true;
+        this.partnershipsLoading = false;
       },
     });
   }
