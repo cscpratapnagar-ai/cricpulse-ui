@@ -10,7 +10,16 @@ describe('MatchesComponent', () => {
 
   it('keeps existing matches visible when a refresh fails', () => {
     const component = createComponent();
-    const existing = [{ id: 'm1', name: 'Final', format: 'T20', status: 'LIVE', teamAId: 'a', teamBId: 'b' }];
+    const existing = [
+      {
+        id: 'm1',
+        name: 'Final',
+        format: 'T20',
+        status: 'LIVE',
+        teamAId: 'a',
+        teamBId: 'b',
+      },
+    ];
     component.matches = existing;
     (component as any).hasLoaded = true;
     (component as any).http = { get: () => throwError(() => new Error('offline')) };
