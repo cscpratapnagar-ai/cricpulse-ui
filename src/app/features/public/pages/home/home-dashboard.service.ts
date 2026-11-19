@@ -32,13 +32,23 @@ export class HomeDashboardService {
   private readonly teamsState = signal<DashboardTeam[]>([]);
   private readonly playerCountState = signal(0);
   private readonly loadingState = signal(true);
-  private readonly errorState = signal(false);
+  private readonly refreshingState = signal(false);
+  private readonly hasLoadedState = signal(false);
+  private readonly matchesErrorState = signal(false);
+  private readonly teamsErrorState = signal(false);
+  private readonly playerCountErrorState = signal(false);
 
   readonly matches = this.matchesState.asReadonly();
   readonly teams = this.teamsState.asReadonly();
   readonly playerCount = this.playerCountState.asReadonly();
   readonly loading = this.loadingState.asReadonly();
-  readonly error = this.errorState.asReadonly();
+  readonly refreshing = this.refreshingState.asReadonly();
+  readonly matchesError = this.matchesErrorState.asReadonly();
+  readonly teamsError = this.teamsErrorState.asReadonly();
+  readonly playerCountError = this.playerCountErrorState.asReadonly();
+  readonly error = computed(
+    () => this.matchesErrorState() || this.teamsErrorState() || this.playerCountErrorState(),
+  );
 
   readonly liveMatches = computed(() =>
     this.matchesState().filter((match) => this.normalizeStatus(match.status) === 'LIVE'),
@@ -62,29 +72,47 @@ export class HomeDashboardService {
   readonly activeMatch = computed(() => this.liveMatches()[0] ?? null);
 
   load(): void {
-    this.loadingState.set(true);
-    this.errorState.set(false);
+    if (this.refreshingState()) return;
+
+    const isInitialLoad = !this.hasLoadedState();
+    this.loadingState.set(isInitialLoad);
+    this.refreshingState.set(!isInitialLoad);
+    this.matchesErrorState.set(false);
+    this.teamsErrorState.set(false);
+    this.playerCountErrorState.set(false);
 
     forkJoin({
       matches: this.http
         .get<DashboardMatch[]>(`${API_BASE_URL}/matches`)
-        .pipe(catchError(() => of([]))),
+        .pipe(catchError(() => of(null))),
       teams: this.http
         .get<DashboardTeam[]>(`${API_BASE_URL}/teams/mine`)
-        .pipe(catchError(() => of([]))),
+        .pipe(catchError(() => of(null))),
     }).subscribe({
       next: ({ matches, teams }) => {
-        this.matchesState.set(matches ?? []);
-        this.teamsState.set(teams ?? []);
-        this.loadPlayerCount(teams ?? []);
+        if (matches === null) {
+          this.matchesErrorState.set(true);
+        } else {
+          this.matchesState.set(matches ?? []);
+        }
+
+        if (teams === null) {
+          this.teamsErrorState.set(true);
+        } else {
+          this.teamsState.set(teams ?? []);
+          this.loadPlayerCount(teams ?? []);
+        }
+
+        this.hasLoadedState.set(true);
         this.loadingState.set(false);
+        this.refreshingState.set(false);
       },
       error: () => {
-        this.matchesState.set([]);
-        this.teamsState.set([]);
-        this.playerCountState.set(0);
+        this.matchesErrorState.set(true);
+        this.teamsErrorState.set(true);
         this.loadingState.set(false);
-        this.errorState.set(true);
+        this.refreshingState.set(false);
+        this.hasLoadedState.set(true);
       },
     });
   }
@@ -92,6 +120,7 @@ export class HomeDashboardService {
   private loadPlayerCount(teams: DashboardTeam[]): void {
     if (!teams.length) {
       this.playerCountState.set(0);
+      this.playerCountErrorState.set(false);
       return;
     }
 
@@ -99,11 +128,19 @@ export class HomeDashboardService {
       teams.map((team) =>
         this.http
           .get<TeamMember[]>(`${API_BASE_URL}/teams/${team.id}/players`)
-          .pipe(catchError(() => of([]))),
+          .pipe(catchError(() => of(null))),
       ),
     ).subscribe((membersByTeam) => {
-      const playerIds = new Set(membersByTeam.flat().map((member) => member.playerId));
+      if (membersByTeam.some((members) => members === null)) {
+        this.playerCountErrorState.set(true);
+        return;
+      }
+
+      const playerIds = new Set(
+        membersByTeam.flatMap((members) => (members ?? []).map((member) => member.playerId)),
+      );
       this.playerCountState.set(playerIds.size);
+      this.playerCountErrorState.set(false);
     });
   }
 
