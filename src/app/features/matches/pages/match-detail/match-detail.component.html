@@ -299,7 +299,6 @@
       </article>
     </section>
 
-
     <section class="panel matchup-panel" aria-labelledby="matchup-title">
       <div class="panel-head matchup-head">
         <div>
@@ -317,12 +316,18 @@
       } @else if (matchupsError) {
         <div class="matchup-empty" role="status">
           <b>Matchup data unavailable</b>
-          <span>We could not load this match's delivery breakdown. Try again after refreshing the page.</span>
+          <span
+            >We could not load this match's delivery breakdown. Try again after refreshing the
+            page.</span
+          >
         </div>
       } @else if (matchups.length === 0) {
         <div class="matchup-empty">
           <b>No matchup data yet</b>
-          <span>Recorded deliveries will build batter-versus-bowler statistics as the match progresses.</span>
+          <span
+            >Recorded deliveries will build batter-versus-bowler statistics as the match
+            progresses.</span
+          >
         </div>
       } @else {
         <div class="matchup-grid">
@@ -340,9 +345,18 @@
                 </div>
               </div>
               <div class="matchup-primary">
-                <div><strong>{{ matchup.runs }}</strong><span>RUNS</span></div>
-                <div><strong>{{ matchup.ballsFaced }}</strong><span>BALLS</span></div>
-                <div><strong>{{ matchup.strikeRate | number: '1.0-2' }}</strong><span>STRIKE RATE</span></div>
+                <div>
+                  <strong>{{ matchup.runs }}</strong
+                  ><span>RUNS</span>
+                </div>
+                <div>
+                  <strong>{{ matchup.ballsFaced }}</strong
+                  ><span>BALLS</span>
+                </div>
+                <div>
+                  <strong>{{ matchup.strikeRate | number: '1.0-2' }}</strong
+                  ><span>STRIKE RATE</span>
+                </div>
               </div>
               <div class="matchup-secondary">
                 <span>{{ matchup.fours }} fours</span>
@@ -358,7 +372,8 @@
           }
         </div>
         <p class="matchup-disclaimer">
-          Based on deliveries recorded in this match only. Early samples are descriptive, not a reliable prediction of future performance.
+          Based on deliveries recorded in this match only. Early samples are descriptive, not a
+          reliable prediction of future performance.
         </p>
       }
     </section>
