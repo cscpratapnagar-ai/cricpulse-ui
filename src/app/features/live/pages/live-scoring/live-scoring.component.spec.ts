@@ -45,9 +45,30 @@ describe('fielding attribution requirements', () => {
     component.score = {} as any;
     component.bowlingTeamId = 'team-b';
     component.xi = [
-      { teamId: 'team-a', playerId: 'batter-1', name: 'Batter', captain: false, viceCaptain: false, wicketKeeper: false },
-      { teamId: 'team-b', playerId: 'fielder-1', name: 'Fielder', captain: false, viceCaptain: false, wicketKeeper: true },
-      { teamId: 'team-b', playerId: 'fielder-2', name: 'Cover', captain: false, viceCaptain: false, wicketKeeper: false },
+      {
+        teamId: 'team-a',
+        playerId: 'batter-1',
+        name: 'Batter',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: false,
+      },
+      {
+        teamId: 'team-b',
+        playerId: 'fielder-1',
+        name: 'Fielder',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: true,
+      },
+      {
+        teamId: 'team-b',
+        playerId: 'fielder-2',
+        name: 'Cover',
+        captain: false,
+        viceCaptain: false,
+        wicketKeeper: false,
+      },
     ];
     component.wicketType = 'RUN_OUT';
     expect(component.fieldingOptions).toEqual([
