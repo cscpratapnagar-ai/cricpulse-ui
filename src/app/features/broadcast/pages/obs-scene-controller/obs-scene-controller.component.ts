@@ -611,12 +611,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
       )
     )
       events.push('MILESTONE');
-    if (
-      newDelivery &&
-      latest?.legalDelivery &&
-      score.legalBalls > 0 &&
-      score.legalBalls % 6 === 0
-    )
+    if (newDelivery && latest?.legalDelivery && score.legalBalls > 0 && score.legalBalls % 6 === 0)
       events.push('OVER_COMPLETE');
     return [...new Set(events)];
   }

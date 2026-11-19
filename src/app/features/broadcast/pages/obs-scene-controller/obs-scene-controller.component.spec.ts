@@ -362,9 +362,7 @@ describe('ObsSceneControllerComponent', () => {
       wickets: 1,
       legalBalls: 6,
       eventVersion: 2,
-      recentBalls: [
-        { deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' },
-      ],
+      recentBalls: [{ deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' }],
     });
     await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
