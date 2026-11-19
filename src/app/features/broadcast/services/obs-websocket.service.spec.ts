@@ -1,0 +1,170 @@
+import { ObsWebSocketService } from './obs-websocket.service';
+
+class FakeWebSocket {
+  static readonly OPEN = 1;
+  static readonly CLOSING = 2;
+  static readonly CLOSED = 3;
+
+  readyState = FakeWebSocket.OPEN;
+  readonly sent: string[] = [];
+  onerror: ((event: Event) => void) | null = null;
+  onclose: ((event: CloseEvent) => void) | null = null;
+  onmessage: ((event: MessageEvent) => void) | null = null;
+
+  constructor(readonly url: string) {}
+
+  send(data: string): void {
+    if (this.readyState !== FakeWebSocket.OPEN) throw new Error('Socket is not open.');
+    this.sent.push(data);
+  }
+
+  close(): void {
+    this.readyState = FakeWebSocket.CLOSED;
+    this.onclose?.({} as CloseEvent);
+  }
+
+  emit(data: Record<string, unknown>): void {
+    this.onmessage?.({ data: JSON.stringify(data) } as MessageEvent);
+  }
+
+  lastRequest(): { op: number; d: Record<string, unknown> } {
+    return JSON.parse(this.sent[this.sent.length - 1]) as {
+      op: number;
+      d: Record<string, unknown>;
+    };
+  }
+}
+
+describe('ObsWebSocketService', () => {
+  let service: ObsWebSocketService;
+  let socket: FakeWebSocket;
+
+  beforeEach(() => {
+    service = new ObsWebSocketService();
+    socket = new FakeWebSocket('ws://127.0.0.1:4455');
+    spyOn(window, 'WebSocket').and.returnValue(socket as unknown as WebSocket);
+    Object.defineProperty(window.WebSocket, 'OPEN', { configurable: true, value: 1 });
+  });
+
+  afterEach(() => {
+    service.disconnect();
+  });
+
+  async function connectService(
+    scenes: Array<{ sceneName: string; sceneIndex: number }> = [
+      { sceneName: 'Scoreboard', sceneIndex: 1 },
+      { sceneName: 'Camera', sceneIndex: 0 },
+    ],
+  ): Promise<void> {
+    const connecting = service.connect('ws://127.0.0.1:4455', '');
+    socket.emit({ op: 0, d: { rpcVersion: 1 } });
+    await Promise.resolve();
+    socket.emit({ op: 2, d: {} });
+    await Promise.resolve();
+
+    const request = socket.lastRequest();
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: true, code: 100 },
+        responseData: { scenes },
+      },
+    });
+    await connecting;
+  }
+
+  it('identifies with OBS and returns scenes sorted by their scene index', async () => {
+    await connectService();
+
+    expect(service.connected).toBeTrue();
+    expect(socket.url).toBe('ws://127.0.0.1:4455');
+    expect(JSON.parse(socket.sent[0])).toEqual({
+      op: 1,
+      d: { rpcVersion: 1, eventSubscriptions: 4 },
+    });
+    expect(service.connected).toBeTrue();
+  });
+
+  it('correlates a scene-switch response with its pending request', async () => {
+    await connectService();
+
+    const switching = service.switchScene('Scoreboard');
+    const request = socket.lastRequest();
+
+    expect(request.op).toBe(6);
+    expect(request.d['requestType']).toBe('SetCurrentProgramScene');
+    expect(request.d['requestData']).toEqual({ sceneName: 'Scoreboard' });
+
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: true, code: 100 },
+        responseData: {},
+      },
+    });
+
+    await expectAsync(switching).toBeResolved();
+  });
+
+  it('rejects OBS request failures with the server-provided reason', async () => {
+    await connectService();
+
+    const refreshing = service.refreshScenes();
+    const request = socket.lastRequest();
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: false, code: 500, comment: 'Scene collection is unavailable.' },
+      },
+    });
+
+    await expectAsync(refreshing).toBeRejectedWithError('Scene collection is unavailable.');
+  });
+
+  it('rejects outstanding requests when the connection is deliberately closed', async () => {
+    await connectService();
+
+    const currentScene = service.currentScene();
+    service.disconnect();
+
+    await expectAsync(currentScene).toBeRejectedWithError('Disconnected from OBS.');
+    expect(service.connected).toBeFalse();
+  });
+
+  it('publishes external program scene changes from OBS events', async () => {
+    await connectService();
+    const changed: string[] = [];
+    const subscription = service.sceneChanged$.subscribe((scene) => changed.push(scene));
+
+    socket.emit({
+      op: 5,
+      d: { eventType: 'SceneChanged', eventData: { sceneName: 'Camera' } },
+    });
+
+    expect(changed).toEqual(['Camera']);
+    subscription.unsubscribe();
+  });
+
+  it('rejects malformed scene-list responses instead of returning an empty list', async () => {
+    const connecting = service.connect('ws://127.0.0.1:4455', '');
+    socket.emit({ op: 0, d: { rpcVersion: 1 } });
+    await Promise.resolve();
+    socket.emit({ op: 2, d: {} });
+    await Promise.resolve();
+
+    const request = socket.lastRequest();
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: true, code: 100 },
+        responseData: { scenes: null },
+      },
+    });
+
+    await expectAsync(connecting).toBeRejectedWithError('OBS returned an invalid scene list.');
+  });
+});
