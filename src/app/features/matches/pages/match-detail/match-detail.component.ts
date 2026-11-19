@@ -184,7 +184,10 @@ export class MatchDetailComponent {
   partnershipsError = false;
   bowlingSpells: BowlerSpell[] = [];
   bowlingSpellsLoading = false;
-  bowlingSpellsError = false;\n  fieldingAnalysis: FielderContribution[] = [];\n  fieldingAnalysisLoading = false;\n  fieldingAnalysisError = false;
+  bowlingSpellsError = false;
+  fieldingAnalysis: FielderContribution[] = [];
+  fieldingAnalysisLoading = false;
+  fieldingAnalysisError = false;
   match: Match | null = null;
 
   constructor() {
@@ -201,11 +204,15 @@ export class MatchDetailComponent {
         this.loadMatchups(id);
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
-        this.loadBowlingSpells(id);\n        this.loadFieldingAnalysis(id);
+        this.loadBowlingSpells(id);
+        this.loadFieldingAnalysis(id);
         if (match.status === 'LIVE') {
           interval(10000)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {\n              this.loadBowlingSpells(id);\n              this.loadFieldingAnalysis(id);\n            });
+            .subscribe(() => {
+              this.loadBowlingSpells(id);
+              this.loadFieldingAnalysis(id);
+            });
         }
       },
       error: () => {
