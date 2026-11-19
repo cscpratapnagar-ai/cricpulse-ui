@@ -86,17 +86,6 @@ export class TournamentsComponent {
   get formatCount() {
     return new Set(this.tournaments.map((t) => t.format).filter(Boolean)).size;
   }
-  get workspaceHealth() {
-    if (!this.tournaments.length) return 0;
-    const score =
-      this.tournaments.reduce((sum, t) => sum + this.progressFor(t), 0) / this.tournaments.length;
-    return Math.max(72, Math.min(98, Math.round(score + 18)));
-  }
-  get healthMessage() {
-    if (this.workspaceHealth >= 92) return 'Competition workspace is operating at peak readiness';
-    if (this.workspaceHealth >= 82) return 'Competition workspace is healthy and progressing';
-    return 'Competition workspace is ready for the next action';
-  }
   focusSearch() {
     setTimeout(() => this.searchInput?.nativeElement.focus());
   }
