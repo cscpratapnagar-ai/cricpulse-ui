@@ -4,8 +4,7 @@
       <span class="eyebrow">PLATFORM CONTROL</span>
       <h1>User &amp; role management</h1>
       <p>
-        Manage platform-wide account roles. Team and match permissions remain
-        separately scoped.
+        Manage platform-wide account roles. Team and match permissions remain separately scoped.
       </p>
     </div>
     <span class="admin-chip">ADMIN ONLY</span>
@@ -55,15 +54,11 @@
         <tbody>
           @if (loading()) {
             <tr>
-              <td colspan="5" class="table-state" role="status">
-                Loading platform users…
-              </td>
+              <td colspan="5" class="table-state" role="status">Loading platform users…</td>
             </tr>
           } @else if (!users().length && !error()) {
             <tr>
-              <td colspan="5" class="table-state">
-                No users found. Try another search.
-              </td>
+              <td colspan="5" class="table-state">No users found. Try another search.</td>
             </tr>
           } @else {
             @for (user of users(); track user.id) {
@@ -109,11 +104,7 @@
     <footer class="pagination">
       <span>Page {{ page() + 1 }} · {{ users().length }} shown</span>
       <div>
-        <button
-          type="button"
-          (click)="changePage(-1)"
-          [disabled]="page() === 0 || loading()"
-        >
+        <button type="button" (click)="changePage(-1)" [disabled]="page() === 0 || loading()">
           Previous
         </button>
         <button
@@ -129,9 +120,9 @@
   <aside class="permission-note">
     <strong>Permission boundaries</strong>
     <p>
-      Platform roles are not a substitute for team membership or match staff
-      assignments. A Scorer or Broadcast Operator must still be assigned to the
-      relevant match where scoped access is required.
+      Platform roles are not a substitute for team membership or match staff assignments. A Scorer
+      or Broadcast Operator must still be assigned to the relevant match where scoped access is
+      required.
     </p>
   </aside>
 </section>

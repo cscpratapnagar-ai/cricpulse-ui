@@ -68,10 +68,7 @@ describe('AdminUsersComponent', () => {
     fixture.detectChanges();
     http
       .expectOne((req) => req.url === `${API_BASE_URL}/admin/users`)
-      .flush(
-        { message: 'Forbidden' },
-        { status: 403, statusText: 'Forbidden' },
-      );
+      .flush({ message: 'Forbidden' }, { status: 403, statusText: 'Forbidden' });
 
     expect(fixture.componentInstance.error()).toContain('do not have permission');
   });

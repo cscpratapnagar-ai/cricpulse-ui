@@ -71,22 +71,24 @@ export class AdminUsersComponent implements OnInit {
     this.savingUserId.set(user.id);
     this.error.set('');
     this.notice.set('');
-    this.http.patch<AdminUser>(`${API_BASE_URL}/admin/users/${user.id}/role`, {
-      role: user.role,
-    }).subscribe({
-      next: (updated) => {
-        this.users.update((users) =>
-          users.map((item) => (item.id === updated.id ? updated : item)),
-        );
-        this.notice.set(`Role updated for ${updated.fullName}.`);
-        this.savingUserId.set(null);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.error.set(this.messageFor(error));
-        this.savingUserId.set(null);
-        this.loadUsers();
-      },
-    });
+    this.http
+      .patch<AdminUser>(`${API_BASE_URL}/admin/users/${user.id}/role`, {
+        role: user.role,
+      })
+      .subscribe({
+        next: (updated) => {
+          this.users.update((users) =>
+            users.map((item) => (item.id === updated.id ? updated : item)),
+          );
+          this.notice.set(`Role updated for ${updated.fullName}.`);
+          this.savingUserId.set(null);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.error.set(this.messageFor(error));
+          this.savingUserId.set(null);
+          this.loadUsers();
+        },
+      });
   }
 
   private messageFor(error: HttpErrorResponse): string {
@@ -94,19 +96,13 @@ export class AdminUsersComponent implements OnInit {
       return 'You do not have permission to manage platform users.';
     }
     if (error.status === 409) {
-      return (
-        error.error?.detail ||
-        error.error?.message ||
-        'This role change is not allowed.'
-      );
+      return error.error?.detail || error.error?.message || 'This role change is not allowed.';
     }
     if (error.status === 0) {
       return 'Could not connect to CricPulse. Check your connection and retry.';
     }
     return (
-      error.error?.detail ||
-      error.error?.message ||
-      'Unable to load or update users. Please retry.'
+      error.error?.detail || error.error?.message || 'Unable to load or update users. Please retry.'
     );
   }
 }
