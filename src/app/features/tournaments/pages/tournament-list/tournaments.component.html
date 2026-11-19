@@ -20,7 +20,9 @@
       >
         <span>⌕</span> Search <kbd>/</kbd>
       </button>
-      <button class="ghost" type="button" (click)="load()" [disabled]="loading">↻ Refresh</button>
+      <button class="ghost" type="button" (click)="load()" [disabled]="refreshing">
+        ↻ Refresh
+      </button>
       <a class="primary create-action" routerLink="/tournaments/new" aria-label="Create tournament"
         ><span class="create-icon" aria-hidden="true">+</span
         ><span class="create-label">Create tournament</span
@@ -28,6 +30,16 @@
       >
     </div>
   </header>
+
+  @if (refreshing) {
+    <p role="status" aria-live="polite">Refreshing tournaments…</p>
+  }
+  @if (refreshError) {
+    <p role="alert">
+      Could not refresh tournaments. Your previous data is still available.
+      <button type="button" (click)="load()">Retry</button>
+    </p>
+  }
 
   <section class="metrics" aria-label="Tournament overview">
     <article class="metric card">

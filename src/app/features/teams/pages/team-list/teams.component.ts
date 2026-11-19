@@ -27,7 +27,10 @@ export class TeamsComponent {
   activeTeam: Team | null = null;
   activeTeamId: string | null = null;
   loading = true;
+  refreshing = false;
   error = false;
+  refreshError = false;
+  private hasLoaded = false;
 
   get uniqueCities(): number {
     return new Set(this.teams.map((team) => team.city?.trim()).filter(Boolean)).size;
@@ -38,22 +41,28 @@ export class TeamsComponent {
   }
 
   loadTeams(): void {
-    this.loading = true;
+    this.loading = !this.hasLoaded;
+    this.refreshing = this.hasLoaded;
     this.error = false;
+    this.refreshError = false;
     this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
       next: (teams) => {
         this.teams = teams;
         const saved = localStorage.getItem('cricketpulse_active_team_id');
         this.activeTeam = teams.find((team) => team.id === saved) || teams[0] || null;
         this.activeTeamId = this.activeTeam?.id || null;
+        this.hasLoaded = true;
         this.loading = false;
+        this.refreshing = false;
       },
       error: () => {
-        this.teams = [];
-        this.activeTeam = null;
-        this.activeTeamId = null;
-        this.error = true;
         this.loading = false;
+        this.refreshing = false;
+        if (this.hasLoaded) {
+          this.refreshError = true;
+          return;
+        }
+        this.error = true;
       },
     });
   }

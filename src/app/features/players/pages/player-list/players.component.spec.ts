@@ -55,6 +55,34 @@ describe('PlayersComponent', () => {
     expect(component.loading).toBeFalse();
   });
 
+  it('preserves player statistics when a refresh fails', () => {
+    const http = (component as any).http;
+    const existing = [
+      {
+        playerId: 'p1',
+        playerName: 'Run Maker',
+        matches: 4,
+        runs: 180,
+        highestScore: 80,
+        battingAverage: 45,
+        strikeRate: 120,
+        wickets: 0,
+        economy: 0,
+      },
+    ];
+    component.players = existing;
+    (component as any).hasLoaded = true;
+    spyOn(http, 'get').and.returnValue(throwError(() => new Error('offline')));
+
+    component.loadPlayers();
+
+    expect(component.players).toBe(existing);
+    expect(component.refreshError).toBeTrue();
+    expect(component.error).toBeFalse();
+    expect(component.loading).toBeFalse();
+    expect(component.refreshing).toBeFalse();
+  });
+
   it('filters by search and player role', () => {
     component.players = [
       {

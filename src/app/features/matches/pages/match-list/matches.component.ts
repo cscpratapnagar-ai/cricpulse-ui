@@ -32,7 +32,10 @@ export class MatchesComponent {
   activeFilter: Filter = 'ALL';
   query = '';
   loading = true;
+  refreshing = false;
   error = false;
+  refreshError = false;
+  private hasLoaded = false;
 
   readonly filterOptions: { label: string; value: Filter }[] = [
     { label: 'All matches', value: 'ALL' },
@@ -71,16 +74,24 @@ export class MatchesComponent {
   }
 
   load(): void {
-    this.loading = true;
+    this.loading = !this.hasLoaded;
+    this.refreshing = this.hasLoaded;
     this.error = false;
+    this.refreshError = false;
     this.http.get<Match[]>(`${API_BASE_URL}/matches`).subscribe({
       next: (matches) => {
         this.matches = matches ?? [];
+        this.hasLoaded = true;
         this.loading = false;
+        this.refreshing = false;
       },
       error: () => {
-        this.matches = [];
         this.loading = false;
+        this.refreshing = false;
+        if (this.hasLoaded) {
+          this.refreshError = true;
+          return;
+        }
         this.error = true;
       },
     });
