@@ -52,7 +52,8 @@ interface FieldingStatistics {
   runOuts: number;
   stumpings: number;
   totalContributions: number;
-}\ninterface Career {
+}
+interface Career {
   playerId: string;
   playerName: string;
   matches: number;
