@@ -24,7 +24,7 @@ interface Player {
   battingStyle: string;
   bowlingStyle: string;
 }
-interface InningsResponse {
+interface PlayingPlayer {\n  teamId: string;\n  playerId: string;\n  name: string;\n}\ninterface InningsResponse {
   id: string;
   inningsNumber: number;
 }
@@ -41,7 +41,7 @@ export class ScorerComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly liveScore = inject(LiveScoreService);
-  readonly runs = [0, 1, 2, 3, 4, 6];
+  readonly runs = [0, 1, 2, 3, 4, 6];\n  readonly wicketTypeOptions: SelectOption[] = [\n    { value: 'BOWLED', label: 'Bowled' },\n    { value: 'CAUGHT', label: 'Caught' },\n    { value: 'LBW', label: 'LBW' },\n    { value: 'RUN_OUT', label: 'Run out' },\n    { value: 'STUMPED', label: 'Stumped' },\n    { value: 'HIT_WICKET', label: 'Hit wicket' },\n    { value: 'HIT_BALL_TWICE', label: 'Hit ball twice' },\n    { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the field' },\n  ];
   readonly inningsOptions: SelectOption[] = [
     { value: '1', label: 'Innings 1' },
     { value: '2', label: 'Innings 2' },
@@ -55,7 +55,7 @@ export class ScorerComponent {
   nonStrikerId = '';
   bowlerId = '';
   battingPlayers: Player[] = [];
-  bowlingPlayers: Player[] = [];
+  bowlingPlayers: Player[] = [];\n  playingXi: PlayingPlayer[] = [];\n  wicketType = 'BOWLED';\n  dismissedPlayerId = '';\n  newBatterId = '';\n  wicketFielderId = '';\n  currentWickets = 0;
   score$ = of<LiveScore | null>(null);
   starting = false;
   message = '';
@@ -96,27 +96,43 @@ export class ScorerComponent {
       next: (m) => {
         this.match = m;
         this.battingTeamId = m.teamAId;
-        this.loadPlayers(m.teamAId, m.teamBId);
+        this.loadPlayers();
       },
       error: () => (this.message = 'Could not load the match.'),
     });
   }
-  private loadPlayers(battingId: string, bowlingId: string): void {
-    this.http.get<Player[]>(`${API_BASE_URL}/players/teams/${battingId}`).subscribe({
-      next: (p) => {
-        this.battingPlayers = p;
-        this.strikerId = p[0]?.id || '';
-        this.nonStrikerId = p[1]?.id || '';
+  private loadPlayers(): void {
+    this.http.get<PlayingPlayer[]>(`${API_BASE_URL}/matches/${this.matchId}/playing-xi`).subscribe({
+      next: (players) => {
+        this.playingXi = Array.isArray(players) ? players : [];
+        this.syncPlayingXi();
       },
-      error: () => (this.battingPlayers = []),
-    });
-    this.http.get<Player[]>(`${API_BASE_URL}/players/teams/${bowlingId}`).subscribe({
-      next: (p) => {
-        this.bowlingPlayers = p;
-        this.bowlerId = p[0]?.id || '';
+      error: () => {
+        this.playingXi = [];
+        this.battingPlayers = [];
+        this.bowlingPlayers = [];
+        this.message = 'Could not load the confirmed Playing XI.';
       },
-      error: () => (this.bowlingPlayers = []),
     });
+  }
+  onBattingTeamChange(): void {
+    this.syncPlayingXi();
+  }
+  private syncPlayingXi(): void {
+    if (!this.match) return;
+    const bowlingTeamId = this.battingTeamId === this.match.teamAId ? this.match.teamBId : this.match.teamAId;
+    this.battingPlayers = this.playingXi
+      .filter((player) => player.teamId === this.battingTeamId)
+      .map((player) => ({ id: player.playerId, name: player.name, role: '', battingStyle: '', bowlingStyle: '' }));
+    this.bowlingPlayers = this.playingXi
+      .filter((player) => player.teamId === bowlingTeamId)
+      .map((player) => ({ id: player.playerId, name: player.name, role: '', battingStyle: '', bowlingStyle: '' }));
+    if (!this.battingPlayers.some((player) => player.id === this.strikerId)) this.strikerId = this.battingPlayers[0]?.id || '';
+    if (!this.battingPlayers.some((player) => player.id === this.nonStrikerId) || this.nonStrikerId === this.strikerId) {
+      this.nonStrikerId = this.battingPlayers.find((player) => player.id !== this.strikerId)?.id || '';
+    }
+    if (!this.bowlingPlayers.some((player) => player.id === this.bowlerId)) this.bowlerId = this.bowlingPlayers[0]?.id || '';
+    if (!this.battingPlayers.some((player) => player.id === this.dismissedPlayerId)) this.dismissedPlayerId = this.strikerId;
   }
   startInnings(): void {
     if (!this.match || !this.battingTeamId) {
@@ -134,7 +150,7 @@ export class ScorerComponent {
       .subscribe({
         next: (r) => {
           this.starting = false;
-          this.inningsId = r.id;
+          this.inningsId = r.id;\n          this.currentWickets = 0;
           this.inningsNumber = String(r.inningsNumber);
           this.router
             .navigate(['/matches', this.matchId, 'live-scoring'], {
@@ -226,7 +242,7 @@ export class ScorerComponent {
       extraRuns,
       extraType,
       wicketType,
-      dismissedPlayerId: wicketType ? this.strikerId : null,
+      dismissedPlayerId: wicketType ? dismissedPlayerId || this.strikerId : null,\n      newBatterId: wicketType ? newBatterId : null,\n      wicketFielderId: wicketType ? wicketFielderId : null,
     };
     this.http
       .post(`${API_BASE_URL}/scoring/innings/${this.inningsId}/deliveries`, payload)
