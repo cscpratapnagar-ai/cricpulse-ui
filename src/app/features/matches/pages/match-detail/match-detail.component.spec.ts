@@ -45,6 +45,24 @@ describe('MatchDetailComponent', () => {
     expect(component.partnershipsError).toBe(false);
   });
 
+  it('starts with an honest empty bowling spell state', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.bowlingSpells = [];
+    component.bowlingSpellsLoading = false;
+    component.bowlingSpellsError = false;
+
+    expect(component.bowlingSpells).toEqual([]);
+    expect(component.bowlingSpellsLoading).toBe(false);
+    expect(component.bowlingSpellsError).toBe(false);
+  });
+
+  it('formats dismissal labels for bowling wicket events', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+
+    expect(component.dismissalLabel('RUN_OUT')).toBe('RUN OUT');
+    expect(component.dismissalLabel('HIT_WICKET')).toBe('HIT WICKET');
+  });
+
   it('returns no tactical readout before intelligence data is available', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.intelligence = null;

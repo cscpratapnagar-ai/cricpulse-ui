@@ -1,6 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -84,6 +86,39 @@ interface Partnership {
   sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
 }
 
+interface BowlerOverFigure {
+  overNumber: number;
+  legalBalls: number;
+  runsConceded: number;
+  wickets: number;
+  maiden: boolean;
+}
+
+interface BowlerWicketEvent {
+  overNumber: number;
+  ballNumber: number;
+  dismissal: string;
+  dismissedBatter: string;
+  creditedToBowler: boolean;
+}
+
+interface BowlerSpell {
+  inningsNumber: number;
+  battingTeam: string;
+  bowlerId: string;
+  bowlerName: string;
+  legalBalls: number;
+  overs: string;
+  runsConceded: number;
+  wickets: number;
+  economy: number;
+  maidens: number;
+  wides: number;
+  noBalls: number;
+  oversBreakdown: BowlerOverFigure[];
+  wicketBreakdown: BowlerWicketEvent[];
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -121,6 +156,7 @@ interface MatchIntelligence {
 export class MatchDetailComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   readonly api = API_BASE_URL;
   loading = true;
   error = '';
@@ -135,6 +171,9 @@ export class MatchDetailComponent {
   partnerships: Partnership[] = [];
   partnershipsLoading = false;
   partnershipsError = false;
+  bowlingSpells: BowlerSpell[] = [];
+  bowlingSpellsLoading = false;
+  bowlingSpellsError = false;
   match: Match | null = null;
 
   constructor() {
@@ -151,6 +190,12 @@ export class MatchDetailComponent {
         this.loadMatchups(id);
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
+        this.loadBowlingSpells(id);
+        if (match.status === 'LIVE') {
+          interval(10000)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.loadBowlingSpells(id));
+        }
       },
       error: () => {
         this.match = null;
@@ -220,6 +265,27 @@ export class MatchDetailComponent {
         this.partnershipsLoading = false;
       },
     });
+  }
+
+  private loadBowlingSpells(matchId: string): void {
+    if (this.bowlingSpellsLoading) return;
+    this.bowlingSpellsLoading = true;
+    this.bowlingSpellsError = false;
+    this.http.get<BowlerSpell[]>(`${this.api}/matches/${matchId}/bowling-spells`).subscribe({
+      next: (value) => {
+        this.bowlingSpells = Array.isArray(value) ? value : [];
+        this.bowlingSpellsLoading = false;
+      },
+      error: () => {
+        this.bowlingSpells = [];
+        this.bowlingSpellsError = true;
+        this.bowlingSpellsLoading = false;
+      },
+    });
+  }
+
+  dismissalLabel(value: string): string {
+    return value.replaceAll('_', ' ');
   }
 
   phaseInnings(): PhaseInningsGroup[] {
