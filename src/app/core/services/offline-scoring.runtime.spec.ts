@@ -296,5 +296,4 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       jasmine.objectContaining({ commandId: command.commandId }),
     ]);
   });
-
 });
