@@ -39,6 +39,7 @@ describe('TournamentQualificationComponent', () => {
     component.loading = false;
     component.progressBusy = false;
     component.preview = preview as any;
+    component.tournamentStatus = 'ACTIVE';
     component.fixtures = [];
     component.winnerByMatch = {};
     component.progress = null;
@@ -64,6 +65,15 @@ describe('TournamentQualificationComponent', () => {
     component.fixtures[1].status = 'COMPLETED';
     expect(component.leagueComplete).toBeTrue();
     expect(component.canProgress).toBeTrue();
+  });
+
+  it('does not enable progression until the tournament is active', () => {
+    const component = createComponent();
+    component.tournamentStatus = 'DRAFT';
+    component.fixtures = [fixture('LEAGUE', 'l-1', 'COMPLETED')];
+
+    expect(component.leagueComplete).toBeTrue();
+    expect(component.canProgress).toBeFalse();
   });
 
   it('does not enable progression when there are no league fixtures', () => {
@@ -92,10 +102,13 @@ describe('TournamentQualificationComponent', () => {
   it('loads qualification standings and persisted tournament fixtures together', () => {
     const component = createComponent();
     const fixtures = [fixture('QUALIFIER_1', 'q1')];
-    (component as any).http.get.and.returnValues(of(preview), of(fixtures));
+    (component as any).http.get.and.returnValues(of({ status: 'ACTIVE' }), of(preview), of(fixtures));
 
     component.load();
 
+    expect((component as any).http.get).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1',
+    );
     expect((component as any).http.get).toHaveBeenCalledWith(
       'http://api.test/api/tournaments/t-1/qualification',
     );
