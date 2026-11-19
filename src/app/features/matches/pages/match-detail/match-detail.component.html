@@ -378,6 +378,74 @@
       }
     </section>
 
+
+    <section class="panel phase-panel" aria-labelledby="phase-analysis-title">
+      <div class="panel-head phase-heading">
+        <div>
+          <span class="kicker">MATCH INTELLIGENCE V4</span>
+          <h2 id="phase-analysis-title">Innings phase analysis</h2>
+          <p class="phase-intro">Scoring patterns from deliveries recorded in each innings.</p>
+        </div>
+        <span class="phase-count">{{ phaseAnalysis.length }} PHASES</span>
+      </div>
+
+      @if (phaseAnalysisLoading) {
+        <div class="phase-loading" role="status" aria-label="Loading innings phase analysis">
+          <span></span><span></span><span></span>
+        </div>
+      } @else if (phaseAnalysisError) {
+        <div class="phase-empty" role="status">
+          <b>Phase analysis unavailable</b>
+          <span>We could not load the innings breakdown. Refresh the page to try again.</span>
+        </div>
+      } @else if (phaseAnalysis.length === 0) {
+        <div class="phase-empty">
+          <b>No phase data yet</b>
+          <span>Phase statistics will appear after deliveries are recorded in an innings.</span>
+        </div>
+      } @else {
+        @for (inningsNumber of [1, 2, 3, 4]; track inningsNumber) {
+          @if (phaseAnalysis.some(item => item.inningsNumber === inningsNumber)) {
+            <div class="phase-innings">
+              <div class="phase-innings-title">
+                <strong>Innings {{ inningsNumber }}</strong>
+                <span>{{ phaseAnalysis.find(item => item.inningsNumber === inningsNumber)?.battingTeam }}</span>
+              </div>
+              <div class="phase-grid">
+                @for (phase of phaseAnalysis.filter(item => item.inningsNumber === inningsNumber); track phase.phase) {
+                  <article class="phase-card" [class]="phaseTone(phase.phase)">
+                    <div class="phase-card-head">
+                      <span>{{ phaseLabel(phase.phase) }}</span>
+                      <small>{{ phase.sampleLabel }}</small>
+                    </div>
+                    <div class="phase-runs">
+                      <strong>{{ phase.runs }}</strong>
+                      <span>/ {{ phase.wickets }}</span>
+                    </div>
+                    <div class="phase-meta">Overs {{ phase.fromOver }}–{{ phase.toOver }} · {{ phase.oversCovered }} overs recorded</div>
+                    <div class="phase-stats">
+                      <div><b>{{ phase.runRate | number: '1.0-2' }}</b><span>RUN RATE</span></div>
+                      <div><b>{{ phase.dotBallPercentage | number: '1.0-1' }}%</b><span>DOT BALLS</span></div>
+                      <div><b>{{ phase.legalBalls }}</b><span>LEGAL BALLS</span></div>
+                    </div>
+                    <div class="phase-boundaries">
+                      <span>{{ phase.fours }} fours</span>
+                      <span>{{ phase.sixes }} sixes</span>
+                      <span>{{ phase.dotBalls }} dots</span>
+                    </div>
+                  </article>
+                }
+              </div>
+            </div>
+          }
+        }
+        <p class="phase-disclaimer">
+          T20 and ODI use their standard over phases. Custom formats use proportional over ranges.
+          Rates use legal deliveries only; phase cards reflect recorded deliveries, not projected outcomes.
+        </p>
+      }
+    </section>
+
     <section class="lower-grid">
       <article class="panel next-panel">
         <div class="panel-head">
