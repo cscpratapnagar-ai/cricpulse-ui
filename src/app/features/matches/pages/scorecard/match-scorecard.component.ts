@@ -78,9 +78,7 @@ export class MatchScorecardComponent {
     else this.loading = false;
   }
   load() {
-    this.http
-      .get<InningsScorecard[]>(`${this.api}/matches/${this.matchId}/scorecard`)
-      .subscribe({
+    this.http.get<InningsScorecard[]>(`${this.api}/matches/${this.matchId}/scorecard`).subscribe({
       next: (data) => {
         this.scorecards = data || [];
         this.selectedInnings = this.scorecards[0]?.inningsNumber || 1;
