@@ -74,19 +74,19 @@ export class AdminUsersComponent implements OnInit {
     this.http.patch<AdminUser>(`${API_BASE_URL}/admin/users/${user.id}/role`, {
       role: user.role,
     }).subscribe({
-        next: (updated) => {
-          this.users.update((users) =>
-            users.map((item) => (item.id === updated.id ? updated : item)),
-          );
-          this.notice.set(`Role updated for ${updated.fullName}.`);
-          this.savingUserId.set(null);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.error.set(this.messageFor(error));
-          this.savingUserId.set(null);
-          this.loadUsers();
-        },
-      });
+      next: (updated) => {
+        this.users.update((users) =>
+          users.map((item) => (item.id === updated.id ? updated : item)),
+        );
+        this.notice.set(`Role updated for ${updated.fullName}.`);
+        this.savingUserId.set(null);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.error.set(this.messageFor(error));
+        this.savingUserId.set(null);
+        this.loadUsers();
+      },
+    });
   }
 
   private messageFor(error: HttpErrorResponse): string {
