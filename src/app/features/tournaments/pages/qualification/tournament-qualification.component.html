@@ -19,8 +19,8 @@
     <section class="control surface" aria-label="Playoff progression controls">
       <div class="control-copy">
         <span class="eyebrow">STAGE PROGRESSION</span>
-        <strong>{{ leagueComplete ? 'League stage completed' : 'League stage in progress' }}</strong>
-        <p>{{ leagueComplete ? 'All league fixtures are complete. An authorised organiser can generate or advance the playoff bracket.' : 'Complete every league fixture before generating the playoff bracket.' }}</p>
+        <strong>{{ tournamentStatus === 'ACTIVE' ? (leagueComplete ? 'League stage completed' : 'League stage in progress') : 'Tournament ' + tournamentStatus.toLowerCase() }}</strong>
+        <p>{{ tournamentStatus !== 'ACTIVE' ? 'Activate the tournament before generating or advancing playoff stages.' : (leagueComplete ? 'All league fixtures are complete. An authorised organiser can generate or advance the playoff bracket.' : 'Complete every league fixture before generating the playoff bracket.') }}</p>
       </div>
       <button type="button" class="primary" [disabled]="!canProgress" (click)="syncPlayoffs()">
         {{ progressBusy ? 'Updating bracket…' : 'Generate / advance playoffs' }}
