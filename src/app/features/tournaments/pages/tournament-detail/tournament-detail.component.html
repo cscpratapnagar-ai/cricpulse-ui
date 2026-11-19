@@ -381,7 +381,121 @@
                     <a class="fixture-tertiary-action" [routerLink]="['/matches', fixture.matchId]"
                       >Match overview</a
                     >
+                    <button
+                      type="button"
+                      class="fixture-staff-action"
+                      [attr.aria-expanded]="staffPanelMatchId === fixture.matchId"
+                      (click)="toggleStaffPanel(fixture)"
+                    >
+                      {{ staffPanelMatchId === fixture.matchId ? 'Close staff' : 'Manage staff' }}
+                    </button>
                   </div>
+                  @if (staffPanelMatchId === fixture.matchId) {
+                    <section
+                      class="match-staff-panel"
+                      [attr.aria-label]="'Staff assignments for ' + fixture.matchName"
+                    >
+                      <div class="staff-panel-heading">
+                        <div>
+                          <span class="eyebrow">MATCH PERSONNEL</span>
+                          <h4>Assign match staff</h4>
+                          <p>
+                            Choose registered CricPulse accounts. Scorer and broadcast access is
+                            limited to this fixture.
+                          </p>
+                        </div>
+                        <span class="staff-count">{{ staffAssignments.length }} assigned</span>
+                      </div>
+                      @if (staffError) {
+                        <p class="staff-feedback error" role="alert">{{ staffError }}</p>
+                      }
+                      @if (staffMessage) {
+                        <p class="staff-feedback success" role="status">{{ staffMessage }}</p>
+                      }
+                      @if (staffLoading) {
+                        <p class="staff-loading" role="status">Loading match staff…</p>
+                      } @else {
+                        <div class="staff-assignment-list">
+                          @if (staffAssignments.length) {
+                            @for (person of staffAssignments; track person.userId + person.role) {
+                              <div class="staff-person">
+                                <span class="staff-avatar">{{
+                                  person.fullName.charAt(0).toUpperCase()
+                                }}</span>
+                                <span class="staff-person-copy">
+                                  <strong>{{ person.fullName }}</strong>
+                                  <small
+                                    >{{ person.email || 'Email not available' }} ·
+                                    {{ staffRoleLabel(person.role) }}</small
+                                  >
+                                </span>
+                                <button
+                                  type="button"
+                                  class="staff-remove"
+                                  [disabled]="staffBusy"
+                                  (click)="removeMatchStaff(person)"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            }
+                          } @else {
+                            <p class="staff-empty">
+                              No staff assigned yet. Add a scorer or broadcast operator to get
+                              started.
+                            </p>
+                          }
+                        </div>
+                        <div class="staff-assignment-form">
+                          <label>
+                            <span>Search registered users</span>
+                            <input
+                              type="search"
+                              [(ngModel)]="staffSearch"
+                              placeholder="Name or email address"
+                              (keyup.enter)="searchStaffCandidates()"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            class="staff-search-button"
+                            [disabled]="staffSearching || staffSearch.trim().length < 2"
+                            (click)="searchStaffCandidates()"
+                          >
+                            {{ staffSearching ? 'Searching…' : 'Search users' }}
+                          </button>
+                          @if (staffCandidates.length) {
+                            <label>
+                              <span>Select account</span>
+                              <select [(ngModel)]="selectedStaffCandidateId">
+                                @for (candidate of staffCandidates; track candidate.userId) {
+                                  <option [value]="candidate.userId">
+                                    {{ candidate.fullName }} · {{ candidate.email || 'No email' }}
+                                  </option>
+                                }
+                              </select>
+                            </label>
+                            <label>
+                              <span>Match role</span>
+                              <select [(ngModel)]="selectedStaffRole">
+                                @for (role of staffRoles; track role.value) {
+                                  <option [value]="role.value">{{ role.label }}</option>
+                                }
+                              </select>
+                            </label>
+                            <button
+                              type="button"
+                              class="staff-assign-button"
+                              [disabled]="staffBusy || !selectedStaffCandidateId"
+                              (click)="assignMatchStaff()"
+                            >
+                              {{ staffBusy ? 'Saving…' : 'Assign to match' }}
+                            </button>
+                          }
+                        </div>
+                      }
+                    </section>
+                  }
                 </article>
               }
             </div>

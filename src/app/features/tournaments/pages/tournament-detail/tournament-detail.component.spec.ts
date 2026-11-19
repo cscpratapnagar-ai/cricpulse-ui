@@ -20,10 +20,100 @@ describe('TournamentDetailComponent', () => {
     component.points = [];
     component.teamToAdd = '';
     component.matchToAdd = '';
-    (component as any).http = { post: jasmine.createSpy('post') };
+    component.staffPanelMatchId = null;
+    component.staffAssignments = [];
+    component.staffCandidates = [];
+    component.staffSearch = '';
+    component.selectedStaffCandidateId = '';
+    component.selectedStaffRole = 'SCORER';
+    component.staffLoading = false;
+    component.staffSearching = false;
+    component.staffBusy = false;
+    component.staffError = '';
+    component.staffMessage = '';
+    (component as any).staffRoles = [
+      { value: 'SCORER', label: 'Scorer' },
+      { value: 'STREAMER', label: 'Broadcast operator' },
+      { value: 'UMPIRE', label: 'Umpire' },
+      { value: 'COMMENTATOR', label: 'Commentator' },
+    ];
+    (component as any).http = {
+      get: jasmine.createSpy('get'),
+      post: jasmine.createSpy('post'),
+      put: jasmine.createSpy('put'),
+      delete: jasmine.createSpy('delete'),
+    };
     component.loadChildren = jasmine.createSpy('loadChildren');
     return component;
   }
+
+  it('loads match staff when an organiser opens a fixture staff panel', () => {
+    const component = createComponent();
+    const staff = [
+      {
+        matchId: 'm-1',
+        userId: 'u-1',
+        fullName: 'Match Scorer',
+        email: 'scorer@example.com',
+        role: 'SCORER' as const,
+        assignedAt: '2026-11-19T10:00:00Z',
+      },
+    ];
+    (component as any).http.get.and.returnValue(of(staff));
+
+    component.toggleStaffPanel({
+      matchId: 'm-1',
+      fixtureNumber: 1,
+      stage: 'LEAGUE',
+      matchName: 'Fixture 1',
+      teamAName: 'A',
+      teamBName: 'B',
+      status: 'SCHEDULED',
+    });
+
+    expect((component as any).http.get).toHaveBeenCalledWith(
+      'http://api.test/api/matches/m-1/staff',
+    );
+    expect(component.staffAssignments).toEqual(staff);
+    expect(component.staffPanelMatchId).toBe('m-1');
+  });
+
+  it('requires a registered user selection before assigning match staff', () => {
+    const component = createComponent();
+    component.staffPanelMatchId = 'm-1';
+
+    component.assignMatchStaff();
+
+    expect(component.staffError).toContain('Search and select');
+    expect((component as any).http.put).not.toHaveBeenCalled();
+  });
+
+  it('assigns a selected user to the chosen match-scoped role', () => {
+    const component = createComponent();
+    component.staffPanelMatchId = 'm-1';
+    component.selectedStaffCandidateId = 'u-2';
+    component.selectedStaffRole = 'STREAMER';
+    (component as any).http.put.and.returnValue(
+      of({
+        matchId: 'm-1',
+        userId: 'u-2',
+        fullName: 'Broadcast Operator',
+        email: 'operator@example.com',
+        role: 'STREAMER',
+        assignedAt: '2026-11-19T10:00:00Z',
+      }),
+    );
+    (component as any).http.get.and.returnValue(of([]));
+
+    component.assignMatchStaff();
+
+    expect((component as any).http.put).toHaveBeenCalledWith(
+      'http://api.test/api/matches/m-1/staff/streamer',
+      { userId: 'u-2' },
+    );
+    expect(component.staffMessage).toContain('Broadcast Operator assigned');
+    expect(component.staffBusy).toBeFalse();
+  });
 
   it('routes each fixture to the correct next operator action', () => {
     const component = createComponent();
