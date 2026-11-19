@@ -11,13 +11,15 @@ export const adminGuard: CanActivateFn = () => {
   const http = inject(HttpClient);
   const currentUser = inject(CurrentUserService);
 
-  return http.get<CurrentUser>(`${API_BASE_URL}/auth/me`, { withCredentials: true }).pipe(
-    map((user) => {
-      currentUser.set(user);
-      return user.role?.toUpperCase() === 'ADMIN'
-        ? true
-        : router.createUrlTree(['/dashboard']);
-    }),
-    catchError(() => of(router.createUrlTree(['/login']))),
-  );
+  return http
+    .get<CurrentUser>(`${API_BASE_URL}/auth/me`, { withCredentials: true })
+    .pipe(
+      map((user) => {
+        currentUser.set(user);
+        return user.role?.toUpperCase() === 'ADMIN'
+          ? true
+          : router.createUrlTree(['/dashboard']);
+      }),
+      catchError(() => of(router.createUrlTree(['/login']))),
+    );
 };
