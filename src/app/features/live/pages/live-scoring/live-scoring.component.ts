@@ -648,7 +648,11 @@ export class LiveScoringV2Component implements OnDestroy {
   get fieldingOptions(): SelectOption[] {
     if (!this.score) return [];
     return this.xi
-      .filter((player) => player.teamId === this.bowlingTeamId)
+      .filter(
+        (player) =>
+          player.teamId === this.bowlingTeamId &&
+          (this.wicketType !== 'STUMPED' || player.wicketKeeper),
+      )
       .map((player) => ({ value: player.playerId, label: player.name }));
   }
 
