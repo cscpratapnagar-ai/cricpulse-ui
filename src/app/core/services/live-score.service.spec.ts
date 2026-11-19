@@ -69,6 +69,46 @@ describe('LiveScoreService', () => {
     expect(requests[1].cancelled).toBeTrue();
   });
 
+  it('publishes connection and reconnect lifecycle without ending the score watcher', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    let activeClient: Client | undefined;
+    activateSpy.and.callFake(function (this: Client) {
+      activeClient = this;
+      this.onConnect({} as never);
+    });
+    spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'connection-state-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const states: string[] = [];
+    const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
+    const watcher = service.watch('innings-state').subscribe();
+
+    expect(activeClient).toBeDefined();
+    activeClient!.onWebSocketClose?.(new CloseEvent('close'));
+    expect(states.slice(-3)).toEqual(['CONNECTING', 'CONNECTED', 'RECONNECTING']);
+
+    watcher.unsubscribe();
+    expect(states[states.length - 1]).toBe('DISCONNECTED');
+    stateSubscription.unsubscribe();
+  });
+
+  it('keeps an initial feed error visible until the automatic retry starts', () => {
+    const states: string[] = [];
+    const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
+    const watcher = service.watch('innings-error').subscribe({ error: () => undefined });
+    const request = httpMock.expectOne((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-error'),
+    );
+
+    request.flush({}, { status: 503, statusText: 'Unavailable' });
+
+    expect(states[states.length - 1]).toBe('ERROR');
+    watcher.unsubscribe();
+    stateSubscription.unsubscribe();
+  });
+
   it('rejects an empty innings id', (done) => {
     service.watch('').subscribe({
       error: (error) => {
