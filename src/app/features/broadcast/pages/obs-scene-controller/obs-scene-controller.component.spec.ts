@@ -389,8 +389,7 @@ describe('ObsSceneControllerComponent', () => {
     component.currentScene = 'Camera';
     let finishFirst!: () => void;
     obs.switchScene.and.callFake((sceneName: string) => {
-      if (sceneName === 'Wicket')
-        return new Promise<void>((resolve) => (finishFirst = resolve));
+      if (sceneName === 'Wicket') return new Promise<void>((resolve) => (finishFirst = resolve));
       return Promise.resolve();
     });
     const runAutomation = (
