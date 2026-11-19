@@ -53,6 +53,14 @@ interface ObsAutomationScore {
   }>;
 }
 
+interface AutomationProfile {
+  id: string;
+  name: string;
+  rules: AutomationRule[];
+  returnScene: string;
+  returnDelay: number;
+}
+
 interface ScenePreset {
   key: ScenePresetKey;
   label: string;
@@ -102,6 +110,9 @@ export class ObsSceneControllerComponent implements OnDestroy {
   automationReturnScene = '';
   automationReturnDelay = 8;
   automationStatus = 'Automation is off.';
+  automationProfiles: AutomationProfile[] = [];
+  activeAutomationProfileId = '';
+  newAutomationProfileName = '';
   automationRules: AutomationRule[] = [
     { event: 'FOUR', label: 'Four', sceneName: '' },
     { event: 'SIX', label: 'Six', sceneName: '' },
@@ -256,8 +267,32 @@ export class ObsSceneControllerComponent implements OnDestroy {
         automationReturnScene?: string;
         automationReturnDelay?: number;
         automationRules?: AutomationRule[];
+        automationProfiles?: AutomationProfile[];
+        activeAutomationProfileId?: string;
       };
       this.automationEnabled = saved.automationEnabled === true;
+      if (Array.isArray(saved.automationProfiles)) {
+        this.automationProfiles = saved.automationProfiles
+          .filter(
+            (profile) =>
+              !!profile && typeof profile.id === 'string' && typeof profile.name === 'string',
+          )
+          .map((profile) => ({
+            id: profile.id,
+            name: profile.name.slice(0, 40),
+            rules: this.automationRules.map((rule) => ({
+              ...rule,
+              sceneName: profile.rules?.find((item) => item.event === rule.event)?.sceneName || '',
+            })),
+            returnScene: typeof profile.returnScene === 'string' ? profile.returnScene : '',
+            returnDelay: Math.min(30, Math.max(2, Number(profile.returnDelay) || 8)),
+          }));
+      }
+      this.activeAutomationProfileId =
+        typeof saved.activeAutomationProfileId === 'string' &&
+        this.automationProfiles.some((profile) => profile.id === saved.activeAutomationProfileId)
+          ? saved.activeAutomationProfileId
+          : '';
       this.automationReturnScene =
         typeof saved.automationReturnScene === 'string' ? saved.automationReturnScene : '';
       this.automationReturnDelay = Math.min(
@@ -304,6 +339,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
           automationReturnScene: this.automationReturnScene,
           automationReturnDelay: this.automationReturnDelay,
           automationRules: this.automationRules,
+          automationProfiles: this.automationProfiles,
+          activeAutomationProfileId: this.activeAutomationProfileId,
         }),
       );
     } catch {
@@ -327,6 +364,55 @@ export class ObsSceneControllerComponent implements OnDestroy {
     }
   }
 
+  saveAutomationProfile(): void {
+    const name = this.newAutomationProfileName.trim().slice(0, 40);
+    if (!name) {
+      this.error = 'Enter a profile name before saving.';
+      return;
+    }
+    const id = `profile-${Date.now()}-${this.automationProfiles.length}`;
+    this.automationProfiles = [
+      ...this.automationProfiles,
+      {
+        id,
+        name,
+        rules: this.automationRules.map((rule) => ({ ...rule })),
+        returnScene: this.automationReturnScene,
+        returnDelay: this.automationReturnDelay,
+      },
+    ];
+    this.activeAutomationProfileId = id;
+    this.newAutomationProfileName = '';
+    this.persistPreferences();
+    this.error = '';
+    this.automationStatus = `Profile “${name}” saved.`;
+  }
+
+  applyAutomationProfile(id: string): void {
+    const profile = this.automationProfiles.find((item) => item.id === id);
+    if (!profile) return;
+    const available = new Set(this.scenes.map((scene) => scene.sceneName));
+    this.automationRules = profile.rules.map((rule) => ({
+      ...rule,
+      sceneName: available.has(rule.sceneName) ? rule.sceneName : '',
+    }));
+    this.automationReturnScene = available.has(profile.returnScene) ? profile.returnScene : '';
+    this.automationReturnDelay = Math.min(30, Math.max(2, profile.returnDelay || 8));
+    this.activeAutomationProfileId = profile.id;
+    this.persistPreferences();
+    this.automationStatus = `Profile “${profile.name}” applied.`;
+    this.error = '';
+  }
+
+  deleteAutomationProfile(id: string): void {
+    const profile = this.automationProfiles.find((item) => item.id === id);
+    if (!profile) return;
+    this.automationProfiles = this.automationProfiles.filter((item) => item.id !== id);
+    if (this.activeAutomationProfileId === id) this.activeAutomationProfileId = '';
+    this.persistPreferences();
+    this.automationStatus = `Profile “${profile.name}” deleted.`;
+  }
+
   saveAutomationRules(): void {
     const available = new Set(this.scenes.map((scene) => scene.sceneName));
     this.automationRules = this.automationRules.map((rule) => ({
@@ -336,8 +422,25 @@ export class ObsSceneControllerComponent implements OnDestroy {
     if (this.automationReturnScene && !available.has(this.automationReturnScene))
       this.automationReturnScene = '';
     this.automationReturnDelay = Math.min(30, Math.max(2, Number(this.automationReturnDelay) || 8));
+    const activeProfile = this.automationProfiles.find(
+      (profile) => profile.id === this.activeAutomationProfileId,
+    );
+    if (activeProfile) {
+      this.automationProfiles = this.automationProfiles.map((profile) =>
+        profile.id === activeProfile.id
+          ? {
+              ...profile,
+              rules: this.automationRules.map((rule) => ({ ...rule })),
+              returnScene: this.automationReturnScene,
+              returnDelay: this.automationReturnDelay,
+            }
+          : profile,
+      );
+    }
     this.persistPreferences();
-    this.automationStatus = 'Event scene rules saved.';
+    this.automationStatus = activeProfile
+      ? `Rules saved to “${activeProfile.name}”.`
+      : 'Event scene rules saved.';
   }
 
   onAutomationScore(score: ObsAutomationScore, match?: AutomationScoreMessage['match']): void {

@@ -234,6 +234,47 @@
       >
     </div>
     @if (obs.connected) {
+      <div class="profile-manager">
+        <div class="profile-controls">
+          <label
+            >Saved profile
+            <select
+              [value]="activeAutomationProfileId"
+              (change)="applyAutomationProfile($any($event.target).value)"
+            >
+              <option value="">Current custom rules</option>
+              @for (profile of automationProfiles; track profile.id) {
+                <option [value]="profile.id">{{ profile.name }}</option>
+              }
+            </select>
+          </label>
+          <label
+            >New profile name
+            <input
+              [value]="newAutomationProfileName"
+              (input)="newAutomationProfileName = $any($event.target).value"
+              maxlength="40"
+              placeholder="e.g. T20 Match"
+            />
+          </label>
+          <button class="secondary" type="button" (click)="saveAutomationProfile()">
+            Save as profile
+          </button>
+          @if (activeAutomationProfileId) {
+            <button
+              class="danger"
+              type="button"
+              (click)="deleteAutomationProfile(activeAutomationProfileId)"
+            >
+              Delete profile
+            </button>
+          }
+        </div>
+        <span class="automation-note"
+          >Profiles are saved per match in this browser. Applying a profile updates the event
+          mappings and return behaviour; it does not switch scenes until an event arrives.</span
+        >
+      </div>
       <div class="automation-settings">
         <label
           >Return scene after event<select
