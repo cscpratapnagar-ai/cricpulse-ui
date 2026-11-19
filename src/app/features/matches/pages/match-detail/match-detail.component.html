@@ -565,6 +565,61 @@
       }
     </section>
 
+    <section class="panel fielding-panel" aria-labelledby="fielding-title">
+      <div class="panel-head fielding-heading">
+        <div>
+          <span class="kicker">MATCH INTELLIGENCE V7</span>
+          <h2 id="fielding-title">Fielding contributions</h2>
+          <p class="fielding-intro">
+            Catches, run-outs and stumpings credited to fielders from recorded wicket events.
+          </p>
+        </div>
+        <span class="fielding-count">{{ fieldingAnalysis.length }} FIELDERS</span>
+      </div>
+
+      @if (fieldingAnalysisLoading) {
+        <div class="fielding-loading" role="status" aria-label="Loading fielding analysis">
+          <span></span><span></span>
+        </div>
+      } @else if (fieldingAnalysisError) {
+        <div class="fielding-empty" role="status">
+          <b>Fielding analysis unavailable</b>
+          <span>We could not load this match's fielding breakdown. Refresh the page to try again.</span>
+        </div>
+      } @else if (fieldingAnalysis.length === 0) {
+        <div class="fielding-empty">
+          <b>No fielding contributions recorded yet</b>
+          <span>Fielders will appear here when a catch, run-out or stumping is recorded with fielder attribution.</span>
+        </div>
+      } @else {
+        <div class="fielding-grid">
+          @for (fielder of fieldingAnalysis; track fielder.inningsNumber + '-' + fielder.fielderId) {
+            <article class="fielding-card">
+              <div class="fielding-card-head">
+                <div>
+                  <span>INNINGS {{ fielder.inningsNumber }} · {{ fielder.bowlingTeam }}</span>
+                  <h3>{{ fielder.fielderName }}</h3>
+                </div>
+                <div class="fielding-total">
+                  <strong>{{ fielder.totalDismissalContributions }}</strong>
+                  <small>CONTRIBUTIONS</small>
+                </div>
+              </div>
+              <div class="fielding-metrics">
+                <div><b>{{ fielder.catches }}</b><span>CATCHES</span></div>
+                <div><b>{{ fielder.runOuts }}</b><span>RUN-OUTS</span></div>
+                <div><b>{{ fielder.stumpings }}</b><span>STUMPINGS</span></div>
+              </div>
+            </article>
+          }
+        </div>
+        <p class="fielding-disclaimer">
+          Only recorded fielder attributions are counted. Historical dismissals without a recorded
+          fielder are not assigned retrospectively.
+        </p>
+      }
+    </section>
+
     <section class="panel partnership-panel" aria-labelledby="partnership-title">
       <div class="panel-head partnership-heading">
         <div>
