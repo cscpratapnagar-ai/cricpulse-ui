@@ -20,3 +20,5 @@ Averages and rates are returned to two decimal places. A rate whose denominator
 is zero is returned as zero. The tournament analytics page renders the
 collection in a horizontally scrollable table so the same metrics remain
 available on narrow screens and in both theme modes.
+
+The response remains part of the existing tournament analytics endpoint; no additional player comparison endpoint is introduced.
