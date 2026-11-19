@@ -455,6 +455,97 @@
       }
     </section>
 
+    <section class="panel bowling-panel" aria-labelledby="bowling-title">
+      <div class="panel-head bowling-heading">
+        <div>
+          <span class="kicker">MATCH INTELLIGENCE V6</span>
+          <h2 id="bowling-title">Bowler spell analysis</h2>
+          <p class="bowling-intro">Bowling figures and over-by-over impact from recorded deliveries.</p>
+        </div>
+        <span class="bowling-count">{{ bowlingSpells.length }} BOWLERS</span>
+      </div>
+
+      @if (bowlingSpellsLoading) {
+        <div class="bowling-loading" role="status" aria-label="Loading bowling figures">
+          <span></span><span></span>
+        </div>
+      } @else if (bowlingSpellsError) {
+        <div class="bowling-empty" role="status">
+          <b>Bowling figures unavailable</b>
+          <span>We could not load this match's bowling breakdown. Refresh the page to try again.</span>
+        </div>
+      } @else if (bowlingSpells.length === 0) {
+        <div class="bowling-empty">
+          <b>No bowling figures yet</b>
+          <span>Bowler spells will appear after a delivery is recorded.</span>
+        </div>
+      } @else {
+        @for (spell of bowlingSpells; track spell.inningsNumber + '-' + spell.bowlerId) {
+          <article class="bowling-spell-card">
+            <div class="bowling-spell-head">
+              <div>
+                <span>INNINGS {{ spell.inningsNumber }} · {{ spell.battingTeam }}</span>
+                <h3>{{ spell.bowlerName }}</h3>
+              </div>
+              <div class="bowling-main-figures">
+                <strong>{{ spell.wickets }} / {{ spell.runsConceded }}</strong>
+                <span>{{ spell.overs }} overs</span>
+              </div>
+            </div>
+            <div class="bowling-metrics">
+              <div><span>ECONOMY</span><b>{{ spell.economy | number: '1.2-2' }}</b></div>
+              <div><span>MAIDENS</span><b>{{ spell.maidens }}</b></div>
+              <div><span>WIDES</span><b>{{ spell.wides }}</b></div>
+              <div><span>NO-BALLS</span><b>{{ spell.noBalls }}</b></div>
+              <div><span>LEGAL BALLS</span><b>{{ spell.legalBalls }}</b></div>
+            </div>
+
+            @if (spell.oversBreakdown.length > 0) {
+              <div class="bowling-subsection">
+                <h4>Over-by-over</h4>
+                <div class="bowling-over-list">
+                  @for (over of spell.oversBreakdown; track over.overNumber) {
+                    <div class="bowling-over">
+                      <span>OVER {{ over.overNumber }}</span>
+                      <strong>{{ over.runsConceded }} <small>runs</small></strong>
+                      <span>{{ over.legalBalls }} legal</span>
+                      @if (over.wickets > 0) {
+                        <b>{{ over.wickets }} WKT</b>
+                      }
+                      @if (over.maiden) {
+                        <em>MAIDEN</em>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (spell.wicketBreakdown.length > 0) {
+              <div class="bowling-subsection">
+                <h4>Wicket events</h4>
+                <div class="bowling-wicket-list">
+                  @for (wicket of spell.wicketBreakdown; track wicket.overNumber + '-' + wicket.ballNumber + '-' + wicket.dismissedBatter) {
+                    <div class="bowling-wicket">
+                      <span>{{ wicket.dismissedBatter }}</span>
+                      <strong>{{ wicket.dismissal.replaceAll('_', ' ') }}</strong>
+                      <small>{{ wicket.overNumber }}.{{ wicket.ballNumber }}</small>
+                      <em [class.not-credited]="!wicket.creditedToBowler">
+                        {{ wicket.creditedToBowler ? 'BOWLER WICKET' : 'NOT CREDITED' }}
+                      </em>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </article>
+        }
+        <p class="bowling-disclaimer">
+          Economy uses runs charged to the bowler per six legal balls. Byes and leg-byes are excluded; wides and no-balls are included. Run-outs and other non-bowler dismissals are shown but not added to the bowler's wicket tally.
+        </p>
+      }
+    </section>
+
     <section class="panel partnership-panel" aria-labelledby="partnership-title">
       <div class="panel-head partnership-heading">
         <div>
