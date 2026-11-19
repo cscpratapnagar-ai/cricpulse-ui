@@ -11,9 +11,7 @@ export const adminGuard: CanActivateFn = () => {
   const http = inject(HttpClient);
   const currentUser = inject(CurrentUserService);
 
-  return http
-    .get<CurrentUser>(`${API_BASE_URL}/auth/me`, { withCredentials: true })
-    .pipe(
+  return http.get<CurrentUser>(`${API_BASE_URL}/auth/me`, { withCredentials: true }).pipe(
       map((user) => {
         currentUser.set(user);
         return user.role?.toUpperCase() === 'ADMIN'
