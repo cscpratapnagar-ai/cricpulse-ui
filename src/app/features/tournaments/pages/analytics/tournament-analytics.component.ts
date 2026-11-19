@@ -41,6 +41,29 @@ interface Point {
   runsAgainst: number;
   nrr: number;
 }
+interface TournamentPlayerPerformance {
+  playerId: string;
+  playerName: string;
+  matches: number;
+  battingInnings: number;
+  runs: number;
+  highestScore: number;
+  dismissals: number;
+  battingBalls: number;
+  battingAverage: number;
+  strikeRate: number;
+  bowlingInnings: number;
+  bowlingBalls: number;
+  runsConceded: number;
+  wickets: number;
+  bowlingAverage: number;
+  economy: number;
+  bowlingStrikeRate: number;
+  catches: number;
+  runOuts: number;
+  stumpings: number;
+  totalFieldingContributions: number;
+}
 interface TournamentAnalytics {
   totalFixtures: number;
   completedFixtures: number;
@@ -58,29 +81,7 @@ interface TournamentAnalytics {
     stumpings: number;
     totalContributions: number;
   }[];
-  playerPerformances: {
-    playerId: string;
-    playerName: string;
-    matches: number;
-    battingInnings: number;
-    runs: number;
-    highestScore: number;
-    dismissals: number;
-    battingBalls: number;
-    battingAverage: number;
-    strikeRate: number;
-    bowlingInnings: number;
-    bowlingBalls: number;
-    runsConceded: number;
-    wickets: number;
-    bowlingAverage: number;
-    economy: number;
-    bowlingStrikeRate: number;
-    catches: number;
-    runOuts: number;
-    stumpings: number;
-    totalFieldingContributions: number;
-  }[];
+  playerPerformances: TournamentPlayerPerformance[];;
 }
 
 @Component({
@@ -101,6 +102,50 @@ export class TournamentAnalyticsComponent {
   fixtures: Fixture[] = [];
   points: Point[] = [];
   analytics: TournamentAnalytics | null = null;
+  compareLeftId = '';
+  compareRightId = '';
+
+  get comparisonPlayers() {
+    return this.playerPerformances;
+  }
+
+  get tournamentComparison() {
+    const players = this.playerPerformances;
+    const left = players.find((player) => player.playerId === this.compareLeftId);
+    const right = players.find((player) => player.playerId === this.compareRightId);
+    return left && right && left.playerId !== right.playerId ? { left, right } : null;
+  }
+
+  setCompareLeft(id: string) {
+    this.compareLeftId = id;
+    if (id === this.compareRightId) this.compareRightId = '';
+  }
+
+  setCompareRight(id: string) {
+    this.compareRightId = id;
+    if (id === this.compareLeftId) this.compareLeftId = '';
+  }
+
+  get comparisonMetrics() {
+    const comparison = this.tournamentComparison;
+    if (!comparison) return [];
+    const { left, right } = comparison;
+    return [
+      { label: 'Matches', left: left.matches, right: right.matches },
+      { label: 'Runs', left: left.runs, right: right.runs },
+      { label: 'Batting average', left: left.battingAverage, right: right.battingAverage },
+      { label: 'Strike rate', left: left.strikeRate, right: right.strikeRate },
+      { label: 'Highest score', left: left.highestScore, right: right.highestScore },
+      { label: 'Wickets', left: left.wickets, right: right.wickets },
+      { label: 'Bowling average', left: left.bowlingAverage, right: right.bowlingAverage },
+      { label: 'Economy', left: left.economy, right: right.economy, lower: true },
+      { label: 'Bowling strike rate', left: left.bowlingStrikeRate, right: right.bowlingStrikeRate },
+      { label: 'Catches', left: left.catches, right: right.catches },
+      { label: 'Run-outs', left: left.runOuts, right: right.runOuts },
+      { label: 'Stumpings', left: left.stumpings, right: right.stumpings },
+    ];
+  }
+
 
   constructor() {
     if (this.id) this.load();
@@ -131,7 +176,7 @@ export class TournamentAnalyticsComponent {
       .then(([teams, fixtures, points, analytics]) => {
         this.teams = teams || [];
         this.fixtures = fixtures || [];
-        this.analytics = analytics || null;
+        this.analytics = analytics || null;\n        const availablePlayers = analytics?.playerPerformances || [];\n        this.compareLeftId = availablePlayers[0]?.playerId || '';\n        this.compareRightId = availablePlayers[1]?.playerId || '';
         this.points = analytics?.teams?.length ? analytics.teams : points || [];
         this.loading = false;
       })
