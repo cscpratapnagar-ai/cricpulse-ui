@@ -67,7 +67,7 @@ interface PhaseInningsGroup {
 interface Partnership {
   inningsNumber: number;
   battingTeam: string;
-  wicketNumber: number;
+  partnershipNumber: number;
   batterOneId: string;
   batterOneName: string;
   batterTwoId: string;
