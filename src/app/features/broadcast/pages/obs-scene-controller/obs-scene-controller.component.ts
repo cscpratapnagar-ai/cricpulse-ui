@@ -546,10 +546,10 @@ export class ObsSceneControllerComponent implements OnDestroy {
 
   onAutomationScore(score: ObsAutomationScore, match?: AutomationScoreMessage['match']): void {
     const previous = this.previousAutomationScore;
-    const event = this.detectAutomationEvent(score, previous, match?.status);
+    const events = this.detectAutomationEvents(score, previous, match?.status);
     this.previousAutomationScore = score;
     if (match?.status) this.previousAutomationMatchStatus = match.status;
-    if (!this.automationEnabled || !this.obs.connected || !event) return;
+    if (!this.automationEnabled || !this.obs.connected || !events.length) return;
     const identity =
       score.eventId ||
       String(
@@ -563,54 +563,62 @@ export class ObsSceneControllerComponent implements OnDestroy {
       const oldest = this.processedAutomationEvents.values().next().value;
       if (oldest) this.processedAutomationEvents.delete(oldest);
     }
-    const rule = this.automationRules
-      .filter((item) => item.event === event)
-      .sort((a, b) => b.priority - a.priority)[0];
-    if (!rule?.enabled) {
-      this.automationStatus = `${rule?.label || event} detected · rule is disabled.`;
-      return;
-    }
     const now = Date.now();
-    const lastTriggered = this.automationLastTriggeredAt.get(event) || 0;
-    if (now - lastTriggered < rule.cooldownSeconds * 1000) {
-      const remaining = Math.ceil((rule.cooldownSeconds * 1000 - (now - lastTriggered)) / 1000);
-      this.automationStatus = `${rule.label} ignored · cooldown (${remaining}s remaining).`;
+    const candidates = events
+      .map((event) => this.automationRules.find((rule) => rule.event === event))
+      .filter((rule): rule is AutomationRule => !!rule && rule.enabled)
+      .sort((a, b) => b.priority - a.priority);
+    for (const rule of candidates) {
+      const lastTriggered = this.automationLastTriggeredAt.get(rule.event) || 0;
+      if (now - lastTriggered < rule.cooldownSeconds * 1000) continue;
+      if (!rule.sceneName || !this.scenes.some((scene) => scene.sceneName === rule.sceneName))
+        continue;
+      this.automationLastTriggeredAt.set(rule.event, now);
+      void this.runAutomationScene(rule.sceneName, rule.label);
       return;
     }
-    if (!rule.sceneName || !this.scenes.some((scene) => scene.sceneName === rule.sceneName)) {
-      this.automationStatus = `${rule.label} detected · no scene is assigned.`;
-      return;
-    }
-    this.automationLastTriggeredAt.set(event, now);
-    void this.runAutomationScene(rule.sceneName, rule.label);
+    const disabled = events.every(
+      (event) => !this.automationRules.find((rule) => rule.event === event)?.enabled,
+    );
+    this.automationStatus = disabled
+      ? 'Detected event rules are disabled.'
+      : 'Detected events were skipped by cooldown or have no assigned scene.';
   }
 
-  private detectAutomationEvent(
+  private detectAutomationEvents(
     score: ObsAutomationScore,
     previous: ObsAutomationScore | null,
     matchStatus?: string,
-  ): AutomationEvent | null {
-    if (!previous) return null;
-    if (previous.inningsId !== score.inningsId) return 'INNINGS_BREAK';
+  ): AutomationEvent[] {
+    if (!previous) return [];
+    const events: AutomationEvent[] = [];
+    if (previous.inningsId !== score.inningsId) return ['INNINGS_BREAK'];
     const latest = score.recentBalls?.at(-1);
     const priorDeliveryId = previous.recentBalls?.at(-1)?.deliveryId;
     const newDelivery = !!latest && latest.deliveryId !== priorDeliveryId;
     if (matchStatus === 'COMPLETED' && this.previousAutomationMatchStatus !== 'COMPLETED')
-      return 'RESULT';
-    if (score.status === 'COMPLETED' && previous.status !== 'COMPLETED') return 'INNINGS_BREAK';
-    if (score.wickets > previous.wickets || (newDelivery && !!latest?.wicketType)) return 'WICKET';
-    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 6) return 'SIX';
-    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 4) return 'FOUR';
+      events.push('RESULT');
+    if (score.status === 'COMPLETED' && previous.status !== 'COMPLETED')
+      events.push('INNINGS_BREAK');
+    if (score.wickets > previous.wickets || (newDelivery && !!latest?.wicketType))
+      events.push('WICKET');
+    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 6) events.push('SIX');
+    if (newDelivery && latest?.legalDelivery && latest.totalRuns === 4) events.push('FOUR');
     if (
       score.runs > previous.runs &&
       [25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500].some(
-        (m) => previous.runs < m && score.runs >= m,
+        (milestone) => previous.runs < milestone && score.runs >= milestone,
       )
     )
-      return 'MILESTONE';
-    if (newDelivery && latest?.legalDelivery && score.legalBalls > 0 && score.legalBalls % 6 === 0)
-      return 'OVER_COMPLETE';
-    return null;
+      events.push('MILESTONE');
+    if (
+      newDelivery &&
+      latest?.legalDelivery &&
+      score.legalBalls > 0 &&
+      score.legalBalls % 6 === 0
+    )
+      events.push('OVER_COMPLETE');
+    return [...new Set(events)];
   }
 
   private async runAutomationScene(sceneName: string, eventLabel: string): Promise<void> {
