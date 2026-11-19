@@ -308,7 +308,7 @@
           <article class="automation-rule">
             <div class="rule-heading">
               <label class="rule-enable">
-                <input type="checkbox" [(ngModel)]="rule.enabled" [ngModelOptions]="{standalone: true}" [disabled]="!automationEnabled" />
+                <input type="checkbox" [checked]="rule.enabled" (change)="rule.enabled = $any($event.target).checked" [disabled]="!automationEnabled" />
                 <span><b>{{ rule.label }}</b><small>{{ rule.event.replaceAll('_', ' ') }}</small></span>
               </label>
               <label class="rule-field">Priority
