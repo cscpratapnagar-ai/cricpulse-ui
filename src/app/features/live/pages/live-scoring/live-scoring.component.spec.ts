@@ -4,6 +4,7 @@ import {
   DELIVERY_WICKET_OPTIONS,
   LiveScoringV2Component,
   isScorerLeaseConflict,
+  resolveScorerLeaseToken,
   shouldRecoverLiveScoreAfterSocketConnect,
 } from './live-scoring.component';
 
@@ -21,6 +22,35 @@ describe('LiveScoringV2Component', () => {
       'HIT_BALL_TWICE',
       'OBSTRUCTING_THE_FIELD',
     ]);
+  });
+});
+
+describe('scorer lease token isolation across tabs', () => {
+  it('rotates a cloned session token when another tab is already using it', async () => {
+    const token = await resolveScorerLeaseToken(
+      'shared-token',
+      async () => true,
+      () => 'new-tab-token',
+    );
+    expect(token).toBe('new-tab-token');
+  });
+
+  it('preserves the session token when no other tab is using it', async () => {
+    const token = await resolveScorerLeaseToken(
+      'current-tab-token',
+      async () => false,
+      () => 'unused-token',
+    );
+    expect(token).toBe('current-tab-token');
+  });
+
+  it('creates a token for a new session without a stored token', async () => {
+    const token = await resolveScorerLeaseToken(
+      null,
+      async () => false,
+      () => 'fresh-token',
+    );
+    expect(token).toBe('fresh-token');
   });
 });
 

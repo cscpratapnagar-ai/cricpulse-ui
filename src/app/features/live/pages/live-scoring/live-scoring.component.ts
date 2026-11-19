@@ -54,6 +54,15 @@ interface XIPlayer {
   wicketKeeper: boolean;
 }
 
+export async function resolveScorerLeaseToken(
+  storedToken: string | null,
+  tokenIsActiveInAnotherTab: (token: string) => Promise<boolean>,
+  createToken: () => string = () => crypto.randomUUID(),
+): Promise<string> {
+  if (storedToken && (await tokenIsActiveInAnotherTab(storedToken))) return createToken();
+  return storedToken || createToken();
+}
+
 export function isScorerLeaseConflict(error: unknown): boolean {
   return (
     !!error &&
@@ -261,6 +270,7 @@ export class LiveScoringV2Component implements OnDestroy {
   private connectivityProbeInFlight = false;
   private destroyed = false;
   private scorerLeaseToken = '';
+  private readonly pendingScorerLeaseProbes = new Map<string, () => void>();
   private scorerLeaseReady = false;
   scorerLeaseConflict = false;
   private scorerLeaseRenewalTimer?: ReturnType<typeof setInterval>;
@@ -275,6 +285,24 @@ export class LiveScoringV2Component implements OnDestroy {
     }, 5000);
     if (typeof BroadcastChannel !== 'undefined') {
       this.scoreBroadcastChannel = new BroadcastChannel('cricpulse-live-score');
+      this.scoreBroadcastChannel.onmessage = (event: MessageEvent) => {
+        const message = event.data;
+        if (
+          message?.type === 'scorer-lease-token-probe' &&
+          message.inningsId === this.inningsId &&
+          !!this.scorerLeaseToken &&
+          message.leaseToken === this.scorerLeaseToken
+        ) {
+          this.scoreBroadcastChannel?.postMessage({
+            type: 'scorer-lease-token-active',
+            probeId: message.probeId,
+          });
+          return;
+        }
+        if (message?.type === 'scorer-lease-token-active' && typeof message.probeId === 'string') {
+          this.pendingScorerLeaseProbes.get(message.probeId)?.();
+        }
+      };
     }
     this.connectLocalObsRelay();
     this.liveSocket.state$.subscribe((state) => {
@@ -1044,11 +1072,38 @@ export class LiveScoringV2Component implements OnDestroy {
     });
   }
 
+  private probeForActiveScorerLeaseToken(token: string, inningsId: string): Promise<boolean> {
+    if (!this.scoreBroadcastChannel) return Promise.resolve(false);
+    const probeId = crypto.randomUUID();
+    return new Promise((resolve) => {
+      let completed = false;
+      const finish = (active: boolean) => {
+        if (completed) return;
+        completed = true;
+        clearTimeout(timeoutId);
+        this.pendingScorerLeaseProbes.delete(probeId);
+        resolve(active);
+      };
+      const timeoutId = setTimeout(() => finish(false), 150);
+      this.pendingScorerLeaseProbes.set(probeId, () => finish(true));
+      this.scoreBroadcastChannel?.postMessage({
+        type: 'scorer-lease-token-probe',
+        inningsId,
+        leaseToken: token,
+        probeId,
+      });
+    });
+  }
+
   private async acquireScorerLease(): Promise<void> {
     if (!navigator.onLine || !this.inningsId) return;
     try {
       const storageKey = `cricpulse-scorer-lease:${this.inningsId}`;
-      this.scorerLeaseToken = sessionStorage.getItem(storageKey) || crypto.randomUUID();
+      const storedToken = sessionStorage.getItem(storageKey);
+      this.scorerLeaseToken = storedToken || crypto.randomUUID();
+      this.scorerLeaseToken = await resolveScorerLeaseToken(storedToken, (candidate) =>
+        this.probeForActiveScorerLeaseToken(candidate, this.inningsId),
+      );
       sessionStorage.setItem(storageKey, this.scorerLeaseToken);
       await firstValueFrom(
         this.http.post(`${this.api}/scoring/innings/${this.inningsId}/lease`, {
