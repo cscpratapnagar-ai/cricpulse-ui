@@ -31,7 +31,10 @@ export class TournamentsComponent {
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
   tournaments: Tournament[] = [];
   loading = true;
+  refreshing = false;
   loadError = false;
+  refreshError = false;
+  private hasLoaded = false;
   query = '';
   statusFilter = 'ALL';
   sortKey = 'newest';
@@ -151,17 +154,25 @@ export class TournamentsComponent {
     }
   }
   load() {
-    this.loading = true;
+    this.loading = !this.hasLoaded;
+    this.refreshing = this.hasLoaded;
     this.loadError = false;
+    this.refreshError = false;
     this.http.get<Tournament[]>(`${this.api}/tournaments/mine`).subscribe({
       next: (x) => {
         this.tournaments = x || [];
+        this.hasLoaded = true;
         this.loading = false;
+        this.refreshing = false;
       },
       error: () => {
-        this.tournaments = [];
-        this.loadError = true;
         this.loading = false;
+        this.refreshing = false;
+        if (this.hasLoaded) {
+          this.refreshError = true;
+          return;
+        }
+        this.loadError = true;
       },
     });
   }
