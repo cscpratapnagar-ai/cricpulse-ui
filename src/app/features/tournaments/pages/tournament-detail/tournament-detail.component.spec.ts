@@ -25,6 +25,42 @@ describe('TournamentDetailComponent', () => {
     return component;
   }
 
+  it('routes each fixture to the correct next operator action', () => {
+    const component = createComponent();
+    const live = { matchId: 'm-live', status: 'LIVE' } as any;
+    const scheduled = { matchId: 'm-next', status: 'SCHEDULED' } as any;
+    const completed = { matchId: 'm-done', status: 'COMPLETED' } as any;
+
+    expect(component.workflowRoute(live)).toEqual(['/matches', 'm-live', 'live-scoring']);
+    expect(component.workflowAction(live)).toBe('Open live scoring');
+    expect(component.workflowRoute(scheduled)).toEqual(['/matches', 'm-next', 'playing-xi']);
+    expect(component.workflowAction(scheduled)).toBe('Continue match setup');
+    expect(component.workflowRoute(completed)).toEqual(['/matches', 'm-done', 'result']);
+    expect(component.workflowAction(completed)).toBe('View match result');
+  });
+
+  it('summarises fixture operations by live, scheduled and completed status', () => {
+    const component = createComponent();
+    component.fixtures = [
+      { matchId: '1', status: 'LIVE' } as any,
+      { matchId: '2', status: 'SCHEDULED' } as any,
+      { matchId: '3', status: 'COMPLETED' } as any,
+      { matchId: '4', status: 'SCHEDULED' } as any,
+    ];
+
+    expect(component.liveFixtures).toHaveSize(1);
+    expect(component.upcomingFixtures).toHaveSize(2);
+    expect(component.completedFixtures).toHaveSize(1);
+  });
+
+  it('formats fixture times safely for end users', () => {
+    const component = createComponent();
+
+    expect(component.scheduledLabel(null)).toBe('Time not scheduled');
+    expect(component.scheduledLabel('not-a-date')).toBe('Schedule needs review');
+    expect(component.scheduledLabel('2026-11-19T10:00:00+05:30')).not.toBe('Schedule needs review');
+  });
+
   it('blocks fixture generation until at least two teams are registered', () => {
     const component = createComponent();
     component.generateFixtures();
