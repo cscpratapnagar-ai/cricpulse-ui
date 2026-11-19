@@ -22,10 +22,18 @@ describe('TournamentsComponent', () => {
 
   it('preserves the tournament directory when a refresh fails', () => {
     const http = (component as any).http;
-    const existing = [{
-      id: 't1', name: 'Summer Cup', format: 'T20', overs: 20,
-      location: 'Surat', startDate: null, status: 'ACTIVE', createdAt: '2026-01-01',
-    }];
+    const existing = [
+      {
+        id: 't1',
+        name: 'Summer Cup',
+        format: 'T20',
+        overs: 20,
+        location: 'Surat',
+        startDate: null,
+        status: 'ACTIVE',
+        createdAt: '2026-01-01',
+      },
+    ];
     component.tournaments = existing;
     (component as any).hasLoaded = true;
     spyOn(http, 'get').and.returnValue(throwError(() => new Error('offline')));
