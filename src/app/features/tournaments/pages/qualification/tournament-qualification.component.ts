@@ -83,6 +83,12 @@ export class TournamentQualificationComponent {
   progress: PlayoffProgress | null = null;
   error = '';
   progressMessage = '';
+  readonly stages: { key: PlayoffStage; number: string; hint: string }[] = [
+    { key: 'QUALIFIER_1', number: '01', hint: '1st vs 2nd · Winner to Final' },
+    { key: 'ELIMINATOR', number: '02', hint: '3rd vs 4th · Winner to Qualifier 2' },
+    { key: 'QUALIFIER_2', number: '03', hint: 'Q1 loser vs Eliminator winner' },
+    { key: 'FINAL', number: '04', hint: 'Q1 winner vs Q2 winner' },
+  ];
 
   constructor() {
     if (this.id) this.load();
