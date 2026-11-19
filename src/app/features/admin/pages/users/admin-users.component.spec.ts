@@ -22,9 +22,7 @@ describe('AdminUsersComponent', () => {
     const fixture = TestBed.createComponent(AdminUsersComponent);
     fixture.detectChanges();
 
-    const request = http.expectOne(
-      (req) => req.url === `${API_BASE_URL}/admin/users`,
-    );
+    const request = http.expectOne((req) => req.url === `${API_BASE_URL}/admin/users`);
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('page')).toBe('0');
     expect(request.request.params.get('size')).toBe('25');
@@ -39,9 +37,7 @@ describe('AdminUsersComponent', () => {
     ]);
 
     expect(fixture.componentInstance.users()).toHaveLength(1);
-    expect(fixture.componentInstance.users()[0].email).toBe(
-      'player@example.com',
-    );
+    expect(fixture.componentInstance.users()[0].email).toBe('player@example.com');
   });
 
   it('sends a role update to the protected admin API', () => {
@@ -60,9 +56,7 @@ describe('AdminUsersComponent', () => {
     };
     fixture.componentInstance.saveRole(user);
 
-    const request = http.expectOne(
-      `${API_BASE_URL}/admin/users/user-2/role`,
-    );
+    const request = http.expectOne(`${API_BASE_URL}/admin/users/user-2/role`);
     expect(request.request.method).toBe('PATCH');
     expect(request.request.body).toEqual({ role: 'SCORER' });
     request.flush(user);
@@ -81,8 +75,6 @@ describe('AdminUsersComponent', () => {
         { status: 403, statusText: 'Forbidden' },
       );
 
-    expect(fixture.componentInstance.error()).toContain(
-      'do not have permission',
-    );
+    expect(fixture.componentInstance.error()).toContain('do not have permission');
   });
 });
