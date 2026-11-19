@@ -50,6 +50,14 @@ interface TournamentAnalytics {
   teams: Point[];
   topRunScorers: { playerId: string; playerName: string; runs: number; wickets: number }[];
   topWicketTakers: { playerId: string; playerName: string; runs: number; wickets: number }[];
+  topFielders: {
+    playerId: string;
+    playerName: string;
+    catches: number;
+    runOuts: number;
+    stumpings: number;
+    totalContributions: number;
+  }[];
 }
 
 @Component({
