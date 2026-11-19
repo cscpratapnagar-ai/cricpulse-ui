@@ -243,3 +243,39 @@
     font-size: 16px;
   }
 }
+
+.navigation-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1100;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--cp-accent) 16%, transparent);
+}
+
+.navigation-progress::after {
+  content: '';
+  display: block;
+  width: 38%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--cp-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cp-accent) 70%, transparent);
+  animation: navigation-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes navigation-progress {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(290%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress::after {
+    animation-duration: 2.5s;
+  }
+}

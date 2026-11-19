@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { Observable, Subscription } from 'rxjs';
 import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
+import { SKIP_GLOBAL_LOADING } from '../interceptors/loading.interceptor';
 
 export interface LiveBatter {
   playerId: string;
@@ -177,7 +178,9 @@ export class LiveScoreService {
         reconciling = true;
         httpSubscriptions.add(
           this.http
-            .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
+            .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`, {
+              context: new HttpContext().set(SKIP_GLOBAL_LOADING, true),
+            })
             .subscribe({
               next: (score) => {
                 if (!stopped && score?.inningsId === inningsId) {
