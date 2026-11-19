@@ -58,6 +58,12 @@ interface PhaseSummary {
   sampleLabel: 'LIMITED SAMPLE' | 'EARLY SAMPLE' | 'RECORDED SAMPLE';
 }
 
+interface PhaseInningsGroup {
+  inningsNumber: number;
+  battingTeam: string;
+  phases: PhaseSummary[];
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -172,6 +178,23 @@ export class MatchDetailComponent {
           this.phaseAnalysisLoading = false;
         },
       });
+  }
+
+  phaseInnings(): PhaseInningsGroup[] {
+    const groups = new Map<number, PhaseInningsGroup>();
+    for (const phase of this.phaseAnalysis) {
+      let group = groups.get(phase.inningsNumber);
+      if (!group) {
+        group = {
+          inningsNumber: phase.inningsNumber,
+          battingTeam: phase.battingTeam,
+          phases: [],
+        };
+        groups.set(phase.inningsNumber, group);
+      }
+      group.phases.push(phase);
+    }
+    return Array.from(groups.values()).sort((a, b) => a.inningsNumber - b.inningsNumber);
   }
 
   phaseLabel(phase: PhaseSummary['phase']): string {
