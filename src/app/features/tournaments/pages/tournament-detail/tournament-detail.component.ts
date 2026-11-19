@@ -55,6 +55,23 @@ interface StaffCandidate {
   fullName: string;
   email: string | null;
 }
+interface TournamentManager {
+  tournamentId: string;
+  userId: string;
+  fullName: string;
+  email: string | null;
+  role: 'MANAGER';
+  assignedAt: string;
+}
+interface ManagerCandidate {
+  userId: string;
+  fullName: string;
+  email: string | null;
+}
+interface TournamentManagersResponse {
+  managers: TournamentManager[];
+  canManage: boolean;
+}
 interface Point {
   teamId: string;
   teamName: string;
@@ -120,6 +137,17 @@ export class TournamentDetailComponent {
   staffBusy = false;
   staffError = '';
   staffMessage = '';
+  managerPanelOpen = false;
+  tournamentManagers: TournamentManager[] = [];
+  managerCandidates: ManagerCandidate[] = [];
+  managerSearch = '';
+  selectedManagerCandidateId = '';
+  managerLoading = false;
+  managerSearching = false;
+  managerBusy = false;
+  managerError = '';
+  managerMessage = '';
+  canManageManagers = false;
   readonly staffRoles: { value: MatchStaffRole; label: string }[] = [
     { value: 'SCORER', label: 'Scorer' },
     { value: 'STREAMER', label: 'Broadcast operator' },
@@ -297,6 +325,96 @@ export class TournamentDetailComponent {
     return Number.isNaN(date.getTime())
       ? 'Schedule needs review'
       : date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+  toggleManagerPanel() {
+    this.managerPanelOpen = !this.managerPanelOpen;
+    if (this.managerPanelOpen) this.loadTournamentManagers();
+  }
+  loadTournamentManagers() {
+    this.managerLoading = true;
+    this.managerError = '';
+    this.http
+      .get<TournamentManagersResponse>(`${this.api}/tournaments/${this.id}/staff`)
+      .subscribe({
+        next: (response) => {
+          this.tournamentManagers = response?.managers || [];
+          this.canManageManagers = !!response?.canManage;
+          this.managerLoading = false;
+        },
+        error: (error) => {
+          this.managerLoading = false;
+          this.managerError = error?.error?.message || 'Unable to load tournament organisers.';
+        },
+      });
+  }
+  searchManagerCandidates() {
+    const query = this.managerSearch.trim();
+    if (query.length < 2) {
+      this.managerError = 'Enter at least 2 characters to search registered user accounts.';
+      return;
+    }
+    this.managerSearching = true;
+    this.managerError = '';
+    this.http
+      .get<ManagerCandidate[]>(
+        `${this.api}/tournaments/${this.id}/staff/candidates?q=${encodeURIComponent(query)}`,
+      )
+      .subscribe({
+        next: (candidates) => {
+          this.managerCandidates = candidates || [];
+          this.selectedManagerCandidateId = this.managerCandidates[0]?.userId || '';
+          this.managerSearching = false;
+        },
+        error: (error) => {
+          this.managerSearching = false;
+          this.managerError = error?.error?.message || 'Unable to search organiser accounts.';
+        },
+      });
+  }
+  assignTournamentManager() {
+    if (!this.selectedManagerCandidateId) {
+      this.managerError = 'Search and select a registered user account first.';
+      return;
+    }
+    this.managerBusy = true;
+    this.managerError = '';
+    this.managerMessage = '';
+    this.http
+      .put(
+        `${this.api}/tournaments/${this.id}/staff/manager`,
+        { userId: this.selectedManagerCandidateId },
+      )
+      .subscribe({
+        next: () => {
+          this.managerBusy = false;
+          this.managerMessage = 'Tournament manager access granted.';
+          this.selectedManagerCandidateId = '';
+          this.managerCandidates = [];
+          this.loadTournamentManagers();
+        },
+        error: (error) => {
+          this.managerBusy = false;
+          this.managerError = error?.error?.message || 'Unable to assign tournament manager.';
+        },
+      });
+  }
+  removeTournamentManager(manager: TournamentManager) {
+    this.managerBusy = true;
+    this.managerError = '';
+    this.managerMessage = '';
+    this.http
+      .delete(`${this.api}/tournaments/${this.id}/staff/manager/${manager.userId}`)
+      .subscribe({
+        next: () => {
+          this.managerBusy = false;
+          this.managerMessage = `${manager.fullName} no longer has tournament manager access.`;
+          this.loadTournamentManagers();
+        },
+        error: (error) => {
+          this.managerBusy = false;
+          this.managerError = error?.error?.message || 'Unable to remove tournament manager.';
+        },
+      });
   }
   toggleStaffPanel(fixture: Fixture) {
     if (this.staffPanelMatchId === fixture.matchId) {
