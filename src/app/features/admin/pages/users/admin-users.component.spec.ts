@@ -36,7 +36,7 @@ describe('AdminUsersComponent', () => {
       },
     ]);
 
-    expect(fixture.componentInstance.users()).toHaveLength(1);
+    expect(fixture.componentInstance.users().length).toBe(1);
     expect(fixture.componentInstance.users()[0].email).toBe('player@example.com');
   });
 
