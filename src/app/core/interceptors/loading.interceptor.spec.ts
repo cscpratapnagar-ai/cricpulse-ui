@@ -2,7 +2,11 @@ import { HttpContext, HttpRequest, HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { LoadingService } from '../services/loading.service';
-import { loadingInterceptor, SHOW_GLOBAL_LOADING, SKIP_GLOBAL_LOADING } from './loading.interceptor';
+import {
+  loadingInterceptor,
+  SHOW_GLOBAL_LOADING,
+  SKIP_GLOBAL_LOADING,
+} from './loading.interceptor';
 
 describe('loadingInterceptor', () => {
   let loading: {
@@ -47,7 +51,7 @@ describe('loadingInterceptor', () => {
 
   it('allows the skip token to override an explicit global-loading request', () => {
     TestBed.runInInjectionContext(() => {
-      const request = new HttpRequest('GET', '/api/matches', {
+      const request = new HttpRequest('GET', '/api/matches', null, {
         context: new HttpContext()
           .set(SHOW_GLOBAL_LOADING, true)
           .set(SKIP_GLOBAL_LOADING, true),
