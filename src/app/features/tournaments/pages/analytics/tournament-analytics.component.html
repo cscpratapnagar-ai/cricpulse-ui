@@ -168,6 +168,66 @@
       }
     </section>
 
+    <section class="card panel player-performance-panel">
+      <div class="head">
+        <div>
+          <span class="eyebrow">TOURNAMENT PLAYER PERFORMANCE</span>
+          <h2>All-round player leaderboard</h2>
+          <p class="subhead">
+            Batting, bowling and recorded fielding contributions from completed tournament matches.
+          </p>
+        </div>
+        <span class="panel-index">04</span>
+      </div>
+      @if (playerPerformances.length) {
+        <div class="performance-table-wrap">
+          <table class="performance-table">
+            <thead>
+              <tr>
+                <th scope="col">Player</th>
+                <th scope="col">Mat</th>
+                <th scope="col">Runs</th>
+                <th scope="col">Avg</th>
+                <th scope="col">SR</th>
+                <th scope="col">Wkts</th>
+                <th scope="col">Econ</th>
+                <th scope="col">Ct</th>
+                <th scope="col">RO</th>
+                <th scope="col">St</th>
+                <th scope="col">Field</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (player of playerPerformances; track player.playerId) {
+                <tr>
+                  <th scope="row">
+                    <span class="performance-player">{{ player.playerName }}</span>
+                    <small>{{ player.highestScore }} HS · {{ player.battingInnings }} inns</small>
+                  </th>
+                  <td>{{ player.matches }}</td>
+                  <td class="performance-highlight">{{ player.runs }}</td>
+                  <td>{{ player.battingAverage | number: '1.2-2' }}</td>
+                  <td>{{ player.strikeRate | number: '1.2-2' }}</td>
+                  <td class="performance-highlight">{{ player.wickets }}</td>
+                  <td>{{ player.economy | number: '1.2-2' }}</td>
+                  <td>{{ player.catches }}</td>
+                  <td>{{ player.runOuts }}</td>
+                  <td>{{ player.stumpings }}</td>
+                  <td>{{ player.totalFieldingContributions }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="muted">Player performance will appear after completed tournament matches with recorded scorecards.</p>
+      }
+      <p class="performance-note">
+        Batting average uses recorded dismissals; strike rate uses balls faced; bowling economy uses legal balls.
+        Fielding totals include only attributed catches, run-outs and stumpings.
+      </p>
+    </section>
+
     <div class="actions">
       <a [routerLink]="['/tournaments', id, 'qualification']">Qualification Preview <b>→</b></a>
       <a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures <b>→</b></a>
