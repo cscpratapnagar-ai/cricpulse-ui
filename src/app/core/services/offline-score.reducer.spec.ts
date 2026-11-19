@@ -1,6 +1,7 @@
 import { LiveScore } from './live-score.service';
 import {
   getOfflineQueueConflictPositions,
+  hasBlockedOfflineQueueItems,
   hasOfflineQueuePositionConflict,
   isTransientOfflineSyncStatus,
   offlineDeliveryMatchesRecentBall,
@@ -349,6 +350,22 @@ describe('getOfflineQueueConflictPositions', () => {
         command('report-no-ball', { extraType: 'NO_BALL', legalDelivery: false }),
       ]),
     ).toEqual([]);
+  });
+});
+
+describe('hasBlockedOfflineQueueItems', () => {
+  it('blocks automatic replay when any queued command requires manual reconciliation', () => {
+    expect(
+      hasBlockedOfflineQueueItems([
+        command('pending-1'),
+        { ...command('blocked-1'), syncStatus: 'BLOCKED' },
+      ]),
+    ).toBeTrue();
+  });
+
+  it('allows automatic replay only when every queued command is pending', () => {
+    expect(hasBlockedOfflineQueueItems([command('pending-1'), command('pending-2')])).toBeFalse();
+    expect(hasBlockedOfflineQueueItems([])).toBeFalse();
   });
 });
 
