@@ -1,4 +1,7 @@
 <div class="app-root">
+  @if (navigationPending()) {
+    <div class="navigation-progress" role="progressbar" aria-label="Navigating"></div>
+  }
   <router-outlet />
 
   @if (loading.isLoading()) {
