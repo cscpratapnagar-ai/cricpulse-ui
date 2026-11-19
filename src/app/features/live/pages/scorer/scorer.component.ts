@@ -24,7 +24,12 @@ interface Player {
   battingStyle: string;
   bowlingStyle: string;
 }
-interface PlayingPlayer {\n  teamId: string;\n  playerId: string;\n  name: string;\n}\ninterface InningsResponse {
+interface PlayingPlayer {
+  teamId: string;
+  playerId: string;
+  name: string;
+}
+interface InningsResponse {
   id: string;
   inningsNumber: number;
 }
@@ -41,7 +46,17 @@ export class ScorerComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly liveScore = inject(LiveScoreService);
-  readonly runs = [0, 1, 2, 3, 4, 6];\n  readonly wicketTypeOptions: SelectOption[] = [\n    { value: 'BOWLED', label: 'Bowled' },\n    { value: 'CAUGHT', label: 'Caught' },\n    { value: 'LBW', label: 'LBW' },\n    { value: 'RUN_OUT', label: 'Run out' },\n    { value: 'STUMPED', label: 'Stumped' },\n    { value: 'HIT_WICKET', label: 'Hit wicket' },\n    { value: 'HIT_BALL_TWICE', label: 'Hit ball twice' },\n    { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the field' },\n  ];
+  readonly runs = [0, 1, 2, 3, 4, 6];
+  readonly wicketTypeOptions: SelectOption[] = [
+    { value: 'BOWLED', label: 'Bowled' },
+    { value: 'CAUGHT', label: 'Caught' },
+    { value: 'LBW', label: 'LBW' },
+    { value: 'RUN_OUT', label: 'Run out' },
+    { value: 'STUMPED', label: 'Stumped' },
+    { value: 'HIT_WICKET', label: 'Hit wicket' },
+    { value: 'HIT_BALL_TWICE', label: 'Hit ball twice' },
+    { value: 'OBSTRUCTING_THE_FIELD', label: 'Obstructing the field' },
+  ];
   readonly inningsOptions: SelectOption[] = [
     { value: '1', label: 'Innings 1' },
     { value: '2', label: 'Innings 2' },
@@ -55,7 +70,13 @@ export class ScorerComponent {
   nonStrikerId = '';
   bowlerId = '';
   battingPlayers: Player[] = [];
-  bowlingPlayers: Player[] = [];\n  playingXi: PlayingPlayer[] = [];\n  wicketType = 'BOWLED';\n  dismissedPlayerId = '';\n  newBatterId = '';\n  wicketFielderId = '';\n  currentWickets = 0;
+  bowlingPlayers: Player[] = [];
+  playingXi: PlayingPlayer[] = [];
+  wicketType = 'BOWLED';
+  dismissedPlayerId = '';
+  newBatterId = '';
+  wicketFielderId = '';
+  currentWickets = 0;
   score$ = of<LiveScore | null>(null);
   starting = false;
   message = '';
@@ -150,7 +171,8 @@ export class ScorerComponent {
       .subscribe({
         next: (r) => {
           this.starting = false;
-          this.inningsId = r.id;\n          this.currentWickets = 0;
+          this.inningsId = r.id;
+          this.currentWickets = 0;
           this.inningsNumber = String(r.inningsNumber);
           this.router
             .navigate(['/matches', this.matchId, 'live-scoring'], {
@@ -242,7 +264,9 @@ export class ScorerComponent {
       extraRuns,
       extraType,
       wicketType,
-      dismissedPlayerId: wicketType ? dismissedPlayerId || this.strikerId : null,\n      newBatterId: wicketType ? newBatterId : null,\n      wicketFielderId: wicketType ? wicketFielderId : null,
+      dismissedPlayerId: wicketType ? dismissedPlayerId || this.strikerId : null,
+      newBatterId: wicketType ? newBatterId : null,
+      wicketFielderId: wicketType ? wicketFielderId : null,
     };
     this.http
       .post(`${API_BASE_URL}/scoring/innings/${this.inningsId}/deliveries`, payload)
