@@ -217,6 +217,33 @@ describe('ObsSceneControllerComponent', () => {
     ).toBe('Wicket');
   });
 
+  it('saves, applies, and deletes match-scoped automation profiles', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [
+      { sceneName: 'Camera', sceneIndex: 0 },
+      { sceneName: 'Wicket', sceneIndex: 1 },
+    ];
+    component.newAutomationProfileName = 'T20 Match';
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'WICKET' ? { ...rule, sceneName: 'Wicket' } : rule,
+    );
+    component.automationReturnScene = 'Camera';
+    component.automationReturnDelay = 12;
+    component.saveAutomationProfile();
+
+    expect(component.automationProfiles.length).toBe(1);
+    const profileId = component.activeAutomationProfileId;
+    component.automationRules = component.automationRules.map((rule) => ({ ...rule, sceneName: '' }));
+    component.applyAutomationProfile(profileId);
+    expect(component.automationRules.find((rule) => rule.event === 'WICKET')?.sceneName).toBe('Wicket');
+    expect(component.automationReturnScene).toBe('Camera');
+    expect(component.automationReturnDelay).toBe(12);
+
+    component.deleteAutomationProfile(profileId);
+    expect(component.automationProfiles).toEqual([]);
+    expect(component.activeAutomationProfileId).toBe('');
+  });
+
   it('cancels automatic return when the operator manually switches scenes', async () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.currentScene = 'Event Scene';
