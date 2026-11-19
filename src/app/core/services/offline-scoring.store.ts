@@ -20,6 +20,7 @@ export interface QueuedDelivery {
     wicketType: string | null;
     dismissedPlayerId?: string | null;
     newBatterId?: string | null;
+    wicketFielderId?: string | null;
     legalDelivery?: boolean;
   };
 }
