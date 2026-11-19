@@ -84,6 +84,39 @@ interface Partnership {
   sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
 }
 
+interface BowlerOverFigure {
+  overNumber: number;
+  legalBalls: number;
+  runsConceded: number;
+  wickets: number;
+  maiden: boolean;
+}
+
+interface BowlerWicketEvent {
+  overNumber: number;
+  ballNumber: number;
+  dismissal: string;
+  dismissedBatter: string;
+  creditedToBowler: boolean;
+}
+
+interface BowlerSpell {
+  inningsNumber: number;
+  battingTeam: string;
+  bowlerId: string;
+  bowlerName: string;
+  legalBalls: number;
+  overs: string;
+  runsConceded: number;
+  wickets: number;
+  economy: number;
+  maidens: number;
+  wides: number;
+  noBalls: number;
+  oversBreakdown: BowlerOverFigure[];
+  wicketBreakdown: BowlerWicketEvent[];
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -135,6 +168,9 @@ export class MatchDetailComponent {
   partnerships: Partnership[] = [];
   partnershipsLoading = false;
   partnershipsError = false;
+  bowlingSpells: BowlerSpell[] = [];
+  bowlingSpellsLoading = false;
+  bowlingSpellsError = false;
   match: Match | null = null;
 
   constructor() {
@@ -151,6 +187,7 @@ export class MatchDetailComponent {
         this.loadMatchups(id);
         this.loadPhaseAnalysis(id);
         this.loadPartnerships(id);
+        this.loadBowlingSpells(id);
       },
       error: () => {
         this.match = null;
@@ -218,6 +255,22 @@ export class MatchDetailComponent {
         this.partnerships = [];
         this.partnershipsError = true;
         this.partnershipsLoading = false;
+      },
+    });
+  }
+
+  private loadBowlingSpells(matchId: string): void {
+    this.bowlingSpellsLoading = true;
+    this.bowlingSpellsError = false;
+    this.http.get<BowlerSpell[]>(`${this.api}/matches/${matchId}/bowling-spells`).subscribe({
+      next: (value) => {
+        this.bowlingSpells = Array.isArray(value) ? value : [];
+        this.bowlingSpellsLoading = false;
+      },
+      error: () => {
+        this.bowlingSpells = [];
+        this.bowlingSpellsError = true;
+        this.bowlingSpellsLoading = false;
       },
     });
   }
