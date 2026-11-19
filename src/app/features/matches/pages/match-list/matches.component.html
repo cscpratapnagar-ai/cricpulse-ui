@@ -9,10 +9,17 @@
       <p>Monitor every fixture, jump into live action, and keep your cricket workspace moving.</p>
     </div>
     <div class="hero-actions">
-      <button class="icon-action" type="button" (click)="load()" title="Refresh">↻</button>
+      <button class="icon-action" type="button" (click)="load()" title="Refresh" aria-label="Refresh matches" [disabled]="refreshing">↻</button>
       <a class="create-btn" routerLink="/matches/new"><span>＋</span> Create match</a>
     </div>
   </header>
+
+  @if (refreshing) {
+    <p role="status" aria-live="polite">Refreshing matches…</p>
+  }
+  @if (refreshError) {
+    <p role="alert">Could not refresh matches. Your previous data is still available. <button type="button" (click)="load()">Retry</button></p>
+  }
 
   <section class="intel-strip">
     <div class="intel-card">
