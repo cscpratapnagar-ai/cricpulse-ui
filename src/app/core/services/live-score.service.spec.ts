@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { Client } from '@stomp/stompjs';
 import {
   LiveScoreService,
   decideLiveScoreFrame,
@@ -9,13 +11,29 @@ import {
 
 describe('LiveScoreService', () => {
   let service: LiveScoreService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(LiveScoreService);
+    httpMock = TestBed.inject(HttpTestingController);
+    spyOn(Client.prototype, 'activate').and.stub();
   });
 
   it('creates the service', () => expect(service).toBeTruthy());
+
+  it('cancels the initial REST snapshot request when the watcher unsubscribes', () => {
+    const watcher = service.watch('innings-1').subscribe();
+    const request = httpMock.expectOne((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-1'),
+    );
+
+    watcher.unsubscribe();
+
+    expect(request.cancelled).toBeTrue();
+  });
 
   it('rejects an empty innings id', (done) => {
     service.watch('').subscribe({
