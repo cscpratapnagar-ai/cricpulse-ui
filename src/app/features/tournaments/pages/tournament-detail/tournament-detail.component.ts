@@ -39,6 +39,7 @@ interface Fixture {
   teamAName: string;
   teamBName: string;
   status: string;
+  scheduledAt?: string | null;
 }
 interface Point {
   teamId: string;
@@ -75,9 +76,10 @@ export class TournamentDetailComponent {
   busy = false;
   actionError = '';
   actionMessage = '';
-  activeTab = signal<'overview' | 'teams' | 'fixtures' | 'standings' | 'analytics'>('overview');
+  activeTab = signal<'overview' | 'operations' | 'teams' | 'fixtures' | 'standings' | 'analytics'>('overview');
   tabs = [
     { key: 'overview' as const, label: 'Overview', icon: '◈' },
+    { key: 'operations' as const, label: 'Operations', icon: '⌘' },
     { key: 'teams' as const, label: 'Teams', icon: '♜' },
     { key: 'fixtures' as const, label: 'Fixtures', icon: '▦' },
     { key: 'standings' as const, label: 'Standings', icon: '≡' },
@@ -236,6 +238,32 @@ export class TournamentDetailComponent {
   }
   get completion() {
     return this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0;
+  }
+  get liveFixtures() {
+    return this.fixtures.filter((fixture) => fixture.status === 'LIVE');
+  }
+  get upcomingFixtures() {
+    return this.fixtures.filter((fixture) => fixture.status === 'SCHEDULED');
+  }
+  get completedFixtures() {
+    return this.fixtures.filter((fixture) => fixture.status === 'COMPLETED');
+  }
+  workflowRoute(fixture: Fixture): string[] {
+    if (fixture.status === 'LIVE') return ['/matches', fixture.matchId, 'live-scoring'];
+    if (fixture.status === 'COMPLETED') return ['/matches', fixture.matchId, 'result'];
+    return ['/matches', fixture.matchId, 'playing-xi'];
+  }
+  workflowAction(fixture: Fixture): string {
+    if (fixture.status === 'LIVE') return 'Open live scoring';
+    if (fixture.status === 'COMPLETED') return 'View match result';
+    return 'Continue match setup';
+  }
+  scheduledLabel(value?: string | null): string {
+    if (!value) return 'Time not scheduled';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? 'Schedule needs review'
+      : date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
   }
   refresh() {
     this.loading = true;
