@@ -166,6 +166,24 @@
               ><small>{{ overs(career.bowlingBalls) }} overs bowled</small>
             </article>
           </section>
+          <section class="stats-grid" aria-label="Career fielding contributions">
+            <article class="stat-card">
+              <span>CATCHES</span><strong>{{ fielding.catches }}</strong
+              ><small>Recorded caught dismissals</small>
+            </article>
+            <article class="stat-card">
+              <span>RUN-OUTS</span><strong>{{ fielding.runOuts }}</strong
+              ><small>Direct and assisted run-outs</small>
+            </article>
+            <article class="stat-card">
+              <span>STUMPINGS</span><strong>{{ fielding.stumpings }}</strong
+              ><small>Recorded stumping dismissals</small>
+            </article>
+            <article class="stat-card accent-card">
+              <span>FIELDING CONTRIBUTIONS</span><strong>{{ fielding.totalContributions }}</strong
+              ><small>Career dismissal contributions</small>
+            </article>
+          </section>
           @if (player.bio) {
             <section class="bio-card">
               <span class="eyebrow">ABOUT</span>
