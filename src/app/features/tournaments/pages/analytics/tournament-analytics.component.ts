@@ -58,6 +58,29 @@ interface TournamentAnalytics {
     stumpings: number;
     totalContributions: number;
   }[];
+  playerPerformances: {
+    playerId: string;
+    playerName: string;
+    matches: number;
+    battingInnings: number;
+    runs: number;
+    highestScore: number;
+    dismissals: number;
+    battingBalls: number;
+    battingAverage: number;
+    strikeRate: number;
+    bowlingInnings: number;
+    bowlingBalls: number;
+    runsConceded: number;
+    wickets: number;
+    bowlingAverage: number;
+    economy: number;
+    bowlingStrikeRate: number;
+    catches: number;
+    runOuts: number;
+    stumpings: number;
+    totalFieldingContributions: number;
+  }[];
 }
 
 @Component({
@@ -144,6 +167,10 @@ export class TournamentAnalyticsComponent {
       (this.fixtures.length ? Math.round((this.completed / this.fixtures.length) * 100) : 0)
     );
   }
+  get playerPerformances() {
+    return this.analytics?.playerPerformances ?? [];
+  }
+
   get leader() {
     return this.points[0];
   }
