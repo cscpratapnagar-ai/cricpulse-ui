@@ -117,13 +117,55 @@ export class ObsSceneControllerComponent implements OnDestroy {
   activeAutomationProfileId = '';
   newAutomationProfileName = '';
   automationRules: AutomationRule[] = [
-    { event: 'FOUR', label: 'Four', sceneName: '', enabled: true, priority: 70, cooldownSeconds: 3 },
+    {
+      event: 'FOUR',
+      label: 'Four',
+      sceneName: '',
+      enabled: true,
+      priority: 70,
+      cooldownSeconds: 3,
+    },
     { event: 'SIX', label: 'Six', sceneName: '', enabled: true, priority: 80, cooldownSeconds: 3 },
-    { event: 'WICKET', label: 'Wicket', sceneName: '', enabled: true, priority: 100, cooldownSeconds: 5 },
-    { event: 'OVER_COMPLETE', label: 'Over complete', sceneName: '', enabled: true, priority: 40, cooldownSeconds: 2 },
-    { event: 'MILESTONE', label: 'Milestone', sceneName: '', enabled: true, priority: 50, cooldownSeconds: 5 },
-    { event: 'INNINGS_BREAK', label: 'Innings break', sceneName: '', enabled: true, priority: 90, cooldownSeconds: 10 },
-    { event: 'RESULT', label: 'Match result', sceneName: '', enabled: true, priority: 100, cooldownSeconds: 10 },
+    {
+      event: 'WICKET',
+      label: 'Wicket',
+      sceneName: '',
+      enabled: true,
+      priority: 100,
+      cooldownSeconds: 5,
+    },
+    {
+      event: 'OVER_COMPLETE',
+      label: 'Over complete',
+      sceneName: '',
+      enabled: true,
+      priority: 40,
+      cooldownSeconds: 2,
+    },
+    {
+      event: 'MILESTONE',
+      label: 'Milestone',
+      sceneName: '',
+      enabled: true,
+      priority: 50,
+      cooldownSeconds: 5,
+    },
+    {
+      event: 'INNINGS_BREAK',
+      label: 'Innings break',
+      sceneName: '',
+      enabled: true,
+      priority: 90,
+      cooldownSeconds: 10,
+    },
+    {
+      event: 'RESULT',
+      label: 'Match result',
+      sceneName: '',
+      enabled: true,
+      priority: 100,
+      cooldownSeconds: 10,
+    },
   ];
   private automationChannel?: BroadcastChannel;
   private automationRelay?: WebSocket;
@@ -409,7 +451,9 @@ export class ObsSceneControllerComponent implements OnDestroy {
       this.error = 'Enter a name for the duplicated profile.';
       return;
     }
-    const source = this.automationProfiles.find((profile) => profile.id === this.activeAutomationProfileId);
+    const source = this.automationProfiles.find(
+      (profile) => profile.id === this.activeAutomationProfileId,
+    );
     const id = `profile-${Date.now()}-${this.automationProfiles.length}`;
     const duplicate: AutomationProfile = {
       id,
