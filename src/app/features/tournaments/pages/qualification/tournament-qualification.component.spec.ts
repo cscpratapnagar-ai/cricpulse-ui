@@ -136,7 +136,8 @@ describe('TournamentQualificationComponent', () => {
       expect(component.fixtures.length).toBe(2);
       expect(component.leagueComplete).toBeTrue();
       expect(component.loading).toBeFalse();
-  );;
+    },
+  );
 
   it(
     'keeps progression disabled until the tournament is active and all league fixtures are complete',
@@ -155,7 +156,8 @@ describe('TournamentQualificationComponent', () => {
       expect(component.canProgress).toBeFalse();
       component.fixtures[1].status = 'COMPLETED';
       expect(component.canProgress).toBeTrue();
-  );;
+    },
+  );
 
   it(
     'uses persisted backend fixtures for all four stages without generating local fixtures',
@@ -176,7 +178,8 @@ describe('TournamentQualificationComponent', () => {
       expect(component.fixtureFor('QUALIFIER_2')?.matchId).toBe('q2');
       expect(component.fixtureFor('FINAL')?.matchId).toBe('f1');
       expect(component.teamNames('ELIMINATOR')).toEqual(['Kings', 'Warriors']);
-  );;
+    },
+  );
 
   it('posts progression only after the user action and reloads authoritative fixtures', () => {
     const { component, http } = createComponent();
