@@ -262,6 +262,94 @@
           >
         </div>
 
+        <section class="manager-workspace" aria-label="Tournament organiser access">
+          <div class="manager-workspace-heading">
+            <div>
+              <span class="eyebrow">TOURNAMENT TEAM</span>
+              <h3>Organiser access</h3>
+              <p>Delegate tournament operations without giving anyone a global admin role.</p>
+            </div>
+            <button type="button" class="manager-toggle" (click)="toggleManagerPanel()">
+              {{ managerPanelOpen ? 'Close organisers' : 'Manage organisers' }}
+            </button>
+          </div>
+          @if (managerPanelOpen) {
+            <div class="manager-panel">
+              @if (managerLoading) {
+                <p class="manager-state">Loading tournament organisers…</p>
+              } @else if (tournamentManagers.length) {
+                <div class="manager-list">
+                  @for (manager of tournamentManagers; track manager.userId) {
+                    <article class="manager-person">
+                      <span class="manager-avatar">{{ manager.fullName.slice(0, 1) || 'M' }}</span>
+                      <div class="manager-person-copy">
+                        <strong>{{ manager.fullName || 'Tournament manager' }}</strong>
+                        <small>{{ manager.email || 'Email unavailable' }}</small>
+                      </div>
+                      <span class="manager-role">MANAGER</span>
+                      @if (canManageManagers) {
+                        <button
+                          type="button"
+                          class="manager-remove"
+                          [disabled]="managerBusy"
+                          (click)="removeTournamentManager(manager)"
+                        >Remove</button>
+                      }
+                    </article>
+                  }
+                </div>
+              } @else {
+                <p class="manager-state">No additional tournament managers have been assigned.</p>
+              }
+              @if (canManageManagers) {
+                <div class="manager-assignment">
+                  <label>
+                    <span>Search registered user</span>
+                    <input
+                      type="search"
+                      [(ngModel)]="managerSearch"
+                      placeholder="Name or email address"
+                      (keydown.enter)="searchManagerCandidates()"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    class="manager-search"
+                    [disabled]="managerSearching || managerSearch.trim().length < 2"
+                    (click)="searchManagerCandidates()"
+                  >{{ managerSearching ? 'Searching…' : 'Search' }}</button>
+                  @if (managerCandidates.length) {
+                    <label>
+                      <span>Select organiser</span>
+                      <select [(ngModel)]="selectedManagerCandidateId">
+                        @for (candidate of managerCandidates; track candidate.userId) {
+                          <option [value]="candidate.userId">
+                            {{ candidate.fullName }} · {{ candidate.email || 'No email' }}
+                          </option>
+                        }
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      class="manager-assign"
+                      [disabled]="managerBusy || !selectedManagerCandidateId"
+                      (click)="assignTournamentManager()"
+                    >{{ managerBusy ? 'Saving…' : 'Grant manager access' }}</button>
+                  }
+                </div>
+              } @else {
+                <p class="manager-footnote">Only the tournament owner can grant or revoke manager access.</p>
+              }
+              @if (managerError) {
+                <p class="manager-feedback error" role="alert">{{ managerError }}</p>
+              }
+              @if (managerMessage) {
+                <p class="manager-feedback success" role="status">{{ managerMessage }}</p>
+              }
+            </div>
+          }
+        </section>
+
         <div class="operations-stats" aria-label="Fixture status summary">
           <article class="operation-stat live-stat">
             <span class="operation-stat-icon"><i></i></span>
