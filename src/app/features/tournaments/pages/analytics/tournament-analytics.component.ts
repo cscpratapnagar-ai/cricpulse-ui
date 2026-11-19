@@ -64,7 +64,12 @@ interface TournamentPlayerPerformance {
   stumpings: number;
   totalFieldingContributions: number;
 }
-interface TournamentComparisonMetric { label: string; left: number; right: number; lower?: boolean; }
+interface TournamentComparisonMetric {
+  label: string;
+  left: number;
+  right: number;
+  lower?: boolean;
+}
 interface TournamentAnalytics {
   totalFixtures: number;
   completedFixtures: number;
@@ -140,13 +145,16 @@ export class TournamentAnalyticsComponent {
       { label: 'Wickets', left: left.wickets, right: right.wickets },
       { label: 'Bowling average', left: left.bowlingAverage, right: right.bowlingAverage },
       { label: 'Economy', left: left.economy, right: right.economy, lower: true },
-      { label: 'Bowling strike rate', left: left.bowlingStrikeRate, right: right.bowlingStrikeRate },
+      {
+        label: 'Bowling strike rate',
+        left: left.bowlingStrikeRate,
+        right: right.bowlingStrikeRate,
+      },
       { label: 'Catches', left: left.catches, right: right.catches },
       { label: 'Run-outs', left: left.runOuts, right: right.runOuts },
       { label: 'Stumpings', left: left.stumpings, right: right.stumpings },
     ];
   }
-
 
   constructor() {
     if (this.id) this.load();

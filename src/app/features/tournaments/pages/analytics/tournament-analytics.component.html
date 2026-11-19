@@ -246,7 +246,9 @@
             <span>PLAYER 1</span>
             <select [value]="compareLeftId" (change)="setCompareLeft($any($event.target).value)">
               @for (player of comparisonPlayers; track player.playerId) {
-                <option [value]="player.playerId" [disabled]="player.playerId === compareRightId">{{ player.playerName }}</option>
+                <option [value]="player.playerId" [disabled]="player.playerId === compareRightId">
+                  {{ player.playerName }}
+                </option>
               }
             </select>
           </label>
@@ -255,7 +257,9 @@
             <span>PLAYER 2</span>
             <select [value]="compareRightId" (change)="setCompareRight($any($event.target).value)">
               @for (player of comparisonPlayers; track player.playerId) {
-                <option [value]="player.playerId" [disabled]="player.playerId === compareLeftId">{{ player.playerName }}</option>
+                <option [value]="player.playerId" [disabled]="player.playerId === compareLeftId">
+                  {{ player.playerName }}
+                </option>
               }
             </select>
           </label>
@@ -263,13 +267,31 @@
         @if (tournamentComparison; as comparison) {
           <div class="compare-table-wrap">
             <table class="compare-table">
-              <thead><tr><th scope="col">{{ comparison.left.playerName }}</th><th scope="col">METRIC</th><th scope="col">{{ comparison.right.playerName }}</th></tr></thead>
+              <thead>
+                <tr>
+                  <th scope="col">{{ comparison.left.playerName }}</th>
+                  <th scope="col">METRIC</th>
+                  <th scope="col">{{ comparison.right.playerName }}</th>
+                </tr>
+              </thead>
               <tbody>
                 @for (metric of comparisonMetrics; track metric.label) {
                   <tr>
-                    <td [class.compare-winner]="metric.lower ? metric.left < metric.right : metric.left > metric.right">{{ metric.left | number: '1.0-2' }}</td>
+                    <td
+                      [class.compare-winner]="
+                        metric.lower ? metric.left < metric.right : metric.left > metric.right
+                      "
+                    >
+                      {{ metric.left | number: '1.0-2' }}
+                    </td>
                     <th scope="row">{{ metric.label }}</th>
-                    <td [class.compare-winner]="metric.lower ? metric.right < metric.left : metric.right > metric.left">{{ metric.right | number: '1.0-2' }}</td>
+                    <td
+                      [class.compare-winner]="
+                        metric.lower ? metric.right < metric.left : metric.right > metric.left
+                      "
+                    >
+                      {{ metric.right | number: '1.0-2' }}
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -277,9 +299,15 @@
           </div>
         }
       } @else {
-        <p class="muted">At least two players need recorded activity in completed tournament matches to compare them.</p>
+        <p class="muted">
+          At least two players need recorded activity in completed tournament matches to compare
+          them.
+        </p>
       }
-      <p class="performance-note">Higher is better for batting, wickets and fielding. Lower is better for bowling economy. Figures are tournament-only, not career totals.</p>
+      <p class="performance-note">
+        Higher is better for batting, wickets and fielding. Lower is better for bowling economy.
+        Figures are tournament-only, not career totals.
+      </p>
     </section>
 
     <div class="actions">
