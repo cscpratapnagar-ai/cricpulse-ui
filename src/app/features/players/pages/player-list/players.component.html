@@ -12,7 +12,15 @@
       </p>
     </div>
     <div class="hero-actions">
-      <button type="button" class="secondary" (click)="loadPlayers()" [disabled]="refreshing" aria-label="Refresh players">↻ Refresh</button>
+      <button
+        type="button"
+        class="secondary"
+        (click)="loadPlayers()"
+        [disabled]="refreshing"
+        aria-label="Refresh players"
+      >
+        ↻ Refresh
+      </button>
       <a routerLink="/player/onboarding" class="primary">Add player <span>+</span></a>
       <a routerLink="/players/statistics" class="secondary">Open statistics <span>↗</span></a>
     </div>
@@ -21,7 +29,10 @@
     <p role="status" aria-live="polite">Refreshing player statistics…</p>
   }
   @if (refreshError) {
-    <p role="alert">Could not refresh player statistics. Your previous data is still available. <button type="button" (click)="loadPlayers()">Retry</button></p>
+    <p role="alert">
+      Could not refresh player statistics. Your previous data is still available.
+      <button type="button" (click)="loadPlayers()">Retry</button>
+    </p>
   }
   @if (loading) {
     <app-state-view state="loading" loadingLabel="Loading player intelligence..."></app-state-view>
