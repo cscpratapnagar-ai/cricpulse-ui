@@ -61,6 +61,52 @@ describe('HomeDashboardService', () => {
     expect(service.teams().length).toBe(2);
     expect(service.playerCount()).toBe(3);
     expect(service.loading()).toBeFalse();
+    expect(service.refreshing()).toBeFalse();
+    expect(service.error()).toBeFalse();
+  });
+
+  it('keeps successful sections available when one dashboard request fails', () => {
+    service.load();
+
+    http.expectOne(`${API_BASE_URL}/matches`).flush(
+      [{ id: 'live-1', name: 'Live Match', format: 'T20', status: 'LIVE' }],
+    );
+    http.expectOne(`${API_BASE_URL}/teams/mine`).flush(
+      [{ id: 'team-1', name: 'Alpha' }],
+      { status: 503, statusText: 'Unavailable' },
+    );
+
+    expect(service.matches().length).toBe(1);
+    expect(service.teams()).toEqual([]);
+    expect(service.matchesError()).toBeFalse();
+    expect(service.teamsError()).toBeTrue();
+    expect(service.loading()).toBeFalse();
+    expect(service.error()).toBeTrue();
+  });
+
+  it('preserves previously loaded data when a background refresh fails', () => {
+    service.load();
+    http.expectOne(`${API_BASE_URL}/matches`).flush([
+      { id: 'live-1', name: 'Live Match', format: 'T20', status: 'LIVE' },
+    ]);
+    http.expectOne(`${API_BASE_URL}/teams/mine`).flush([{ id: 'team-1', name: 'Alpha' }]);
+    http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([{ playerId: 'p-1' }]);
+
+    service.load();
+    expect(service.refreshing()).toBeTrue();
+    expect(service.loading()).toBeFalse();
+
+    http.expectOne(`${API_BASE_URL}/matches`).flush(
+      'failed',
+      { status: 503, statusText: 'Unavailable' },
+    );
+    http.expectOne(`${API_BASE_URL}/teams/mine`).flush([{ id: 'team-1', name: 'Alpha updated' }]);
+    http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([{ playerId: 'p-1' }]);
+
+    expect(service.matches()[0].id).toBe('live-1');
+    expect(service.teams()[0].name).toBe('Alpha updated');
+    expect(service.matchesError()).toBeTrue();
+    expect(service.refreshing()).toBeFalse();
   });
 
   it('normalizes backend match statuses for dashboard classification', () => {
