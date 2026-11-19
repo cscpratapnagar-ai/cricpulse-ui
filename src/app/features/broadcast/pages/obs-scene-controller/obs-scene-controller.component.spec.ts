@@ -400,8 +400,8 @@ describe('ObsSceneControllerComponent', () => {
     ).runAutomationScene.bind(component);
 
     const first = runAutomation('Wicket', 'Wicket');
-    const latest = runAutomation('Six', 'Six');
     await Promise.resolve();
+    const latest = runAutomation('Six', 'Six');
 
     expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
     finishFirst();
