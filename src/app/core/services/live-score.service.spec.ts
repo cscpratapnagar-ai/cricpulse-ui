@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { Client } from '@stomp/stompjs';
+import { Client, StompSubscription } from '@stomp/stompjs';
 import {
   LiveScoreService,
   decideLiveScoreFrame,
@@ -33,6 +33,37 @@ describe('LiveScoreService', () => {
     watcher.unsubscribe();
 
     expect(request.cancelled).toBeTrue();
+  });
+
+  it('cancels an in-flight reconciliation request when the watcher unsubscribes', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'test-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const watcher = service.watch('innings-2').subscribe();
+    const requests = httpMock.match((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-2'),
+    );
+
+    expect(requests.length).toBe(2);
+    requests[0].flush({
+      inningsId: 'innings-2',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 0,
+      wickets: 0,
+      legalBalls: 0,
+      eventVersion: 1,
+    });
+
+    watcher.unsubscribe();
+
+    expect(requests[1].cancelled).toBeTrue();
   });
 
   it('rejects an empty innings id', (done) => {
