@@ -3,7 +3,10 @@
     <div>
       <span class="eyebrow">PLATFORM CONTROL</span>
       <h1>User &amp; role management</h1>
-      <p>Manage platform-wide account roles. Team and match permissions remain separately scoped.</p>
+      <p>
+        Manage platform-wide account roles. Team and match permissions remain
+        separately scoped.
+      </p>
     </div>
     <span class="admin-chip">ADMIN ONLY</span>
   </header>
@@ -16,8 +19,14 @@
       </div>
       <form class="search" (ngSubmit)="search()">
         <label class="visually-hidden" for="user-search">Search users</label>
-        <input id="user-search" name="query" [ngModel]="query()" (ngModelChange)="query.set($event)"
-          placeholder="Search name or email" autocomplete="off">
+        <input
+          id="user-search"
+          name="query"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+          placeholder="Search name or email"
+          autocomplete="off"
+        />
         <button type="submit">Search</button>
       </form>
     </div>
@@ -35,27 +44,59 @@
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th scope="col">User</th><th scope="col">Contact</th><th scope="col">Platform role</th><th scope="col">Joined</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+          <tr>
+            <th scope="col">User</th>
+            <th scope="col">Contact</th>
+            <th scope="col">Platform role</th>
+            <th scope="col">Joined</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
         </thead>
         <tbody>
           @if (loading()) {
-            <tr><td colspan="5" class="table-state" role="status">Loading platform users…</td></tr>
+            <tr>
+              <td colspan="5" class="table-state" role="status">
+                Loading platform users…
+              </td>
+            </tr>
           } @else if (!users().length && !error()) {
-            <tr><td colspan="5" class="table-state">No users found. Try another search.</td></tr>
+            <tr>
+              <td colspan="5" class="table-state">
+                No users found. Try another search.
+              </td>
+            </tr>
           } @else {
             @for (user of users(); track user.id) {
               <tr>
-                <td><strong>{{ user.fullName }}</strong><small class="user-id">{{ user.id }}</small></td>
-                <td><span>{{ user.email }}</span><small>{{ user.phone || 'No phone added' }}</small></td>
                 <td>
-                  <label class="visually-hidden" [for]="'role-' + user.id">Role for {{ user.fullName }}</label>
-                  <select [id]="'role-' + user.id" [(ngModel)]="user.role" [name]="'role-' + user.id">
-                    @for (role of roles; track role) { <option [value]="role">{{ role }}</option> }
+                  <strong>{{ user.fullName }}</strong>
+                  <small class="user-id">{{ user.id }}</small>
+                </td>
+                <td>
+                  <span>{{ user.email }}</span>
+                  <small>{{ user.phone || 'No phone added' }}</small>
+                </td>
+                <td>
+                  <label class="visually-hidden" [for]="'role-' + user.id">
+                    Role for {{ user.fullName }}
+                  </label>
+                  <select
+                    [id]="'role-' + user.id"
+                    [(ngModel)]="user.role"
+                    [name]="'role-' + user.id"
+                  >
+                    @for (role of roles; track role) {
+                      <option [value]="role">{{ role }}</option>
+                    }
                   </select>
                 </td>
-                <td>{{ user.createdAt | date:'mediumDate' }}</td>
+                <td>{{ user.createdAt | date: 'mediumDate' }}</td>
                 <td class="actions">
-                  <button type="button" (click)="saveRole(user)" [disabled]="savingUserId() === user.id">
+                  <button
+                    type="button"
+                    (click)="saveRole(user)"
+                    [disabled]="savingUserId() === user.id"
+                  >
                     {{ savingUserId() === user.id ? 'Saving…' : 'Save role' }}
                   </button>
                 </td>
@@ -68,13 +109,29 @@
     <footer class="pagination">
       <span>Page {{ page() + 1 }} · {{ users().length }} shown</span>
       <div>
-        <button type="button" (click)="changePage(-1)" [disabled]="page() === 0 || loading()">Previous</button>
-        <button type="button" (click)="changePage(1)" [disabled]="users().length < pageSize || loading()">Next</button>
+        <button
+          type="button"
+          (click)="changePage(-1)"
+          [disabled]="page() === 0 || loading()"
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          (click)="changePage(1)"
+          [disabled]="users().length < pageSize || loading()"
+        >
+          Next
+        </button>
       </div>
     </footer>
   </section>
   <aside class="permission-note">
     <strong>Permission boundaries</strong>
-    <p>Platform roles are not a substitute for team membership or match staff assignments. A Scorer or Broadcast Operator must still be assigned to the relevant match where scoped access is required.</p>
+    <p>
+      Platform roles are not a substitute for team membership or match staff
+      assignments. A Scorer or Broadcast Operator must still be assigned to the
+      relevant match where scoped access is required.
+    </p>
   </aside>
 </section>
