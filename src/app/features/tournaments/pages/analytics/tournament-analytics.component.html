@@ -136,6 +136,38 @@
       }
     </section>
 
+    <section class="card panel fielding-leaders-panel">
+      <div class="head">
+        <div>
+          <span class="eyebrow">FIELDING EXCELLENCE</span>
+          <h2>Top fielders</h2>
+          <p class="subhead">
+            Recorded catches, run-outs and stumpings across completed tournament matches.
+          </p>
+        </div>
+        <span class="panel-index">03</span>
+      </div>
+      @if (analytics?.topFielders?.length) {
+        <div class="fielding-leader-list">
+          @for (fielder of analytics.topFielders; track fielder.playerId; let i = $index) {
+            <article class="fielding-leader">
+              <span class="fielding-rank">{{ i + 1 }}</span>
+              <div class="fielding-player">
+                <strong>{{ fielder.playerName }}</strong>
+                <small>
+                  {{ fielder.catches }} catches · {{ fielder.runOuts }} run-outs ·
+                  {{ fielder.stumpings }} stumpings
+                </small>
+              </div>
+              <strong class="fielding-count">{{ fielder.totalContributions }}</strong>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="muted">No recorded fielding contributions in completed tournament matches yet.</p>
+      }
+    </section>
+
     <div class="actions">
       <a [routerLink]="['/tournaments', id, 'qualification']">Qualification Preview <b>→</b></a>
       <a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures <b>→</b></a>

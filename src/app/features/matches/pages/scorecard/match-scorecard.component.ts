@@ -14,6 +14,8 @@ interface Batter {
   strikeRate: number;
   out: boolean;
   dismissal?: string | null;
+  fielderId?: string | null;
+  fielderName?: string | null;
 }
 interface Bowler {
   playerId: string;
@@ -29,6 +31,16 @@ interface FallOfWicket {
   runs: number;
   overNumber: number;
   ballNumber: number;
+}
+interface FielderContribution {
+  inningsNumber: number;
+  bowlingTeam: string;
+  fielderId: string;
+  fielderName: string;
+  catches: number;
+  runOuts: number;
+  stumpings: number;
+  totalDismissalContributions: number;
 }
 interface InningsScorecard {
   inningsId: string;
@@ -59,6 +71,7 @@ export class MatchScorecardComponent {
   matchId = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   scorecards: InningsScorecard[] = [];
+  fieldingAnalysis: FielderContribution[] = [];
   selectedInnings = 1;
   constructor() {
     if (this.matchId) this.load();
@@ -69,6 +82,7 @@ export class MatchScorecardComponent {
       next: (data) => {
         this.scorecards = data || [];
         this.selectedInnings = this.scorecards[0]?.inningsNumber || 1;
+        this.loadFieldingAnalysis();
         this.loading = false;
       },
       error: () => {
@@ -76,6 +90,19 @@ export class MatchScorecardComponent {
         this.loading = false;
       },
     });
+  }
+  private loadFieldingAnalysis() {
+    this.http
+      .get<FielderContribution[]>(`${this.api}/matches/${this.matchId}/fielding-analysis`)
+      .subscribe({
+        next: (data) => (this.fieldingAnalysis = data || []),
+        error: () => (this.fieldingAnalysis = []),
+      });
+  }
+  get currentInningsFielders() {
+    return this.fieldingAnalysis.filter(
+      (fielder) => fielder.inningsNumber === this.selectedInnings,
+    );
   }
   get currentInnings() {
     return this.scorecards.find((x) => x.inningsNumber === this.selectedInnings) || null;
