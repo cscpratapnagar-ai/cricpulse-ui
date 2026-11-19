@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { API_BASE_URL } from '../../../../core/config/api.config';
+import { DashboardService } from '../../../../layout/dashboard/dashboard.service';
 import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Team {
@@ -23,6 +24,7 @@ interface Team {
 export class TeamsComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly dashboard = inject(DashboardService);
 
   readonly skeletonItems = Array.from({ length: 6 }, (_, index) => index);
   teams: Team[] = [];
@@ -87,6 +89,7 @@ export class TeamsComponent {
     this.activeTeam = team;
     this.activeTeamId = team.id;
     localStorage.setItem('cricketpulse_active_team_id', team.id);
+    this.dashboard.selectWorkspace(team.id);
   }
 
   openTeam(team: Team): void {
