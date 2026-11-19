@@ -273,7 +273,10 @@ export class ObsSceneControllerComponent implements OnDestroy {
       this.automationEnabled = saved.automationEnabled === true;
       if (Array.isArray(saved.automationProfiles)) {
         this.automationProfiles = saved.automationProfiles
-          .filter((profile) => !!profile && typeof profile.id === 'string' && typeof profile.name === 'string')
+          .filter(
+            (profile) =>
+              !!profile && typeof profile.id === 'string' && typeof profile.name === 'string',
+          )
           .map((profile) => ({
             id: profile.id,
             name: profile.name.slice(0, 40),

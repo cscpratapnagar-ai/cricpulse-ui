@@ -233,9 +233,14 @@ describe('ObsSceneControllerComponent', () => {
 
     expect(component.automationProfiles.length).toBe(1);
     const profileId = component.activeAutomationProfileId;
-    component.automationRules = component.automationRules.map((rule) => ({ ...rule, sceneName: '' }));
+    component.automationRules = component.automationRules.map((rule) => ({
+      ...rule,
+      sceneName: '',
+    }));
     component.applyAutomationProfile(profileId);
-    expect(component.automationRules.find((rule) => rule.event === 'WICKET')?.sceneName).toBe('Wicket');
+    expect(component.automationRules.find((rule) => rule.event === 'WICKET')?.sceneName).toBe(
+      'Wicket',
+    );
     expect(component.automationReturnScene).toBe('Camera');
     expect(component.automationReturnDelay).toBe(12);
 
