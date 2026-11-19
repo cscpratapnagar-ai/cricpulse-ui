@@ -45,6 +45,18 @@ describe('MatchDetailComponent', () => {
     expect(component.partnershipsError).toBe(false);
   });
 
+
+  it('starts with an honest empty bowling spell state', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.bowlingSpells = [];
+    component.bowlingSpellsLoading = false;
+    component.bowlingSpellsError = false;
+
+    expect(component.bowlingSpells).toEqual([]);
+    expect(component.bowlingSpellsLoading).toBe(false);
+    expect(component.bowlingSpellsError).toBe(false);
+  });
+
   it('returns no tactical readout before intelligence data is available', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.intelligence = null;
