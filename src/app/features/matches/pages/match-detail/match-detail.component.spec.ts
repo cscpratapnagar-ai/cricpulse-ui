@@ -56,6 +56,17 @@ describe('MatchDetailComponent', () => {
     expect(component.bowlingSpellsError).toBe(false);
   });
 
+  it('starts with an honest empty fielding analysis state', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.fieldingAnalysis = [];
+    component.fieldingAnalysisLoading = false;
+    component.fieldingAnalysisError = false;
+
+    expect(component.fieldingAnalysis).toEqual([]);
+    expect(component.fieldingAnalysisLoading).toBe(false);
+    expect(component.fieldingAnalysisError).toBe(false);
+  });
+
   it('formats dismissal labels for bowling wicket events', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
 
