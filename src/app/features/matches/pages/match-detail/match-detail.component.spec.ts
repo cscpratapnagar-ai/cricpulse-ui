@@ -45,7 +45,6 @@ describe('MatchDetailComponent', () => {
     expect(component.partnershipsError).toBe(false);
   });
 
-
   it('starts with an honest empty bowling spell state', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.bowlingSpells = [];

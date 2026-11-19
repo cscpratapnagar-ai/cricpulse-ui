@@ -460,7 +460,9 @@
         <div>
           <span class="kicker">MATCH INTELLIGENCE V6</span>
           <h2 id="bowling-title">Bowler spell analysis</h2>
-          <p class="bowling-intro">Bowling figures and over-by-over impact from recorded deliveries.</p>
+          <p class="bowling-intro">
+            Bowling figures and over-by-over impact from recorded deliveries.
+          </p>
         </div>
         <span class="bowling-count">{{ bowlingSpells.length }} BOWLERS</span>
       </div>
@@ -472,7 +474,9 @@
       } @else if (bowlingSpellsError) {
         <div class="bowling-empty" role="status">
           <b>Bowling figures unavailable</b>
-          <span>We could not load this match's bowling breakdown. Refresh the page to try again.</span>
+          <span
+            >We could not load this match's bowling breakdown. Refresh the page to try again.</span
+          >
         </div>
       } @else if (bowlingSpells.length === 0) {
         <div class="bowling-empty">
@@ -493,11 +497,21 @@
               </div>
             </div>
             <div class="bowling-metrics">
-              <div><span>ECONOMY</span><b>{{ spell.economy | number: '1.2-2' }}</b></div>
-              <div><span>MAIDENS</span><b>{{ spell.maidens }}</b></div>
-              <div><span>WIDES</span><b>{{ spell.wides }}</b></div>
-              <div><span>NO-BALLS</span><b>{{ spell.noBalls }}</b></div>
-              <div><span>LEGAL BALLS</span><b>{{ spell.legalBalls }}</b></div>
+              <div>
+                <span>ECONOMY</span><b>{{ spell.economy | number: '1.2-2' }}</b>
+              </div>
+              <div>
+                <span>MAIDENS</span><b>{{ spell.maidens }}</b>
+              </div>
+              <div>
+                <span>WIDES</span><b>{{ spell.wides }}</b>
+              </div>
+              <div>
+                <span>NO-BALLS</span><b>{{ spell.noBalls }}</b>
+              </div>
+              <div>
+                <span>LEGAL BALLS</span><b>{{ spell.legalBalls }}</b>
+              </div>
             </div>
 
             @if (spell.oversBreakdown.length > 0) {
@@ -525,7 +539,10 @@
               <div class="bowling-subsection">
                 <h4>Wicket events</h4>
                 <div class="bowling-wicket-list">
-                  @for (wicket of spell.wicketBreakdown; track wicket.overNumber + '-' + wicket.ballNumber + '-' + wicket.dismissedBatter) {
+                  @for (
+                    wicket of spell.wicketBreakdown;
+                    track wicket.overNumber + '-' + wicket.ballNumber + '-' + wicket.dismissedBatter
+                  ) {
                     <div class="bowling-wicket">
                       <span>{{ wicket.dismissedBatter }}</span>
                       <strong>{{ dismissalLabel(wicket.dismissal) }}</strong>
@@ -541,7 +558,9 @@
           </article>
         }
         <p class="bowling-disclaimer">
-          Economy uses runs charged to the bowler per six legal balls. Byes and leg-byes are excluded; wides and no-balls are included. Run-outs and other non-bowler dismissals are shown but not added to the bowler's wicket tally.
+          Economy uses runs charged to the bowler per six legal balls. Byes and leg-byes are
+          excluded; wides and no-balls are included. Run-outs and other non-bowler dismissals are
+          shown but not added to the bowler's wicket tally.
         </p>
       }
     </section>

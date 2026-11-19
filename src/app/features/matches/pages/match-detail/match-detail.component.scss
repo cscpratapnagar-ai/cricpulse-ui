@@ -1941,7 +1941,6 @@
   }
 }
 
-
 .bowling-panel {
   margin-top: 16px;
 }
@@ -1962,7 +1961,7 @@
   color: var(--muted);
   font-size: 9px;
   font-weight: 850;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
 }
 .bowling-spell-card {
   display: grid;
@@ -1972,7 +1971,9 @@
   border: 1px solid var(--line);
   border-radius: 15px;
   background: color-mix(in srgb, var(--cp-text) 2%, var(--surface));
-  transition: border-color .2s ease, transform .2s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 .bowling-spell-card:hover {
   transform: translateY(-2px);
@@ -1993,7 +1994,7 @@
   color: var(--muted);
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
 }
 .bowling-spell-head h3 {
   margin: 0;
@@ -2009,7 +2010,7 @@
 .bowling-main-figures strong {
   color: var(--accent);
   font-size: 24px;
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
 }
 .bowling-main-figures span {
   color: var(--muted);
@@ -2033,7 +2034,7 @@
   color: var(--muted);
   font-size: 8px;
   font-weight: 850;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
 }
 .bowling-metrics b {
   color: var(--ink);
@@ -2068,7 +2069,7 @@
   color: var(--muted);
   font-size: 8px;
   font-weight: 850;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
 }
 .bowling-over strong {
   color: var(--ink);
@@ -2139,7 +2140,12 @@
 .bowling-loading span {
   height: 64px;
   border-radius: 12px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--cp-text) 3%, transparent), color-mix(in srgb, var(--accent) 9%, transparent), color-mix(in srgb, var(--cp-text) 3%, transparent));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cp-text) 3%, transparent),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    color-mix(in srgb, var(--cp-text) 3%, transparent)
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
