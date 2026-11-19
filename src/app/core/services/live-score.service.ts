@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
 
 export interface LiveBatter {
@@ -152,6 +152,7 @@ export class LiveScoreService {
       }
 
       let subscription: StompSubscription | undefined;
+      const httpSubscriptions = new Subscription();
       let stopped = false;
       let lastEventVersion = 0;
       let reconciling = false;
@@ -174,9 +175,10 @@ export class LiveScoreService {
           return;
         }
         reconciling = true;
-        this.http
-          .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
-          .subscribe({
+        httpSubscriptions.add(
+          this.http
+            .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
+            .subscribe({
             next: (score) => {
               if (!stopped && score?.inningsId === inningsId) {
                 const version = score.eventVersion;
@@ -201,12 +203,14 @@ export class LiveScoreService {
                 reconcile();
               }
             },
-          });
+          }),
+        );
       };
 
-      this.http
-        .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
-        .subscribe({
+      httpSubscriptions.add(
+        this.http
+          .get<LiveScore>(`${API_ORIGIN}/api/public/innings/${encodeURIComponent(inningsId)}`)
+          .subscribe({
           next: emitAuthoritative,
           error: (error) => {
             if (!stopped) {
@@ -214,8 +218,8 @@ export class LiveScoreService {
                 new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
               );
             }
-          },
-        });
+          }),
+      );
 
       const client = new Client({
         brokerURL: WS_ORIGIN + '/ws',
@@ -262,6 +266,7 @@ export class LiveScoreService {
       return () => {
         stopped = true;
         subscription?.unsubscribe();
+        httpSubscriptions.unsubscribe();
         void client.deactivate();
       };
     });
