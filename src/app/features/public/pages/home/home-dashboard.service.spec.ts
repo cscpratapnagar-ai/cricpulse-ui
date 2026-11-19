@@ -22,10 +22,10 @@ describe('HomeDashboardService', () => {
   it('loads workspace matches, teams and unique player count', () => {
     service.load();
 
-    const matchesRequest = http.expectOne(`${API_BASE_URL}/matches`);
-    const teamsRequest = http.expectOne(`${API_BASE_URL}/teams/mine`);
+    const matches = http.expectOne(`${API_BASE_URL}/matches`);
+    const teams = http.expectOne(`${API_BASE_URL}/teams/mine`);
 
-    matchesRequest.flush([
+    matches.flush([
       {
         id: 'live-1',
         name: 'Live Match',
@@ -44,17 +44,15 @@ describe('HomeDashboardService', () => {
         teamBName: 'Delta',
       },
     ]);
-    teamsRequest.flush([
+    teams.flush([
       { id: 'team-1', name: 'Alpha', city: 'Pune' },
       { id: 'team-2', name: 'Beta', city: 'Pune' },
     ]);
 
-    http
-      .expectOne(`${API_BASE_URL}/teams/team-1/players`)
-      .flush([{ playerId: 'player-1' }, { playerId: 'player-2' }]);
-    http
-      .expectOne(`${API_BASE_URL}/teams/team-2/players`)
-      .flush([{ playerId: 'player-2' }, { playerId: 'player-3' }]);
+    const firstPlayers = http.expectOne(`${API_BASE_URL}/teams/team-1/players`);
+    const secondPlayers = http.expectOne(`${API_BASE_URL}/teams/team-2/players`);
+    firstPlayers.flush([{ playerId: 'player-1' }, { playerId: 'player-2' }]);
+    secondPlayers.flush([{ playerId: 'player-2' }, { playerId: 'player-3' }]);
 
     expect(service.liveMatches().length).toBe(1);
     expect(service.nextMatch()?.id).toBe('next-1');
@@ -68,15 +66,10 @@ describe('HomeDashboardService', () => {
   it('keeps successful sections available when one dashboard request fails', () => {
     service.load();
 
-    http
-      .expectOne(`${API_BASE_URL}/matches`)
-      .flush([{ id: 'live-1', name: 'Live Match', format: 'T20', status: 'LIVE' }]);
-    http
-      .expectOne(`${API_BASE_URL}/teams/mine`)
-      .flush([{ id: 'team-1', name: 'Alpha' }], {
-        status: 503,
-        statusText: 'Unavailable',
-      });
+    const matches = http.expectOne(`${API_BASE_URL}/matches`);
+    const teams = http.expectOne(`${API_BASE_URL}/teams/mine`);
+    matches.flush([{ id: 'm1', name: 'Match', format: 'T20', status: 'LIVE' }]);
+    teams.flush([], { status: 503, statusText: 'Unavailable' });
 
     expect(service.matches().length).toBe(1);
     expect(service.teams()).toEqual([]);
@@ -88,24 +81,24 @@ describe('HomeDashboardService', () => {
 
   it('preserves previously loaded data when a background refresh fails', () => {
     service.load();
-    http.expectOne(`${API_BASE_URL}/matches`).flush([
-      { id: 'live-1', name: 'Live Match', format: 'T20', status: 'LIVE' },
-    ]);
-    http.expectOne(`${API_BASE_URL}/teams/mine`).flush([{ id: 'team-1', name: 'Alpha' }]);
-    http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([{ playerId: 'p-1' }]);
+
+    const initialMatches = http.expectOne(`${API_BASE_URL}/matches`);
+    const initialTeams = http.expectOne(`${API_BASE_URL}/teams/mine`);
+    initialMatches.flush([{ id: 'm1', name: 'Match', format: 'T20', status: 'LIVE' }]);
+    initialTeams.flush([{ id: 't1', name: 'Alpha' }]);
+    http.expectOne(`${API_BASE_URL}/teams/t1/players`).flush([{ playerId: 'p1' }]);
 
     service.load();
     expect(service.refreshing()).toBeTrue();
     expect(service.loading()).toBeFalse();
 
-    http.expectOne(`${API_BASE_URL}/matches`).flush('failed', {
-      status: 503,
-      statusText: 'Unavailable',
-    });
-    http.expectOne(`${API_BASE_URL}/teams/mine`).flush([{ id: 'team-1', name: 'Alpha updated' }]);
-    http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([{ playerId: 'p-1' }]);
+    const refreshedMatches = http.expectOne(`${API_BASE_URL}/matches`);
+    const refreshedTeams = http.expectOne(`${API_BASE_URL}/teams/mine`);
+    refreshedMatches.flush([], { status: 503, statusText: 'Unavailable' });
+    refreshedTeams.flush([{ id: 't1', name: 'Alpha updated' }]);
+    http.expectOne(`${API_BASE_URL}/teams/t1/players`).flush([{ playerId: 'p1' }]);
 
-    expect(service.matches()[0].id).toBe('live-1');
+    expect(service.matches()[0].id).toBe('m1');
     expect(service.teams()[0].name).toBe('Alpha updated');
     expect(service.matchesError()).toBeTrue();
     expect(service.refreshing()).toBeFalse();
