@@ -77,11 +77,16 @@ export class TeamsComponent {
 
   roleLabel(role: Team['role']): string {
     switch (role) {
-      case 'OWNER': return 'OWNER';
-      case 'MANAGER': return 'MANAGER';
-      case 'CAPTAIN': return 'CAPTAIN';
-      case 'VICE_CAPTAIN': return 'VICE-CAPTAIN';
-      default: return 'PLAYER';
+      case 'OWNER':
+        return 'OWNER';
+      case 'MANAGER':
+        return 'MANAGER';
+      case 'CAPTAIN':
+        return 'CAPTAIN';
+      case 'VICE_CAPTAIN':
+        return 'VICE-CAPTAIN';
+      default:
+        return 'PLAYER';
     }
   }
 

@@ -80,10 +80,9 @@ describe('DashboardService workspace selection', () => {
     service.selectWorkspace('team-member');
 
     service.loadWorkspace();
-    http.expectOne(`${API_BASE_URL}/teams/workspaces`).flush(
-      { message: 'Temporary failure' },
-      { status: 503, statusText: 'Service Unavailable' },
-    );
+    http
+      .expectOne(`${API_BASE_URL}/teams/workspaces`)
+      .flush({ message: 'Temporary failure' }, { status: 503, statusText: 'Service Unavailable' });
 
     expect(service.team()).toEqual(workspaces[1]);
     expect(service.workspaces()).toEqual(workspaces);

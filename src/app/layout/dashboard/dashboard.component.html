@@ -24,7 +24,9 @@
         <div class="workspace-menu">
           <div class="workspace-menu-head">
             <span>YOUR WORKSPACES · {{ dashboard.workspaces().length }}</span>
-            <a routerLink="/teams" (click)="workspaceOpen = false">{{ hasWorkspaceManagementAccess ? 'Manage' : 'View' }} <b>→</b></a>
+            <a routerLink="/teams" (click)="workspaceOpen = false"
+              >{{ hasWorkspaceManagementAccess ? 'Manage' : 'View' }} <b>→</b></a
+            >
           </div>
           @if (dashboard.teamLoading()) {
             <p class="workspace-state" role="status">Loading your workspaces…</p>
@@ -45,17 +47,27 @@
                 <i>{{ workspace.name.charAt(0).toUpperCase() }}</i>
                 <span>
                   <strong>{{ workspace.name }}</strong>
-                  <small>{{ workspace.city || 'Location not set' }} · {{ workspaceRoleLabel(workspace.role) }}</small>
+                  <small
+                    >{{ workspace.city || 'Location not set' }} ·
+                    {{ workspaceRoleLabel(workspace.role) }}</small
+                  >
                 </span>
-                @if (team?.id === workspace.id) { <b>✓</b> }
+                @if (team?.id === workspace.id) {
+                  <b>✓</b>
+                }
               </button>
             }
           } @else {
-            <p class="workspace-state">No team workspaces yet. Create or join a team to get started.</p>
+            <p class="workspace-state">
+              No team workspaces yet. Create or join a team to get started.
+            </p>
           }
           <div class="workspace-note">
             <i>⌁</i>
-            <span>Switching changes your active team context. Permissions are checked by the server.</span>
+            <span
+              >Switching changes your active team context. Permissions are checked by the
+              server.</span
+            >
           </div>
         </div>
       }

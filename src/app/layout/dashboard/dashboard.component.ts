@@ -84,12 +84,18 @@ export class DashboardComponent {
 
   workspaceRoleLabel(role?: string) {
     switch (role) {
-      case 'OWNER': return 'Owner';
-      case 'MANAGER': return 'Manager';
-      case 'CAPTAIN': return 'Captain';
-      case 'VICE_CAPTAIN': return 'Vice-captain';
-      case 'PLAYER': return 'Player';
-      default: return 'Member';
+      case 'OWNER':
+        return 'Owner';
+      case 'MANAGER':
+        return 'Manager';
+      case 'CAPTAIN':
+        return 'Captain';
+      case 'VICE_CAPTAIN':
+        return 'Vice-captain';
+      case 'PLAYER':
+        return 'Player';
+      default:
+        return 'Member';
     }
   }
 

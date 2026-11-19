@@ -48,7 +48,8 @@ export class DashboardService {
         if (workspaces) {
           this.workspacesState.set(workspaces);
           const savedId = localStorage.getItem('cricketpulse_active_team_id');
-          const selected = workspaces.find((workspace) => workspace.id === savedId) ?? workspaces[0] ?? null;
+          const selected =
+            workspaces.find((workspace) => workspace.id === savedId) ?? workspaces[0] ?? null;
           this.teamState.set(selected);
           if (selected) localStorage.setItem('cricketpulse_active_team_id', selected.id);
           else localStorage.removeItem('cricketpulse_active_team_id');
