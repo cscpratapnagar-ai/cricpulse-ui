@@ -98,9 +98,10 @@ describe('HomeDashboardService', () => {
     expect(service.refreshing()).toBeTrue();
     expect(service.loading()).toBeFalse();
 
-    http
-      .expectOne(`${API_BASE_URL}/matches`)
-      .flush('failed', { status: 503, statusText: 'Unavailable' });
+    http.expectOne(`${API_BASE_URL}/matches`).flush('failed', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
     http.expectOne(`${API_BASE_URL}/teams/mine`).flush([{ id: 'team-1', name: 'Alpha updated' }]);
     http.expectOne(`${API_BASE_URL}/teams/team-1/players`).flush([{ playerId: 'p-1' }]);
 
