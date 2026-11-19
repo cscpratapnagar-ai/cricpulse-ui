@@ -337,6 +337,11 @@ export function hasOfflineQueuePositionConflict(queue: QueuedDelivery[]): boolea
   return false;
 }
 
+/** A blocked command must never be included in automatic queue replay. */
+export function hasBlockedOfflineQueueItems(queue: QueuedDelivery[]): boolean {
+  return queue.some((item) => item.syncStatus === 'BLOCKED');
+}
+
 export interface OfflineQueueRestoreResult {
   score: LiveScore;
   restoredDeliveries: number;
@@ -362,7 +367,7 @@ export function restoreOfflineQueueProjection(
       error: 'Multiple devices recorded different legal deliveries at the same ball position.',
     };
   }
-  if (queue.some((item) => item.syncStatus === 'BLOCKED')) {
+  if (hasBlockedOfflineQueueItems(queue)) {
     return {
       score: snapshot,
       restoredDeliveries: 0,
