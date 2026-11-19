@@ -119,10 +119,11 @@ export class DashboardComponent {
   }
 
   private get accessibleCommandItems() {
-    return this.hasWorkspaceAccess
-      ? this.commandItems
-      ? this.commandItems.filter((item) => item.label !== 'User & Roles' || this.isAdmin)
-      : this.commandItems.filter((item) => ['Dashboard', 'Teams', 'Settings'].includes(item.label) || (item.label === 'User & Roles' && this.isAdmin));
+    return this.commandItems.filter((item) => {
+      if (item.label === 'User & Roles') return this.isAdmin;
+      if (this.hasWorkspaceAccess) return true;
+      return ['Dashboard', 'Teams', 'Settings'].includes(item.label);
+    });
   }
 
   openCommand() {
