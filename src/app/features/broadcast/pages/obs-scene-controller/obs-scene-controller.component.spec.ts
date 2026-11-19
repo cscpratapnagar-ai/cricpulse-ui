@@ -393,7 +393,9 @@ describe('ObsSceneControllerComponent', () => {
       return Promise.resolve();
     });
     const runAutomation = (
-      component as unknown as { runAutomationScene: (scene: string, label: string) => Promise<void> }
+      component as unknown as {
+        runAutomationScene: (scene: string, label: string) => Promise<void>;
+      }
     ).runAutomationScene.bind(component);
 
     const first = runAutomation('Wicket', 'Wicket');
@@ -417,12 +419,15 @@ describe('ObsSceneControllerComponent', () => {
     component.currentScene = 'Camera';
     let finishAutomation!: () => void;
     obs.switchScene.and.callFake((sceneName: string) => {
-      if (sceneName === 'Wicket') return new Promise<void>((resolve) => (finishAutomation = resolve));
+      if (sceneName === 'Wicket')
+        return new Promise<void>((resolve) => (finishAutomation = resolve));
       return Promise.resolve();
     });
     obs.currentScene.and.resolveTo('Manual');
     const runAutomation = (
-      component as unknown as { runAutomationScene: (scene: string, label: string) => Promise<void> }
+      component as unknown as {
+        runAutomationScene: (scene: string, label: string) => Promise<void>;
+      }
     ).runAutomationScene.bind(component);
 
     const automation = runAutomation('Wicket', 'Wicket');
