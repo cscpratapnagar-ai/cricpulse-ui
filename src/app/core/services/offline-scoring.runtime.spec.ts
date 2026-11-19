@@ -310,8 +310,8 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
         legalDelivery: false,
       }),
       delivery(`${runId}-no-ball`, matchId, inningsId, 601, {
-        ballNumber: 2,
-        batRuns: 1,
+        ballNumber: 1,
+        batRuns: 0,
         extraType: 'NO_BALL',
         extraRuns: 1,
         legalDelivery: false,
@@ -319,7 +319,7 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       ...Array.from({ length: 6 }, (_, index) =>
         delivery(`${runId}-legal-${index + 1}`, matchId, inningsId, 602 + index, {
           ballNumber: index + 1,
-          batRuns: 1,
+          batRuns: 2,
         }),
       ),
     ];
@@ -337,14 +337,14 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
 
     expect(restored.blocked).toBeFalse();
     expect(restored.restoredDeliveries).toBe(8);
-    expect(restored.score.runs).toBe(8);
+    expect(restored.score.runs).toBe(14);
     expect(restored.score.legalBalls).toBe(6);
     expect(restored.score.currentOver).toBe(1);
     expect(restored.score.currentBall).toBe(0);
     expect(restored.score.overs).toEqual([
       jasmine.objectContaining({
         overNumber: 0,
-        runs: 9,
+        runs: 14,
         legalBalls: 6,
         wides: 1,
         noBalls: 1,
