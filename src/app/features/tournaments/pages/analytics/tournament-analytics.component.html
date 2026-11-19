@@ -141,7 +141,9 @@
         <div>
           <span class="eyebrow">FIELDING EXCELLENCE</span>
           <h2>Top fielders</h2>
-          <p class="subhead">Recorded catches, run-outs and stumpings across completed tournament matches.</p>
+          <p class="subhead">
+            Recorded catches, run-outs and stumpings across completed tournament matches.
+          </p>
         </div>
         <span class="panel-index">03</span>
       </div>
@@ -152,7 +154,10 @@
               <span class="fielding-rank">{{ i + 1 }}</span>
               <div class="fielding-player">
                 <strong>{{ fielder.playerName }}</strong>
-                <small>{{ fielder.catches }} catches · {{ fielder.runOuts }} run-outs · {{ fielder.stumpings }} stumpings</small>
+                <small>
+                  {{ fielder.catches }} catches · {{ fielder.runOuts }} run-outs ·
+                  {{ fielder.stumpings }} stumpings
+                </small>
               </div>
               <strong class="fielding-count">{{ fielder.totalContributions }}</strong>
             </article>
