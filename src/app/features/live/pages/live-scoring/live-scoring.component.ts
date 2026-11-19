@@ -1101,9 +1101,8 @@ export class LiveScoringV2Component implements OnDestroy {
       const storageKey = `cricpulse-scorer-lease:${this.inningsId}`;
       const storedToken = sessionStorage.getItem(storageKey);
       this.scorerLeaseToken = storedToken || crypto.randomUUID();
-      this.scorerLeaseToken = await resolveScorerLeaseToken(
-        storedToken,
-        (candidate) => this.probeForActiveScorerLeaseToken(candidate, this.inningsId),
+      this.scorerLeaseToken = await resolveScorerLeaseToken(storedToken, (candidate) =>
+        this.probeForActiveScorerLeaseToken(candidate, this.inningsId),
       );
       sessionStorage.setItem(storageKey, this.scorerLeaseToken);
       await firstValueFrom(
