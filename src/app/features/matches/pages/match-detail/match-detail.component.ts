@@ -309,16 +309,16 @@ export class MatchDetailComponent {
     this.http
       .get<FielderContribution[]>(`${this.api}/matches/${matchId}/fielding-analysis`)
       .subscribe({
-      next: (value) => {
-        this.fieldingAnalysis = Array.isArray(value) ? value : [];
-        this.fieldingAnalysisLoading = false;
-      },
-      error: () => {
-        this.fieldingAnalysis = [];
-        this.fieldingAnalysisError = true;
-        this.fieldingAnalysisLoading = false;
-      },
-    });
+        next: (value) => {
+          this.fieldingAnalysis = Array.isArray(value) ? value : [];
+          this.fieldingAnalysisLoading = false;
+        },
+        error: () => {
+          this.fieldingAnalysis = [];
+          this.fieldingAnalysisError = true;
+          this.fieldingAnalysisLoading = false;
+        },
+      });
   }
 
   dismissalLabel(value: string): string {
