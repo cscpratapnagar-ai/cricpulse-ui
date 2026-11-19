@@ -37,7 +37,10 @@ export class PlayersComponent {
   private http = inject(HttpClient);
   players: PlayerStat[] = [];
   loading = true;
+  refreshing = false;
   error = false;
+  refreshError = false;
+  private hasLoaded = false;
   query = '';
   roleFilter = 'all';
   roleOpen = false;
@@ -55,17 +58,25 @@ export class PlayersComponent {
     this.loadPlayers();
   }
   loadPlayers() {
-    this.loading = true;
+    this.loading = !this.hasLoaded;
+    this.refreshing = this.hasLoaded;
     this.error = false;
+    this.refreshError = false;
     this.http.get<PlayerStat[]>(`${API_BASE_URL}/players/statistics`).subscribe({
       next: (r) => {
         this.players = r || [];
+        this.hasLoaded = true;
         this.loading = false;
+        this.refreshing = false;
       },
       error: () => {
-        this.players = [];
-        this.error = true;
         this.loading = false;
+        this.refreshing = false;
+        if (this.hasLoaded) {
+          this.refreshError = true;
+          return;
+        }
+        this.error = true;
       },
     });
   }
