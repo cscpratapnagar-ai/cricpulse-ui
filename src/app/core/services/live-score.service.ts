@@ -218,7 +218,8 @@ export class LiveScoreService {
                 new Error(`Unable to load public score (${error?.status ?? 'unknown'})`),
               );
             }
-          }),
+          },
+        }),
       );
 
       const client = new Client({
