@@ -3,6 +3,17 @@ import { MatchDetailComponent } from './match-detail.component';
 describe('MatchDetailComponent', () => {
   it('should expose the component class', () => expect(MatchDetailComponent).toBeTruthy());
 
+  it('starts with an honest empty matchup state', () => {
+    const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
+    component.matchups = [];
+    component.matchupsLoading = false;
+    component.matchupsError = false;
+
+    expect(component.matchups).toEqual([]);
+    expect(component.matchupsLoading).toBe(false);
+    expect(component.matchupsError).toBe(false);
+  });
+
   it('returns no tactical readout before intelligence data is available', () => {
     const component = Object.create(MatchDetailComponent.prototype) as MatchDetailComponent;
     component.intelligence = null;
