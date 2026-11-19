@@ -64,6 +64,7 @@ interface TournamentPlayerPerformance {
   stumpings: number;
   totalFieldingContributions: number;
 }
+interface TournamentComparisonMetric { label: string; left: number; right: number; lower?: boolean; }
 interface TournamentAnalytics {
   totalFixtures: number;
   completedFixtures: number;
@@ -81,7 +82,7 @@ interface TournamentAnalytics {
     stumpings: number;
     totalContributions: number;
   }[];
-  playerPerformances: TournamentPlayerPerformance[];;
+  playerPerformances: TournamentPlayerPerformance[];
 }
 
 @Component({
@@ -126,7 +127,7 @@ export class TournamentAnalyticsComponent {
     if (id === this.compareLeftId) this.compareLeftId = '';
   }
 
-  get comparisonMetrics() {
+  get comparisonMetrics(): TournamentComparisonMetric[] {
     const comparison = this.tournamentComparison;
     if (!comparison) return [];
     const { left, right } = comparison;
@@ -176,7 +177,10 @@ export class TournamentAnalyticsComponent {
       .then(([teams, fixtures, points, analytics]) => {
         this.teams = teams || [];
         this.fixtures = fixtures || [];
-        this.analytics = analytics || null;\n        const availablePlayers = analytics?.playerPerformances || [];\n        this.compareLeftId = availablePlayers[0]?.playerId || '';\n        this.compareRightId = availablePlayers[1]?.playerId || '';
+        this.analytics = analytics || null;
+        const availablePlayers = analytics?.playerPerformances || [];
+        this.compareLeftId = availablePlayers[0]?.playerId || '';
+        this.compareRightId = availablePlayers[1]?.playerId || '';
         this.points = analytics?.teams?.length ? analytics.teams : points || [];
         this.loading = false;
       })
