@@ -642,7 +642,7 @@ export class LiveScoringV2Component implements OnDestroy {
   }
 
   get requiresFielder(): boolean {
-    return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(this.wicketType);
+    return requiresWicketFielder(this.wicketType);
   }
 
   get fieldingOptions(): SelectOption[] {
@@ -1942,6 +1942,7 @@ export class LiveScoringV2Component implements OnDestroy {
       this.wicketType = '';
       this.newBatterId = '';
       this.dismissedPlayerId = this.score?.strikerId || '';
+      this.wicketFielderId = '';
       this.wicketRuns = 0;
       this.wicketLegalDelivery = true;
     }
