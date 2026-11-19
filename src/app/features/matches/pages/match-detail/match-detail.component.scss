@@ -1552,3 +1552,188 @@
     font-size: 17px;
   }
 }
+
+
+/* Innings phase analysis */
+.phase-panel {
+  margin-top: 16px;
+}
+.phase-intro {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.phase-count {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+}
+.phase-innings + .phase-innings {
+  margin-top: 18px;
+}
+.phase-innings-title {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-bottom: 9px;
+}
+.phase-innings-title strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+.phase-innings-title span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.phase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.phase-card {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cp-text) 2.5%, transparent);
+}
+.phase-card.powerplay {
+  border-top: 3px solid var(--accent);
+}
+.phase-card.middle {
+  border-top: 3px solid var(--cp-info, #5796c8);
+}
+.phase-card.death {
+  border-top: 3px solid var(--cp-warning, #d99a42);
+}
+.phase-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.phase-card-head > span {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 850;
+}
+.phase-card-head small {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+.phase-runs {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 13px;
+}
+.phase-runs strong {
+  color: var(--ink);
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.phase-runs span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.phase-meta {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.phase-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 13px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.phase-stats > div {
+  display: grid;
+  gap: 4px;
+}
+.phase-stats b {
+  color: var(--ink);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.phase-stats span {
+  color: var(--muted);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+}
+.phase-boundaries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.phase-disclaimer {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.phase-empty {
+  display: grid;
+  gap: 5px;
+  padding: 22px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cp-text) 2%, transparent);
+}
+.phase-empty b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.phase-empty span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.phase-loading {
+  display: flex;
+  gap: 8px;
+  padding: 18px 4px;
+}
+.phase-loading span {
+  flex: 1;
+  height: 110px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cp-text) 7%, transparent);
+  animation: shimmer 1.2s linear infinite;
+}
+@media (max-width: 920px) {
+  .phase-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .phase-heading {
+    align-items: flex-start;
+  }
+  .phase-card {
+    padding: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phase-loading span {
+    animation: none;
+  }
+}
