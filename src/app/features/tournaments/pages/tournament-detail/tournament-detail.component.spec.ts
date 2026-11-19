@@ -55,7 +55,7 @@ describe('TournamentDetailComponent', () => {
         userId: 'u-1',
         fullName: 'Match Scorer',
         email: 'scorer@example.com',
-        role: 'SCORER',
+        role: 'SCORER' as const,
         assignedAt: '2026-11-19T10:00:00Z',
       },
     ];
