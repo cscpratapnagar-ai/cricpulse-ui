@@ -1736,3 +1736,207 @@
     animation: none;
   }
 }
+
+.partnership-panel {
+  margin-top: 16px;
+}
+.partnership-heading {
+  align-items: center;
+}
+.partnership-intro {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.partnership-count,
+.partnership-closed,
+.partnership-live {
+  flex: 0 0 auto;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+}
+.partnership-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-color: color-mix(in srgb, #e9636b 35%, var(--line));
+  color: #e9636b;
+}
+.partnership-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 13%, transparent);
+  animation: blink 1.4s infinite;
+}
+.partnership-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--cp-text) 2%, var(--surface));
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.partnership-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+}
+.partnership-card-head,
+.partnership-score,
+.partnership-batters,
+.partnership-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.partnership-card-head > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.partnership-card-head > div > span,
+.partnership-foot {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.partnership-card-head strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+.partnership-score {
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.partnership-score strong {
+  color: var(--accent);
+  font-size: 29px;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.partnership-score b {
+  margin-left: 14px;
+  color: var(--ink);
+  font-size: 20px;
+}
+.partnership-score span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.partnership-batters > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.partnership-batters > div:last-child {
+  text-align: right;
+}
+.partnership-batters span {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.partnership-batters strong {
+  color: var(--accent);
+  font-size: 16px;
+}
+.partnership-batters small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.partnership-foot {
+  flex-wrap: wrap;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  font-size: 8px;
+}
+.partnership-disclaimer {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+.partnership-loading {
+  display: grid;
+  gap: 8px;
+  padding: 10px 0;
+}
+.partnership-loading span {
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--cp-text) 3%, transparent),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    color-mix(in srgb, var(--cp-text) 3%, transparent)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+.partnership-loading span:nth-child(2) {
+  width: 84%;
+}
+.partnership-loading span:nth-child(3) {
+  width: 68%;
+}
+.partnership-empty {
+  display: grid;
+  min-height: 100px;
+  align-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.partnership-empty b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.partnership-empty span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+@media (max-width: 640px) {
+  .partnership-panel {
+    padding: 16px;
+  }
+  .partnership-heading {
+    align-items: flex-start;
+  }
+  .partnership-count {
+    font-size: 8px;
+  }
+  .partnership-card {
+    padding: 13px;
+  }
+  .partnership-foot {
+    align-items: flex-start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .partnership-card,
+  .partnership-live i,
+  .partnership-loading span {
+    animation: none;
+    transition: none;
+  }
+}
