@@ -125,37 +125,37 @@ describe('TournamentQualificationComponent', () => {
     'loads tournament status, qualification table and persisted fixtures through Angular HTTP',
     () => {
       const { component, http } = createComponent();
-  
+
       component.load();
       flushInitialLoad(http, [
         fixture('LEAGUE', 'l1', 'COMPLETED'),
         fixture('LEAGUE', 'l2', 'COMPLETED'),
       ]);
-  
+
       expect(component.preview).toEqual(preview);
       expect(component.fixtures.length).toBe(2);
       expect(component.leagueComplete).toBeTrue();
       expect(component.loading).toBeFalse();
-  });
+  );;
 
   it(
     'keeps progression disabled until the tournament is active and all league fixtures are complete',
     () => {
       const { component, http } = createComponent();
-  
+
       component.load();
       flushInitialLoad(
         http,
         [fixture('LEAGUE', 'l1', 'COMPLETED'), fixture('LEAGUE', 'l2', 'SCHEDULED')],
         'DRAFT',
       );
-  
+
       expect(component.canProgress).toBeFalse();
       component.tournamentStatus = 'ACTIVE';
       expect(component.canProgress).toBeFalse();
       component.fixtures[1].status = 'COMPLETED';
       expect(component.canProgress).toBeTrue();
-  });
+  );;
 
   it(
     'uses persisted backend fixtures for all four stages without generating local fixtures',
@@ -167,16 +167,16 @@ describe('TournamentQualificationComponent', () => {
         fixture('QUALIFIER_2', 'q2', 'SCHEDULED', 't2', 't3'),
         fixture('FINAL', 'f1', 'SCHEDULED', 't1', 't3'),
       ];
-  
+
       component.load();
       flushInitialLoad(http, persisted);
-  
+
       expect(component.fixtureFor('QUALIFIER_1')?.matchId).toBe('q1');
       expect(component.fixtureFor('ELIMINATOR')?.matchId).toBe('e1');
       expect(component.fixtureFor('QUALIFIER_2')?.matchId).toBe('q2');
       expect(component.fixtureFor('FINAL')?.matchId).toBe('f1');
       expect(component.teamNames('ELIMINATOR')).toEqual(['Kings', 'Warriors']);
-  });
+  );;
 
   it('posts progression only after the user action and reloads authoritative fixtures', () => {
     const { component, http } = createComponent();
