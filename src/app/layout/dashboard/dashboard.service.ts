@@ -64,4 +64,4 @@ export class DashboardService {
     localStorage.setItem('cricketpulse_active_team_id', selected.id);
     return true;
   }
-}}
+}
