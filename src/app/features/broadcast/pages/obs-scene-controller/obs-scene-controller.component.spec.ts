@@ -382,7 +382,9 @@ describe('ObsSceneControllerComponent', () => {
     ).acceptAutomationMessage(message);
     expect(component['previousAutomationScore']).toBeNull();
   });
-  it('serializes rapid automation events and applies only the latest requested scene', async () => {
+  it(
+    'serializes rapid automation events and applies only the latest requested scene',
+    async () => {
     const fixture = TestBed.createComponent(ObsSceneControllerComponent);
     const component = fixture.componentInstance;
     component.automationEnabled = true;
@@ -412,7 +414,9 @@ describe('ObsSceneControllerComponent', () => {
     fixture.destroy();
   });
 
-  it('prevents an in-flight automation response from overwriting a manual scene choice', async () => {
+  it(
+    'prevents an in-flight automation response from overwriting a manual scene choice',
+    async () => {
     const fixture = TestBed.createComponent(ObsSceneControllerComponent);
     const component = fixture.componentInstance;
     component.automationEnabled = true;
