@@ -584,16 +584,24 @@
       } @else if (fieldingAnalysisError) {
         <div class="fielding-empty" role="status">
           <b>Fielding analysis unavailable</b>
-          <span>We could not load this match's fielding breakdown. Refresh the page to try again.</span>
+          <span>
+            We could not load this match's fielding breakdown. Refresh the page to try again.
+          </span>
         </div>
       } @else if (fieldingAnalysis.length === 0) {
         <div class="fielding-empty">
           <b>No fielding contributions recorded yet</b>
-          <span>Fielders will appear here when a catch, run-out or stumping is recorded with fielder attribution.</span>
+          <span>
+            Fielders will appear here when a catch, run-out or stumping is recorded with fielder
+            attribution.
+          </span>
         </div>
       } @else {
         <div class="fielding-grid">
-          @for (fielder of fieldingAnalysis; track fielder.inningsNumber + '-' + fielder.fielderId) {
+          @for (
+            fielder of fieldingAnalysis;
+            track fielder.inningsNumber + '-' + fielder.fielderId
+          ) {
             <article class="fielding-card">
               <div class="fielding-card-head">
                 <div>
@@ -606,9 +614,15 @@
                 </div>
               </div>
               <div class="fielding-metrics">
-                <div><b>{{ fielder.catches }}</b><span>CATCHES</span></div>
-                <div><b>{{ fielder.runOuts }}</b><span>RUN-OUTS</span></div>
-                <div><b>{{ fielder.stumpings }}</b><span>STUMPINGS</span></div>
+                <div>
+                  <b>{{ fielder.catches }}</b><span>CATCHES</span>
+                </div>
+                <div>
+                  <b>{{ fielder.runOuts }}</b><span>RUN-OUTS</span>
+                </div>
+                <div>
+                  <b>{{ fielder.stumpings }}</b><span>STUMPINGS</span>
+                </div>
               </div>
             </article>
           }
