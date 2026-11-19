@@ -101,7 +101,8 @@ export function appendAuthoritativeScoreDiagnostics(
       report,
       'Reconciliation reason: ' + reason,
       'Authoritative server snapshot: unavailable locally',
-    ].join('\\n');
+    ].join('\
+');
   }
   const recent = (score.recentBalls || []).map(
     (ball) =>
@@ -117,7 +118,8 @@ export function appendAuthoritativeScoreDiagnostics(
     'Recent authoritative balls (server response retention may be limited):',
     ...(recent.length ? recent : ['  none available']),
     'Important: this snapshot is diagnostic only. Confirm against the live server/official scorer before resolving or replaying retained commands.',
-  ].join('\\n');
+  ].join('\
+');
 }
 
 export function buildOfflineQueueDiagnostics(
@@ -177,7 +179,8 @@ export function buildOfflineQueueDiagnostics(
         `${item.conflict ? '[CONFLICT] ' : ''}${item.position} | ${item.summary} | ${item.identities} | command=${item.commandId} | status=${item.syncStatus} | saved=${item.createdAt}`,
     ),
     'Recovery: compare this retained queue with the official scorer/server score. Do not sync or delete a branch until the official delivery sequence is confirmed.',
-  ].join('\\n');
+  ].join('\
+');
   return { items, conflictPositions, report };
 }
 
@@ -240,7 +243,8 @@ export class LiveScoringV2Component implements OnDestroy {
   extraBatRuns = 0;
   wicketType = '';
   newBatterId = '';
-  dismissedPlayerId = '';\n  wicketFielderId = '';
+  dismissedPlayerId = '';
+  wicketFielderId = '';
   wicketRuns = 0;
   wicketLegalDelivery = true;
   completionReason = '';
@@ -633,7 +637,18 @@ export class LiveScoringV2Component implements OnDestroy {
       .map((p) => ({ value: p.playerId, label: p.name }));
   }
 
-  get requiresFielder(): boolean {\n    return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(this.wicketType);\n  }\n\n  get fieldingOptions(): SelectOption[] {\n    if (!this.score) return [];\n    return this.xi\n      .filter((player) => player.teamId === this.bowlingTeamId)\n      .map((player) => ({ value: player.playerId, label: player.name }));\n  }\n\n  get newBatterOptions(): SelectOption[] {
+  get requiresFielder(): boolean {
+    return ['CAUGHT', 'RUN_OUT', 'STUMPED'].includes(this.wicketType);
+  }
+
+  get fieldingOptions(): SelectOption[] {
+    if (!this.score) return [];
+    return this.xi
+      .filter((player) => player.teamId === this.bowlingTeamId)
+      .map((player) => ({ value: player.playerId, label: player.name }));
+  }
+
+  get newBatterOptions(): SelectOption[] {
     if (!this.score || this.score.wickets >= 9) return [];
     const used = new Set([
       this.score.strikerId,
@@ -657,6 +672,8 @@ export class LiveScoringV2Component implements OnDestroy {
     if (!this.canDeliver) return this.validationHint;
     if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
       return 'Choose which batter was dismissed.';
+    if (this.requiresFielder && !this.wicketFielderId)
+      return 'Choose the fielder credited with this dismissal.';
     if (!Number.isInteger(this.wicketRuns) || this.wicketRuns < 0 || this.wicketRuns > 6)
       return 'Select a valid number of completed runs.';
     if (this.score && this.score.wickets < 9 && !this.newBatterId)
@@ -671,6 +688,7 @@ export class LiveScoringV2Component implements OnDestroy {
       return false;
     if (['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType) && !this.dismissedPlayerId)
       return false;
+    if (this.requiresFielder && !this.wicketFielderId) return false;
     return this.score?.wickets === 9 || !!this.newBatterId;
   }
 
@@ -1937,7 +1955,8 @@ export class LiveScoringV2Component implements OnDestroy {
       dismissedPlayerId: ['RUN_OUT', 'OBSTRUCTING_THE_FIELD'].includes(this.wicketType)
         ? this.dismissedPlayerId
         : this.score.strikerId,
-      newBatterId: ten ? null : this.newBatterId,\n      wicketFielderId: this.requiresFielder ? this.wicketFielderId : null,
+      newBatterId: ten ? null : this.newBatterId,
+      wicketFielderId: this.requiresFielder ? this.wicketFielderId : null,
     });
     this.wicketOpen = false;
   }
