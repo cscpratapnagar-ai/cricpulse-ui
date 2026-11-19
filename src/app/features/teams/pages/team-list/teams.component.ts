@@ -9,6 +9,8 @@ interface Team {
   name: string;
   city?: string;
   ownerId: string;
+  role: 'OWNER' | 'MANAGER' | 'CAPTAIN' | 'VICE_CAPTAIN' | 'PLAYER';
+  canManage: boolean;
 }
 
 @Component({
@@ -45,7 +47,7 @@ export class TeamsComponent {
     this.refreshing = this.hasLoaded;
     this.error = false;
     this.refreshError = false;
-    this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
+    this.http.get<Team[]>(`${API_BASE_URL}/teams/workspaces`).subscribe({
       next: (teams) => {
         this.teams = teams;
         const saved = localStorage.getItem('cricketpulse_active_team_id');
@@ -69,6 +71,16 @@ export class TeamsComponent {
 
   createTeam(): void {
     this.router.navigate(['/dashboard/teams/new']);
+  }
+
+  roleLabel(role: Team['role']): string {
+    switch (role) {
+      case 'OWNER': return 'OWNER';
+      case 'MANAGER': return 'MANAGER';
+      case 'CAPTAIN': return 'CAPTAIN';
+      case 'VICE_CAPTAIN': return 'VICE-CAPTAIN';
+      default: return 'PLAYER';
+    }
   }
 
   selectTeam(team: Team): void {
