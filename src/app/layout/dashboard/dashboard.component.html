@@ -24,7 +24,7 @@
         <div class="workspace-menu">
           <div class="workspace-menu-head">
             <span>YOUR WORKSPACES · {{ dashboard.workspaces().length }}</span>
-            <a routerLink="/teams" (click)="workspaceOpen = false">Manage <b>→</b></a>
+            <a routerLink="/teams" (click)="workspaceOpen = false">{{ hasWorkspaceManagementAccess ? 'Manage' : 'View' }} <b>→</b></a>
           </div>
           @if (dashboard.teamLoading()) {
             <p class="workspace-state" role="status">Loading your workspaces…</p>
