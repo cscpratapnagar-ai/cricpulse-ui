@@ -23,6 +23,22 @@ interface TacticalInsight {
   tone: 'positive' | 'caution' | 'neutral';
 }
 
+interface Matchup {
+  batterId: string;
+  batterName: string;
+  bowlerId: string;
+  bowlerName: string;
+  ballsFaced: number;
+  runs: number;
+  fours: number;
+  sixes: number;
+  dotBalls: number;
+  dismissals: number;
+  strikeRate: number;
+  dotBallPercentage: number;
+  sampleLabel: 'EARLY SAMPLE' | 'ESTABLISHED SAMPLE';
+}
+
 interface MatchIntelligence {
   inningsNumber: number;
   battingTeam: string;
@@ -65,6 +81,9 @@ export class MatchDetailComponent {
   error = '';
   intelligenceLoading = false;
   intelligence: MatchIntelligence | null = null;
+  matchups: Matchup[] = [];
+  matchupsLoading = false;
+  matchupsError = false;
   match: Match | null = null;
 
   constructor() {
@@ -78,6 +97,7 @@ export class MatchDetailComponent {
         this.match = match;
         this.loading = false;
         this.loadIntelligence(id);
+        this.loadMatchups(id);
       },
       error: () => {
         this.match = null;
@@ -97,6 +117,22 @@ export class MatchDetailComponent {
       error: () => {
         this.intelligence = null;
         this.intelligenceLoading = false;
+      },
+    });
+  }
+
+  private loadMatchups(matchId: string): void {
+    this.matchupsLoading = true;
+    this.matchupsError = false;
+    this.http.get<Matchup[]>(`${this.api}/matches/${matchId}/matchups`).subscribe({
+      next: (value) => {
+        this.matchups = Array.isArray(value) ? value : [];
+        this.matchupsLoading = false;
+      },
+      error: () => {
+        this.matchups = [];
+        this.matchupsError = true;
+        this.matchupsLoading = false;
       },
     });
   }
