@@ -333,6 +333,44 @@ describe('ObsSceneControllerComponent', () => {
     fixture.destroy();
   });
 
+  it('uses the highest-priority rule when one delivery triggers multiple events', async () => {
+    const fixture = TestBed.createComponent(ObsSceneControllerComponent);
+    const component = fixture.componentInstance;
+    component.automationEnabled = true;
+    component.scenes = [
+      { sceneName: 'Wicket', sceneIndex: 0 },
+      { sceneName: 'Over', sceneIndex: 1 },
+    ];
+    component.automationRules = component.automationRules.map((rule) => {
+      if (rule.event === 'WICKET')
+        return { ...rule, sceneName: 'Wicket', priority: 100, cooldownSeconds: 0 };
+      if (rule.event === 'OVER_COMPLETE')
+        return { ...rule, sceneName: 'Over', priority: 40, cooldownSeconds: 0 };
+      return rule;
+    });
+    const baseline = {
+      inningsId: 'inn-1',
+      runs: 20,
+      wickets: 0,
+      legalBalls: 5,
+      eventVersion: 1,
+      recentBalls: [{ deliveryId: 'd-5', totalRuns: 0, legalDelivery: true }],
+    };
+    component.onAutomationScore(baseline);
+    component.onAutomationScore({
+      ...baseline,
+      wickets: 1,
+      legalBalls: 6,
+      eventVersion: 2,
+      recentBalls: [
+        { deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' },
+      ],
+    });
+    await Promise.resolve();
+    expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
+    fixture.destroy();
+  });
+
   it('ignores scorer messages from another match', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.automationEnabled = true;
