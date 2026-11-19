@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { SKIP_GLOBAL_LOADING } from '../interceptors/loading.interceptor';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import {
   LiveScoreService,
@@ -51,6 +52,8 @@ describe('LiveScoreService', () => {
     );
 
     expect(requests.length).toBe(2);
+    expect(requests[0].request.context.get(SKIP_GLOBAL_LOADING)).toBeFalse();
+    expect(requests[1].request.context.get(SKIP_GLOBAL_LOADING)).toBeTrue();
     requests[0].flush({
       inningsId: 'innings-2',
       matchId: 'match-1',
