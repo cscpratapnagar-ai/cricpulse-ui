@@ -11,37 +11,64 @@
       <button
         class="workspace"
         type="button"
+        aria-label="Switch active workspace"
         (click)="workspaceOpen = !workspaceOpen"
         [attr.aria-expanded]="workspaceOpen"
       >
         <div class="team-avatar">{{ teamInitial }}</div>
         <div>
           <small>ACTIVE WORKSPACE</small><strong>{{ team?.name || 'Personal workspace' }}</strong
-          ><span>Switch workspace <b>⌄</b></span>
+          ><span>{{ workspaceRoleLabel(team?.role) }} · Switch workspace <b>⌄</b></span>
         </div>
       </button>
       @if (workspaceOpen) {
         <div class="workspace-menu">
           <div class="workspace-menu-head">
-            <span>YOUR WORKSPACES</span
-            ><button type="button" title="Workspace creation requires backend support" disabled>
-              ＋
-            </button>
+            <span>YOUR WORKSPACES · {{ dashboard.workspaces().length }}</span>
+            <a routerLink="/teams" (click)="workspaceOpen = false"
+              >{{ hasWorkspaceManagementAccess ? 'Manage' : 'View' }} <b>→</b></a
+            >
           </div>
-          <button type="button" class="workspace-option active">
-            <i>{{ teamInitial }}</i
-            ><span
-              ><strong>{{ team?.name || 'Personal workspace' }}</strong
-              ><small>Current workspace</small></span
-            ><b>✓</b>
-          </button>
-          <div class="workspace-divider"></div>
-          <a routerLink="/teams" (click)="workspaceOpen = false"
-            ><i>◇</i><span>Manage teams</span><b>→</b></a
-          >
+          @if (dashboard.teamLoading()) {
+            <p class="workspace-state" role="status">Loading your workspaces…</p>
+          } @else if (dashboard.teamError()) {
+            <p class="workspace-state error" role="alert">
+              Workspaces could not be loaded.
+              <button type="button" (click)="dashboard.loadWorkspace()">Retry</button>
+            </p>
+          } @else if (dashboard.workspaces().length) {
+            @for (workspace of dashboard.workspaces(); track workspace.id) {
+              <button
+                type="button"
+                class="workspace-option"
+                [class.active]="team?.id === workspace.id"
+                [attr.aria-pressed]="team?.id === workspace.id"
+                (click)="selectWorkspace(workspace.id)"
+              >
+                <i>{{ workspace.name.charAt(0).toUpperCase() }}</i>
+                <span>
+                  <strong>{{ workspace.name }}</strong>
+                  <small
+                    >{{ workspace.city || 'Location not set' }} ·
+                    {{ workspaceRoleLabel(workspace.role) }}</small
+                  >
+                </span>
+                @if (team?.id === workspace.id) {
+                  <b>✓</b>
+                }
+              </button>
+            }
+          } @else {
+            <p class="workspace-state">
+              No team workspaces yet. Create or join a team to get started.
+            </p>
+          }
           <div class="workspace-note">
-            <i>⌁</i
-            ><span>Multi-workspace switching will activate when workspace APIs are connected.</span>
+            <i>⌁</i>
+            <span
+              >Switching changes your active team context. Permissions are checked by the
+              server.</span
+            >
           </div>
         </div>
       }

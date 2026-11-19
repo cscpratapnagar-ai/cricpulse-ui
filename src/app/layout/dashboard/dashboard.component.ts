@@ -72,6 +72,33 @@ export class DashboardComponent {
     return !!this.team;
   }
 
+  get hasWorkspaceManagementAccess() {
+    return !!this.team?.canManage || this.user?.role?.toUpperCase() === 'ADMIN';
+  }
+
+  selectWorkspace(workspaceId: string) {
+    if (!this.dashboard.selectWorkspace(workspaceId)) return;
+    this.workspaceOpen = false;
+    void this.router.navigateByUrl('/dashboard');
+  }
+
+  workspaceRoleLabel(role?: string) {
+    switch (role) {
+      case 'OWNER':
+        return 'Owner';
+      case 'MANAGER':
+        return 'Manager';
+      case 'CAPTAIN':
+        return 'Captain';
+      case 'VICE_CAPTAIN':
+        return 'Vice-captain';
+      case 'PLAYER':
+        return 'Player';
+      default:
+        return 'Member';
+    }
+  }
+
   private get accessibleCommandItems() {
     return this.hasWorkspaceAccess
       ? this.commandItems

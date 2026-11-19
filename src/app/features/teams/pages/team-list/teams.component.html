@@ -96,7 +96,9 @@
                   ><strong>{{ t.name }}</strong>
                 </div>
               </div>
-              <span class="badge"><i></i>{{ t.id === activeTeamId ? 'ACTIVE' : 'OWNER' }}</span>
+              <span class="badge"
+                ><i></i>{{ t.id === activeTeamId ? 'ACTIVE · ' : '' }}{{ roleLabel(t.role) }}</span
+              >
             </div>
 
             <div class="team-location">

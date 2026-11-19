@@ -23,8 +23,8 @@ describe('TeamsComponent', () => {
     const http = (component as any).http;
     spyOn(http, 'get').and.returnValue(
       of([
-        { id: 'team-1', name: 'First XI', ownerId: 'owner-1' },
-        { id: 'team-2', name: 'Second XI', ownerId: 'owner-1' },
+        { id: 'team-1', name: 'First XI', ownerId: 'owner-1', role: 'OWNER', canManage: true },
+        { id: 'team-2', name: 'Second XI', ownerId: 'owner-1', role: 'MANAGER', canManage: true },
       ]),
     );
     localStorage.setItem('cricketpulse_active_team_id', 'team-2');
@@ -51,7 +51,15 @@ describe('TeamsComponent', () => {
 
   it('preserves the current team workspace when a background refresh fails', () => {
     const http = (component as any).http;
-    const existing = [{ id: 'team-1', name: 'First XI', ownerId: 'owner-1' }];
+    const existing = [
+      {
+        id: 'team-1',
+        name: 'First XI',
+        ownerId: 'owner-1',
+        role: 'OWNER' as const,
+        canManage: true,
+      },
+    ];
     component.teams = existing;
     component.activeTeam = existing[0];
     component.activeTeamId = existing[0].id;
@@ -70,7 +78,13 @@ describe('TeamsComponent', () => {
 
   it('persists selection and navigates to the selected team', () => {
     const router = TestBed.inject(Router);
-    const team = { id: 'team-7', name: 'Cricket Club', ownerId: 'owner-1' };
+    const team = {
+      id: 'team-7',
+      name: 'Cricket Club',
+      ownerId: 'owner-1',
+      role: 'OWNER' as const,
+      canManage: true,
+    };
     spyOn(router, 'navigate');
 
     component.openTeam(team);

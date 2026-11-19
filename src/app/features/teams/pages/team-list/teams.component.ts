@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { API_BASE_URL } from '../../../../core/config/api.config';
+import { DashboardService } from '../../../../layout/dashboard/dashboard.service';
 import { StateViewComponent } from '../../../../shared/components/state-view/state-view.component';
 
 interface Team {
@@ -9,6 +10,8 @@ interface Team {
   name: string;
   city?: string;
   ownerId: string;
+  role: 'OWNER' | 'MANAGER' | 'CAPTAIN' | 'VICE_CAPTAIN' | 'PLAYER';
+  canManage: boolean;
 }
 
 @Component({
@@ -21,6 +24,7 @@ interface Team {
 export class TeamsComponent {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly dashboard = inject(DashboardService);
 
   readonly skeletonItems = Array.from({ length: 6 }, (_, index) => index);
   teams: Team[] = [];
@@ -45,7 +49,7 @@ export class TeamsComponent {
     this.refreshing = this.hasLoaded;
     this.error = false;
     this.refreshError = false;
-    this.http.get<Team[]>(`${API_BASE_URL}/teams/mine`).subscribe({
+    this.http.get<Team[]>(`${API_BASE_URL}/teams/workspaces`).subscribe({
       next: (teams) => {
         this.teams = teams;
         const saved = localStorage.getItem('cricketpulse_active_team_id');
@@ -71,10 +75,26 @@ export class TeamsComponent {
     this.router.navigate(['/dashboard/teams/new']);
   }
 
+  roleLabel(role: Team['role']): string {
+    switch (role) {
+      case 'OWNER':
+        return 'OWNER';
+      case 'MANAGER':
+        return 'MANAGER';
+      case 'CAPTAIN':
+        return 'CAPTAIN';
+      case 'VICE_CAPTAIN':
+        return 'VICE-CAPTAIN';
+      default:
+        return 'PLAYER';
+    }
+  }
+
   selectTeam(team: Team): void {
     this.activeTeam = team;
     this.activeTeamId = team.id;
     localStorage.setItem('cricketpulse_active_team_id', team.id);
+    this.dashboard.selectWorkspace(team.id);
   }
 
   openTeam(team: Team): void {
