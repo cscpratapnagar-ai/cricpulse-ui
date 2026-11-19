@@ -231,6 +231,85 @@
       </p>
     </section>
 
+    <section class="card panel player-compare-panel">
+      <div class="head">
+        <div>
+          <span class="eyebrow">HEAD-TO-HEAD · THIS TOURNAMENT</span>
+          <h2>Compare tournament players</h2>
+          <p class="subhead">Compare only completed-match figures recorded in this tournament.</p>
+        </div>
+        <span class="panel-index">05</span>
+      </div>
+      @if (comparisonPlayers.length >= 2) {
+        <div class="compare-selectors">
+          <label>
+            <span>PLAYER 1</span>
+            <select [value]="compareLeftId" (change)="setCompareLeft($any($event.target).value)">
+              @for (player of comparisonPlayers; track player.playerId) {
+                <option [value]="player.playerId" [disabled]="player.playerId === compareRightId">
+                  {{ player.playerName }}
+                </option>
+              }
+            </select>
+          </label>
+          <span class="compare-vs">VS</span>
+          <label>
+            <span>PLAYER 2</span>
+            <select [value]="compareRightId" (change)="setCompareRight($any($event.target).value)">
+              @for (player of comparisonPlayers; track player.playerId) {
+                <option [value]="player.playerId" [disabled]="player.playerId === compareLeftId">
+                  {{ player.playerName }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+        @if (tournamentComparison; as comparison) {
+          <div class="compare-table-wrap">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ comparison.left.playerName }}</th>
+                  <th scope="col">METRIC</th>
+                  <th scope="col">{{ comparison.right.playerName }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (metric of comparisonMetrics; track metric.label) {
+                  <tr>
+                    <td
+                      [class.compare-winner]="
+                        metric.lower ? metric.left < metric.right : metric.left > metric.right
+                      "
+                    >
+                      {{ metric.left | number: '1.0-2' }}
+                    </td>
+                    <th scope="row">{{ metric.label }}</th>
+                    <td
+                      [class.compare-winner]="
+                        metric.lower ? metric.right < metric.left : metric.right > metric.left
+                      "
+                    >
+                      {{ metric.right | number: '1.0-2' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        <p class="muted">
+          At least two players need recorded activity in completed tournament matches to compare
+          them.
+        </p>
+      }
+      <p class="performance-note">
+        Higher is better for batting, wickets and fielding. Lower is better for bowling economy.
+        Figures are tournament-only, not career totals.
+      </p>
+    </section>
+
     <div class="actions">
       <a [routerLink]="['/tournaments', id, 'qualification']">Qualification Preview <b>→</b></a>
       <a [routerLink]="['/tournaments', id, 'schedule']">Schedule Fixtures <b>→</b></a>
