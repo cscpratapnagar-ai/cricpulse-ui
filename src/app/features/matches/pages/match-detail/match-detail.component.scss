@@ -2243,7 +2243,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   background: color-mix(in srgb, var(--cp-text) 2%, var(--surface));
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition:\n    border-color 0.2s ease,\n    transform 0.2s ease;
 }
 .fielding-card:hover {
   transform: translateY(-2px);
