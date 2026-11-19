@@ -177,6 +177,8 @@ export class ObsSceneControllerComponent implements OnDestroy {
   private automationWatchedInningsId = '';
   private automationReturnTimer?: ReturnType<typeof setTimeout>;
   private automationBaseScene = '';
+  private automationTransitionVersion = 0;
+  private automationSwitchQueue: Promise<void> = Promise.resolve();
   private previousAutomationScore: ObsAutomationScore | null = null;
   private previousAutomationMatchStatus = '';
   private readonly processedAutomationEvents = new Set<string>();
@@ -198,6 +200,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
         this.notice = '';
         this.connecting = false;
         this.switching = false;
+        this.invalidateAutomationTransitions();
       }),
     );
   }
@@ -228,6 +231,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   disconnect(): void {
+    this.invalidateAutomationTransitions();
     this.obs.disconnect();
     this.scenes = [];
     this.currentScene = '';
@@ -415,8 +419,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
       this.automationStatus = 'Automation enabled. Waiting for the next match event.';
     } else {
       this.stopAutomationFeeds();
-      if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
-      this.automationReturnTimer = undefined;
+      this.invalidateAutomationTransitions();
       this.automationStatus = 'Automation is off.';
     }
   }
@@ -616,36 +619,68 @@ export class ObsSceneControllerComponent implements OnDestroy {
     return [...new Set(events)];
   }
 
-  private async runAutomationScene(sceneName: string, eventLabel: string): Promise<void> {
-    if (!this.obs.connected || this.switching) return;
+  private runAutomationScene(sceneName: string, eventLabel: string): Promise<void> {
+    if (!this.obs.connected || this.switching || !this.automationEnabled) return Promise.resolve();
     if (!this.automationBaseScene)
       this.automationBaseScene = this.automationReturnScene || this.currentScene;
     if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
-    try {
-      await this.obs.switchScene(sceneName);
-      this.currentScene = sceneName;
-      this.selectedScene = sceneName;
-      this.automationStatus = `Auto switched to ${sceneName} · ${eventLabel}.`;
-      this.automationReturnTimer = setTimeout(() => {
-        const target = this.automationReturnScene || this.automationBaseScene;
-        if (target && target !== sceneName && this.obs.connected) {
+    this.automationReturnTimer = undefined;
+    const transitionVersion = ++this.automationTransitionVersion;
+
+    const transition = async (): Promise<void> => {
+      if (
+        transitionVersion !== this.automationTransitionVersion ||
+        !this.automationEnabled ||
+        !this.obs.connected
+      )
+        return;
+      try {
+        await this.obs.switchScene(sceneName);
+        if (transitionVersion !== this.automationTransitionVersion) return;
+        this.currentScene = sceneName;
+        this.selectedScene = sceneName;
+        this.automationStatus = `Auto switched to ${sceneName} · ${eventLabel}.`;
+        this.automationReturnTimer = setTimeout(() => {
+          this.automationReturnTimer = undefined;
+          if (
+            transitionVersion !== this.automationTransitionVersion ||
+            !this.automationEnabled ||
+            !this.obs.connected
+          )
+            return;
+          const target = this.automationReturnScene || this.automationBaseScene;
+          if (!target || target === sceneName) return;
           void this.obs
             .switchScene(target)
             .then(() => {
+              if (transitionVersion !== this.automationTransitionVersion) return;
               this.currentScene = target;
               this.selectedScene = target;
               this.automationStatus = `Returned to ${target}.`;
+              this.automationBaseScene = '';
             })
             .catch(() => {
-              this.automationStatus = 'Automatic return failed. Check OBS connection.';
+              if (transitionVersion === this.automationTransitionVersion)
+                this.automationStatus = 'Automatic return failed. Check OBS connection.';
             });
+        }, this.automationReturnDelay * 1000);
+      } catch (error) {
+        if (transitionVersion === this.automationTransitionVersion) {
+          this.automationStatus =
+            error instanceof Error ? error.message : 'Automatic scene switch failed.';
         }
-        this.automationReturnTimer = undefined;
-      }, this.automationReturnDelay * 1000);
-    } catch (error) {
-      this.automationStatus =
-        error instanceof Error ? error.message : 'Automatic scene switch failed.';
-    }
+      }
+    };
+
+    this.automationSwitchQueue = this.automationSwitchQueue.then(transition, transition);
+    return this.automationSwitchQueue;
+  }
+
+  private invalidateAutomationTransitions(): void {
+    this.automationTransitionVersion += 1;
+    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
+    this.automationReturnTimer = undefined;
+    this.automationBaseScene = '';
   }
 
   private startAutomationFeeds(): void {
@@ -754,9 +789,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   async switchScene(): Promise<void> {
-    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
-    this.automationReturnTimer = undefined;
-    this.automationBaseScene = '';
+    this.invalidateAutomationTransitions();
     if (
       !this.obs.connected ||
       !this.selectedScene ||
@@ -783,7 +816,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.obsSubscriptions.unsubscribe();
     this.stopAutomationFeeds();
-    if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
+    this.invalidateAutomationTransitions();
     this.obs.disconnect();
     this.password = '';
   }
