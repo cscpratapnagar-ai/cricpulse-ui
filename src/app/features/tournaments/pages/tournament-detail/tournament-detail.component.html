@@ -252,27 +252,44 @@
           <div>
             <span class="eyebrow">MATCHDAY OPERATIONS</span>
             <h2>Run every fixture from one workspace</h2>
-            <p>Move from match preparation to live scoring and broadcast without losing tournament context.</p>
+            <p>
+              Move from match preparation to live scoring and broadcast without losing tournament
+              context.
+            </p>
           </div>
-          <a class="ghost-btn" [routerLink]="['/tournaments', id, 'schedule']">Manage schedule <span>→</span></a>
+          <a class="ghost-btn" [routerLink]="['/tournaments', id, 'schedule']"
+            >Manage schedule <span>→</span></a
+          >
         </div>
 
         <div class="operations-stats" aria-label="Fixture status summary">
           <article class="operation-stat live-stat">
             <span class="operation-stat-icon"><i></i></span>
-            <div><small>LIVE NOW</small><strong>{{ liveFixtures.length }}</strong><span>Matches in progress</span></div>
+            <div>
+              <small>LIVE NOW</small><strong>{{ liveFixtures.length }}</strong
+              ><span>Matches in progress</span>
+            </div>
           </article>
           <article class="operation-stat upcoming-stat">
             <span class="operation-stat-icon">◷</span>
-            <div><small>UP NEXT</small><strong>{{ upcomingFixtures.length }}</strong><span>Scheduled fixtures</span></div>
+            <div>
+              <small>UP NEXT</small><strong>{{ upcomingFixtures.length }}</strong
+              ><span>Scheduled fixtures</span>
+            </div>
           </article>
           <article class="operation-stat complete-stat">
             <span class="operation-stat-icon">✓</span>
-            <div><small>COMPLETED</small><strong>{{ completedFixtures.length }}</strong><span>Results recorded</span></div>
+            <div>
+              <small>COMPLETED</small><strong>{{ completedFixtures.length }}</strong
+              ><span>Results recorded</span>
+            </div>
           </article>
           <article class="operation-stat">
             <span class="operation-stat-icon">▦</span>
-            <div><small>TO BE SCHEDULED</small><strong>{{ pending }}</strong><span>Fixtures needing attention</span></div>
+            <div>
+              <small>TO BE SCHEDULED</small><strong>{{ pending }}</strong
+              ><span>Fixtures needing attention</span>
+            </div>
           </article>
         </div>
 
@@ -280,13 +297,21 @@
           <article class="runbook-card">
             <span class="runbook-index">01</span>
             <div class="runbook-icon">♜</div>
-            <div><small>BEFORE THE MATCH</small><h3>Prepare the fixture</h3><p>Confirm playing XI, toss and opening players before scoring begins.</p></div>
+            <div>
+              <small>BEFORE THE MATCH</small>
+              <h3>Prepare the fixture</h3>
+              <p>Confirm playing XI, toss and opening players before scoring begins.</p>
+            </div>
             <a [routerLink]="['/tournaments', id, 'schedule']">Review schedule <b>→</b></a>
           </article>
           <article class="runbook-card featured-runbook">
             <span class="runbook-index">02</span>
             <div class="runbook-icon">●</div>
-            <div><small>ON THE FIELD</small><h3>Operate live scoring</h3><p>Open the live scorer for an active match and keep the official score moving.</p></div>
+            <div>
+              <small>ON THE FIELD</small>
+              <h3>Operate live scoring</h3>
+              <p>Open the live scorer for an active match and keep the official score moving.</p>
+            </div>
             @if (liveFixtures.length) {
               <a [routerLink]="workflowRoute(liveFixtures[0])">Open live match <b>→</b></a>
             } @else {
@@ -296,9 +321,15 @@
           <article class="runbook-card">
             <span class="runbook-index">03</span>
             <div class="runbook-icon">▣</div>
-            <div><small>FOR THE AUDIENCE</small><h3>Prepare the broadcast</h3><p>Configure score overlays, scenes and sponsor graphics for each match.</p></div>
+            <div>
+              <small>FOR THE AUDIENCE</small>
+              <h3>Prepare the broadcast</h3>
+              <p>Configure score overlays, scenes and sponsor graphics for each match.</p>
+            </div>
             @if (fixtures.length) {
-              <a [routerLink]="['/broadcast', fixtures[0].matchId, 'control']">Open broadcast desk <b>→</b></a>
+              <a [routerLink]="['/broadcast', fixtures[0].matchId, 'control']"
+                >Open broadcast desk <b>→</b></a
+              >
             } @else {
               <span class="runbook-hint">Create a fixture to continue</span>
             }
@@ -307,36 +338,75 @@
 
         <section class="operations-fixtures">
           <div class="operations-list-head">
-            <div><span class="eyebrow">FIXTURE CONTROL</span><h3>Match operations</h3><p>Each action opens the existing match or broadcast workspace for that fixture.</p></div>
+            <div>
+              <span class="eyebrow">FIXTURE CONTROL</span>
+              <h3>Match operations</h3>
+              <p>Each action opens the existing match or broadcast workspace for that fixture.</p>
+            </div>
             <span class="count-badge">{{ fixtures.length }} total</span>
           </div>
           @if (fixtures.length) {
             <div class="operations-fixture-list">
               @for (fixture of fixtures; track fixture.matchId) {
-                <article class="operations-fixture" [class.fixture-live]="fixture.status === 'LIVE'">
+                <article
+                  class="operations-fixture"
+                  [class.fixture-live]="fixture.status === 'LIVE'"
+                >
                   <div class="operation-fixture-number">#{{ fixture.fixtureNumber || '—' }}</div>
                   <div class="operation-fixture-main">
-                    <div class="operation-fixture-meta"><span>{{ fixture.stage }}</span><span class="fixture-status" [class.status-live]="fixture.status === 'LIVE'" [class.status-done]="fixture.status === 'COMPLETED'">{{ fixture.status }}</span></div>
+                    <div class="operation-fixture-meta">
+                      <span>{{ fixture.stage }}</span
+                      ><span
+                        class="fixture-status"
+                        [class.status-live]="fixture.status === 'LIVE'"
+                        [class.status-done]="fixture.status === 'COMPLETED'"
+                        >{{ fixture.status }}</span
+                      >
+                    </div>
                     <h4>{{ fixture.teamAName }} <b>vs</b> {{ fixture.teamBName }}</h4>
-                    <p>{{ scheduledLabel(fixture.scheduledAt) }} <span>·</span> {{ fixture.matchName }}</p>
+                    <p>
+                      {{ scheduledLabel(fixture.scheduledAt) }} <span>·</span>
+                      {{ fixture.matchName }}
+                    </p>
                   </div>
                   <div class="operation-fixture-actions">
-                    <a class="fixture-primary-action" [routerLink]="workflowRoute(fixture)">{{ workflowAction(fixture) }} <b>→</b></a>
-                    <a class="fixture-secondary-action" [routerLink]="['/broadcast', fixture.matchId, 'control']">Broadcast desk</a>
-                    <a class="fixture-tertiary-action" [routerLink]="['/matches', fixture.matchId]">Match overview</a>
+                    <a class="fixture-primary-action" [routerLink]="workflowRoute(fixture)"
+                      >{{ workflowAction(fixture) }} <b>→</b></a
+                    >
+                    <a
+                      class="fixture-secondary-action"
+                      [routerLink]="['/broadcast', fixture.matchId, 'control']"
+                      >Broadcast desk</a
+                    >
+                    <a class="fixture-tertiary-action" [routerLink]="['/matches', fixture.matchId]"
+                      >Match overview</a
+                    >
                   </div>
                 </article>
               }
             </div>
           } @else {
             <div class="operations-empty">
-              <span>▦</span><h4>Your matchday workspace is ready</h4>
-              <p>Generate fixtures after registering at least two teams. Match setup, scoring and broadcast actions will appear here.</p>
-              <button class="primary-cta" [disabled]="busy || teams.length < 2" (click)="generateFixtures()">Generate fixtures <span>→</span></button>
+              <span>▦</span>
+              <h4>Your matchday workspace is ready</h4>
+              <p>
+                Generate fixtures after registering at least two teams. Match setup, scoring and
+                broadcast actions will appear here.
+              </p>
+              <button
+                class="primary-cta"
+                [disabled]="busy || teams.length < 2"
+                (click)="generateFixtures()"
+              >
+                Generate fixtures <span>→</span>
+              </button>
             </div>
           }
         </section>
-        <p class="operations-footnote">Access to scoring and broadcast controls follows the permissions configured for each match. This workspace does not bypass match access rules.</p>
+        <p class="operations-footnote">
+          Access to scoring and broadcast controls follows the permissions configured for each
+          match. This workspace does not bypass match access rules.
+        </p>
       </section>
     }
     @if (activeTab() === 'teams') {

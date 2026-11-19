@@ -76,7 +76,9 @@ export class TournamentDetailComponent {
   busy = false;
   actionError = '';
   actionMessage = '';
-  activeTab = signal<'overview' | 'operations' | 'teams' | 'fixtures' | 'standings' | 'analytics'>('overview');
+  activeTab = signal<'overview' | 'operations' | 'teams' | 'fixtures' | 'standings' | 'analytics'>(
+    'overview',
+  );
   tabs = [
     { key: 'overview' as const, label: 'Overview', icon: '◈' },
     { key: 'operations' as const, label: 'Operations', icon: '⌘' },
