@@ -275,6 +275,10 @@ export class MatchDetailComponent {
     });
   }
 
+  dismissalLabel(value: string): string {
+    return value.replaceAll('_', ' ');
+  }
+
   phaseInnings(): PhaseInningsGroup[] {
     const groups = new Map<number, PhaseInningsGroup>();
     for (const phase of this.phaseAnalysis) {
