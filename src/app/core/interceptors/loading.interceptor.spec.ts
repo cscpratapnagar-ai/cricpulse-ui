@@ -52,9 +52,7 @@ describe('loadingInterceptor', () => {
   it('allows the skip token to override an explicit global-loading request', () => {
     TestBed.runInInjectionContext(() => {
       const request = new HttpRequest('GET', '/api/matches', null, {
-        context: new HttpContext()
-          .set(SHOW_GLOBAL_LOADING, true)
-          .set(SKIP_GLOBAL_LOADING, true),
+        context: new HttpContext().set(SHOW_GLOBAL_LOADING, true).set(SKIP_GLOBAL_LOADING, true),
       });
 
       loadingInterceptor(request, () => of(new HttpResponse({ status: 200 }))).subscribe();
