@@ -26,6 +26,8 @@ interface Qualifier {
   lowerSeed: Point;
 }
 
+interface TournamentSummary { status: string; name?: string; }
+
 interface Preview {
   eligible: boolean;
   message: string;
@@ -78,6 +80,7 @@ export class TournamentQualificationComponent {
   loading = true;
   progressBusy = false;
   preview: Preview | null = null;
+  tournamentStatus = '';
   fixtures: Fixture[] = [];
   winnerByMatch: Record<string, string> = {};
   progress: PlayoffProgress | null = null;
@@ -105,25 +108,28 @@ export class TournamentQualificationComponent {
   }
 
   get canProgress(): boolean {
-    return Boolean(this.preview?.eligible && this.leagueComplete && !this.progressBusy);
+    return Boolean(this.preview?.eligible && this.tournamentStatus === 'ACTIVE' && this.leagueComplete && !this.progressBusy);
   }
 
   get championName(): string {
     const championId = this.progress?.championTeamId;
-    if (!championId) return '';
     const final = this.fixtureFor('FINAL');
-    if (!final) return '';
-    return final.teamAId === championId ? final.teamAName : final.teamBId === championId ? final.teamBName : '';
+    if (championId && final) {
+      return final.teamAId === championId ? final.teamAName : final.teamBId === championId ? final.teamBName : '';
+    }
+    return this.winnerName('FINAL');
   }
 
   load(): void {
     this.loading = true;
     this.error = '';
     forkJoin({
+      tournament: this.http.get<TournamentSummary>(`${this.api}/tournaments/${this.id}`),
       preview: this.http.get<Preview>(`${this.api}/tournaments/${this.id}/qualification`),
       fixtures: this.http.get<Fixture[]>(`${this.api}/tournaments/${this.id}/fixtures`),
     }).subscribe({
-      next: ({ preview, fixtures }) => {
+      next: ({ tournament, preview, fixtures }) => {
+        this.tournamentStatus = tournament.status?.toUpperCase() ?? '';
         this.preview = preview;
         this.fixtures = Array.isArray(fixtures) ? fixtures : [];
         this.winnerByMatch = {};
