@@ -328,6 +328,7 @@ describe('ObsSceneControllerComponent', () => {
       recentBalls: [{ deliveryId: 'd-2', totalRuns: 6, legalDelivery: true }],
     });
     await Promise.resolve();
+    await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledWith('Six');
     expect(component.automationStatus).toContain('Six');
     fixture.destroy();
@@ -400,6 +401,7 @@ describe('ObsSceneControllerComponent', () => {
 
     const first = runAutomation('Wicket', 'Wicket');
     const latest = runAutomation('Six', 'Six');
+    await Promise.resolve();
 
     expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
     finishFirst();
@@ -431,6 +433,7 @@ describe('ObsSceneControllerComponent', () => {
     ).runAutomationScene.bind(component);
 
     const automation = runAutomation('Wicket', 'Wicket');
+    await Promise.resolve();
     component.selectedScene = 'Manual';
     const manual = component.switchScene();
     finishAutomation();
