@@ -261,6 +261,11 @@
             Save as profile
           </button>
           @if (activeAutomationProfileId) {
+            <button class="secondary" type="button" (click)="duplicateAutomationProfile()">
+              Duplicate profile
+            </button>
+          }
+          @if (activeAutomationProfileId) {
             <button
               class="danger"
               type="button"
@@ -300,26 +305,65 @@
       </div>
       <div class="automation-rule-list">
         @for (rule of automationRules; track rule.event) {
-          <label class="automation-rule"
-            ><span
-              ><b>{{ rule.label }}</b
-              ><small>{{ rule.event.replaceAll('_', ' ') }}</small></span
-            >
-            <select
-              [value]="rule.sceneName"
-              (change)="rule.sceneName = $any($event.target).value"
-              [disabled]="!automationEnabled"
-            >
-              <option value="">No scene (ignore event)</option>
-              @for (scene of scenes; track scene.sceneName) {
-                <option [value]="scene.sceneName">{{ scene.sceneName }}</option>
-              }
-            </select></label
-          >
+          <article class="automation-rule">
+            <div class="rule-heading">
+              <label class="rule-enable">
+                <input
+                  type="checkbox"
+                  [checked]="rule.enabled"
+                  (change)="rule.enabled = $any($event.target).checked"
+                  [disabled]="!automationEnabled"
+                />
+                <span
+                  ><b>{{ rule.label }}</b
+                  ><small>{{ rule.event.replaceAll('_', ' ') }}</small></span
+                >
+              </label>
+              <label class="rule-field"
+                >Priority
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  [value]="rule.priority"
+                  (change)="rule.priority = +$any($event.target).value"
+                  [disabled]="!automationEnabled"
+                />
+              </label>
+              <label class="rule-field"
+                >Cooldown
+                <select
+                  [value]="rule.cooldownSeconds"
+                  (change)="rule.cooldownSeconds = +$any($event.target).value"
+                  [disabled]="!automationEnabled"
+                >
+                  @for (seconds of [0, 2, 3, 5, 10, 15, 30, 60, 120]; track seconds) {
+                    <option [value]="seconds">{{ seconds === 0 ? 'Off' : seconds + 's' }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+            <label class="rule-scene"
+              >OBS scene
+              <select
+                [value]="rule.sceneName"
+                (change)="rule.sceneName = $any($event.target).value"
+                [disabled]="!automationEnabled || !rule.enabled"
+              >
+                <option value="">No scene (ignore event)</option>
+                @for (scene of scenes; track scene.sceneName) {
+                  <option [value]="scene.sceneName">{{ scene.sceneName }}</option>
+                }
+              </select>
+            </label>
+          </article>
         }
       </div>
       <div class="automation-actions">
         <button class="secondary" type="button" (click)="saveAutomationRules()">Save rules</button>
+        <button class="secondary" type="button" (click)="resetAutomationRules()">
+          Reset defaults
+        </button>
         <span class="automation-status" role="status">{{ automationStatus }}</span>
       </div>
     } @else {

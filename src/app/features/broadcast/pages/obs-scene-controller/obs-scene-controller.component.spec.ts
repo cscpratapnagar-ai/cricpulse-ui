@@ -217,6 +217,45 @@ describe('ObsSceneControllerComponent', () => {
     ).toBe('Wicket');
   });
 
+  it('supports disabling rules, priority, cooldown, and persists advanced settings', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.scenes = [{ sceneName: 'Wicket', sceneIndex: 0 }];
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'WICKET'
+        ? { ...rule, sceneName: 'Wicket', enabled: false, priority: 95, cooldownSeconds: 30 }
+        : rule,
+    );
+    component.saveAutomationRules();
+    const saved = JSON.parse(localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}');
+    const wicket = saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET');
+    expect(wicket.enabled).toBeFalse();
+    expect(wicket.priority).toBe(95);
+    expect(wicket.cooldownSeconds).toBe(30);
+  });
+
+  it('resets advanced automation rules to safe defaults', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.automationRules[0].enabled = false;
+    component.automationRules[0].priority = 1;
+    component.automationRules[0].cooldownSeconds = 99;
+    component.resetAutomationRules();
+    expect(component.automationRules[0].enabled).toBeTrue();
+    expect(component.automationRules[0].priority).toBe(70);
+    expect(component.automationRules[0].cooldownSeconds).toBe(3);
+  });
+
+  it('duplicates the active automation profile under a new name', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.newAutomationProfileName = 'Copy';
+    component.saveAutomationProfile();
+    const originalId = component.activeAutomationProfileId;
+    component.newAutomationProfileName = 'Copy 2';
+    component.duplicateAutomationProfile();
+    expect(component.automationProfiles.length).toBe(2);
+    expect(component.activeAutomationProfileId).not.toBe(originalId);
+    expect(component.automationProfiles[1].name).toBe('Copy 2');
+  });
+
   it('saves, applies, and deletes match-scoped automation profiles', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     component.scenes = [
@@ -291,6 +330,42 @@ describe('ObsSceneControllerComponent', () => {
     await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledWith('Six');
     expect(component.automationStatus).toContain('Six');
+    fixture.destroy();
+  });
+
+  it('uses the highest-priority rule when one delivery triggers multiple events', async () => {
+    const fixture = TestBed.createComponent(ObsSceneControllerComponent);
+    const component = fixture.componentInstance;
+    component.automationEnabled = true;
+    component.scenes = [
+      { sceneName: 'Wicket', sceneIndex: 0 },
+      { sceneName: 'Over', sceneIndex: 1 },
+    ];
+    component.automationRules = component.automationRules.map((rule) => {
+      if (rule.event === 'WICKET')
+        return { ...rule, sceneName: 'Wicket', priority: 100, cooldownSeconds: 0 };
+      if (rule.event === 'OVER_COMPLETE')
+        return { ...rule, sceneName: 'Over', priority: 40, cooldownSeconds: 0 };
+      return rule;
+    });
+    const baseline = {
+      inningsId: 'inn-1',
+      runs: 20,
+      wickets: 0,
+      legalBalls: 5,
+      eventVersion: 1,
+      recentBalls: [{ deliveryId: 'd-5', totalRuns: 0, legalDelivery: true }],
+    };
+    component.onAutomationScore(baseline);
+    component.onAutomationScore({
+      ...baseline,
+      wickets: 1,
+      legalBalls: 6,
+      eventVersion: 2,
+      recentBalls: [{ deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' }],
+    });
+    await Promise.resolve();
+    expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
     fixture.destroy();
   });
 

@@ -534,3 +534,50 @@ ol b {
     width: 100%;
   }
 }
+
+.rule-heading {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 88px 96px;
+  align-items: center;
+  gap: 10px;
+}
+.rule-enable {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.rule-enable input {
+  width: 17px;
+  min-height: auto;
+  accent-color: var(--cp-accent);
+}
+.rule-enable span {
+  min-width: 0;
+}
+.rule-field,
+.rule-scene {
+  display: grid;
+  gap: 5px;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+}
+.rule-field input,
+.rule-field select,
+.rule-scene select {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  font-size: 11px;
+}
+.rule-scene {
+  margin-top: 10px;
+}
+@media (max-width: 620px) {
+  .rule-heading {
+    grid-template-columns: 1fr 1fr;
+  }
+  .rule-enable {
+    grid-column: 1 / -1;
+  }
+}
