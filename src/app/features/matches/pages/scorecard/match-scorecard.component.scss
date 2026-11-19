@@ -826,3 +826,72 @@ td.num {
     font-size: 66px;
   }
 }
+
+.fielder-attribution {
+  display: block;
+  margin-top: 5px;
+  color: var(--cp-text-muted);
+  font-size: 11px;
+  white-space: normal;
+}
+.fielding-card header {
+  margin-bottom: 12px;
+}
+.fielding-list {
+  display: grid;
+  gap: 0;
+}
+.fielding-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--cp-border);
+}
+.fielding-row:last-child {
+  border-bottom: 0;
+}
+.fielder-name {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.fielder-name strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.fielder-name small {
+  color: var(--cp-text-muted);
+  font-size: 11px;
+}
+.fielder-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--cp-text-muted);
+  font-size: 10px;
+}
+.fielder-figures b {
+  color: var(--cp-text);
+  font-size: 12px;
+}
+.fielding-total {
+  color: var(--cp-accent);
+  font-size: 17px;
+}
+@media (max-width: 520px) {
+  .fielding-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .fielder-figures {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .fielding-total {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
