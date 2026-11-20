@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
 import { API_BASE_URL } from '../../../../core/config/api.config';
+import { routes } from '../../../../app.routes';
 import { PublicTournamentComponent } from './public-tournament.component';
 
 describe('PublicTournamentComponent', () => {
@@ -19,6 +20,15 @@ describe('PublicTournamentComponent', () => {
         },
       ],
     });
+  });
+
+  it('keeps the public tournament route open while protecting the organizer dashboard', () => {
+    const publicRoute = routes.find((route) => route.path === 'tournament/:id');
+    const dashboardRoute = routes.find((route) => route.path === 'dashboard');
+
+    expect(publicRoute).toBeDefined();
+    expect(publicRoute?.canActivate).toBeUndefined();
+    expect(dashboardRoute?.canActivate?.length).toBeGreaterThan(0);
   });
 
   it('loads a public tournament summary without requiring an authenticated user', () => {
