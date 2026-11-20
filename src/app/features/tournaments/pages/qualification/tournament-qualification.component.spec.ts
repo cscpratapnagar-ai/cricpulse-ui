@@ -2,10 +2,11 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { TournamentQualificationComponent } from './tournament-qualification.component';
 
 describe('TournamentQualificationComponent', () => {
-  const api = 'http://api.test/api';
+  const api = API_BASE_URL;
   const tournamentId = 't-1';
   const preview = {
     eligible: true,
@@ -96,7 +97,7 @@ describe('TournamentQualificationComponent', () => {
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => tournamentId } } },
+          useValue: { snapshot: { paramMap: { get: () => '' } } },
         },
       ],
     });
@@ -105,6 +106,7 @@ describe('TournamentQualificationComponent', () => {
   function createComponent() {
     const component = TestBed.runInInjectionContext(() => new TournamentQualificationComponent());
     const http = TestBed.inject(HttpTestingController);
+    component.id = tournamentId;
     component.loading = false;
     return { component, http };
   }
@@ -179,12 +181,10 @@ describe('TournamentQualificationComponent', () => {
     component.fixtures = [fixture('LEAGUE', 'l1', 'COMPLETED')];
 
     component.syncPlayoffs();
-    http
-      .expectOne(`${api}/tournaments/${tournamentId}/playoffs/progress`)
-      .flush({
-        status: 'INITIAL_PLAYOFFS_CREATED',
-        message: 'Qualifier 1 and Eliminator created.',
-      });
+    http.expectOne(`${api}/tournaments/${tournamentId}/playoffs/progress`).flush({
+      status: 'INITIAL_PLAYOFFS_CREATED',
+      message: 'Qualifier 1 and Eliminator created.',
+    });
 
     expect(component.progressMessage).toContain('Qualifier 1');
     flushInitialLoad(http, [
@@ -246,6 +246,8 @@ describe('TournamentQualificationComponent', () => {
     const { component, http } = createComponent();
 
     component.load();
+    http.expectOne(`${api}/tournaments/${tournamentId}/qualification`).flush(preview);
+    http.expectOne(`${api}/tournaments/${tournamentId}/fixtures`).flush([]);
     http
       .expectOne(`${api}/tournaments/${tournamentId}`)
       .flush({ message: 'Forbidden' }, { status: 403, statusText: 'Forbidden' });
