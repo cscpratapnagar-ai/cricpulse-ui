@@ -1,38 +1,55 @@
 :host {
   display: block;
+  min-width: 0;
 }
 .field {
   display: grid;
-  gap: 8px;
+  gap: 5px;
+  min-width: 0;
 }
 .field label {
-  color: #b9ccc2;
-  font-size: 12px;
+  color: var(--cp-text-muted);
+  font-size: 11px;
   font-weight: 750;
+  line-height: 1.3;
 }
 .field label span {
-  color: #b8f45c;
+  color: var(--cp-danger);
 }
 .calendar-shell {
   position: relative;
+  min-width: 0;
 }
 .calendar-shell input {
   appearance: none;
   box-sizing: border-box;
   width: 100%;
-  min-height: 46px;
-  padding: 12px 44px 12px 13px;
-  border: 1px solid #ffffff1c;
-  border-radius: 10px;
-  background: #142c22;
-  color: #fff;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 34px 0 10px;
+  border: 1px solid var(--cp-border);
+  border-radius: 8px;
+  background: var(--cp-control-bg);
+  color: var(--cp-text);
   font: inherit;
+  font-size: 12px;
+  line-height: 1.3;
+  color-scheme: light;
   outline: none;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+html[data-theme='dark'] .calendar-shell input {
   color-scheme: dark;
 }
-.calendar-shell input:focus {
-  border-color: #b8f45c;
-  box-shadow: 0 0 0 3px #b8f45c18;
+.calendar-shell input:focus-visible {
+  border-color: var(--cp-accent);
+  box-shadow: 0 0 0 3px var(--cp-accent-soft);
+}
+.calendar-shell input:disabled {
+  opacity: var(--cp-disabled-opacity);
+  cursor: not-allowed;
 }
 .calendar-shell input::-webkit-calendar-picker-indicator {
   opacity: 0;
@@ -45,13 +62,18 @@
 .calendar-icon {
   pointer-events: none;
   position: absolute;
-  right: 14px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #b8f45c;
-  font-size: 15px;
+  color: var(--cp-accent);
+  font-size: 13px;
 }
 .field small {
-  color: #789386;
+  color: var(--cp-text-muted);
   font-size: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .calendar-shell input {
+    transition: none;
+  }
 }
