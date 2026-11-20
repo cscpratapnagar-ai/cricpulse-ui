@@ -179,4 +179,55 @@ describe('PublicTournamentComponent', () => {
     fixture.destroy();
     http.verify();
   });
+
+  it('renders ties and recent form in the public points table', () => {
+    const fixture = TestBed.createComponent(PublicTournamentComponent);
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`).flush({
+      tournamentId: 't-1',
+      tournamentName: 'City Premier League',
+      format: 'T20',
+      overs: 20,
+      status: 'ACTIVE',
+      totalFixtures: 3,
+      completedFixtures: 3,
+      scheduledFixtures: 0,
+      liveFixtures: 0,
+      completionPercentage: 100,
+      pointsTable: [
+        {
+          teamId: 'a',
+          teamName: 'Falcons',
+          played: 3,
+          wins: 1,
+          losses: 1,
+          ties: 1,
+          noResults: 0,
+          points: 3,
+          nrr: 0.125,
+          recentForm: ['W', 'T', 'L'],
+        },
+      ],
+      fixtures: [],
+    });
+
+    fixture.detectChanges();
+
+    const table = fixture.nativeElement.querySelector('.standings-panel table') as HTMLTableElement;
+    const headers = Array.from(table.querySelectorAll('thead th')).map((cell) => cell.textContent?.trim());
+    const row = table.querySelector('tbody tr') as HTMLTableRowElement;
+    const cells = Array.from(row.cells).map((cell) => cell.textContent?.trim());
+
+    expect(headers).toContain('T');
+    expect(headers).toContain('FORM');
+    expect(cells[5]).toBe('1');
+    expect(cells[9]).toContain('W');
+    expect(cells[9]).toContain('T');
+    expect(cells[9]).toContain('L');
+    expect(table.closest('[role="region"]')?.getAttribute('aria-label')).toBe(
+      'Tournament points table',
+    );
+    fixture.destroy();
+    http.verify();
+  });
 });
