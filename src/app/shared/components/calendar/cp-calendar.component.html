@@ -27,15 +27,24 @@
     </button>
 
     @if (isOpen) {
-      <section class="calendar-popover" [id]="id + '-popup'" role="dialog" [attr.aria-label]="'Choose ' + (label || 'date')">
+      <section
+        class="calendar-popover"
+        [id]="id + '-popup'"
+        role="dialog"
+        [attr.aria-label]="'Choose ' + (label || 'date')"
+      >
         <header class="calendar-header">
           <strong>{{ monthLabel }}</strong>
           <div class="month-actions">
             <button type="button" aria-label="Previous month" (click)="previousMonth()">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 4-6 6 6 6"></path></svg>
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m12 4-6 6 6 6"></path>
+              </svg>
             </button>
             <button type="button" aria-label="Next month" (click)="nextMonth()">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 4 6 6-6 6"></path></svg>
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m8 4 6 6-6 6"></path>
+              </svg>
             </button>
           </div>
         </header>
@@ -55,11 +64,20 @@
               [attr.aria-label]="day.date.toDateString()"
               [attr.aria-pressed]="day.selected"
               (click)="selectDay(day)"
-            >{{ day.day }}</button>
+            >
+              {{ day.day }}
+            </button>
           }
         </div>
         <footer class="calendar-footer">
-          <button type="button" class="text-action" (click)="clearDate()" [disabled]="required">Clear</button>
+          <button
+            type="button"
+            class="text-action"
+            (click)="clearDate()"
+            [disabled]="required"
+          >
+            Clear
+          </button>
           <button type="button" class="text-action" (click)="selectToday()">Today</button>
         </footer>
       </section>
