@@ -1278,3 +1278,8 @@
   .edit-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .edit-actions button { width: 100%; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament-edit-panel { animation: none; }
+  .edit-field input, .edit-field select { scroll-behavior: auto; }
+}
