@@ -49,10 +49,41 @@ describe('PublicTournamentComponent', () => {
       scheduledFixtures: 1,
       liveFixtures: 0,
       completionPercentage: 75,
-      pointsTable: [{ teamId: 'a', teamName: 'Falcons', played: 3, wins: 3, losses: 0, ties: 0, noResults: 0, points: 6, nrr: 1.25, recentForm: ['W', 'W', 'W'] }],
+      pointsTable: [
+        {
+          teamId: 'a',
+          teamName: 'Falcons',
+          played: 3,
+          wins: 3,
+          losses: 0,
+          ties: 0,
+          noResults: 0,
+          points: 6,
+          nrr: 1.25,
+          recentForm: ['W', 'W', 'W'],
+        },
+      ],
       fixtures: [
-        { matchId: 'm1', fixtureNumber: 1, stage: 'LEAGUE', status: 'COMPLETED', teamAName: 'Falcons', teamBName: 'Tigers', winnerName: 'Falcons', scheduledAt: null },
-        { matchId: 'm2', fixtureNumber: 4, stage: 'QUALIFIER_1', status: 'SCHEDULED', teamAName: 'Falcons', teamBName: 'Tigers', winnerName: null, scheduledAt: null },
+        {
+          matchId: 'm1',
+          fixtureNumber: 1,
+          stage: 'LEAGUE',
+          status: 'COMPLETED',
+          teamAName: 'Falcons',
+          teamBName: 'Tigers',
+          winnerName: 'Falcons',
+          scheduledAt: null,
+        },
+        {
+          matchId: 'm2',
+          fixtureNumber: 4,
+          stage: 'QUALIFIER_1',
+          status: 'SCHEDULED',
+          teamAName: 'Falcons',
+          teamBName: 'Tigers',
+          winnerName: null,
+          scheduledAt: null,
+        },
       ],
     });
 
@@ -68,10 +99,9 @@ describe('PublicTournamentComponent', () => {
     const fixture = TestBed.createComponent(PublicTournamentComponent);
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
-    http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`).flush(
-      { message: 'Not found' },
-      { status: 404, statusText: 'Not Found' },
-    );
+    http
+      .expectOne(`${API_BASE_URL}/public/tournaments/t-1`)
+      .flush({ message: 'Not found' }, { status: 404, statusText: 'Not Found' });
 
     expect(fixture.componentInstance.loadError).toBeTrue();
     expect(fixture.componentInstance.tournament).toBeNull();

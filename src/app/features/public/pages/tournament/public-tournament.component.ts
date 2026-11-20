@@ -70,17 +70,19 @@ export class PublicTournamentComponent {
   refresh(): void {
     this.loading = true;
     this.loadError = false;
-    this.http.get<PublicTournament>(`${API_BASE_URL}/public/tournaments/${this.tournamentId}`).subscribe({
-      next: (tournament) => {
-        this.tournament = tournament;
-        this.loading = false;
-      },
-      error: () => {
-        this.tournament = null;
-        this.loading = false;
-        this.loadError = true;
-      },
-    });
+    this.http
+      .get<PublicTournament>(`${API_BASE_URL}/public/tournaments/${this.tournamentId}`)
+      .subscribe({
+        next: (tournament) => {
+          this.tournament = tournament;
+          this.loading = false;
+        },
+        error: () => {
+          this.tournament = null;
+          this.loading = false;
+          this.loadError = true;
+        },
+      });
   }
 
   get leagueFixtures(): PublicFixture[] {
@@ -96,7 +98,10 @@ export class PublicTournamentComponent {
   }
 
   stageLabel(stage: string): string {
-    return stage.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+    return stage
+      .replaceAll('_', ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 
   scheduledLabel(value: string | null): string {
