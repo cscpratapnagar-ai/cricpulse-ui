@@ -11,6 +11,7 @@ describe('TournamentScheduleComponent', () => {
       get: jasmine.createSpy('get'),
       post: jasmine.createSpy('post'),
     };
+    (component as any).api = 'http://api.test/api';
     component.id = 't-1';
     component.loading = false;
     component.busy = '';
