@@ -50,7 +50,7 @@ export function validateTournamentDraft(draft: TournamentDraftInput): Tournament
   }
 
   if (draft.startDate) {
-    const match = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(draft.startDate);
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(draft.startDate);
     if (!match) {
       errors.startDate = 'Choose a valid start date.';
     } else {
@@ -150,15 +150,20 @@ export class CreateTournamentComponent {
   private validateStep() {
     this.error = '';
     if (this.step === 1) {
-      const valid = this.validateDraft();
+      this.fieldErrors = validateTournamentDraft({ ...this.draft, startDate: '' });
+      const valid = Object.keys(this.fieldErrors).length === 0;
       if (!valid) this.error = 'Please correct the highlighted fields before continuing.';
       return valid;
     }
     if (this.step === 2) {
-      this.fieldErrors = {};
-      const errors = validateTournamentDraft(this.draft);
-      if (errors.startDate) {
-        this.fieldErrors = { startDate: errors.startDate };
+      const dateError = validateTournamentDraft({
+        ...this.draft,
+        name: 'Valid tournament',
+        format: 'T20',
+        overs: 20,
+      }).startDate;
+      this.fieldErrors = dateError ? { startDate: dateError } : {};
+      if (dateError) {
         this.error = 'Please select a valid start date.';
         return false;
       }
