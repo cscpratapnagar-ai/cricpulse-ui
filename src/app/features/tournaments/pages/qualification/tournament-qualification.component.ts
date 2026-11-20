@@ -86,6 +86,7 @@ export class TournamentQualificationComponent {
   tournamentStatus = '';
   fixtures: Fixture[] = [];
   winnerByMatch: Record<string, string> = {};
+  resultTextByMatch: Record<string, string> = {};
   progress: PlayoffProgress | null = null;
   error = '';
   progressMessage = '';
@@ -147,6 +148,7 @@ export class TournamentQualificationComponent {
         this.preview = preview;
         this.fixtures = Array.isArray(fixtures) ? fixtures : [];
         this.winnerByMatch = {};
+        this.resultTextByMatch = {};
         this.loading = false;
         this.loadCompletedMatchResults();
       },
@@ -218,6 +220,12 @@ export class TournamentQualificationComponent {
     return '';
   }
 
+  resultSummary(stage: PlayoffStage): string {
+    const fixture = this.fixtureFor(stage);
+    if (!fixture) return '';
+    return this.resultTextByMatch[fixture.matchId] ?? '';
+  }
+
   fixtureStatus(stage: PlayoffStage): string {
     const status = this.fixtureFor(stage)?.status;
     return status ? this.normalizedStatus(status) : 'AWAITING QUALIFICATION';
@@ -237,8 +245,17 @@ export class TournamentQualificationComponent {
     )) {
       this.http.get<MatchResult>(`${this.api}/matches/${fixture.matchId}/result`).subscribe({
         next: (result) => {
+          if (typeof result?.resultText === 'string' && result.resultText.trim()) {
+            this.resultTextByMatch = {
+              ...this.resultTextByMatch,
+              [fixture.matchId]: result.resultText.trim(),
+            };
+          }
           if (result?.winningTeamId) {
-            this.winnerByMatch = { ...this.winnerByMatch, [fixture.matchId]: result.winningTeamId };
+            this.winnerByMatch = {
+              ...this.winnerByMatch,
+              [fixture.matchId]: result.winningTeamId,
+            };
           }
         },
       });
