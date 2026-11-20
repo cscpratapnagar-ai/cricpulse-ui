@@ -52,8 +52,26 @@ describe('TournamentsComponent', () => {
 
   it('filters tournaments by their normalized lifecycle status', () => {
     component.tournaments = [
-      { id: '1', name: 'Draft Cup', format: 'T20', overs: 20, location: null, startDate: null, status: 'DRAFT', createdAt: '2026-01-01' },
-      { id: '2', name: 'Live Cup', format: 'T20', overs: 20, location: null, startDate: null, status: 'IN_PROGRESS', createdAt: '2026-01-02' },
+      {
+        id: '1',
+        name: 'Draft Cup',
+        format: 'T20',
+        overs: 20,
+        location: null,
+        startDate: null,
+        status: 'DRAFT',
+        createdAt: '2026-01-01',
+      },
+      {
+        id: '2',
+        name: 'Live Cup',
+        format: 'T20',
+        overs: 20,
+        location: null,
+        startDate: null,
+        status: 'IN_PROGRESS',
+        createdAt: '2026-01-02',
+      },
     ];
 
     component.statusFilter = 'DRAFT';
