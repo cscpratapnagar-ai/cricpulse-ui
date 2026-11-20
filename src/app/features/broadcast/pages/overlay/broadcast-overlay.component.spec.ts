@@ -316,11 +316,21 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       eventVersion: 4,
       runs: 20,
       wickets: 1,
-      recentBalls: [{
-        deliveryId: 'stale-wicket', overNumber: 2, ballNumber: 3,
-        strikerId: 'batter-1', nonStrikerId: 'batter-2', bowlerId: 'bowler-1',
-        batRuns: 0, extraRuns: 0, wicketType: 'BOWLED', legalDelivery: true, totalRuns: 0,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'stale-wicket',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 0,
+          extraRuns: 0,
+          wicketType: 'BOWLED',
+          legalDelivery: true,
+          totalRuns: 0,
+        },
+      ],
     });
     component.onScore({
       ...score,
@@ -328,11 +338,20 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       runs: 21,
       wickets: 0,
       legalBalls: 9,
-      recentBalls: [{
-        deliveryId: 'current-single', overNumber: 2, ballNumber: 4,
-        strikerId: 'batter-1', nonStrikerId: 'batter-2', bowlerId: 'bowler-1',
-        batRuns: 1, extraRuns: 0, legalDelivery: true, totalRuns: 1,
-      }],
+      recentBalls: [
+        {
+          deliveryId: 'current-single',
+          overNumber: 2,
+          ballNumber: 4,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 1,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 1,
+        },
+      ],
     });
     flushMicrotasks();
 
