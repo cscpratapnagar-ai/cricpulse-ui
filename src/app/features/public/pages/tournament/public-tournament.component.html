@@ -86,7 +86,10 @@
                     <td class="points">{{ team.points }}</td>
                     <td>{{ team.nrr | number: '1.3-3' }}</td>
                     <td>
-                      <div class="recent-form" [attr.aria-label]="'Recent form: ' + team.recentForm.join(', ')">
+                      <div
+                        class="recent-form"
+                        [attr.aria-label]="'Recent form: ' + team.recentForm.join(', ')"
+                      >
                         @for (result of team.recentForm; track $index) {
                           <span
                             class="form-result"
@@ -94,8 +97,17 @@
                             [class.form-loss]="result === 'L'"
                             [class.form-tie]="result === 'T'"
                             [class.form-no-result]="result === 'NR'"
-                            [attr.title]="result === 'W' ? 'Win' : result === 'L' ? 'Loss' : result === 'T' ? 'Tie' : 'No result'"
-                          >{{ result }}</span>
+                            [attr.title]="
+                              result === 'W'
+                                ? 'Win'
+                                : result === 'L'
+                                  ? 'Loss'
+                                  : result === 'T'
+                                    ? 'Tie'
+                                    : 'No result'
+                            "
+                            >{{ result }}</span
+                          >
                         } @empty {
                           <span class="form-empty">—</span>
                         }

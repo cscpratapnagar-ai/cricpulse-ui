@@ -214,7 +214,9 @@ describe('PublicTournamentComponent', () => {
     fixture.detectChanges();
 
     const table = fixture.nativeElement.querySelector('.standings-panel table') as HTMLTableElement;
-    const headers = Array.from(table.querySelectorAll('thead th')).map((cell) => cell.textContent?.trim());
+    const headers = Array.from(table.querySelectorAll('thead th')).map((cell) =>
+      cell.textContent?.trim(),
+    );
     const row = table.querySelector('tbody tr') as HTMLTableRowElement;
     const cells = Array.from(row.cells).map((cell) => cell.textContent?.trim());
 
