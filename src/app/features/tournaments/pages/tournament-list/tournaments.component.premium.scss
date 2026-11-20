@@ -359,3 +359,15 @@
     transform: scale(1.4);
   }
 }
+
+/* Distinct lifecycle states: drafts and cancelled competitions are not upcoming. */
+.tournament .status.draft {
+  color: var(--cp-text-muted);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--cp-surface) 92%, transparent);
+}
+.tournament .status.cancelled {
+  color: var(--cp-danger, #d97757);
+  border-color: color-mix(in srgb, var(--cp-danger, #d97757) 28%, var(--cp-border));
+  background: color-mix(in srgb, var(--cp-danger, #d97757) 8%, var(--cp-surface));
+}
