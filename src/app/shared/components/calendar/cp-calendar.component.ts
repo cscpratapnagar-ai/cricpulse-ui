@@ -1,4 +1,11 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+} from '@angular/core';
 
 interface CalendarDay {
   date: Date;
@@ -35,7 +42,10 @@ export class CpCalendarComponent {
   constructor(private readonly elementRef: ElementRef<HTMLElement>) {}
 
   get monthLabel(): string {
-    return new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(this.visibleMonth);
+    return new Intl.DateTimeFormat('en', {
+      month: 'long',
+      year: 'numeric',
+    }).format(this.visibleMonth);
   }
 
   get displayValue(): string {
@@ -80,11 +90,19 @@ export class CpCalendarComponent {
   }
 
   previousMonth(): void {
-    this.visibleMonth = new Date(this.visibleMonth.getFullYear(), this.visibleMonth.getMonth() - 1, 1);
+    this.visibleMonth = new Date(
+      this.visibleMonth.getFullYear(),
+      this.visibleMonth.getMonth() - 1,
+      1,
+    );
   }
 
   nextMonth(): void {
-    this.visibleMonth = new Date(this.visibleMonth.getFullYear(), this.visibleMonth.getMonth() + 1, 1);
+    this.visibleMonth = new Date(
+      this.visibleMonth.getFullYear(),
+      this.visibleMonth.getMonth() + 1,
+      1,
+    );
   }
 
   selectDay(day: CalendarDay): void {
