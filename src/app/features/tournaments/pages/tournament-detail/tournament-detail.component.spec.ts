@@ -11,6 +11,12 @@ describe('TournamentDetailComponent', () => {
     component.id = 't-1';
     component.loading = false;
     component.busy = false;
+    component.editing = false;
+    component.savingEdit = false;
+    component.statusChanging = false;
+    component.editErrors = {};
+    component.editDraft = { name: '', format: 'T20', overs: 20, location: '', startDate: '' };
+    component.t = null;
     component.actionError = '';
     component.actionMessage = '';
     component.teams = [];
@@ -52,11 +58,126 @@ describe('TournamentDetailComponent', () => {
       get: jasmine.createSpy('get'),
       post: jasmine.createSpy('post'),
       put: jasmine.createSpy('put'),
+      patch: jasmine.createSpy('patch'),
       delete: jasmine.createSpy('delete'),
     };
     component.loadChildren = jasmine.createSpy('loadChildren');
     return component;
   }
+
+  it('preloads draft values and opens the edit form only for draft tournaments', () => {
+    const component = createComponent();
+    component.t = {
+      id: 't-1',
+      name: 'Summer Cup',
+      format: 'T20',
+      overs: 20,
+      location: 'Surat',
+      startDate: '2026-12-01',
+      status: 'DRAFT',
+    };
+
+    component.beginEdit();
+
+    expect(component.editing).toBeTrue();
+    expect(component.editDraft).toEqual({
+      name: 'Summer Cup',
+      format: 'T20',
+      overs: 20,
+      location: 'Surat',
+      startDate: '2026-12-01',
+    });
+    component.cancelEdit();
+    component.t.status = 'ACTIVE';
+    component.beginEdit();
+    expect(component.editing).toBeFalse();
+  });
+
+  it('validates tournament edits before sending an API request', () => {
+    const component = createComponent();
+    component.t = {
+      id: 't-1',
+      name: 'Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
+    component.editing = true;
+    component.editDraft = { name: '  ', format: 'T20', overs: 20, location: '', startDate: '' };
+
+    component.saveEdit();
+
+    expect(component.editErrors['name']).toBe('Tournament name is required.');
+    expect((component as any).http.patch).not.toHaveBeenCalled();
+  });
+
+  it('persists valid tournament edits and updates the displayed model', () => {
+    const component = createComponent();
+    component.t = {
+      id: 't-1',
+      name: 'Old Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
+    component.editing = true;
+    component.editDraft = {
+      name: 'New Cup',
+      format: 'ODI',
+      overs: 50,
+      location: 'Navsari',
+      startDate: '2026-12-10',
+    };
+    const updated = {
+      ...component.t,
+      name: 'New Cup',
+      format: 'ODI',
+      overs: 50,
+      location: 'Navsari',
+      startDate: '2026-12-10',
+    };
+    (component as any).http.patch.and.returnValue(of(updated));
+
+    component.saveEdit();
+
+    expect((component as any).http.patch).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1',
+      { name: 'New Cup', format: 'ODI', overs: 50, location: 'Navsari', startDate: '2026-12-10' },
+    );
+    expect(component.t).toEqual(updated);
+    expect(component.editing).toBeFalse();
+    expect(component.savingEdit).toBeFalse();
+  });
+
+  it('requires confirmation and uses the guarded lifecycle endpoint', () => {
+    const component = createComponent();
+    component.t = {
+      id: 't-1',
+      name: 'Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
+    spyOn(window, 'confirm').and.returnValue(true);
+    const updated = { ...component.t, status: 'ACTIVE' };
+    (component as any).http.patch.and.returnValue(of(updated));
+
+    component.changeStatus('ACTIVE');
+
+    expect(window.confirm).toHaveBeenCalled();
+    expect((component as any).http.patch).toHaveBeenCalledWith(
+      'http://api.test/api/tournaments/t-1/status',
+      { status: 'ACTIVE' },
+    );
+    expect(component.t?.status).toBe('ACTIVE');
+    expect(component.statusChanging).toBeFalse();
+  });
 
   it('loads match staff when an organiser opens a fixture staff panel', () => {
     const component = createComponent();
