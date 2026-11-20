@@ -11,7 +11,13 @@ interface Tournament {
   format: string;
   overs: number;
 }
-interface GenerateFixturesResponse {\n  generated: number;\n  skipped: number;\n  totalPairs: number;\n  fixtures: Fixture[];\n}\ninterface Fixture {
+interface GenerateFixturesResponse {
+  generated: number;
+  skipped: number;
+  totalPairs: number;
+  fixtures: Fixture[];
+}
+interface Fixture {
   matchId: string;
   fixtureNumber: number | null;
   stage: string;
@@ -38,7 +44,9 @@ export class TournamentScheduleComponent {
   busy = '';
   message = '';
   error = '';
-  conflictMessage = '';\n  generateMode: 'SINGLE_ROUND_ROBIN' | 'DOUBLE_ROUND_ROBIN' = 'SINGLE_ROUND_ROBIN';\n  generateBusy = false;
+  conflictMessage = '';
+  generateMode: 'SINGLE_ROUND_ROBIN' | 'DOUBLE_ROUND_ROBIN' = 'SINGLE_ROUND_ROBIN';
+  generateBusy = false;
   t: Tournament | null = null;
   fixtures: Fixture[] = [];
   draft: Record<string, string> = {};
