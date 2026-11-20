@@ -1,4 +1,11 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+} from '@angular/core';
 
 interface CalendarDay {
   date: Date;
@@ -69,7 +76,8 @@ export class CpCalendarComponent {
         iso,
         day: date.getDate(),
         inMonth: date.getMonth() === this.visibleMonth.getMonth(),
-        disabled: (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
+        disabled:
+          (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
         today: iso === today,
         selected: iso === selected,
       };
@@ -108,7 +116,8 @@ export class CpCalendarComponent {
     const popoverRect = popover.getBoundingClientRect();
     const viewportPadding = 12;
     const gap = 7;
-    const spaceBelow = window.innerHeight - triggerRect.bottom - viewportPadding;
+    const spaceBelow =
+      window.innerHeight - triggerRect.bottom - viewportPadding;
     const spaceAbove = triggerRect.top - viewportPadding;
     const openBelow =
       spaceBelow >= popoverRect.height + gap || spaceBelow >= spaceAbove;
