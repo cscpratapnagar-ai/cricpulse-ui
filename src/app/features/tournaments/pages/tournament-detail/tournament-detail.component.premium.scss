@@ -1227,8 +1227,15 @@
   gap: 16px;
   margin-bottom: 18px;
 }
-.edit-panel-heading h2 { margin: 5px 0; font-size: 20px; }
-.edit-panel-heading p { margin: 0; color: var(--cp-text-muted); font-size: 13px; }
+.edit-panel-heading h2 {
+  margin: 5px 0;
+  font-size: 20px;
+}
+.edit-panel-heading p {
+  margin: 0;
+  color: var(--cp-text-muted);
+  font-size: 13px;
+}
 .edit-status {
   flex: 0 0 auto;
   padding: 6px 10px;
@@ -1244,9 +1251,18 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 15px;
 }
-.edit-field { display: grid; gap: 7px; min-width: 0; }
-.edit-field > span { color: var(--cp-text-muted); font-size: 12px; font-weight: 700; }
-.edit-field input, .edit-field select {
+.edit-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+.edit-field > span {
+  color: var(--cp-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.edit-field input,
+.edit-field select {
   width: 100%;
   min-height: 42px;
   padding: 10px 12px;
@@ -1256,13 +1272,21 @@
   color: var(--cp-text);
   font: inherit;
 }
-.edit-field input:focus, .edit-field select:focus {
+.edit-field input:focus,
+.edit-field select:focus {
   outline: 2px solid color-mix(in srgb, var(--cp-accent) 45%, transparent);
   outline-offset: 1px;
 }
-.edit-field input[aria-invalid="true"] { border-color: #d65a5a; }
-.edit-field small { color: #d65a5a; font-size: 12px; }
-.edit-location { grid-column: 1 / -1; }
+.edit-field input[aria-invalid='true'] {
+  border-color: #d65a5a;
+}
+.edit-field small {
+  color: #d65a5a;
+  font-size: 12px;
+}
+.edit-location {
+  grid-column: 1 / -1;
+}
 .edit-actions {
   grid-column: 1 / -1;
   display: flex;
@@ -1271,15 +1295,35 @@
   padding-top: 5px;
 }
 @media (max-width: 620px) {
-  .tournament-edit-panel { padding: 16px; border-radius: 14px; }
-  .edit-grid { grid-template-columns: 1fr; }
-  .edit-location, .edit-actions { grid-column: 1; }
-  .edit-panel-heading { align-items: flex-start; }
-  .edit-actions { display: grid; grid-template-columns: 1fr 1fr; }
-  .edit-actions button { width: 100%; }
+  .tournament-edit-panel {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+  .edit-location,
+  .edit-actions {
+    grid-column: 1;
+  }
+  .edit-panel-heading {
+    align-items: flex-start;
+  }
+  .edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .edit-actions button {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tournament-edit-panel { animation: none; }
-  .edit-field input, .edit-field select { scroll-behavior: auto; }
+  .tournament-edit-panel {
+    animation: none;
+  }
+  .edit-field input,
+  .edit-field select {
+    scroll-behavior: auto;
+  }
 }

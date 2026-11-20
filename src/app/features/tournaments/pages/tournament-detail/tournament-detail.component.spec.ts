@@ -68,15 +68,24 @@ describe('TournamentDetailComponent', () => {
   it('preloads draft values and opens the edit form only for draft tournaments', () => {
     const component = createComponent();
     component.t = {
-      id: 't-1', name: 'Summer Cup', format: 'T20', overs: 20,
-      location: 'Surat', startDate: '2026-12-01', status: 'DRAFT',
+      id: 't-1',
+      name: 'Summer Cup',
+      format: 'T20',
+      overs: 20,
+      location: 'Surat',
+      startDate: '2026-12-01',
+      status: 'DRAFT',
     };
 
     component.beginEdit();
 
     expect(component.editing).toBeTrue();
     expect(component.editDraft).toEqual({
-      name: 'Summer Cup', format: 'T20', overs: 20, location: 'Surat', startDate: '2026-12-01',
+      name: 'Summer Cup',
+      format: 'T20',
+      overs: 20,
+      location: 'Surat',
+      startDate: '2026-12-01',
     });
     component.cancelEdit();
     component.t.status = 'ACTIVE';
@@ -86,7 +95,15 @@ describe('TournamentDetailComponent', () => {
 
   it('validates tournament edits before sending an API request', () => {
     const component = createComponent();
-    component.t = { id: 't-1', name: 'Cup', format: 'T20', overs: 20, location: null, startDate: null, status: 'DRAFT' };
+    component.t = {
+      id: 't-1',
+      name: 'Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
     component.editing = true;
     component.editDraft = { name: '  ', format: 'T20', overs: 20, location: '', startDate: '' };
 
@@ -98,10 +115,31 @@ describe('TournamentDetailComponent', () => {
 
   it('persists valid tournament edits and updates the displayed model', () => {
     const component = createComponent();
-    component.t = { id: 't-1', name: 'Old Cup', format: 'T20', overs: 20, location: null, startDate: null, status: 'DRAFT' };
+    component.t = {
+      id: 't-1',
+      name: 'Old Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
     component.editing = true;
-    component.editDraft = { name: 'New Cup', format: 'ODI', overs: 50, location: 'Navsari', startDate: '2026-12-10' };
-    const updated = { ...component.t, name: 'New Cup', format: 'ODI', overs: 50, location: 'Navsari', startDate: '2026-12-10' };
+    component.editDraft = {
+      name: 'New Cup',
+      format: 'ODI',
+      overs: 50,
+      location: 'Navsari',
+      startDate: '2026-12-10',
+    };
+    const updated = {
+      ...component.t,
+      name: 'New Cup',
+      format: 'ODI',
+      overs: 50,
+      location: 'Navsari',
+      startDate: '2026-12-10',
+    };
     (component as any).http.patch.and.returnValue(of(updated));
 
     component.saveEdit();
@@ -117,7 +155,15 @@ describe('TournamentDetailComponent', () => {
 
   it('requires confirmation and uses the guarded lifecycle endpoint', () => {
     const component = createComponent();
-    component.t = { id: 't-1', name: 'Cup', format: 'T20', overs: 20, location: null, startDate: null, status: 'DRAFT' };
+    component.t = {
+      id: 't-1',
+      name: 'Cup',
+      format: 'T20',
+      overs: 20,
+      location: null,
+      startDate: null,
+      status: 'DRAFT',
+    };
     spyOn(window, 'confirm').and.returnValue(true);
     const updated = { ...component.t, status: 'ACTIVE' };
     (component as any).http.patch.and.returnValue(of(updated));
@@ -126,7 +172,8 @@ describe('TournamentDetailComponent', () => {
 
     expect(window.confirm).toHaveBeenCalled();
     expect((component as any).http.patch).toHaveBeenCalledWith(
-      'http://api.test/api/tournaments/t-1/status', { status: 'ACTIVE' },
+      'http://api.test/api/tournaments/t-1/status',
+      { status: 'ACTIVE' },
     );
     expect(component.t?.status).toBe('ACTIVE');
     expect(component.statusChanging).toBeFalse();

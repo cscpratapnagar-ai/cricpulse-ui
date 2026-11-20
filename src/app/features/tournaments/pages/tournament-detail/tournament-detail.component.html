@@ -24,12 +24,29 @@
       </div>
       <div class="hero-actions">
         @if (t.status === 'DRAFT') {
-          <button class="ghost-btn" type="button" [disabled]="savingEdit || statusChanging" (click)="beginEdit()">Edit details</button>
-          <button class="primary-cta" type="button" [disabled]="statusChanging || busy || teams.length < 2 || fixtures.length < 1" (click)="changeStatus('ACTIVE')">
+          <button
+            class="ghost-btn"
+            type="button"
+            [disabled]="savingEdit || statusChanging"
+            (click)="beginEdit()"
+          >
+            Edit details
+          </button>
+          <button
+            class="primary-cta"
+            type="button"
+            [disabled]="statusChanging || busy || teams.length < 2 || fixtures.length < 1"
+            (click)="changeStatus('ACTIVE')"
+          >
             {{ statusChanging ? 'Updating…' : 'Activate tournament' }} <span>→</span>
           </button>
         } @else if (t.status === 'ACTIVE') {
-          <button class="ghost-btn" type="button" [disabled]="statusChanging || completed !== fixtures.length || fixtures.length === 0" (click)="changeStatus('COMPLETED')">
+          <button
+            class="ghost-btn"
+            type="button"
+            [disabled]="statusChanging || completed !== fixtures.length || fixtures.length === 0"
+            (click)="changeStatus('COMPLETED')"
+          >
             {{ statusChanging ? 'Updating…' : 'Complete tournament' }}
           </button>
         }
@@ -57,31 +74,73 @@
           <span class="edit-status">Draft only</span>
         </div>
         <form class="edit-grid" (ngSubmit)="saveEdit()">
-          <label class="edit-field"><span>Tournament name</span>
-            <input name="editName" [(ngModel)]="editDraft.name" maxlength="90" required [attr.aria-invalid]="!!editErrors['name']" />
-            @if (editErrors['name']) { <small role="alert">{{ editErrors['name'] }}</small> }
+          <label class="edit-field"
+            ><span>Tournament name</span>
+            <input
+              name="editName"
+              [(ngModel)]="editDraft.name"
+              maxlength="90"
+              required
+              [attr.aria-invalid]="!!editErrors['name']"
+            />
+            @if (editErrors['name']) {
+              <small role="alert">{{ editErrors['name'] }}</small>
+            }
           </label>
-          <label class="edit-field"><span>Format</span>
+          <label class="edit-field"
+            ><span>Format</span>
             <select name="editFormat" [(ngModel)]="editDraft.format">
-              <option value="T10">T10</option><option value="T20">T20</option><option value="ODI">ODI</option><option value="TEST">Test</option>
+              <option value="T10">T10</option>
+              <option value="T20">T20</option>
+              <option value="ODI">ODI</option>
+              <option value="TEST">Test</option>
             </select>
-            @if (editErrors['format']) { <small role="alert">{{ editErrors['format'] }}</small> }
+            @if (editErrors['format']) {
+              <small role="alert">{{ editErrors['format'] }}</small>
+            }
           </label>
-          <label class="edit-field"><span>Overs</span>
-            <input name="editOvers" type="number" min="1" max="100" step="1" [(ngModel)]="editDraft.overs" required [attr.aria-invalid]="!!editErrors['overs']" />
-            @if (editErrors['overs']) { <small role="alert">{{ editErrors['overs'] }}</small> }
+          <label class="edit-field"
+            ><span>Overs</span>
+            <input
+              name="editOvers"
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              [(ngModel)]="editDraft.overs"
+              required
+              [attr.aria-invalid]="!!editErrors['overs']"
+            />
+            @if (editErrors['overs']) {
+              <small role="alert">{{ editErrors['overs'] }}</small>
+            }
           </label>
-          <label class="edit-field"><span>Start date</span>
+          <label class="edit-field"
+            ><span>Start date</span>
             <input name="editStartDate" type="date" [(ngModel)]="editDraft.startDate" />
-            @if (editErrors['startDate']) { <small role="alert">{{ editErrors['startDate'] }}</small> }
+            @if (editErrors['startDate']) {
+              <small role="alert">{{ editErrors['startDate'] }}</small>
+            }
           </label>
-          <label class="edit-field edit-location"><span>Location</span>
-            <input name="editLocation" [(ngModel)]="editDraft.location" maxlength="120" placeholder="Ground or city" />
-            @if (editErrors['location']) { <small role="alert">{{ editErrors['location'] }}</small> }
+          <label class="edit-field edit-location"
+            ><span>Location</span>
+            <input
+              name="editLocation"
+              [(ngModel)]="editDraft.location"
+              maxlength="120"
+              placeholder="Ground or city"
+            />
+            @if (editErrors['location']) {
+              <small role="alert">{{ editErrors['location'] }}</small>
+            }
           </label>
           <div class="edit-actions">
-            <button type="button" class="ghost-btn" [disabled]="savingEdit" (click)="cancelEdit()">Cancel</button>
-            <button type="submit" class="primary-cta" [disabled]="savingEdit">{{ savingEdit ? 'Saving changes…' : 'Save changes' }} <span>→</span></button>
+            <button type="button" class="ghost-btn" [disabled]="savingEdit" (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="submit" class="primary-cta" [disabled]="savingEdit">
+              {{ savingEdit ? 'Saving changes…' : 'Save changes' }} <span>→</span>
+            </button>
           </div>
         </form>
       </section>

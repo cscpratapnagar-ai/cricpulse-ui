@@ -552,7 +552,8 @@ export class TournamentDetailComponent {
     const errors: Record<string, string> = {};
     const name = this.editDraft.name.trim();
     if (!name) errors['name'] = 'Tournament name is required.';
-    else if (name.length < 3 || name.length > 90) errors['name'] = 'Name must be between 3 and 90 characters.';
+    else if (name.length < 3 || name.length > 90)
+      errors['name'] = 'Name must be between 3 and 90 characters.';
     if (!['T10', 'T20', 'ODI', 'TEST'].includes(this.editDraft.format.toUpperCase())) {
       errors['format'] = 'Choose a supported tournament format.';
     }
@@ -569,7 +570,11 @@ export class TournamentDetailComponent {
       else {
         const [, year, month, day] = match.map(Number);
         const parsed = new Date(year, month - 1, day);
-        if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
+        if (
+          parsed.getFullYear() !== year ||
+          parsed.getMonth() !== month - 1 ||
+          parsed.getDate() !== day
+        ) {
           errors['startDate'] = 'The selected calendar date is invalid.';
         }
       }
@@ -598,30 +603,37 @@ export class TournamentDetailComponent {
       },
       error: (error) => {
         this.savingEdit = false;
-        this.actionError = error?.error?.message || 'Unable to save tournament details. Please try again.';
+        this.actionError =
+          error?.error?.message || 'Unable to save tournament details. Please try again.';
       },
     });
   }
   changeStatus(target: 'ACTIVE' | 'COMPLETED') {
     if (!this.t || this.statusChanging || this.busy) return;
-    const prompt = target === 'ACTIVE'
-      ? 'Activate this tournament? Make sure at least two teams and one fixture are ready.'
-      : 'Mark this tournament as completed? This is allowed only after every fixture is completed.';
+    const prompt =
+      target === 'ACTIVE'
+        ? 'Activate this tournament? Make sure at least two teams and one fixture are ready.'
+        : 'Mark this tournament as completed? This is allowed only after every fixture is completed.';
     if (!window.confirm(prompt)) return;
     this.statusChanging = true;
     this.actionError = '';
     this.actionMessage = '';
-    this.http.patch<Tournament>(`${this.api}/tournaments/${this.id}/status`, { status: target }).subscribe({
-      next: (updated) => {
-        this.t = updated;
-        this.statusChanging = false;
-        this.actionMessage = target === 'ACTIVE' ? 'Tournament is now active.' : 'Tournament completed successfully.';
-      },
-      error: (error) => {
-        this.statusChanging = false;
-        this.actionError = error?.error?.message || 'Unable to change tournament status.';
-      },
-    });
+    this.http
+      .patch<Tournament>(`${this.api}/tournaments/${this.id}/status`, { status: target })
+      .subscribe({
+        next: (updated) => {
+          this.t = updated;
+          this.statusChanging = false;
+          this.actionMessage =
+            target === 'ACTIVE'
+              ? 'Tournament is now active.'
+              : 'Tournament completed successfully.';
+        },
+        error: (error) => {
+          this.statusChanging = false;
+          this.actionError = error?.error?.message || 'Unable to change tournament status.';
+        },
+      });
   }
   refresh() {
     this.loading = true;
