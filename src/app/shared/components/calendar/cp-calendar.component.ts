@@ -36,7 +36,9 @@ export class CpCalendarComponent {
   @Output() valueChange = new EventEmitter<string>();
 
   isOpen = false;
-  visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
+  visibleMonth = this.startOfMonth(
+    this.parseDate(this.value) ?? new Date(),
+  );
   readonly weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
   constructor(private readonly elementRef: ElementRef<HTMLElement>) {}
