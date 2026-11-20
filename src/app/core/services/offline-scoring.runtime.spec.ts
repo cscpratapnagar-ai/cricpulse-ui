@@ -296,4 +296,41 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       jasmine.objectContaining({ commandId: command.commandId }),
     ]);
   });
+})
+  it('keeps a blocked queue blocked after a cold restart and refuses to project its deliveries', async () => {
+    const runId = `runtime-blocked-restart-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const matchId = `${runId}-match`;
+    const inningsId = `${runId}-innings`;
+    const snapshot = score(inningsId, matchId);
+    const first = delivery(`${runId}-first`, matchId, inningsId, 600, { batRuns: 4 });
+    const second = delivery(`${runId}-second`, matchId, inningsId, 601, {
+      ballNumber: 2,
+      batRuns: 1,
+    });
+
+    await store.saveSnapshot(snapshot);
+    await store.enqueue(first);
+    await store.enqueue(second);
+    await store.markInningsQueueBlocked(inningsId);
+
+    const restartedStore = new OfflineScoringStore();
+    const restoredSnapshot = await restartedStore.loadSnapshot(inningsId);
+    const restoredQueue = await restartedStore.list(inningsId);
+    const restored = restoreOfflineQueueProjection(
+      restoredSnapshot!,
+      restoredQueue,
+      matchId,
+      inningsId,
+    );
+
+    expect(restoredQueue.map((item) => item.syncStatus)).toEqual(['BLOCKED', 'BLOCKED']);
+    expect(restored.blocked).toBeTrue();
+    expect(restored.restoredDeliveries).toBe(0);
+    expect(restored.score.runs).toBe(0);
+    expect(restored.score.legalBalls).toBe(0);
+    expect((await restartedStore.list(inningsId)).map((item) => item.commandId)).toEqual([
+      first.commandId,
+      second.commandId,
+    ]);
+  });
 });
