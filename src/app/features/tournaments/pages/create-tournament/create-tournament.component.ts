@@ -115,7 +115,8 @@ export class CreateTournamentComponent {
   private validateAll() {
     const valid = this.validateDraft();
     if (!valid) {
-      this.step = this.fieldErrors.name || this.fieldErrors.format || this.fieldErrors.overs ? 1 : 2;
+      this.step =
+        this.fieldErrors.name || this.fieldErrors.format || this.fieldErrors.overs ? 1 : 2;
       this.error = 'Please correct the highlighted fields before creating the tournament.';
     }
     return valid;

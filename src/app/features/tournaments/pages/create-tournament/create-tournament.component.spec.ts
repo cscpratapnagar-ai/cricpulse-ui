@@ -31,7 +31,11 @@ describe('validateTournamentDraft', () => {
 
   it('accepts an optional date but rejects malformed or impossible dates', () => {
     expect(validateTournamentDraft({ ...validDraft, startDate: '' }).startDate).toBeUndefined();
-    expect(validateTournamentDraft({ ...validDraft, startDate: '15-12-2026' }).startDate).toBeTruthy();
-    expect(validateTournamentDraft({ ...validDraft, startDate: '2026-02-30' }).startDate).toBeTruthy();
+    expect(
+      validateTournamentDraft({ ...validDraft, startDate: '15-12-2026' }).startDate,
+    ).toBeTruthy();
+    expect(
+      validateTournamentDraft({ ...validDraft, startDate: '2026-02-30' }).startDate,
+    ).toBeTruthy();
   });
 });

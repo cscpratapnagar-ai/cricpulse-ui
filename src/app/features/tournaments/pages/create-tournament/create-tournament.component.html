@@ -70,12 +70,13 @@
               [attr.aria-invalid]="!!fieldErrors.name"
               aria-describedby="tournament-name-help tournament-name-error"
               (ngModelChange)="clearFieldError('name')"
-            /><small id="tournament-name-help">{{ draft.name.length }} / 90 characters · minimum 3</small>
+            /><small id="tournament-name-help"
+              >{{ draft.name.length }} / 90 characters · minimum 3</small
+            >
             @if (fieldErrors.name) {
               <small class="field-error" id="tournament-name-error">{{ fieldErrors.name }}</small>
             }
-          </label
-          >
+          </label>
           <cp-dropdown
             label="Match format"
             name="format"
@@ -101,8 +102,7 @@
             @if (fieldErrors.overs) {
               <small class="field-error" id="overs-error">{{ fieldErrors.overs }}</small>
             }
-          </label
-          >
+          </label>
         </div>
       } @else if (step === 2) {
         <div class="section-head">
@@ -199,7 +199,9 @@
             </button>
           }
           @if (step < 3) {
-            <button class="primary" type="button" (click)="next()" [disabled]="saving">Continue <b>→</b></button>
+            <button class="primary" type="button" (click)="next()" [disabled]="saving">
+              Continue <b>→</b>
+            </button>
           }
           @if (step === 3) {
             <button class="primary launch" type="button" (click)="create()" [disabled]="saving">
