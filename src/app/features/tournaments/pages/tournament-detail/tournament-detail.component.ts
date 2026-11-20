@@ -105,6 +105,11 @@ export class TournamentDetailComponent {
   id = this.route.snapshot.paramMap.get('id') || '';
   loading = true;
   busy = false;
+  editing = false;
+  savingEdit = false;
+  statusChanging = false;
+  editErrors: Record<string, string> = {};
+  editDraft = { name: '', format: 'T20', overs: 20, location: '', startDate: '' };
   actionError = '';
   actionMessage = '';
   activeTab = signal<'overview' | 'operations' | 'teams' | 'fixtures' | 'standings' | 'analytics'>(
@@ -524,6 +529,99 @@ export class TournamentDetailComponent {
   }
   staffRoleLabel(role: MatchStaffRole) {
     return this.staffRoles.find((item) => item.value === role)?.label || role;
+  }
+  beginEdit() {
+    if (!this.t || this.t.status !== 'DRAFT' || this.savingEdit) return;
+    this.editDraft = {
+      name: this.t.name,
+      format: this.t.format,
+      overs: this.t.overs,
+      location: this.t.location || '',
+      startDate: this.t.startDate || '',
+    };
+    this.editErrors = {};
+    this.actionError = '';
+    this.editing = true;
+  }
+  cancelEdit() {
+    if (this.savingEdit) return;
+    this.editing = false;
+    this.editErrors = {};
+  }
+  validateEdit(): boolean {
+    const errors: Record<string, string> = {};
+    const name = this.editDraft.name.trim();
+    if (!name) errors['name'] = 'Tournament name is required.';
+    else if (name.length < 3 || name.length > 90) errors['name'] = 'Name must be between 3 and 90 characters.';
+    if (!['T10', 'T20', 'ODI', 'TEST'].includes(this.editDraft.format.toUpperCase())) {
+      errors['format'] = 'Choose a supported tournament format.';
+    }
+    const overs = Number(this.editDraft.overs);
+    if (!Number.isInteger(overs) || overs < 1 || overs > 100) {
+      errors['overs'] = 'Overs must be a whole number between 1 and 100.';
+    }
+    if (this.editDraft.location.trim().length > 120) {
+      errors['location'] = 'Location cannot exceed 120 characters.';
+    }
+    if (this.editDraft.startDate) {
+      const match = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(this.editDraft.startDate);
+      if (!match) errors['startDate'] = 'Choose a valid start date.';
+      else {
+        const [, year, month, day] = match.map(Number);
+        const parsed = new Date(year, month - 1, day);
+        if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
+          errors['startDate'] = 'The selected calendar date is invalid.';
+        }
+      }
+    }
+    this.editErrors = errors;
+    return Object.keys(errors).length === 0;
+  }
+  saveEdit() {
+    if (!this.t || this.savingEdit || !this.editing || this.t.status !== 'DRAFT') return;
+    if (!this.validateEdit()) return;
+    this.savingEdit = true;
+    this.actionError = '';
+    const payload = {
+      name: this.editDraft.name.trim(),
+      format: this.editDraft.format.toUpperCase(),
+      overs: Number(this.editDraft.overs),
+      location: this.editDraft.location.trim() || null,
+      startDate: this.editDraft.startDate || null,
+    };
+    this.http.patch<Tournament>(`${this.api}/tournaments/${this.id}`, payload).subscribe({
+      next: (updated) => {
+        this.t = updated;
+        this.savingEdit = false;
+        this.editing = false;
+        this.actionMessage = 'Tournament details saved successfully.';
+      },
+      error: (error) => {
+        this.savingEdit = false;
+        this.actionError = error?.error?.message || 'Unable to save tournament details. Please try again.';
+      },
+    });
+  }
+  changeStatus(target: 'ACTIVE' | 'COMPLETED') {
+    if (!this.t || this.statusChanging || this.busy) return;
+    const prompt = target === 'ACTIVE'
+      ? 'Activate this tournament? Make sure at least two teams and one fixture are ready.'
+      : 'Mark this tournament as completed? This is allowed only after every fixture is completed.';
+    if (!window.confirm(prompt)) return;
+    this.statusChanging = true;
+    this.actionError = '';
+    this.actionMessage = '';
+    this.http.patch<Tournament>(`${this.api}/tournaments/${this.id}/status`, { status: target }).subscribe({
+      next: (updated) => {
+        this.t = updated;
+        this.statusChanging = false;
+        this.actionMessage = target === 'ACTIVE' ? 'Tournament is now active.' : 'Tournament completed successfully.';
+      },
+      error: (error) => {
+        this.statusChanging = false;
+        this.actionError = error?.error?.message || 'Unable to change tournament status.';
+      },
+    });
   }
   refresh() {
     this.loading = true;
