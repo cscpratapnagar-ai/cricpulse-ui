@@ -54,7 +54,9 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', eventVersion: 11, runs: 6 });
 
     expect(onScore).toHaveBeenCalledTimes(2);
-    const deliveredRuns = onScore.calls.allArgs().map(([score]) => (score as { runs: number }).runs);
+    const deliveredRuns = onScore.calls
+      .allArgs()
+      .map(([score]) => (score as { runs: number }).runs);
     expect(deliveredRuns).toEqual([4, 6]);
   });
 
