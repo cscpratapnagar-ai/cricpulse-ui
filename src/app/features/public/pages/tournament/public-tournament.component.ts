@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, distinctUntilChanged, map, of, startWith, Subject, switchMap } from 'rxjs';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 
 interface PublicStanding {
@@ -53,36 +55,52 @@ interface PublicTournament {
 export class PublicTournamentComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
-  readonly tournamentId = this.route.snapshot.paramMap.get('id') || '';
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly refreshRequests = new Subject<void>();
+  tournamentId = '';
   tournament: PublicTournament | null = null;
   loading = true;
   loadError = false;
 
   constructor() {
-    if (!this.tournamentId) {
-      this.loading = false;
-      this.loadError = true;
-      return;
-    }
-    this.refresh();
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id')?.trim() ?? ''),
+        distinctUntilChanged(),
+        switchMap((id) => {
+          this.tournamentId = id;
+          return this.refreshRequests.pipe(
+            startWith(undefined),
+            switchMap(() => {
+              this.loading = true;
+              this.loadError = false;
+              this.tournament = null;
+
+              if (!id) {
+                this.loading = false;
+                this.loadError = true;
+                return of(null);
+              }
+
+              return this.http
+                .get<PublicTournament>(
+                  `${API_BASE_URL}/public/tournaments/${encodeURIComponent(id)}`,
+                )
+                .pipe(catchError(() => of(null)));
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((tournament) => {
+        this.tournament = tournament;
+        this.loading = false;
+        this.loadError = tournament === null;
+      });
   }
 
   refresh(): void {
-    this.loading = true;
-    this.loadError = false;
-    this.http
-      .get<PublicTournament>(`${API_BASE_URL}/public/tournaments/${this.tournamentId}`)
-      .subscribe({
-        next: (tournament) => {
-          this.tournament = tournament;
-          this.loading = false;
-        },
-        error: () => {
-          this.tournament = null;
-          this.loading = false;
-          this.loadError = true;
-        },
-      });
+    this.refreshRequests.next();
   }
 
   get leagueFixtures(): PublicFixture[] {
