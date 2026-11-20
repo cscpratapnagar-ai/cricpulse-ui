@@ -1,25 +1,84 @@
 <div class="field">
   @if (label) {
-    <label [for]="id"
-      >{{ label }}
+    <label [for]="id">
+      {{ label }}
       @if (required) {
         <span>*</span>
       }
     </label>
   }
   <div class="calendar-shell">
-    <input
+    <button
+      class="calendar-trigger"
       [id]="id"
       [name]="name || id"
-      type="date"
-      [value]="value || ''"
-      [min]="min || null"
-      [max]="max || null"
+      type="button"
       [disabled]="disabled"
-      [required]="required"
-      (change)="onChange($event)"
-    />
-    <span class="calendar-icon" aria-hidden="true">▣</span>
+      [attr.aria-required]="required"
+      [attr.aria-expanded]="isOpen"
+      [attr.aria-controls]="id + '-popup'"
+      (click)="toggleCalendar()"
+    >
+      <span [class.placeholder]="!displayValue">
+        {{ displayValue || 'Select date' }}
+      </span>
+      <svg viewBox="0 0 20 20" aria-hidden="true">
+        <rect x="3" y="5" width="14" height="12" rx="2"></rect>
+        <path d="M6 3v4M14 3v4M3 9h14"></path>
+      </svg>
+    </button>
+
+    @if (isOpen) {
+      <section
+        class="calendar-popover"
+        [id]="id + '-popup'"
+        role="dialog"
+        [attr.aria-label]="'Choose ' + (label || 'date')"
+      >
+        <header class="calendar-header">
+          <strong>{{ monthLabel }}</strong>
+          <div class="month-actions">
+            <button type="button" aria-label="Previous month" (click)="previousMonth()">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m12 4-6 6 6 6"></path>
+              </svg>
+            </button>
+            <button type="button" aria-label="Next month" (click)="nextMonth()">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="m8 4 6 6-6 6"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+        <div class="calendar-grid calendar-weekdays" aria-hidden="true">
+          @for (weekday of weekdays; track weekday) {
+            <span>{{ weekday }}</span>
+          }
+        </div>
+        <div class="calendar-grid calendar-days">
+          @for (day of days; track day.iso) {
+            <button
+              type="button"
+              [class.outside-month]="!day.inMonth"
+              [class.today]="day.today"
+              [class.selected]="day.selected"
+              [disabled]="day.disabled"
+              [attr.aria-label]="day.date.toDateString()"
+              [attr.aria-pressed]="day.selected"
+              (click)="selectDay(day)"
+            >
+              {{ day.day }}
+            </button>
+          }
+        </div>
+        <footer class="calendar-footer">
+          <button type="button" class="text-action" (click)="clearDate()" [disabled]="required">
+            Clear
+          </button>
+          <button type="button" class="text-action" (click)="selectToday()">Today</button>
+        </footer>
+      </section>
+    }
   </div>
   @if (hint) {
     <small>{{ hint }}</small>
