@@ -640,3 +640,44 @@ input:focus-visible {
     transition: none !important;
   }
 }
+
+.field-error {
+  display: block;
+  color: var(--cp-danger);
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+.field input[aria-invalid='true'] {
+  border-color: var(--cp-danger);
+  box-shadow: 0 0 0 3px var(--cp-danger-soft);
+}
+@media (max-width: 760px) {
+  .page {
+    padding: 22px 16px 56px;
+  }
+  .hero {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .setup-panel {
+    padding: 18px;
+  }
+  .basics,
+  .schedule {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stepper button {
+    min-width: 150px;
+  }
+  .panel-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .panel-footer .actions {
+    justify-content: flex-end;
+  }
+}

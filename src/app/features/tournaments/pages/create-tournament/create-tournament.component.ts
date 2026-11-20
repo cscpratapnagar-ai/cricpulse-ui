@@ -19,6 +19,55 @@ interface TournamentResponse {
 
 type Step = 1 | 2 | 3;
 
+export interface TournamentDraftInput {
+  name: string;
+  format: string;
+  overs: number;
+  startDate: string;
+}
+
+export interface TournamentDraftErrors {
+  name?: string;
+  format?: string;
+  overs?: string;
+  startDate?: string;
+}
+
+export function validateTournamentDraft(draft: TournamentDraftInput): TournamentDraftErrors {
+  const errors: TournamentDraftErrors = {};
+  const name = (draft.name || '').trim();
+  if (!name) errors.name = 'Tournament name is required.';
+  else if (name.length < 3) errors.name = 'Use at least 3 characters for the tournament name.';
+  else if (name.length > 90) errors.name = 'Tournament name cannot exceed 90 characters.';
+
+  if (!['T10', 'T20', 'ODI', 'TEST'].includes((draft.format || '').toUpperCase())) {
+    errors.format = 'Choose a supported match format.';
+  }
+
+  const overs = Number(draft.overs);
+  if (!Number.isInteger(overs) || overs < 1 || overs > 100) {
+    errors.overs = 'Overs must be a whole number between 1 and 100.';
+  }
+
+  if (draft.startDate) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(draft.startDate);
+    if (!match) {
+      errors.startDate = 'Choose a valid start date.';
+    } else {
+      const [, year, month, day] = match.map(Number);
+      const parsed = new Date(year, month - 1, day);
+      if (
+        parsed.getFullYear() !== year ||
+        parsed.getMonth() !== month - 1 ||
+        parsed.getDate() !== day
+      ) {
+        errors.startDate = 'The selected calendar date is invalid.';
+      }
+    }
+  }
+  return errors;
+}
+
 @Component({
   selector: 'app-create-tournament',
   standalone: true,
@@ -33,6 +82,7 @@ export class CreateTournamentComponent {
   step: Step = 1;
   saving = false;
   error = '';
+  fieldErrors: TournamentDraftErrors = {};
   draft = { name: '', format: 'T20', overs: 20, startDate: '', location: '' };
   readonly steps = [
     { id: 1 as Step, title: 'Basics', copy: 'Identity and format' },
@@ -50,10 +100,29 @@ export class CreateTournamentComponent {
     const key = this.draft.format.toUpperCase();
     return key === 'TEST' ? '♜' : key === 'ODI' ? '◉' : key === 'T10' ? '⚡' : '🏆';
   }
-  clearFieldError(_: string) {
+  clearFieldError(field: keyof TournamentDraftErrors) {
     this.error = '';
+    if (this.fieldErrors[field]) {
+      const next = { ...this.fieldErrors };
+      delete next[field];
+      this.fieldErrors = next;
+    }
+  }
+  private validateDraft() {
+    this.fieldErrors = validateTournamentDraft(this.draft);
+    return Object.keys(this.fieldErrors).length === 0;
+  }
+  private validateAll() {
+    const valid = this.validateDraft();
+    if (!valid) {
+      this.step =
+        this.fieldErrors.name || this.fieldErrors.format || this.fieldErrors.overs ? 1 : 2;
+      this.error = 'Please correct the highlighted fields before creating the tournament.';
+    }
+    return valid;
   }
   goTo(target: Step) {
+    if (this.saving) return;
     if (target < this.step) {
       this.step = target;
       this.error = '';
@@ -65,6 +134,7 @@ export class CreateTournamentComponent {
     }
   }
   next() {
+    if (this.saving) return;
     if (this.validateStep()) this.step = (this.step + 1) as Step;
   }
   previous() {
@@ -72,26 +142,37 @@ export class CreateTournamentComponent {
     this.error = '';
   }
   reset() {
+    if (this.saving) return;
     this.step = 1;
     this.error = '';
+    this.fieldErrors = {};
     this.draft = { name: '', format: 'T20', overs: 20, startDate: '', location: '' };
   }
   private validateStep() {
     this.error = '';
     if (this.step === 1) {
-      if (!this.draft.name.trim()) {
-        this.error = 'Tournament name is required before continuing.';
-        return false;
-      }
-      if (!this.draft.overs || this.draft.overs < 1 || this.draft.overs > 100) {
-        this.error = 'Overs must be between 1 and 100.';
+      this.fieldErrors = validateTournamentDraft({ ...this.draft, startDate: '' });
+      const valid = Object.keys(this.fieldErrors).length === 0;
+      if (!valid) this.error = 'Please correct the highlighted fields before continuing.';
+      return valid;
+    }
+    if (this.step === 2) {
+      const dateError = validateTournamentDraft({
+        ...this.draft,
+        name: 'Valid tournament',
+        format: 'T20',
+        overs: 20,
+      }).startDate;
+      this.fieldErrors = dateError ? { startDate: dateError } : {};
+      if (dateError) {
+        this.error = 'Please select a valid start date.';
         return false;
       }
     }
     return true;
   }
   create() {
-    if (!this.validateStep()) return;
+    if (this.saving || !this.validateAll()) return;
     this.saving = true;
     this.error = '';
     const payload = {

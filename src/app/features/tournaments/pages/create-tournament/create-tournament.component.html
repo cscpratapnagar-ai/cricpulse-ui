@@ -67,16 +67,26 @@
               name="name"
               maxlength="90"
               placeholder="e.g. Pratapnagar Premier League"
+              [attr.aria-invalid]="!!fieldErrors.name"
+              aria-describedby="tournament-name-help tournament-name-error"
               (ngModelChange)="clearFieldError('name')"
-            /><small>{{ draft.name.length }} / 90 characters</small></label
-          >
+            /><small id="tournament-name-help"
+              >{{ draft.name.length }} / 90 characters · minimum 3</small
+            >
+            @if (fieldErrors.name) {
+              <small class="field-error" id="tournament-name-error">{{ fieldErrors.name }}</small>
+            }
+          </label>
           <cp-dropdown
             label="Match format"
             name="format"
             [options]="formatOptions"
             [value]="draft.format"
-            (valueChange)="draft.format = $event || 'T20'"
+            (valueChange)="draft.format = $event || 'T20'; clearFieldError('format')"
           ></cp-dropdown>
+          @if (fieldErrors.format) {
+            <small class="field-error">{{ fieldErrors.format }}</small>
+          }
           <label class="field"
             ><span>Overs <b>*</b></span
             ><input
@@ -85,9 +95,14 @@
               max="100"
               [(ngModel)]="draft.overs"
               name="overs"
+              [attr.aria-invalid]="!!fieldErrors.overs"
+              aria-describedby="overs-help overs-error"
               (ngModelChange)="clearFieldError('overs')"
-            /><small>1–100 overs</small></label
-          >
+            /><small id="overs-help">Whole number · 1–100 overs</small>
+            @if (fieldErrors.overs) {
+              <small class="field-error" id="overs-error">{{ fieldErrors.overs }}</small>
+            }
+          </label>
         </div>
       } @else if (step === 2) {
         <div class="section-head">
@@ -107,7 +122,11 @@
             name="startDate"
             [includeTime]="false"
             [(value)]="draft.startDate"
+            (valueChange)="clearFieldError('startDate')"
           ></app-date-time-field>
+          @if (fieldErrors.startDate) {
+            <small class="field-error">{{ fieldErrors.startDate }}</small>
+          }
           <label class="field"
             ><span>Location</span
             ><input
@@ -180,7 +199,9 @@
             </button>
           }
           @if (step < 3) {
-            <button class="primary" type="button" (click)="next()">Continue <b>→</b></button>
+            <button class="primary" type="button" (click)="next()" [disabled]="saving">
+              Continue <b>→</b>
+            </button>
           }
           @if (step === 3) {
             <button class="primary launch" type="button" (click)="create()" [disabled]="saving">
