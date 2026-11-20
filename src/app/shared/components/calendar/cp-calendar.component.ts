@@ -29,6 +29,8 @@ export class CpCalendarComponent {
   @Output() valueChange = new EventEmitter<string>();
 
   isOpen = false;
+  popoverTop = 0;
+  popoverLeft = 0;
   visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
   readonly weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -79,7 +81,44 @@ export class CpCalendarComponent {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
+      requestAnimationFrame(() => this.positionPopover());
     }
+  }
+
+  @HostListener('window:resize')
+  @HostListener('window:scroll')
+  repositionPopover(): void {
+    if (this.isOpen) {
+      requestAnimationFrame(() => this.positionPopover());
+    }
+  }
+
+  private positionPopover(): void {
+    const trigger = this.elementRef.nativeElement.querySelector('.calendar-trigger');
+    const popover = this.elementRef.nativeElement.querySelector('.calendar-popover');
+    if (!trigger || !popover) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    const viewportPadding = 12;
+    const gap = 7;
+    const spaceBelow = window.innerHeight - triggerRect.bottom - viewportPadding;
+    const spaceAbove = triggerRect.top - viewportPadding;
+    const openBelow = spaceBelow >= popoverRect.height + gap || spaceBelow >= spaceAbove;
+    const availableHeight = Math.max(180, (openBelow ? spaceBelow : spaceAbove) - gap);
+    const top = openBelow
+      ? triggerRect.bottom + gap
+      : Math.max(
+          viewportPadding,
+          triggerRect.top - Math.min(popoverRect.height, availableHeight) - gap,
+        );
+    const left = Math.min(
+      Math.max(viewportPadding, triggerRect.left),
+      window.innerWidth - popoverRect.width - viewportPadding,
+    );
+
+    this.popoverTop = top;
+    this.popoverLeft = left;
   }
 
   previousMonth(): void {
