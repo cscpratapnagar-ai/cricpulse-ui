@@ -26,6 +26,7 @@ import { PlayerStatisticsComponent } from './features/players/pages/player-stati
 import { HomeComponent } from './features/public/pages/home/home.component';
 import { LandingComponent } from './features/public/pages/landing/landing.component';
 import { PublicLiveScoreComponent } from './features/public/pages/live-score/public-live-score.component';
+import { PublicTournamentComponent } from './features/public/pages/tournament/public-tournament.component';
 import { BroadcastOverlayComponent } from './features/broadcast/pages/overlay/broadcast-overlay.component';
 import { BroadcastControlComponent } from './features/broadcast/pages/control/broadcast-control.component';
 import { ObsSceneControllerComponent } from './features/broadcast/pages/obs-scene-controller/obs-scene-controller.component';
@@ -119,6 +120,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'match/:id', component: PublicLiveScoreComponent },
+  { path: 'tournament/:id', component: PublicTournamentComponent },
   { path: 'live/:id', redirectTo: 'match/:id', pathMatch: 'full' },
   { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
   {
