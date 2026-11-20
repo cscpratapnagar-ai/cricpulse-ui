@@ -119,7 +119,10 @@ describe('TournamentScheduleComponent', () => {
   it('reports non-conflict scheduling failures separately', () => {
     const component = createComponent();
     (component as any).http.post.and.returnValue(
-      throwError(() => ({ status: 400, error: { message: 'Fixture time must be in the future.' } })),
+      throwError(() => ({
+        status: 400,
+        error: { message: 'Fixture time must be in the future.' },
+      })),
     );
 
     component.save(component.fixtures[0]);
