@@ -28,10 +28,7 @@ describe('LiveScoreSocketService', () => {
   function connect(inningsId = 'innings-a'): (message: unknown) => void {
     service.connect(inningsId, onScore);
     expect(activateSpy).toHaveBeenCalled();
-    expect(subscribeSpy).toHaveBeenCalledWith(
-      `/topic/innings/${inningsId}`,
-      jasmine.any(Function),
-    );
+    expect(subscribeSpy).toHaveBeenCalledWith(`/topic/innings/${inningsId}`, jasmine.any(Function));
     return subscribeSpy.calls.mostRecent().args[1] as (message: unknown) => void;
   }
 
@@ -67,10 +64,12 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
 
     expect(onScore).toHaveBeenCalledTimes(1);
-    expect(onScore).toHaveBeenCalledWith(jasmine.objectContaining({
-      inningsId: 'innings-a',
-      runs: 1,
-    }));
+    expect(onScore).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        inningsId: 'innings-a',
+        runs: 1,
+      }),
+    );
   });
 
   it('ignores malformed JSON without terminating the live subscription', () => {
@@ -102,9 +101,11 @@ describe('LiveScoreSocketService', () => {
     emit(currentHandler, { inningsId: 'innings-b', eventVersion: 1, runs: 1 });
 
     expect(onScore).toHaveBeenCalledTimes(1);
-    expect(onScore).toHaveBeenCalledWith(jasmine.objectContaining({
-      inningsId: 'innings-b',
-      runs: 1,
-    }));
+    expect(onScore).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        inningsId: 'innings-b',
+        runs: 1,
+      }),
+    );
   });
 });
