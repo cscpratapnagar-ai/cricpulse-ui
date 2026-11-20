@@ -47,6 +47,14 @@ The Angular test suite exercises the real component with Angular's HTTP testing 
 
 The bracket does not infer winners from score totals, match status, or a local Super Over calculation. A completed match winner is displayed only when `GET /matches/{matchId}/result` returns a `winningTeamId` matching one of the persisted fixture participants. Super Over outcome calculation and result finalization remain backend responsibilities; the frontend regression fixture represents the final, backend-confirmed winner ID.
 
+## Public viewer journey
+
+- Public route: `/tournament/{tournamentId}` (no login required).
+- Read-only API: `GET /api/public/tournaments/{tournamentId}`.
+- The response exposes tournament summary, league standings, persisted fixture stages/statuses, scheduled times and a winner name only when the stored winner ID matches one of the fixture participants.
+- The public payload deliberately omits owner IDs, manager assignments, staff records, player account details and mutation capabilities.
+- Organizer workspace links to the public page using the `Public view` action. Organizer and delegated-manager routes remain behind the authenticated dashboard and existing backend tournament-scoped authorization.
+
 ## Limits of CI
 
 Frontend GitHub Actions CI validates static quality, Angular unit tests, production build and Docker image build. It does not have the dedicated backend database, credentials or disposable tournament needed to execute the database-mutating backend certification script. Report backend live E2E as not run unless it has actually been executed in the isolated environment.

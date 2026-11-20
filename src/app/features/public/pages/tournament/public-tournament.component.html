@@ -1,0 +1,177 @@
+<main class="public-tournament" aria-label="Public tournament information">
+  <header class="topbar">
+    <a routerLink="/" class="brand">◉ CricPulse</a>
+    <span class="public-tag">PUBLIC TOURNAMENT CENTRE</span>
+  </header>
+
+  @if (loading) {
+    <section class="state-card" role="status">Loading tournament details…</section>
+  } @else if (loadError || !tournament) {
+    <section class="state-card error-state" role="alert">
+      <h1>Tournament unavailable</h1>
+      <p>This tournament may not exist or its public summary is temporarily unavailable.</p>
+      <button type="button" aria-label="Retry loading public tournament" (click)="refresh()">
+        Try again
+      </button>
+    </section>
+  } @else {
+    <section class="hero">
+      <div>
+        <span class="eyebrow">TOURNAMENT · {{ tournament.status }}</span>
+        <h1>{{ tournament.tournamentName }}</h1>
+        <p>
+          {{ tournament.format }} · {{ tournament.overs }} overs · Follow fixtures, standings and
+          playoff progress.
+        </p>
+      </div>
+      <div class="completion">
+        <strong>{{ tournament.completionPercentage | number: '1.0-1' }}%</strong>
+        <span>complete</span>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Tournament summary">
+      <article>
+        <span>TEAMS</span><strong>{{ tournament.pointsTable.length }}</strong>
+      </article>
+      <article>
+        <span>FIXTURES</span><strong>{{ tournament.totalFixtures }}</strong>
+      </article>
+      <article>
+        <span>COMPLETED</span><strong>{{ tournament.completedFixtures }}</strong>
+      </article>
+      <article>
+        <span>LIVE NOW</span><strong>{{ tournament.liveFixtures }}</strong>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel standings-panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">LEAGUE PHASE</span>
+            <h2>Points table</h2>
+          </div>
+          <span class="subtle">2 points / win</span>
+        </div>
+        @if (tournament.pointsTable.length) {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>TEAM</th>
+                  <th>P</th>
+                  <th>W</th>
+                  <th>L</th>
+                  <th>NR</th>
+                  <th>PTS</th>
+                  <th>NRR</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (team of tournament.pointsTable; track team.teamId; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                      <strong>{{ team.teamName }}</strong>
+                    </td>
+                    <td>{{ team.played }}</td>
+                    <td>{{ team.wins }}</td>
+                    <td>{{ team.losses }}</td>
+                    <td>{{ team.noResults }}</td>
+                    <td class="points">{{ team.points }}</td>
+                    <td>{{ team.nrr | number: '1.3-3' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="empty">Standings will appear when teams are registered.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">KNOCKOUT PHASE</span>
+            <h2>Playoff bracket</h2>
+          </div>
+        </div>
+        @if (playoffFixtures.length) {
+          <div class="fixture-list">
+            @for (fixture of playoffFixtures; track fixture.matchId) {
+              <article class="fixture">
+                <div class="fixture-meta">
+                  <span>{{ stageLabel(fixture.stage) }}</span
+                  ><span>{{ fixture.status }}</span>
+                </div>
+                <div class="teams">
+                  <strong [class.winner]="fixture.winnerName === fixture.teamAName">{{
+                    fixture.teamAName
+                  }}</strong
+                  ><span>vs</span
+                  ><strong [class.winner]="fixture.winnerName === fixture.teamBName">{{
+                    fixture.teamBName
+                  }}</strong>
+                </div>
+                <p>
+                  {{
+                    fixture.winnerName
+                      ? 'Winner: ' + fixture.winnerName
+                      : scheduledLabel(fixture.scheduledAt)
+                  }}
+                </p>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty">
+            Official playoff fixtures will appear here after the organizer creates the bracket.
+            Current qualification standings are shown alongside.
+          </p>
+        }
+      </article>
+    </section>
+
+    <section class="panel league-panel">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">MATCH CENTRE</span>
+          <h2>League fixtures</h2>
+        </div>
+        <span class="subtle">{{ leagueFixtures.length }} fixtures</span>
+      </div>
+      @if (leagueFixtures.length) {
+        <div class="fixture-list">
+          @for (fixture of leagueFixtures; track fixture.matchId) {
+            <article class="fixture league-fixture">
+              <div class="fixture-meta">
+                <span>FIXTURE #{{ fixture.fixtureNumber || '—' }}</span
+                ><span>{{ fixture.status }}</span>
+              </div>
+              <div class="teams">
+                <strong>{{ fixture.teamAName }}</strong
+                ><span>vs</span><strong>{{ fixture.teamBName }}</strong>
+              </div>
+              <p>
+                {{
+                  fixture.winnerName
+                    ? 'Winner: ' + fixture.winnerName
+                    : scheduledLabel(fixture.scheduledAt)
+                }}
+              </p>
+              <a [routerLink]="['/match', fixture.matchId]">Open public scorecard →</a>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty">League fixtures have not been published yet.</p>
+      }
+    </section>
+    <footer>
+      Public read-only view · Official results and standings are provided by CricPulse.
+    </footer>
+  }
+</main>

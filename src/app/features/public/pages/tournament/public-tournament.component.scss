@@ -1,0 +1,271 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #07130f;
+  color: #edf8f2;
+}
+.public-tournament {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px clamp(16px, 4vw, 54px) 60px;
+  font-family: Inter, system-ui, sans-serif;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 24px;
+  border-bottom: 1px solid #ffffff16;
+}
+.brand {
+  color: #f3fbf6;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 900;
+}
+.brand:first-letter {
+  color: #b8f45c;
+}
+.public-tag,
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.7px;
+  font-weight: 850;
+  color: #b8f45c;
+}
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 46px 0 28px;
+}
+.hero h1 {
+  font-size: clamp(32px, 5vw, 54px);
+  letter-spacing: -2.5px;
+  margin: 10px 0;
+}
+.hero p {
+  color: #91aa9d;
+  margin: 0;
+  line-height: 1.6;
+}
+.completion {
+  width: 100px;
+  height: 100px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  background: #b8f45c12;
+  border: 1px solid #b8f45c55;
+}
+.completion strong {
+  font-size: 24px;
+  color: #b8f45c;
+}
+.completion span {
+  font-size: 10px;
+  color: #91aa9d;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.stats article,
+.panel,
+.state-card {
+  background: #0c2119;
+  border: 1px solid #ffffff15;
+  border-radius: 16px;
+  padding: 18px;
+}
+.stats article {
+  display: grid;
+  gap: 8px;
+}
+.stats span,
+.subtle {
+  font-size: 9px;
+  color: #789386;
+  letter-spacing: 1.2px;
+  font-weight: 850;
+}
+.stats strong {
+  font-size: 26px;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+}
+.panel {
+  margin-bottom: 16px;
+  min-width: 0;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.section-heading h2 {
+  font-size: 23px;
+  letter-spacing: -0.8px;
+  margin: 5px 0;
+}
+.table-wrap {
+  overflow: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+th,
+td {
+  padding: 12px 9px;
+  border-bottom: 1px solid #ffffff0c;
+  text-align: left;
+  font-size: 12px;
+}
+th {
+  font-size: 9px;
+  color: #789386;
+  letter-spacing: 1px;
+}
+.points,
+.winner {
+  color: #b8f45c;
+}
+.fixture-list {
+  display: grid;
+  gap: 10px;
+}
+.fixture {
+  padding: 14px;
+  border-radius: 12px;
+  background: #081a14;
+  border: 1px solid #ffffff12;
+}
+.fixture-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #b8f45c;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+.teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 14px 0 8px;
+}
+.teams strong {
+  font-size: 13px;
+}
+.teams span {
+  color: #789386;
+  font-size: 10px;
+}
+.fixture p,
+.empty {
+  font-size: 11px;
+  color: #91aa9d;
+  line-height: 1.6;
+  margin: 7px 0 0;
+}
+.fixture a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #b8f45c;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+}
+.league-panel {
+  margin-top: 0;
+}
+.league-fixture {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.league-fixture .teams {
+  flex: 1;
+  min-width: 230px;
+  margin: 0;
+}
+.league-fixture p {
+  min-width: 140px;
+}
+.state-card {
+  margin: 70px auto;
+  max-width: 500px;
+  text-align: center;
+  padding: 34px;
+}
+.error-state h1 {
+  margin-top: 0;
+}
+.error-state p {
+  color: #91aa9d;
+  line-height: 1.6;
+}
+.error-state button {
+  border: 0;
+  border-radius: 9px;
+  background: #b8f45c;
+  color: #10251e;
+  padding: 11px 18px;
+  font-weight: 850;
+  cursor: pointer;
+}
+footer {
+  text-align: center;
+  color: #789386;
+  font-size: 10px;
+  padding: 18px 0 0;
+}
+@media (max-width: 800px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .hero {
+    align-items: flex-start;
+  }
+  .completion {
+    width: 76px;
+    height: 76px;
+  }
+  .completion strong {
+    font-size: 18px;
+  }
+  .public-tag {
+    font-size: 8px;
+  }
+  .teams strong {
+    font-size: 11px;
+  }
+  .league-fixture {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .league-fixture .teams {
+    width: 100%;
+  }
+}

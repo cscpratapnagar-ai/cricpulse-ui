@@ -24,6 +24,7 @@
       </div>
       <div class="hero-actions">
         <button class="icon-btn" title="Refresh data" (click)="refresh()">↻</button
+        ><a class="ghost-btn" [routerLink]="['/tournament', id]">Public view</a
         ><a class="ghost-btn" [routerLink]="['/tournaments', id, 'analytics']">Analytics</a
         ><button
           class="primary-cta"

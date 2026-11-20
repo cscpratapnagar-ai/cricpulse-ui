@@ -197,6 +197,42 @@ describe('TournamentDetailComponent', () => {
     expect(component.managerMessage).toContain('no longer has tournament manager access');
   });
 
+  it('loads a delegated manager workspace without granting owner-only manager administration', () => {
+    const component = createComponent();
+    const managers = [
+      {
+        tournamentId: 't-1',
+        userId: 'u-2',
+        fullName: 'Delegated Manager',
+        email: 'manager@example.com',
+        role: 'MANAGER' as const,
+        assignedAt: '2026-11-20T08:00:00Z',
+      },
+    ];
+    (component as any).http.get.and.returnValue(of({ managers, canManage: false }));
+
+    component.loadTournamentManagers();
+
+    expect(component.tournamentManagers).toEqual(managers);
+    expect(component.canManageManagers).toBeFalse();
+    expect(component.managerLoading).toBeFalse();
+    expect((component as any).http.put).not.toHaveBeenCalled();
+    expect((component as any).http.delete).not.toHaveBeenCalled();
+  });
+
+  it('shows an access-denied message when an unassigned user cannot load organiser access', () => {
+    const component = createComponent();
+    (component as any).http.get.and.returnValue(
+      throwError(() => ({ status: 404, error: { message: 'Tournament not found.' } })),
+    );
+
+    component.loadTournamentManagers();
+
+    expect(component.managerLoading).toBeFalse();
+    expect(component.managerError).toBe('Tournament not found.');
+    expect(component.canManageManagers).toBeFalse();
+  });
+
   it('routes each fixture to the correct next operator action', () => {
     const component = createComponent();
     const live = { matchId: 'm-live', status: 'LIVE' } as any;
