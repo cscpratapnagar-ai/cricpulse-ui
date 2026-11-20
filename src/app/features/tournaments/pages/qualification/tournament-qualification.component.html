@@ -101,6 +101,17 @@
               }
             </div>
             <p class="stage-hint">{{ stage.hint }}</p>
+            @if (fixtureFor(stage.key); as fixture) {
+              <div class="fixture-meta" aria-label="Fixture schedule">
+                @if (fixture.scheduledAt) {
+                  <time [attr.datetime]="fixture.scheduledAt">
+                    {{ fixture.scheduledAt | date: 'EEE, d MMM yyyy · h:mm a' }}
+                  </time>
+                } @else {
+                  <span>Match time not scheduled</span>
+                }
+              </div>
+            }
             @if (winnerName(stage.key)) {
               <div class="winner-result">
                 <span>ADVANCES</span><strong>{{ winnerName(stage.key) }}</strong>
