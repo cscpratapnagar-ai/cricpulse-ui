@@ -296,7 +296,6 @@ describe('Offline scoring runtime certification (IndexedDB + projection)', () =>
       jasmine.objectContaining({ commandId: command.commandId }),
     ]);
   });
-  });
 
   it('keeps a blocked queue blocked after a cold restart and refuses to project its deliveries', async () => {
     const runId = `runtime-blocked-restart-${Date.now()}-${Math.random().toString(36).slice(2)}`;
