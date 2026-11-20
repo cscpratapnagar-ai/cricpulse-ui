@@ -1421,3 +1421,46 @@
     width: 100%;
   }
 }
+
+
+/* Tournament detail header: keep title and actions grouped at laptop widths. */
+@media (max-width: 1180px) {
+  .hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+    padding-top: 16px;
+    padding-bottom: 15px;
+  }
+  .hero-main {
+    width: 100%;
+    align-items: center;
+  }
+  .hero-main > div:last-child {
+    min-width: 0;
+  }
+  .hero h1 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+  .hero-actions {
+    width: 100%;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 7px;
+  }
+}
+@media (max-width: 620px) {
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .hero-actions > * {
+    flex: 0 0 auto;
+  }
+  .hero-actions .primary-cta {
+    width: auto;
+    grid-column: auto;
+  }
+}
