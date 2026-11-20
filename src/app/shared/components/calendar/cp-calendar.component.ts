@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 interface CalendarDay {
   date: Date;
@@ -36,9 +29,7 @@ export class CpCalendarComponent {
   @Output() valueChange = new EventEmitter<string>();
 
   isOpen = false;
-  visibleMonth = this.startOfMonth(
-    this.parseDate(this.value) ?? new Date(),
-  );
+  visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
   readonly weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
   constructor(private readonly elementRef: ElementRef<HTMLElement>) {}
@@ -76,8 +67,7 @@ export class CpCalendarComponent {
         iso,
         day: date.getDate(),
         inMonth: date.getMonth() === this.visibleMonth.getMonth(),
-        disabled:
-          (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
+        disabled: (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
         today: iso === today,
         selected: iso === selected,
       };
@@ -88,9 +78,7 @@ export class CpCalendarComponent {
     if (this.disabled) return;
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
-      this.visibleMonth = this.startOfMonth(
-        this.parseDate(this.value) ?? new Date(),
-      );
+      this.visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
     }
   }
 
@@ -132,10 +120,7 @@ export class CpCalendarComponent {
 
   @HostListener('document:click', ['$event'])
   closeOnOutsideClick(event: MouseEvent): void {
-    if (
-      this.isOpen &&
-      !this.elementRef.nativeElement.contains(event.target as Node)
-    ) {
+    if (this.isOpen && !this.elementRef.nativeElement.contains(event.target as Node)) {
       this.isOpen = false;
     }
   }
