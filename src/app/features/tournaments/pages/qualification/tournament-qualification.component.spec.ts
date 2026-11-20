@@ -184,9 +184,7 @@ describe('TournamentQualificationComponent', () => {
     component.load();
     flushInitialLoad(http, [qualifier]);
 
-    expect(component.fixtureFor('QUALIFIER_1')?.scheduledAt).toBe(
-      '2026-11-22T14:30:00+05:30',
-    );
+    expect(component.fixtureFor('QUALIFIER_1')?.scheduledAt).toBe('2026-11-22T14:30:00+05:30');
   });
 
   it('posts progression only after the user action and reloads authoritative fixtures', () => {
