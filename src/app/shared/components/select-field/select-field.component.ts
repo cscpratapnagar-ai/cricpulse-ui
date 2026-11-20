@@ -20,6 +20,7 @@ export class SelectFieldComponent {
   @Input() options: SelectOption[] = [];
   @Input() value = '';
   @Input() disabled = false;
+  @Input() compact = false;
   @Output() valueChange = new EventEmitter<string>();
   open = false;
   openUp = false;
