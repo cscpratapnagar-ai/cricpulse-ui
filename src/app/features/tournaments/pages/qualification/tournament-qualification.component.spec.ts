@@ -174,6 +174,21 @@ describe('TournamentQualificationComponent', () => {
     expect(component.teamNames('ELIMINATOR')).toEqual(['Kings', 'Warriors']);
   });
 
+  it('retains backend scheduled timestamps for playoff stage cards', () => {
+    const { component, http } = createComponent();
+    const qualifier = {
+      ...fixture('QUALIFIER_1', 'q1'),
+      scheduledAt: '2026-11-22T14:30:00+05:30',
+    };
+
+    component.load();
+    flushInitialLoad(http, [qualifier]);
+
+    expect(component.fixtureFor('QUALIFIER_1')?.scheduledAt).toBe(
+      '2026-11-22T14:30:00+05:30',
+    );
+  });
+
   it('posts progression only after the user action and reloads authoritative fixtures', () => {
     const { component, http } = createComponent();
     component.preview = preview as any;
