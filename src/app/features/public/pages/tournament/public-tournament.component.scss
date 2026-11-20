@@ -269,3 +269,69 @@ footer {
     width: 100%;
   }
 }
+
+
+.recent-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 76px;
+}
+
+.form-result,
+.legend-dot {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.form-win {
+  color: #b8f45c;
+  background: #b8f45c1c;
+}
+
+.form-loss {
+  color: #ff9999;
+  background: #ff6b6b1c;
+}
+
+.form-tie {
+  color: #83c9ff;
+  background: #4daeff1c;
+}
+
+.form-no-result {
+  color: #c3cbd0;
+  background: #aab4bc1c;
+}
+
+.form-empty {
+  color: #789386;
+}
+
+.form-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 14px 0 0;
+  color: #91aa9d;
+  font-size: 10px;
+}
+
+.form-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  min-width: 18px;
+  height: 18px;
+  font-style: normal;
+}
