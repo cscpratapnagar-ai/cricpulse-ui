@@ -246,6 +246,8 @@ describe('TournamentQualificationComponent', () => {
     const { component, http } = createComponent();
 
     component.load();
+    http.expectOne(`${api}/tournaments/${tournamentId}/qualification`).flush(preview);
+    http.expectOne(`${api}/tournaments/${tournamentId}/fixtures`).flush([]);
     http
       .expectOne(`${api}/tournaments/${tournamentId}`)
       .flush({ message: 'Forbidden' }, { status: 403, statusText: 'Forbidden' });
