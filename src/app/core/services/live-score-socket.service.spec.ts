@@ -54,7 +54,8 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', eventVersion: 11, runs: 6 });
 
     expect(onScore).toHaveBeenCalledTimes(2);
-    expect(onScore.calls.allArgs().map(([score]) => (score as { runs: number }).runs)).toEqual([4, 6]);
+    const deliveredRuns = onScore.calls.allArgs().map(([score]) => (score as { runs: number }).runs);
+    expect(deliveredRuns).toEqual([4, 6]);
   });
 
   it('ignores snapshots belonging to a different innings', () => {
@@ -63,7 +64,8 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-b', eventVersion: 1, runs: 99 });
     emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
 
-    expect(onScore).toHaveBeenCalledOnceWith(jasmine.objectContaining({
+    expect(onScore).toHaveBeenCalledTimes(1);
+    expect(onScore).toHaveBeenCalledWith(jasmine.objectContaining({
       inningsId: 'innings-a',
       runs: 1,
     }));
@@ -75,7 +77,8 @@ describe('LiveScoreSocketService', () => {
     handler({ body: '{invalid-json' } as IMessage);
     emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
 
-    expect(onScore).toHaveBeenCalledOnceWith(jasmine.objectContaining({ runs: 1 }));
+    expect(onScore).toHaveBeenCalledTimes(1);
+    expect(onScore).toHaveBeenCalledWith(jasmine.objectContaining({ runs: 1 }));
   });
 
   it('resets the version baseline when switching to another innings', () => {
@@ -96,7 +99,8 @@ describe('LiveScoreSocketService', () => {
     emit(staleHandler, { inningsId: 'innings-a', eventVersion: 99, runs: 99 });
     emit(currentHandler, { inningsId: 'innings-b', eventVersion: 1, runs: 1 });
 
-    expect(onScore).toHaveBeenCalledOnceWith(jasmine.objectContaining({
+    expect(onScore).toHaveBeenCalledTimes(1);
+    expect(onScore).toHaveBeenCalledWith(jasmine.objectContaining({
       inningsId: 'innings-b',
       runs: 1,
     }));
