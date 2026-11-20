@@ -1,14 +1,18 @@
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, ParamMap } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 
 import { API_BASE_URL } from '../../../../core/config/api.config';
 import { routes } from '../../../../app.routes';
 import { PublicTournamentComponent } from './public-tournament.component';
 
 describe('PublicTournamentComponent', () => {
+  let routeParams: BehaviorSubject<ParamMap>;
+
   beforeEach(() => {
+    routeParams = new BehaviorSubject(convertToParamMap({ id: 't-1' }));
     TestBed.configureTestingModule({
       imports: [PublicTournamentComponent],
       providers: [
@@ -16,7 +20,7 @@ describe('PublicTournamentComponent', () => {
         provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => 't-1' } } },
+          useValue: { paramMap: routeParams.asObservable() },
         },
       ],
     });
@@ -34,7 +38,6 @@ describe('PublicTournamentComponent', () => {
   it('loads a public tournament summary without requiring an authenticated user', () => {
     const fixture = TestBed.createComponent(PublicTournamentComponent);
     const http = TestBed.inject(HttpTestingController);
-    fixture.detectChanges();
 
     const request = http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`);
     expect(request.request.method).toBe('GET');
@@ -92,13 +95,44 @@ describe('PublicTournamentComponent', () => {
     expect(fixture.componentInstance.playoffFixtures).toHaveSize(1);
     expect(fixture.componentInstance.stageLabel('QUALIFIER_1')).toBe('Qualifier 1');
     expect(fixture.componentInstance.loading).toBeFalse();
+    fixture.destroy();
     http.verify();
   });
 
-  it('shows a safe retry state when the public tournament endpoint is unavailable', () => {
+  it('cancels the previous request and loads the tournament when the route id changes', () => {
     const fixture = TestBed.createComponent(PublicTournamentComponent);
     const http = TestBed.inject(HttpTestingController);
-    fixture.detectChanges();
+    const firstRequest = http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`);
+
+    routeParams.next(convertToParamMap({ id: 't-2' }));
+
+    expect(firstRequest.cancelled).toBeTrue();
+    const secondRequest = http.expectOne(`${API_BASE_URL}/public/tournaments/t-2`);
+    secondRequest.flush({
+      tournamentId: 't-2',
+      tournamentName: 'Regional Cup',
+      format: 'T10',
+      overs: 10,
+      status: 'ACTIVE',
+      totalFixtures: 0,
+      completedFixtures: 0,
+      scheduledFixtures: 0,
+      liveFixtures: 0,
+      completionPercentage: 0,
+      pointsTable: [],
+      fixtures: [],
+    });
+
+    expect(fixture.componentInstance.tournamentId).toBe('t-2');
+    expect(fixture.componentInstance.tournament?.tournamentName).toBe('Regional Cup');
+    expect(fixture.componentInstance.loading).toBeFalse();
+    fixture.destroy();
+    http.verify();
+  });
+
+  it('shows a safe retry state and issues a fresh request when retried', () => {
+    const fixture = TestBed.createComponent(PublicTournamentComponent);
+    const http = TestBed.inject(HttpTestingController);
     http
       .expectOne(`${API_BASE_URL}/public/tournaments/t-1`)
       .flush({ message: 'Not found' }, { status: 404, statusText: 'Not Found' });
@@ -106,6 +140,41 @@ describe('PublicTournamentComponent', () => {
     expect(fixture.componentInstance.loadError).toBeTrue();
     expect(fixture.componentInstance.tournament).toBeNull();
     expect(fixture.componentInstance.loading).toBeFalse();
+
+    fixture.componentInstance.refresh();
+    const retry = http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`);
+    retry.flush({
+      tournamentId: 't-1',
+      tournamentName: 'Recovered Cup',
+      format: 'T20',
+      overs: 20,
+      status: 'ACTIVE',
+      totalFixtures: 0,
+      completedFixtures: 0,
+      scheduledFixtures: 0,
+      liveFixtures: 0,
+      completionPercentage: 0,
+      pointsTable: [],
+      fixtures: [],
+    });
+
+    expect(fixture.componentInstance.tournament?.tournamentName).toBe('Recovered Cup');
+    expect(fixture.componentInstance.loadError).toBeFalse();
+    fixture.destroy();
+    http.verify();
+  });
+
+  it('shows an error state without calling the API when the route id is missing', () => {
+    const fixture = TestBed.createComponent(PublicTournamentComponent);
+    const http = TestBed.inject(HttpTestingController);
+
+    routeParams.next(convertToParamMap({}));
+
+    expect(fixture.componentInstance.tournamentId).toBe('');
+    expect(fixture.componentInstance.loadError).toBeTrue();
+    expect(fixture.componentInstance.loading).toBeFalse();
+    http.expectNone((request) => request.url.includes('/public/tournaments/'));
+    fixture.destroy();
     http.verify();
   });
 });
