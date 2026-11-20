@@ -14,8 +14,15 @@
     @if (message) {
       <div class="notice">{{ message }}</div>
     }
+    @if (conflictMessage) {
+      <div class="error schedule-conflict" role="alert">
+        <strong>Scheduling conflict</strong>
+        <span>{{ conflictMessage }}</span>
+        <small>Your selected date and time are preserved. Choose another time and try again.</small>
+      </div>
+    }
     @if (error) {
-      <div class="error">{{ error }}</div>
+      <div class="error" role="alert">{{ error }}</div>
     }
     <section class="card panel">
       <div class="head">
