@@ -10,7 +10,7 @@
     <section class="state-card error-state" role="alert">
       <h1>Tournament unavailable</h1>
       <p>This tournament may not exist or its public summary is temporarily unavailable.</p>
-      <button type="button" (click)="refresh()">Try again</button>
+      <button type="button" aria-label="Retry loading public tournament" (click)="refresh()">Try again</button>
     </section>
   } @else {
     <section class="hero">
