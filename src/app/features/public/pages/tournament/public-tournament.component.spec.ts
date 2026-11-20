@@ -167,9 +167,11 @@ describe('PublicTournamentComponent', () => {
   it('shows an error state without calling the API when the route id is missing', () => {
     const fixture = TestBed.createComponent(PublicTournamentComponent);
     const http = TestBed.inject(HttpTestingController);
+    const initialRequest = http.expectOne(`${API_BASE_URL}/public/tournaments/t-1`);
 
     routeParams.next(convertToParamMap({}));
 
+    expect(initialRequest.cancelled).toBeTrue();
     expect(fixture.componentInstance.tournamentId).toBe('');
     expect(fixture.componentInstance.loadError).toBeTrue();
     expect(fixture.componentInstance.loading).toBeFalse();
