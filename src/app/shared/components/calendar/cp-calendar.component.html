@@ -19,7 +19,9 @@
       [attr.aria-controls]="id + '-popup'"
       (click)="toggleCalendar()"
     >
-      <span [class.placeholder]="!displayValue">{{ displayValue || 'Select date' }}</span>
+      <span [class.placeholder]="!displayValue">
+        {{ displayValue || 'Select date' }}
+      </span>
       <svg viewBox="0 0 20 20" aria-hidden="true">
         <rect x="3" y="5" width="14" height="12" rx="2"></rect>
         <path d="M6 3v4M14 3v4M3 9h14"></path>
@@ -36,7 +38,11 @@
         <header class="calendar-header">
           <strong>{{ monthLabel }}</strong>
           <div class="month-actions">
-            <button type="button" aria-label="Previous month" (click)="previousMonth()">
+            <button
+              type="button"
+              aria-label="Previous month"
+              (click)="previousMonth()"
+            >
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <path d="m12 4-6 6 6 6"></path>
               </svg>
@@ -78,7 +84,13 @@
           >
             Clear
           </button>
-          <button type="button" class="text-action" (click)="selectToday()">Today</button>
+          <button
+            type="button"
+            class="text-action"
+            (click)="selectToday()"
+          >
+            Today
+          </button>
         </footer>
       </section>
     }
