@@ -1463,3 +1463,86 @@
     grid-column: auto;
   }
 }
+
+
+/* Final command-center header layout: title gets full width, actions sit directly below. */
+.tournament-page .back {
+  margin-bottom: 6px;
+}
+
+.tournament-page .hero {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 14px 0 14px;
+}
+
+.tournament-page .hero-main {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+}
+
+.tournament-page .hero-main > div:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tournament-page .hero h1 {
+  width: 100%;
+  max-width: none;
+  margin: 6px 0 5px;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1.04;
+  letter-spacing: -1.8px;
+  overflow-wrap: anywhere;
+}
+
+.tournament-page .hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 7px;
+}
+
+@media (max-width: 620px) {
+  .tournament-page .hero {
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .tournament-page .hero-main {
+    align-items: flex-start;
+    gap: 11px;
+  }
+
+  .tournament-page .hero h1 {
+    font-size: clamp(27px, 7vw, 34px);
+    letter-spacing: -1.2px;
+  }
+
+  .tournament-page .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .tournament-page .hero-actions .primary-cta {
+    width: auto;
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament-page .hero,
+  .tournament-page .hero-actions {
+    animation: none;
+  }
+}
