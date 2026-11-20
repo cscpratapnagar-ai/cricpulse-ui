@@ -92,25 +92,23 @@
               </small>
             }
           </label>
-          <label class="edit-field">
-            <span>Match format</span>
-            <select
+          <div class="edit-field edit-format-field">
+            <app-select-field
+              class="edit-format-select"
+              label="Match format"
               name="editFormat"
-              [(ngModel)]="editDraft.format"
-              [attr.aria-invalid]="!!editErrors['format']"
-              [attr.aria-describedby]="editErrors['format'] ? 'edit-format-error' : null"
-            >
-              <option value="T10">T10 · 10 overs</option>
-              <option value="T20">T20 · 20 overs</option>
-              <option value="ODI">ODI · 50 overs</option>
-              <option value="TEST">Test</option>
-            </select>
+              placeholder="Choose format"
+              [compact]="true"
+              [options]="editFormatOptions"
+              [value]="editDraft.format"
+              (valueChange)="editDraft.format = $event"
+            />
             @if (editErrors['format']) {
               <small id="edit-format-error" class="field-error" role="alert">
                 {{ editErrors['format'] }}
               </small>
             }
-          </label>
+          </div>
           <label class="edit-field">
             <span>Overs per innings</span>
             <input
