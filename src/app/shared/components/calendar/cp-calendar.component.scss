@@ -78,12 +78,10 @@
   color: var(--cp-accent);
 }
 .calendar-popover {
-  position: fixed;
-  z-index: 10000;
-  top: 0;
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 7px);
   left: 0;
-  max-height: min(360px, calc(100vh - 24px));
-  overflow-y: auto;
   width: min(248px, calc(100vw - 32px));
   padding: 12px;
   border: 1px solid var(--cp-border);
