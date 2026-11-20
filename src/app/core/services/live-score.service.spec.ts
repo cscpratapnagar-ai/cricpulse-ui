@@ -215,9 +215,11 @@ describe('shouldAcceptLiveScoreSnapshot', () => {
     expect(shouldAcceptLiveScoreSnapshot(8, 7)).toBe(true);
   });
 
-  it('accepts snapshots without a usable version for backward compatibility', () => {
-    expect(shouldAcceptLiveScoreSnapshot(undefined, 7)).toBe(true);
-    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 7)).toBe(true);
+  it('accepts unversioned snapshots only before a versioned live event exists', () => {
+    expect(shouldAcceptLiveScoreSnapshot(undefined, 0)).toBe(true);
+    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 0)).toBe(true);
+    expect(shouldAcceptLiveScoreSnapshot(undefined, 7)).toBe(false);
+    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 7)).toBe(false);
   });
 });
 
