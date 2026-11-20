@@ -11,6 +11,12 @@ interface Tournament {
   format: string;
   overs: number;
 }
+interface GenerateFixturesResponse {
+  generated: number;
+  skipped: number;
+  totalPairs: number;
+  fixtures: Fixture[];
+}
 interface Fixture {
   matchId: string;
   fixtureNumber: number | null;
@@ -39,6 +45,8 @@ export class TournamentScheduleComponent {
   message = '';
   error = '';
   conflictMessage = '';
+  generateMode: 'SINGLE_ROUND_ROBIN' | 'DOUBLE_ROUND_ROBIN' = 'SINGLE_ROUND_ROBIN';
+  generateBusy = false;
   t: Tournament | null = null;
   fixtures: Fixture[] = [];
   draft: Record<string, string> = {};
@@ -69,6 +77,40 @@ export class TournamentScheduleComponent {
         this.loading = false;
       },
     });
+  }
+  generateFixtures() {
+    if (this.generateBusy || !this.t) return;
+    this.generateBusy = true;
+    this.message = '';
+    this.error = '';
+    this.conflictMessage = '';
+    this.http
+      .post<GenerateFixturesResponse>(
+        this.api + '/tournaments/' + this.id + '/fixtures/generate?mode=' + this.generateMode,
+        null,
+      )
+      .subscribe({
+        next: (response) => {
+          this.fixtures = response.fixtures || [];
+          for (const fixture of this.fixtures) {
+            if (fixture.scheduledAt && !this.draft[fixture.matchId]) {
+              this.draft[fixture.matchId] = this.toInput(fixture.scheduledAt);
+            }
+          }
+          this.generateBusy = false;
+          this.message =
+            response.generated +
+            ' fixture(s) generated; ' +
+            response.skipped +
+            ' existing fixture(s) skipped. Total expected: ' +
+            response.totalPairs +
+            '.';
+        },
+        error: (e) => {
+          this.generateBusy = false;
+          this.error = e?.error?.message || 'Unable to generate tournament fixtures.';
+        },
+      });
   }
   save(f: Fixture) {
     this.busy = f.matchId;

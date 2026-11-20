@@ -11,6 +11,44 @@
       </div>
       <span class="badge">SCHEDULE</span>
     </header>
+    <section class="card panel fixture-generation">
+      <div class="head">
+        <div>
+          <span class="eyebrow">FIXTURE ENGINE</span>
+          <h2>Generate league fixtures</h2>
+          <p>Choose how many times every team should face each other.</p>
+        </div>
+        <label class="generation-mode">
+          <span>Format</span>
+          <select
+            [value]="generateMode"
+            (change)="generateMode = $any($event.target).value"
+            [disabled]="generateBusy"
+          >
+            <option value="SINGLE_ROUND_ROBIN">Single round robin · one meeting</option>
+            <option value="DOUBLE_ROUND_ROBIN">Double round robin · home & away</option>
+          </select>
+        </label>
+      </div>
+      <div class="generation-action">
+        <p>
+          {{
+            generateMode === 'DOUBLE_ROUND_ROBIN'
+              ? 'Each pair of teams plays twice, with home and away order reversed.'
+              : 'Each pair of teams plays once.'
+          }}
+          Existing league fixtures are preserved; already-covered pairings are skipped.
+        </p>
+        <button
+          class="primary"
+          type="button"
+          [disabled]="generateBusy"
+          (click)="generateFixtures()"
+        >
+          {{ generateBusy ? 'Generating…' : 'Generate fixtures' }}
+        </button>
+      </div>
+    </section>
     @if (message) {
       <div class="notice">{{ message }}</div>
     }
