@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { SelectFieldComponent, SelectOption } from '../../../../ui/select-field.component';
+import { CpCalendarComponent } from '../../../../shared/cp-calendar.component';
 import { API_BASE_URL } from '../../../../core/config/api.config';
 interface Tournament {
   id: string;
@@ -94,7 +95,7 @@ interface GenerateResponse {
 @Component({
   selector: 'app-tournament-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, SelectFieldComponent],
+  imports: [CommonModule, RouterLink, FormsModule, SelectFieldComponent, CpCalendarComponent],
   templateUrl: './tournament-detail.component.html',
   styleUrl: './tournament-detail.component.premium.scss',
 })
