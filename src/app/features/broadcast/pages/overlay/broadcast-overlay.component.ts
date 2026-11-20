@@ -426,6 +426,17 @@ export class BroadcastOverlayComponent implements OnDestroy {
   }
 
   onScore(score: LiveScore) {
+    const previous = this.previousScore;
+    if (
+      previous?.inningsId === score.inningsId &&
+      typeof previous.eventVersion === 'number' &&
+      typeof score.eventVersion === 'number' &&
+      score.eventVersion <= previous.eventVersion
+    ) {
+      // Polling, local relay and WebSocket updates can race. Never let an older
+      // authoritative version replace the baseline used for overlay events.
+      return;
+    }
     if (this.mode !== 'auto') {
       this.previousScore = score;
       return;
