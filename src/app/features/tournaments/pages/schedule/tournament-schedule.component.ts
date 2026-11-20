@@ -38,6 +38,7 @@ export class TournamentScheduleComponent {
   busy = '';
   message = '';
   error = '';
+  conflictMessage = '';
   t: Tournament | null = null;
   fixtures: Fixture[] = [];
   draft: Record<string, string> = {};
@@ -73,6 +74,7 @@ export class TournamentScheduleComponent {
     this.busy = f.matchId;
     this.message = '';
     this.error = '';
+    this.conflictMessage = '';
     this.http
       .post<Fixture>(
         this.api + '/tournaments/' + this.id + '/fixtures/' + f.matchId + '/schedule',
@@ -86,7 +88,14 @@ export class TournamentScheduleComponent {
         },
         error: (e) => {
           this.busy = '';
-          this.error = e?.error?.message || 'Unable to schedule fixture.';
+          const reason = e?.error?.message || 'Unable to schedule fixture.';
+          if (e?.status === 409) {
+            this.conflictMessage = reason;
+            this.error = '';
+          } else {
+            this.error = reason;
+            this.conflictMessage = '';
+          }
         },
       });
   }
