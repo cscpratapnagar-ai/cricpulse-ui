@@ -308,6 +308,57 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(graphic.getAttribute('aria-label')).toContain('FOUR');
   }));
 
+  it('ignores stale score versions without regressing the event baseline', fakeAsync(() => {
+    const component = createOverlay();
+    component.onScore({ ...score, eventVersion: 5, runs: 20, wickets: 0 });
+    component.autoEvent = null;
+    component.onScore({
+      ...score,
+      eventVersion: 4,
+      runs: 20,
+      wickets: 1,
+      recentBalls: [
+        {
+          deliveryId: 'stale-wicket',
+          overNumber: 2,
+          ballNumber: 3,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 0,
+          extraRuns: 0,
+          wicketType: 'BOWLED',
+          legalDelivery: true,
+          totalRuns: 0,
+        },
+      ],
+    });
+    component.onScore({
+      ...score,
+      eventVersion: 6,
+      runs: 21,
+      wickets: 0,
+      legalBalls: 9,
+      recentBalls: [
+        {
+          deliveryId: 'current-single',
+          overNumber: 2,
+          ballNumber: 4,
+          strikerId: 'batter-1',
+          nonStrikerId: 'batter-2',
+          bowlerId: 'bowler-1',
+          batRuns: 1,
+          extraRuns: 0,
+          legalDelivery: true,
+          totalRuns: 1,
+        },
+      ],
+    });
+    flushMicrotasks();
+
+    expect(component.autoEvent).toBeNull();
+  }));
+
   it('detects a SIX event from the live score feed', fakeAsync(() => {
     const component = createOverlay();
     component.onScore({
