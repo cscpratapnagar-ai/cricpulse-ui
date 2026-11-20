@@ -2,10 +2,11 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
+import { API_BASE_URL } from '../../../../core/config/api.config';
 import { TournamentQualificationComponent } from './tournament-qualification.component';
 
 describe('TournamentQualificationComponent', () => {
-  const api = 'http://api.test/api';
+  const api = API_BASE_URL;
   const tournamentId = 't-1';
   const preview = {
     eligible: true,
@@ -96,7 +97,7 @@ describe('TournamentQualificationComponent', () => {
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => tournamentId } } },
+          useValue: { snapshot: { paramMap: { get: () => '' } } },
         },
       ],
     });
@@ -105,6 +106,7 @@ describe('TournamentQualificationComponent', () => {
   function createComponent() {
     const component = TestBed.runInInjectionContext(() => new TournamentQualificationComponent());
     const http = TestBed.inject(HttpTestingController);
+    component.id = tournamentId;
     component.loading = false;
     return { component, http };
   }
