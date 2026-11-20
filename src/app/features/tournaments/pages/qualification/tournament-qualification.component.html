@@ -117,6 +117,9 @@
                 <span>ADVANCES</span><strong>{{ winnerName(stage.key) }}</strong>
               </div>
             }
+            @if (resultSummary(stage.key); as summary) {
+              <p class="result-summary" aria-label="Official match result">{{ summary }}</p>
+            }
             @if (fixtureRoute(stage.key); as route) {
               <a class="match-link" [routerLink]="route">Open match centre <span>↗</span></a>
             } @else {
