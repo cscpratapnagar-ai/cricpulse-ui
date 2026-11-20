@@ -245,6 +245,7 @@ describe('TournamentQualificationComponent', () => {
       .flush({ winningTeamId: 't2', resultText: 'Won in Super Over' });
     expect(component.winnerName('FINAL')).toBe('Riders');
     expect(component.championName).toBe('Riders');
+    expect(component.resultSummary('FINAL')).toBe('Won in Super Over');
   });
 
   it('does not crown a champion without an authoritative winner id', () => {
