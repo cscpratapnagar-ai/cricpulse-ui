@@ -139,6 +139,8 @@
                   class="status"
                   [class.live]="isActive(t.status)"
                   [class.done]="isCompleted(t.status)"
+                  [class.draft]="isDraft(t.status)"
+                  [class.cancelled]="isCancelled(t.status)"
                   ><i></i>{{ statusLabel(t.status) }}</span
                 >
               </div>
