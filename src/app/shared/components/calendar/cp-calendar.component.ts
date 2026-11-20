@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 interface CalendarDay {
   date: Date;
@@ -76,8 +69,7 @@ export class CpCalendarComponent {
         iso,
         day: date.getDate(),
         inMonth: date.getMonth() === this.visibleMonth.getMonth(),
-        disabled:
-          (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
+        disabled: (!!this.min && iso < this.min) || (!!this.max && iso > this.max),
         today: iso === today,
         selected: iso === selected,
       };
@@ -88,9 +80,7 @@ export class CpCalendarComponent {
     if (this.disabled) return;
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
-      this.visibleMonth = this.startOfMonth(
-        this.parseDate(this.value) ?? new Date(),
-      );
+      this.visibleMonth = this.startOfMonth(this.parseDate(this.value) ?? new Date());
       requestAnimationFrame(() => this.positionPopover());
     }
   }
@@ -104,27 +94,18 @@ export class CpCalendarComponent {
   }
 
   private positionPopover(): void {
-    const trigger = this.elementRef.nativeElement.querySelector(
-      '.calendar-trigger',
-    );
-    const popover = this.elementRef.nativeElement.querySelector(
-      '.calendar-popover',
-    );
+    const trigger = this.elementRef.nativeElement.querySelector('.calendar-trigger');
+    const popover = this.elementRef.nativeElement.querySelector('.calendar-popover');
     if (!trigger || !popover) return;
 
     const triggerRect = trigger.getBoundingClientRect();
     const popoverRect = popover.getBoundingClientRect();
     const viewportPadding = 12;
     const gap = 7;
-    const spaceBelow =
-      window.innerHeight - triggerRect.bottom - viewportPadding;
+    const spaceBelow = window.innerHeight - triggerRect.bottom - viewportPadding;
     const spaceAbove = triggerRect.top - viewportPadding;
-    const openBelow =
-      spaceBelow >= popoverRect.height + gap || spaceBelow >= spaceAbove;
-    const availableHeight = Math.max(
-      180,
-      (openBelow ? spaceBelow : spaceAbove) - gap,
-    );
+    const openBelow = spaceBelow >= popoverRect.height + gap || spaceBelow >= spaceAbove;
+    const availableHeight = Math.max(180, (openBelow ? spaceBelow : spaceAbove) - gap);
     const top = openBelow
       ? triggerRect.bottom + gap
       : Math.max(
@@ -178,10 +159,7 @@ export class CpCalendarComponent {
 
   @HostListener('document:click', ['$event'])
   closeOnOutsideClick(event: MouseEvent): void {
-    if (
-      this.isOpen &&
-      !this.elementRef.nativeElement.contains(event.target as Node)
-    ) {
+    if (this.isOpen && !this.elementRef.nativeElement.contains(event.target as Node)) {
       this.isOpen = false;
     }
   }
