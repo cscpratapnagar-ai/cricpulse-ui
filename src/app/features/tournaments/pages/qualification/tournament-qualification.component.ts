@@ -222,7 +222,8 @@ export class TournamentQualificationComponent {
 
   resultSummary(stage: PlayoffStage): string {
     const fixture = this.fixtureFor(stage);
-    return fixture ? this.resultTextByMatch[fixture.matchId] ?? '' : '';
+    if (!fixture) return '';
+    return this.resultTextByMatch[fixture.matchId] ?? '';
   }
 
   fixtureStatus(stage: PlayoffStage): string {
@@ -251,7 +252,10 @@ export class TournamentQualificationComponent {
             };
           }
           if (result?.winningTeamId) {
-            this.winnerByMatch = { ...this.winnerByMatch, [fixture.matchId]: result.winningTeamId };
+            this.winnerByMatch = {
+              ...this.winnerByMatch,
+              [fixture.matchId]: result.winningTeamId,
+            };
           }
         },
       });
