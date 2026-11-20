@@ -169,7 +169,10 @@ export class CpCalendarComponent {
 
   @HostListener('document:click', ['$event'])
   closeOnOutsideClick(event: MouseEvent): void {
-    if (this.isOpen && !this.elementRef.nativeElement.contains(event.target as Node)) {
+    if (
+      this.isOpen &&
+      !this.elementRef.nativeElement.contains(event.target as Node)
+    ) {
       this.isOpen = false;
     }
   }
