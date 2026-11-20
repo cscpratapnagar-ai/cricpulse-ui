@@ -7,6 +7,7 @@
       [disabled]="disabled"
       [class.disabled]="disabled"
       [class.open]="open"
+      [class.compact]="compact"
       (click)="toggle()"
     >
       <span [class.muted]="!selectedOption">{{ selectedOption?.label || placeholder }}</span

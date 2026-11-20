@@ -111,6 +111,12 @@ export class TournamentDetailComponent {
   statusChanging = false;
   editErrors: Record<string, string> = {};
   editDraft = { name: '', format: 'T20', overs: 20, location: '', startDate: '' };
+  readonly editFormatOptions: SelectOption[] = [
+    { value: 'T10', label: 'T10 · 10 overs' },
+    { value: 'T20', label: 'T20 · 20 overs' },
+    { value: 'ODI', label: 'ODI · 50 overs' },
+    { value: 'TEST', label: 'Test' },
+  ];
   actionError = '';
   actionMessage = '';
   activeTab = signal<'overview' | 'operations' | 'teams' | 'fixtures' | 'standings' | 'analytics'>(
