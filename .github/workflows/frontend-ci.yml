@@ -9,6 +9,7 @@ on:
       - ui
       - 'feature/**'
       - 'refactor/**'
+      - 'test/tournament-playoff-lifecycle-e2e'
   pull_request:
     branches:
       - main
