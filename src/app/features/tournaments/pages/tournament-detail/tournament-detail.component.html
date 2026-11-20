@@ -66,81 +66,73 @@
     @if (editing) {
       <section class="tournament-edit-panel" aria-labelledby="edit-tournament-title">
         <div class="edit-panel-heading">
-          <div>
+          <div class="edit-heading-copy">
             <span class="eyebrow">DRAFT SETTINGS</span>
             <h2 id="edit-tournament-title">Edit tournament details</h2>
-            <p>Changes are saved to your tournament and remain available after refresh.</p>
+            <p>Update the essentials before activating your tournament.</p>
           </div>
-          <span class="edit-status">Draft only</span>
+          <span class="edit-status"><span aria-hidden="true">●</span> Draft only</span>
         </div>
-        <form class="edit-grid" (ngSubmit)="saveEdit()">
-          <label class="edit-field"
-            ><span>Tournament name</span>
-            <input
-              name="editName"
-              [(ngModel)]="editDraft.name"
-              maxlength="90"
-              required
+        <form class="edit-grid" (ngSubmit)="saveEdit()" novalidate>
+          <label class="edit-field edit-name">
+            <span>Tournament name</span>
+            <input name="editName" [(ngModel)]="editDraft.name" maxlength="90" required
+              autocomplete="organization" placeholder="e.g. Pratapnagar Premier League"
               [attr.aria-invalid]="!!editErrors['name']"
-            />
+              [attr.aria-describedby]="editErrors['name'] ? 'edit-name-error' : null" />
             @if (editErrors['name']) {
-              <small role="alert">{{ editErrors['name'] }}</small>
+              <small id="edit-name-error" class="field-error" role="alert">{{ editErrors['name'] }}</small>
             }
           </label>
-          <label class="edit-field"
-            ><span>Format</span>
-            <select name="editFormat" [(ngModel)]="editDraft.format">
-              <option value="T10">T10</option>
-              <option value="T20">T20</option>
-              <option value="ODI">ODI</option>
+          <label class="edit-field">
+            <span>Match format</span>
+            <select name="editFormat" [(ngModel)]="editDraft.format"
+              [attr.aria-invalid]="!!editErrors['format']"
+              [attr.aria-describedby]="editErrors['format'] ? 'edit-format-error' : null">
+              <option value="T10">T10 · 10 overs</option>
+              <option value="T20">T20 · 20 overs</option>
+              <option value="ODI">ODI · 50 overs</option>
               <option value="TEST">Test</option>
             </select>
             @if (editErrors['format']) {
-              <small role="alert">{{ editErrors['format'] }}</small>
+              <small id="edit-format-error" class="field-error" role="alert">{{ editErrors['format'] }}</small>
             }
           </label>
-          <label class="edit-field"
-            ><span>Overs</span>
-            <input
-              name="editOvers"
-              type="number"
-              min="1"
-              max="100"
-              step="1"
-              [(ngModel)]="editDraft.overs"
-              required
+          <label class="edit-field">
+            <span>Overs per innings</span>
+            <input name="editOvers" type="number" min="1" max="100" step="1" inputmode="numeric"
+              [(ngModel)]="editDraft.overs" required
               [attr.aria-invalid]="!!editErrors['overs']"
-            />
+              [attr.aria-describedby]="editErrors['overs'] ? 'edit-overs-error' : null" />
             @if (editErrors['overs']) {
-              <small role="alert">{{ editErrors['overs'] }}</small>
+              <small id="edit-overs-error" class="field-error" role="alert">{{ editErrors['overs'] }}</small>
             }
           </label>
-          <label class="edit-field"
-            ><span>Start date</span>
-            <input name="editStartDate" type="date" [(ngModel)]="editDraft.startDate" />
+          <div class="edit-field edit-date-field">
+            <cp-calendar label="Start date" name="editStartDate" [value]="editDraft.startDate"
+              (valueChange)="editDraft.startDate = $event" />
             @if (editErrors['startDate']) {
-              <small role="alert">{{ editErrors['startDate'] }}</small>
+              <small class="field-error" role="alert">{{ editErrors['startDate'] }}</small>
             }
-          </label>
-          <label class="edit-field edit-location"
-            ><span>Location</span>
-            <input
-              name="editLocation"
-              [(ngModel)]="editDraft.location"
-              maxlength="120"
-              placeholder="Ground or city"
-            />
+          </div>
+          <label class="edit-field edit-location">
+            <span>Venue / location</span>
+            <input name="editLocation" [(ngModel)]="editDraft.location" maxlength="120"
+              autocomplete="address-level2" placeholder="Ground, city or venue"
+              [attr.aria-invalid]="!!editErrors['location']"
+              [attr.aria-describedby]="editErrors['location'] ? 'edit-location-error' : null" />
             @if (editErrors['location']) {
-              <small role="alert">{{ editErrors['location'] }}</small>
+              <small id="edit-location-error" class="field-error" role="alert">{{ editErrors['location'] }}</small>
             }
           </label>
           <div class="edit-actions">
-            <button type="button" class="ghost-btn" [disabled]="savingEdit" (click)="cancelEdit()">
-              Cancel
-            </button>
-            <button type="submit" class="primary-cta" [disabled]="savingEdit">
-              {{ savingEdit ? 'Saving changes…' : 'Save changes' }} <span>→</span>
-            </button>
+            <span class="edit-helper">Changes are saved to this draft.</span>
+            <div class="edit-action-buttons">
+              <button type="button" class="ghost-btn" [disabled]="savingEdit" (click)="cancelEdit()">Cancel</button>
+              <button type="submit" class="primary-cta" [disabled]="savingEdit">
+                {{ savingEdit ? 'Saving…' : 'Save changes' }} <span aria-hidden="true">→</span>
+              </button>
+            </div>
           </div>
         </form>
       </section>
