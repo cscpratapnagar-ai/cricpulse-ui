@@ -311,6 +311,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('ignores stale score versions without regressing the event baseline', fakeAsync(() => {
     const component = createOverlay();
     component.onScore({ ...score, eventVersion: 5, runs: 20, wickets: 0 });
+    component.autoEvent = null;
     component.onScore({
       ...score,
       eventVersion: 4,
