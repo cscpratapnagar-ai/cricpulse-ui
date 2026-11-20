@@ -565,7 +565,7 @@ export class TournamentDetailComponent {
       errors['location'] = 'Location cannot exceed 120 characters.';
     }
     if (this.editDraft.startDate) {
-      const match = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(this.editDraft.startDate);
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(this.editDraft.startDate);
       if (!match) errors['startDate'] = 'Choose a valid start date.';
       else {
         const [, year, month, day] = match.map(Number);
