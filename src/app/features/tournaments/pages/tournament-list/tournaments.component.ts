@@ -41,9 +41,11 @@ export class TournamentsComponent {
   readonly skeletonItems = [1, 2, 3, 4, 5, 6];
   statusOptions: CpDropdownOption[] = [
     { value: 'ALL', label: 'All statuses' },
+    { value: 'DRAFT', label: 'Draft' },
     { value: 'UPCOMING', label: 'Upcoming' },
     { value: 'ACTIVE', label: 'Active' },
     { value: 'COMPLETED', label: 'Completed' },
+    { value: 'CANCELLED', label: 'Cancelled' },
   ];
   sortOptions: CpDropdownOption[] = [
     { value: 'newest', label: 'Newest first' },
@@ -83,6 +85,12 @@ export class TournamentsComponent {
   get completedCount() {
     return this.tournaments.filter((t) => this.statusKey(t.status) === 'COMPLETED').length;
   }
+  get draftCount() {
+    return this.tournaments.filter((t) => this.statusKey(t.status) === 'DRAFT').length;
+  }
+  get cancelledCount() {
+    return this.tournaments.filter((t) => this.statusKey(t.status) === 'CANCELLED').length;
+  }
   get formatCount() {
     return new Set(this.tournaments.map((t) => t.format).filter(Boolean)).size;
   }
@@ -104,6 +112,12 @@ export class TournamentsComponent {
   isCompleted(status: string) {
     return this.statusKey(status) === 'COMPLETED';
   }
+  isDraft(status: string) {
+    return this.statusKey(status) === 'DRAFT';
+  }
+  isCancelled(status: string) {
+    return this.statusKey(status) === 'CANCELLED';
+  }
   statusLabel(status: string) {
     const key = this.statusKey(status);
     return key.charAt(0) + key.slice(1).toLowerCase();
@@ -119,19 +133,26 @@ export class TournamentsComponent {
     const key = this.statusKey(t.status);
     if (key === 'COMPLETED') return 100;
     if (key === 'ACTIVE') return 62;
-    return 18;
+    if (key === 'UPCOMING') return 18;
+    return 0;
   }
   progressLabel(t: Tournament) {
     const key = this.statusKey(t.status);
     if (key === 'COMPLETED') return 'Competition completed';
     if (key === 'ACTIVE') return 'Fixtures in progress';
-    return 'Setup and registration phase';
+    if (key === 'UPCOMING') return 'Setup and registration phase';
+    if (key === 'DRAFT') return 'Draft · not yet published';
+    if (key === 'CANCELLED') return 'Competition cancelled';
+    return 'Status needs review';
   }
   private statusKey(status: string) {
     const value = (status || 'UPCOMING').trim().toUpperCase();
     if (['LIVE', 'IN_PROGRESS', 'ONGOING', 'ACTIVE'].includes(value)) return 'ACTIVE';
     if (['FINISHED', 'COMPLETE', 'COMPLETED'].includes(value)) return 'COMPLETED';
-    return 'UPCOMING';
+    if (['CANCELLED', 'CANCELED'].includes(value)) return 'CANCELLED';
+    if (value === 'DRAFT') return 'DRAFT';
+    if (['UPCOMING', 'SCHEDULED', 'REGISTRATION'].includes(value)) return 'UPCOMING';
+    return value || 'UPCOMING';
   }
   @HostListener('document:keydown', ['$event'])
   onKeyboardShortcut(event: KeyboardEvent) {
