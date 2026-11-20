@@ -108,7 +108,7 @@ export class TournamentQualificationComponent {
   get leagueComplete(): boolean {
     return (
       this.leagueFixtures.length > 0 &&
-      this.leagueFixtures.every((fixture) => fixture.status === 'COMPLETED')
+      this.leagueFixtures.every((fixture) => this.normalizedStatus(fixture.status) === 'COMPLETED')
     );
   }
 
@@ -219,7 +219,8 @@ export class TournamentQualificationComponent {
   }
 
   fixtureStatus(stage: PlayoffStage): string {
-    return this.fixtureFor(stage)?.status ?? 'AWAITING QUALIFICATION';
+    const status = this.fixtureFor(stage)?.status;
+    return status ? this.normalizedStatus(status) : 'AWAITING QUALIFICATION';
   }
 
   fixtureRoute(stage: PlayoffStage): unknown[] | null {
@@ -232,7 +233,7 @@ export class TournamentQualificationComponent {
       (item) =>
         ['QUALIFIER_1', 'ELIMINATOR', 'QUALIFIER_2', 'FINAL'].includes(
           this.normalizedStage(item.stage),
-        ) && item.status === 'COMPLETED',
+        ) && this.normalizedStatus(item.status) === 'COMPLETED',
     )) {
       this.http.get<MatchResult>(`${this.api}/matches/${fixture.matchId}/result`).subscribe({
         next: (result) => {
@@ -246,5 +247,9 @@ export class TournamentQualificationComponent {
 
   private normalizedStage(stage: string): string {
     return stage.trim().toUpperCase();
+  }
+
+  private normalizedStatus(status: string): string {
+    return status.trim().toUpperCase();
   }
 }

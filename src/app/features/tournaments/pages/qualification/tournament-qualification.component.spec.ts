@@ -242,6 +242,35 @@ describe('TournamentQualificationComponent', () => {
     expect(component.winnerName('FINAL')).toBe('');
   });
 
+  it('normalizes lowercase league and playoff statuses from API responses', () => {
+    const { component, http } = createComponent();
+
+    component.load();
+    flushInitialLoad(http, [
+      fixture('league', 'l1', 'completed'),
+      fixture('LEAGUE', 'l2', 'Completed'),
+      fixture('final', 'f1', 'completed'),
+    ]);
+
+    expect(component.leagueComplete).toBeTrue();
+    expect(component.fixtureStatus('FINAL')).toBe('COMPLETED');
+    http.expectOne(`${api}/matches/f1/result`).flush({ winningTeamId: 't1' });
+    expect(component.winnerName('FINAL')).toBe('Titans');
+  });
+
+  it('does not display a completed-match winner outside the persisted fixture participants', () => {
+    const { component, http } = createComponent();
+
+    component.load();
+    flushInitialLoad(http, [fixture('FINAL', 'final-foreign-winner', 'COMPLETED')]);
+    http
+      .expectOne(`${api}/matches/final-foreign-winner/result`)
+      .flush({ winningTeamId: 'unrelated-team-id', resultText: 'Invalid result payload' });
+
+    expect(component.winnerName('FINAL')).toBe('');
+    expect(component.championName).toBe('');
+  });
+
   it('surfaces forbidden API responses without fabricating bracket fixtures', () => {
     const { component, http } = createComponent();
 
