@@ -78,9 +78,10 @@ describe('TournamentDetailComponent', () => {
     expect(component.editDraft).toEqual({
       name: 'Summer Cup', format: 'T20', overs: 20, location: 'Surat', startDate: '2026-12-01',
     });
+    component.cancelEdit();
     component.t.status = 'ACTIVE';
     component.beginEdit();
-    expect(component.editing).toBeTrue();
+    expect(component.editing).toBeFalse();
   });
 
   it('validates tournament edits before sending an API request', () => {
