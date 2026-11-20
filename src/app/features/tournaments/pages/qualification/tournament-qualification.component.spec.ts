@@ -70,6 +70,7 @@ describe('TournamentQualificationComponent', () => {
     status = 'SCHEDULED',
     teamAId = 't1',
     teamBId = 't2',
+    scheduledAt: string | null = null,
   ) {
     const names: Record<string, string> = {
       t1: 'Titans',
@@ -87,7 +88,7 @@ describe('TournamentQualificationComponent', () => {
       teamBId,
       teamBName: names[teamBId] ?? 'Team B',
       status,
-      scheduledAt: null,
+      scheduledAt,
     };
   }
 
@@ -176,10 +177,14 @@ describe('TournamentQualificationComponent', () => {
 
   it('retains backend scheduled timestamps for playoff stage cards', () => {
     const { component, http } = createComponent();
-    const qualifier = {
-      ...fixture('QUALIFIER_1', 'q1'),
-      scheduledAt: '2026-11-22T14:30:00+05:30',
-    };
+    const qualifier = fixture(
+      'QUALIFIER_1',
+      'q1',
+      'SCHEDULED',
+      't1',
+      't2',
+      '2026-11-22T14:30:00+05:30',
+    );
 
     component.load();
     flushInitialLoad(http, [qualifier]);
