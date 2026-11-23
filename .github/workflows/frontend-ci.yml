@@ -69,6 +69,8 @@ jobs:
         run: npm run test:inventory
       - name: Audit security and API boundaries
         run: npm run security:audit
+      - name: Audit production image provenance configuration
+        run: npm run release:provenance:audit
       - name: Audit feature integration boundaries
         run: npm run feature:audit
       - name: Execute Angular unit tests
