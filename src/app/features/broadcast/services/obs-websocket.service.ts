@@ -77,12 +77,11 @@ export class ObsWebSocketService {
           fail(new Error('OBS connection was superseded.'));
           return;
         }
-        const wasIdentified = this.identified;
         clearTimeout(handshakeTimeout);
         this.identified = false;
         this.rejectPending(new Error('OBS connection closed.'));
         this.socket = undefined;
-        if (wasIdentified && !this.manuallyDisconnected) {
+        if (!this.manuallyDisconnected && this.reconnectConfig) {
           this.connectionStateSubject.next('RECONNECTING');
           this.connectionLost$.next('OBS connection lost. Reconnecting automatically…');
           this.scheduleReconnect();
