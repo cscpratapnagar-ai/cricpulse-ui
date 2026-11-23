@@ -158,6 +158,29 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(graphic.style.getPropertyValue('--sponsor-duration')).toBe('15s');
   });
 
+  it('marks the feed stale when refresh fails after a match snapshot was loaded', () => {
+    const component = createOverlay();
+    expect(component.broadcastHealth).toBe('LIVE');
+
+    http.get.and.returnValue(throwError(() => ({ status: 503 })) as never);
+    (component as unknown as { refreshBroadcastState: () => void }).refreshBroadcastState();
+
+    expect(component.broadcastHealth).toBe('STALE');
+    expect(component.broadcastError).toContain('Unable to load');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.broadcast-health')?.textContent).toContain(
+      'STALE DATA',
+    );
+  });
+
+  it('marks the feed as unavailable when the initial broadcast request fails', () => {
+    http.get.and.returnValue(throwError(() => ({ status: 503 })) as never);
+    const component = createOverlay();
+
+    expect(component.broadcastHealth).toBe('ERROR');
+    expect(component.broadcastError).toContain('Unable to load');
+  });
+
   it('loads the public match state and renders a live transparent scorebug', () => {
     createOverlay();
 

@@ -42,6 +42,51 @@ describe('LiveScoreSocketService', () => {
     handler({ body: JSON.stringify(payload) } as IMessage);
   }
 
+  it('publishes the timestamp of the latest accepted score event', () => {
+    const handler = connect();
+    let lastMessageAt: Date | null = null;
+    service.lastMessageAt$.subscribe((value) => (lastMessageAt = value));
+
+    emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
+
+    expect(lastMessageAt).toEqual(jasmine.any(Date));
+  });
+
+  it('ignores stale events without refreshing the last-message timestamp', () => {
+    const handler = connect();
+    emit(handler, { inningsId: 'innings-a', eventVersion: 2, runs: 2 });
+    let lastMessageAt: Date | null = null;
+    service.lastMessageAt$.subscribe((value) => (lastMessageAt = value));
+    const acceptedAt = lastMessageAt;
+
+    emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
+
+    expect(lastMessageAt).toBe(acceptedAt);
+  });
+
+  it('reports websocket loss as reconnecting and resets attempts after reconnect', () => {
+    let state = '';
+    let attempts = 0;
+    service.state$.subscribe((value) => (state = value));
+    service.reconnectAttempts$.subscribe((value) => (attempts = value));
+    activateSpy.and.callFake(function (this: Client): void {
+      this.onWebSocketClose?.({} as CloseEvent);
+    });
+
+    service.connect('innings-a', onScore);
+
+    expect(state).toBe('RECONNECTING');
+    expect(attempts).toBe(1);
+
+    activateSpy.and.callFake(function (this: Client): void {
+      this.onConnect?.({} as IFrame);
+    });
+    service.connect('innings-a', onScore);
+
+    expect(state).toBe('CONNECTED');
+    expect(attempts).toBe(0);
+  });
+
   it('delivers only strictly newer authoritative versions', () => {
     const handler = connect();
 
