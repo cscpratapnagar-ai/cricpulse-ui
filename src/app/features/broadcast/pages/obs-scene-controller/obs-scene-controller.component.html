@@ -14,7 +14,12 @@
         <span class="eyebrow">OBS WEBSOCKET v5</span>
         <h2>Connection</h2>
       </div>
-      <span class="status" [class.connected]="connectionState === 'CONNECTED'" [class.reconnecting]="connectionState === 'RECONNECTING' || connectionState === 'CONNECTING'"
+      <span
+        class="status"
+        [class.connected]="connectionState === 'CONNECTED'"
+        [class.reconnecting]="
+          connectionState === 'RECONNECTING' || connectionState === 'CONNECTING'
+        "
         ><i></i>{{ connectionState }}</span
       >
     </div>
