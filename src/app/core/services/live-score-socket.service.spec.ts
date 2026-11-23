@@ -49,7 +49,7 @@ describe('LiveScoreSocketService', () => {
 
     emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 1 });
 
-    expect(lastMessageAt instanceof Date).toBeTrue();
+    expect(lastMessageAt).toEqual(jasmine.any(Date));
   });
 
   it('ignores stale events without refreshing the last-message timestamp', () => {
