@@ -15,6 +15,10 @@ mustInclude('sbom: true', 'SBOM generation is required');
 mustInclude('provenance: mode=max', 'BuildKit provenance is required');
 mustInclude('type=sha', 'immutable commit tags are required');
 mustInclude(
+  'IMAGE_NAME: cscpratapnagar-ai/cricpulse-ui',
+  'attestation subject must identify the frontend image',
+);
+mustInclude(
   'subject-digest: ${{ steps.build.outputs.digest }}',
   'attestation must bind to the pushed digest',
 );
