@@ -1,4 +1,14 @@
 <main class="broadcast-root">
+  @if (broadcastHealth !== 'LIVE') {
+    <div
+      class="broadcast-health"
+      [class]="'broadcast-health health-' + broadcastHealth.toLowerCase()"
+      role="status"
+      aria-live="polite"
+    >
+      <span></span>{{ broadcastHealthLabel }}
+    </div>
+  }
   @if (broadcastError && !match) {
     <div class="broadcast-status" role="status">{{ broadcastError }}</div>
   }
