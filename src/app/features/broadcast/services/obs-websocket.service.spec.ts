@@ -177,6 +177,29 @@ describe('ObsWebSocketService', () => {
     subscription.unsubscribe();
   });
 
+  it('enters reconnecting state and schedules automatic recovery after an unexpected close', async () => {
+    const states: string[] = [];
+    const messages: string[] = [];
+    const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
+    const lostSubscription = service.connectionLost$.subscribe((message) => messages.push(message));
+
+    await connectService();
+    expect(states[states.length - 1]).toBe('CONNECTED');
+
+    socket.close();
+
+    expect(states[states.length - 1]).toBe('RECONNECTING');
+    expect(messages.length).toBe(1);
+    const internals = service as unknown as { reconnectTimer?: ReturnType<typeof setTimeout> };
+    expect(internals.reconnectTimer).toBeDefined();
+
+    service.disconnect();
+    expect(states[states.length - 1]).toBe('DISCONNECTED');
+    expect(internals.reconnectTimer).toBeUndefined();
+    stateSubscription.unsubscribe();
+    lostSubscription.unsubscribe();
+  });
+
   it('rejects malformed scene-list responses instead of returning an empty list', async () => {
     const connecting = service.connect('ws://127.0.0.1:4455', '');
     socket.emit({ op: 0, d: { rpcVersion: 1 } });
