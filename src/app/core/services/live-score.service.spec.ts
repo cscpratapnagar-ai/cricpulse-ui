@@ -135,6 +135,74 @@ describe('LiveScoreService', () => {
     watcher.unsubscribe();
   });
 
+  it('keeps two independent live viewers synchronized on the same authoritative event stream', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    const subscribeSpy = spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'multi-viewer-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const viewerOne: number[] = [];
+    const viewerTwo: number[] = [];
+    const first = service.watch('innings-shared').subscribe((score) => viewerOne.push(score.runs));
+    const second = service.watch('innings-shared').subscribe((score) => viewerTwo.push(score.runs));
+
+    const snapshots = httpMock.match((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-shared'),
+    );
+    expect(snapshots.length).toBe(4);
+    for (const snapshot of snapshots) {
+      snapshot.flush({
+        inningsId: 'innings-shared',
+        matchId: 'match-1',
+        inningsNumber: 1,
+        runs: 10,
+        wickets: 0,
+        legalBalls: 5,
+        eventVersion: 20,
+      });
+    }
+
+    const subscriptions = subscribeSpy.calls.allArgs();
+    expect(subscriptions.length).toBe(2);
+    for (const args of subscriptions) {
+      const onMessage = args[1] as (message: { body: string }) => void;
+      onMessage({
+        body: JSON.stringify({
+          inningsId: 'innings-shared',
+          matchId: 'match-1',
+          inningsNumber: 1,
+          runs: 14,
+          wickets: 0,
+          legalBalls: 6,
+          eventVersion: 21,
+        }),
+      });
+      onMessage({
+        body: JSON.stringify({
+          inningsId: 'innings-shared',
+          matchId: 'match-1',
+          inningsNumber: 1,
+          runs: 999,
+          wickets: 0,
+          legalBalls: 7,
+          eventVersion: 19,
+        }),
+      });
+    }
+
+    expect(viewerOne[viewerOne.length - 1]).toBe(14);
+    expect(viewerTwo[viewerTwo.length - 1]).toBe(14);
+    expect(viewerOne).not.toContain(999);
+    expect(viewerTwo).not.toContain(999);
+
+    first.unsubscribe();
+    second.unsubscribe();
+  });
+
   it('publishes connection and reconnect lifecycle without ending the score watcher', () => {
     const activateSpy = Client.prototype.activate as jasmine.Spy;
     let activeClient: Client | undefined;
