@@ -1,13 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { strict as assert } from 'node:assert';
 
-const workflow = readFileSync(
-  '.github/workflows/publish-production-container.yml',
-  'utf8',
-);
+const workflow = readFileSync('.github/workflows/publish-production-container.yml', 'utf8');
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
-const mustInclude = (value, message) =>
-  assert.ok(workflow.includes(value), message);
+const mustInclude = (value, message) => assert.ok(workflow.includes(value), message);
 
 mustInclude('contents: read', 'source access must be read-only');
 mustInclude('packages: write', 'GHCR publishing permission is required');
@@ -22,10 +18,7 @@ mustInclude(
   'subject-digest: ${{ steps.build.outputs.digest }}',
   'attestation must bind to the pushed digest',
 );
-mustInclude(
-  'actions/attest-build-provenance@v2',
-  'signed GitHub provenance is required',
-);
+mustInclude('actions/attest-build-provenance@v2', 'signed GitHub provenance is required');
 mustInclude('push-to-registry: true', 'attestation must be published');
 assert.ok(!workflow.includes('load: true'), 'local-only builds are forbidden');
 assert.equal(
