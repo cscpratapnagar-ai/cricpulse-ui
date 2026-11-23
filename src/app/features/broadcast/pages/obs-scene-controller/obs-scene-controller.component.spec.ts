@@ -218,9 +218,7 @@ describe('ObsSceneControllerComponent', () => {
     component.automationReturnScene = 'Camera';
     component.automationReturnDelay = 10;
     component.saveAutomationRules();
-    const saved = JSON.parse(
-      localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}',
-    );
+    const saved = JSON.parse(localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}');
     expect(saved.automationEnabled).toBeFalse();
     expect(saved.automationReturnScene).toBe('Camera');
     expect(saved.automationReturnDelay).toBe(10);
@@ -239,9 +237,7 @@ describe('ObsSceneControllerComponent', () => {
     );
     component.saveAutomationRules();
     const saved = JSON.parse(localStorage.getItem('cricpulse.obs-scene-presets.match-123') || '{}');
-    const wicket = saved.automationRules.find(
-      (rule: { event: string }) => rule.event === 'WICKET',
-    );
+    const wicket = saved.automationRules.find((rule: { event: string }) => rule.event === 'WICKET');
     expect(wicket.enabled).toBeFalse();
     expect(wicket.priority).toBe(95);
     expect(wicket.cooldownSeconds).toBe(30);
@@ -377,9 +373,7 @@ describe('ObsSceneControllerComponent', () => {
       wickets: 1,
       legalBalls: 6,
       eventVersion: 2,
-      recentBalls: [
-        { deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' },
-      ],
+      recentBalls: [{ deliveryId: 'd-6', totalRuns: 0, legalDelivery: true, wicketType: 'bowled' }],
     });
     await Promise.resolve();
     expect(obs.switchScene).toHaveBeenCalledOnceWith('Wicket');
