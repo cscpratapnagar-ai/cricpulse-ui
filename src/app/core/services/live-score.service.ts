@@ -125,7 +125,8 @@ export function shouldAcceptLiveScoreSnapshot(
   version: number | undefined,
   lastEventVersion: number,
 ): boolean {
-  return typeof version !== 'number' || !Number.isFinite(version) || version >= lastEventVersion;
+  if (typeof version !== 'number' || !Number.isFinite(version)) return lastEventVersion === 0;
+  return version >= lastEventVersion;
 }
 
 export type LiveScoreFrameDecision = 'accept' | 'ignore' | 'reconcile';
@@ -184,6 +185,10 @@ export class LiveScoreService {
         if (typeof version === 'number' && Number.isFinite(version)) {
           if (version < lastEventVersion) return;
           lastEventVersion = Math.max(lastEventVersion, version);
+        } else if (lastEventVersion > 0) {
+          // A late legacy snapshot without a revision cannot safely replace
+          // a versioned WebSocket state already accepted by this watcher.
+          return;
         }
         subscriber.next(score);
       };

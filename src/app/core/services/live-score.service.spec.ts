@@ -69,6 +69,72 @@ describe('LiveScoreService', () => {
     expect(requests[1].cancelled).toBeTrue();
   });
 
+  it('uses the versioned REST recovery snapshot to reject stale WebSocket frames', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    const subscribeSpy = spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'versioned-recovery-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const receivedRuns: number[] = [];
+    const watcher = service.watch('innings-recovery').subscribe((snapshot) => {
+      receivedRuns.push(snapshot.runs);
+    });
+    const snapshots = httpMock.match((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-recovery'),
+    );
+
+    expect(snapshots.length).toBe(2);
+    snapshots[0].flush({
+      inningsId: 'innings-recovery',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 12,
+      wickets: 0,
+      legalBalls: 8,
+      eventVersion: 7,
+    });
+    snapshots[1].flush({
+      inningsId: 'innings-recovery',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 12,
+      wickets: 0,
+      legalBalls: 8,
+      eventVersion: 7,
+    });
+
+    const onMessage = subscribeSpy.calls.mostRecent().args[1] as (message: {
+      body: string;
+    }) => void;
+    onMessage({
+      body: JSON.stringify({
+        inningsId: 'innings-recovery',
+        runs: 99,
+        wickets: 1,
+        legalBalls: 9,
+        eventVersion: 6,
+      }),
+    });
+    expect(receivedRuns).toEqual([12, 12]);
+
+    onMessage({
+      body: JSON.stringify({
+        inningsId: 'innings-recovery',
+        runs: 13,
+        wickets: 0,
+        legalBalls: 9,
+        eventVersion: 8,
+      }),
+    });
+    expect(receivedRuns).toEqual([12, 12, 13]);
+
+    watcher.unsubscribe();
+  });
+
   it('publishes connection and reconnect lifecycle without ending the score watcher', () => {
     const activateSpy = Client.prototype.activate as jasmine.Spy;
     let activeClient: Client | undefined;
@@ -149,9 +215,11 @@ describe('shouldAcceptLiveScoreSnapshot', () => {
     expect(shouldAcceptLiveScoreSnapshot(8, 7)).toBe(true);
   });
 
-  it('accepts snapshots without a usable version for backward compatibility', () => {
-    expect(shouldAcceptLiveScoreSnapshot(undefined, 7)).toBe(true);
-    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 7)).toBe(true);
+  it('accepts unversioned snapshots only before a versioned live event exists', () => {
+    expect(shouldAcceptLiveScoreSnapshot(undefined, 0)).toBe(true);
+    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 0)).toBe(true);
+    expect(shouldAcceptLiveScoreSnapshot(undefined, 7)).toBe(false);
+    expect(shouldAcceptLiveScoreSnapshot(Number.NaN, 7)).toBe(false);
   });
 });
 
