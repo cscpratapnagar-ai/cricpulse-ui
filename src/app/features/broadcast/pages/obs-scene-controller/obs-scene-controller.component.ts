@@ -5,7 +5,11 @@ import { Subscription, catchError, of } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
-import { ObsConnectionState, ObsScene, ObsWebSocketService } from '../../services/obs-websocket.service';
+import {
+  ObsConnectionState,
+  ObsScene,
+  ObsWebSocketService,
+} from '../../services/obs-websocket.service';
 
 type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
 
@@ -201,14 +205,20 @@ export class ObsSceneControllerComponent implements OnDestroy {
       this.obs.reconnected$.subscribe((scenes) => {
         this.scenes = scenes;
         this.reconcilePreferences();
-        void this.obs.currentScene().then((scene) => {
-          this.currentScene = scene;
-          this.selectedScene = scene;
-          this.error = '';
-          this.notice = 'OBS connection restored. Scene control is ready.';
-        }).catch((error: unknown) => {
-          this.error = error instanceof Error ? error.message : 'OBS reconnected, but scene state could not be loaded.';
-        });
+        void this.obs
+          .currentScene()
+          .then((scene) => {
+            this.currentScene = scene;
+            this.selectedScene = scene;
+            this.error = '';
+            this.notice = 'OBS connection restored. Scene control is ready.';
+          })
+          .catch((error: unknown) => {
+            this.error =
+              error instanceof Error
+                ? error.message
+                : 'OBS reconnected, but scene state could not be loaded.';
+          });
       }),
     );
     this.obsSubscriptions.add(
