@@ -129,6 +129,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   private refreshInFlight = false;
   private matchStartSponsorRequested = false;
   broadcastError: string | null = null;
+  broadcastHealth: 'CONNECTING' | 'LIVE' | 'LOCAL' | 'STALE' | 'ERROR' = 'CONNECTING';
   activeSponsor: PublicSponsor | null = null;
   get sponsorType() {
     return (
@@ -226,6 +227,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
       },
     ];
     this.broadcastError = null;
+    this.broadcastHealth = 'LOCAL';
     this.localScore$.next(score);
 
     // A REST poll can set currentInningsId before the relay snapshot arrives.
@@ -363,6 +365,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
       .subscribe({
         next: (state) => {
           this.broadcastError = null;
+          this.broadcastHealth = 'LIVE';
           this.match = state.match;
           this.innings = state.innings || [];
           if (this.mode === 'auto' && !this.matchStartSponsorRequested) {
@@ -417,12 +420,21 @@ export class BroadcastOverlayComponent implements OnDestroy {
           }
         },
         error: (error) => {
+          this.broadcastHealth = this.match ? 'STALE' : 'ERROR';
           this.broadcastError =
             error?.status === 404
               ? 'Broadcast state is not available on the running backend. Restart the backend on the latest main branch.'
               : 'Unable to load this match broadcast state.';
         },
       });
+  }
+
+  get broadcastHealthLabel(): string {
+    if (this.broadcastHealth === 'LOCAL') return 'LOCAL FEED';
+    if (this.broadcastHealth === 'STALE') return 'STALE DATA';
+    if (this.broadcastHealth === 'ERROR') return 'FEED ERROR';
+    if (this.broadcastHealth === 'CONNECTING') return 'CONNECTING';
+    return 'LIVE DATA';
   }
 
   onScore(score: LiveScore) {
