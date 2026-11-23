@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ObsWebSocketService } from '../../services/obs-websocket.service';
 import { LiveScoreService } from '../../../../core/services/live-score.service';
 import { ObsSceneControllerComponent } from './obs-scene-controller.component';
@@ -10,6 +10,10 @@ describe('ObsSceneControllerComponent', () => {
   let obs: jasmine.SpyObj<ObsWebSocketService>;
   let sceneChanged$: Subject<string>;
   let connectionLost$: Subject<string>;
+  let reconnected$: Subject<Array<{ sceneName: string; sceneIndex: number }>>;
+  let connectionState$: BehaviorSubject<
+    'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING'
+  >;
 
   beforeEach(() => {
     localStorage.removeItem('cricpulse.obs-scene-presets.match-123');
@@ -22,9 +26,15 @@ describe('ObsSceneControllerComponent', () => {
     ]);
     sceneChanged$ = new Subject<string>();
     connectionLost$ = new Subject<string>();
+    reconnected$ = new Subject<Array<{ sceneName: string; sceneIndex: number }>>();
+    connectionState$ = new BehaviorSubject<
+      'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING'
+    >('DISCONNECTED');
     Object.defineProperty(obs, 'connected', { get: () => true });
     Object.defineProperty(obs, 'sceneChanged$', { value: sceneChanged$ });
     Object.defineProperty(obs, 'connectionLost$', { value: connectionLost$ });
+    Object.defineProperty(obs, 'reconnected$', { value: reconnected$ });
+    Object.defineProperty(obs, 'connectionState$', { value: connectionState$.asObservable() });
     obs.connect.and.resolveTo([
       { sceneName: 'Camera', sceneIndex: 0 },
       { sceneName: 'Camera + Score', sceneIndex: 1 },

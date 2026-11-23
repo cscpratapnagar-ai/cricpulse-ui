@@ -5,7 +5,11 @@ import { Subscription, catchError, of } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
-import { ObsScene, ObsWebSocketService } from '../../services/obs-websocket.service';
+import {
+  ObsConnectionState,
+  ObsScene,
+  ObsWebSocketService,
+} from '../../services/obs-websocket.service';
 
 type ScenePresetKey = 'main' | 'score' | 'camera' | 'break';
 
@@ -92,6 +96,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   currentScene = '';
   selectedScene = '';
   connecting = false;
+  connectionState: ObsConnectionState = 'DISCONNECTED';
   switching = false;
   error = '';
   notice = '';
@@ -187,6 +192,35 @@ export class ObsSceneControllerComponent implements OnDestroy {
   constructor() {
     this.loadPreferences();
     if (this.automationEnabled) this.startAutomationFeeds();
+    this.obsSubscriptions.add(
+      this.obs.connectionState$.subscribe((state) => {
+        this.connectionState = state;
+        if (state === 'RECONNECTING') {
+          this.connecting = false;
+          this.notice = 'OBS connection lost. Reconnecting automatically…';
+        }
+      }),
+    );
+    this.obsSubscriptions.add(
+      this.obs.reconnected$.subscribe((scenes) => {
+        this.scenes = scenes;
+        this.reconcilePreferences();
+        void this.obs
+          .currentScene()
+          .then((scene) => {
+            this.currentScene = scene;
+            this.selectedScene = scene;
+            this.error = '';
+            this.notice = 'OBS connection restored. Scene control is ready.';
+          })
+          .catch((error: unknown) => {
+            this.error =
+              error instanceof Error
+                ? error.message
+                : 'OBS reconnected, but scene state could not be loaded.';
+          });
+      }),
+    );
     this.obsSubscriptions.add(
       this.obs.sceneChanged$.subscribe((sceneName) => {
         this.currentScene = sceneName;

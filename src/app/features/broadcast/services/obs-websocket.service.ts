@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 export interface ObsScene {
   sceneName: string;
@@ -11,13 +11,22 @@ interface ObsEnvelope {
   d: Record<string, unknown>;
 }
 
+export type ObsConnectionState = 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING';
+
 @Injectable({ providedIn: 'root' })
 export class ObsWebSocketService {
   readonly sceneChanged$ = new Subject<string>();
   readonly connectionLost$ = new Subject<string>();
+  readonly reconnected$ = new Subject<ObsScene[]>();
+  private readonly connectionStateSubject = new BehaviorSubject<ObsConnectionState>('DISCONNECTED');
+  readonly connectionState$ = this.connectionStateSubject.asObservable();
 
   private socket?: WebSocket;
   private requestSequence = 0;
+  private reconnectTimer?: ReturnType<typeof setTimeout>;
+  private reconnectAttempts = 0;
+  private reconnectConfig?: { url: string; password: string };
+  private manuallyDisconnected = true;
   private readonly pending = new Map<
     string,
     {
@@ -33,7 +42,15 @@ export class ObsWebSocketService {
   }
 
   async connect(url: string, password: string): Promise<ObsScene[]> {
-    this.disconnect();
+    this.reconnectConfig = { url, password };
+    this.manuallyDisconnected = false;
+    this.cancelReconnect();
+    return this.establish(url, password, false);
+  }
+
+  private async establish(url: string, password: string, recovering: boolean): Promise<ObsScene[]> {
+    this.closeCurrentSocket();
+    this.connectionStateSubject.next(recovering ? 'RECONNECTING' : 'CONNECTING');
     const socket = new WebSocket(url);
     this.socket = socket;
     await new Promise<void>((resolve, reject) => {
@@ -48,12 +65,13 @@ export class ObsWebSocketService {
         clearTimeout(handshakeTimeout);
         reject(error);
       };
-      socket.onerror = () =>
+      socket.onerror = () => {
         fail(
           new Error(
             'Could not connect to OBS WebSocket. Enable it in OBS Tools → WebSocket Server Settings.',
           ),
         );
+      };
       socket.onclose = () => {
         if (this.socket !== socket) {
           fail(new Error('OBS connection was superseded.'));
@@ -63,7 +81,13 @@ export class ObsWebSocketService {
         this.identified = false;
         this.rejectPending(new Error('OBS connection closed.'));
         this.socket = undefined;
-        this.connectionLost$.next('OBS connection closed. Reconnect to restore scene control.');
+        if (!this.manuallyDisconnected && this.reconnectConfig) {
+          this.connectionStateSubject.next('RECONNECTING');
+          this.connectionLost$.next('OBS connection lost. Reconnecting automatically…');
+          this.scheduleReconnect();
+        } else {
+          this.connectionStateSubject.next('DISCONNECTED');
+        }
         fail(new Error('OBS closed the connection. Verify the password and WebSocket settings.'));
       };
       socket.onmessage = async (event) => {
@@ -79,6 +103,7 @@ export class ObsWebSocketService {
             if (settled) return;
             settled = true;
             this.identified = true;
+            this.connectionStateSubject.next('CONNECTED');
             clearTimeout(handshakeTimeout);
             resolve();
           } else if (envelope.op === 5) {
@@ -112,8 +137,15 @@ export class ObsWebSocketService {
     });
 
     if (this.socket !== socket || !this.identified) throw new Error('OBS identification failed.');
-    const response = await this.request('GetSceneList');
-    return this.parseScenes(response);
+    try {
+      const scenes = this.parseScenes(await this.request('GetSceneList'));
+      this.reconnectAttempts = 0;
+      if (recovering) this.reconnected$.next(scenes);
+      return scenes;
+    } catch (error) {
+      if (recovering && !this.manuallyDisconnected) this.scheduleReconnect();
+      throw error;
+    }
   }
 
   async currentScene(): Promise<string> {
@@ -130,11 +162,39 @@ export class ObsWebSocketService {
   }
 
   disconnect(): void {
+    this.manuallyDisconnected = true;
+    this.reconnectConfig = undefined;
+    this.cancelReconnect();
+    this.closeCurrentSocket();
+    this.connectionStateSubject.next('DISCONNECTED');
+  }
+
+  private closeCurrentSocket(): void {
     this.identified = false;
     this.rejectPending(new Error('Disconnected from OBS.'));
     const oldSocket = this.socket;
     this.socket = undefined;
     if (oldSocket && oldSocket.readyState < WebSocket.CLOSING) oldSocket.close();
+  }
+
+  private scheduleReconnect(): void {
+    if (this.manuallyDisconnected || !this.reconnectConfig || this.reconnectTimer) return;
+    const delay = Math.min(30000, 1000 * 2 ** Math.min(this.reconnectAttempts, 5));
+    this.reconnectAttempts++;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined;
+      const config = this.reconnectConfig;
+      if (!config || this.manuallyDisconnected) return;
+      void this.establish(config.url, config.password, true).catch(() => {
+        if (!this.manuallyDisconnected) this.scheduleReconnect();
+      });
+    }, delay);
+  }
+
+  private cancelReconnect(): void {
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = undefined;
+    this.reconnectAttempts = 0;
   }
 
   private parseScenes(response: Record<string, unknown>): ObsScene[] {
@@ -189,7 +249,7 @@ export class ObsWebSocketService {
   ): Promise<Record<string, unknown>> {
     const rpcVersion = Number(hello['rpcVersion'] || 1);
     const auth = hello['authentication'] as { salt?: string; challenge?: string } | undefined;
-    const eventSubscriptions = 4; // OBS WebSocket v5 Scenes events, including SceneChanged.
+    const eventSubscriptions = 4;
     if (!auth) return { rpcVersion, eventSubscriptions };
     if (!password) throw new Error('OBS requires a WebSocket password. Enter it to connect.');
     const secret = await this.sha256Base64(password + (auth.salt || ''));
