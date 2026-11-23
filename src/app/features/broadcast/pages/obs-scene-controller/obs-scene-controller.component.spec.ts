@@ -30,7 +30,9 @@ describe('ObsSceneControllerComponent', () => {
     );
     Object.defineProperty(obs, 'connected', { get: () => true });
     Object.defineProperty(obs, 'sceneChanged$', { value: sceneChanged$ });
-    Object.defineProperty(obs, 'connectionLost
+    Object.defineProperty(obs, 'connectionLost$', { value: connectionLost$ });
+    Object.defineProperty(obs, 'reconnected$', { value: reconnected$ });
+    Object.defineProperty(obs, 'connectionState$', { value: connectionState$.asObservable() });
     obs.connect.and.resolveTo([
       { sceneName: 'Camera', sceneIndex: 0 },
       { sceneName: 'Camera + Score', sceneIndex: 1 },
