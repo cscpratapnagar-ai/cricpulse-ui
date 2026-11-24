@@ -47,10 +47,6 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Audit CI security and reproducibility policy
         run: npm run ci:policy:audit
-      - name: Inspect formatter output for policy audit source
-        run: |
-          npx --yes prettier@3.5.3 --write scripts/audit-frontend-ci-policy.mjs
-          git --no-pager diff --no-ext-diff -- scripts/audit-frontend-ci-policy.mjs
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
