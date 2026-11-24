@@ -44,4 +44,6 @@ assert.match(
   'CI must execute its own policy regression audit',
 );
 
-console.log('PASS: frontend CI is read-only, lockfile-reproducible, and non-mutating');
+console.log(
+  'PASS: frontend CI is read-only, lockfile-reproducible, and non-mutating',
+);
