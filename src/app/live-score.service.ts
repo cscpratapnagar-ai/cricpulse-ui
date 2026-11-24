@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, Subscription, catchError, switchMap, timer } from 'rxjs';
 
 export interface LiveBatter { playerId: string; runs: number; ballsFaced: number; fours: number; sixes: number; strikeRate?: number | null; out: boolean; dismissalType?: string | null; }
 export interface LiveBowler { playerId: string; legalBalls: number; runsConceded: number; wickets: number; wides: number; noBalls: number; economy?: number | null; }
@@ -22,38 +22,91 @@ export interface LiveScore {
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8080';
+  private readonly snapshotUrl = (inningsId: string) =>
+    `${this.apiUrl}/api/public/innings/${encodeURIComponent(inningsId)}`;
 
+  /**
+   * WebSocket provides low-latency updates; periodic public snapshots keep
+   * viewers current while the socket is disconnected or reconnecting.
+   */
   watch(inningsId: string): Observable<LiveScore> {
     return new Observable<LiveScore>((subscriber) => {
-      if (!inningsId) { subscriber.error(new Error('Innings ID is required')); return; }
-      let subscription: StompSubscription | undefined;
-      let stopped = false;
+      if (!inningsId) {
+        subscriber.error(new Error('Innings ID is required'));
+        return;
+      }
 
-      // Public viewer must never depend on scorer authentication.
-      this.http.get<LiveScore>(`${this.apiUrl}/api/public/innings/${encodeURIComponent(inningsId)}`).subscribe({
-        next: score => { if (!stopped && score?.inningsId === inningsId) subscriber.next(score); },
-        error: error => { if (!stopped) subscriber.error(new Error(`Unable to load public score (${error?.status ?? 'unknown'})`)); }
-      });
+      let stopped = false;
+      let stompSubscription: StompSubscription | undefined;
+      let lastEventVersion: number | undefined;
+      const requests = new Subscription();
+
+      const publish = (score: LiveScore | null | undefined): void => {
+        if (stopped || !score || score.inningsId !== inningsId) return;
+
+        // A delayed HTTP response must not overwrite a newer socket event.
+        if (typeof score.eventVersion === 'number') {
+          if (typeof lastEventVersion === 'number' && score.eventVersion <= lastEventVersion) return;
+          lastEventVersion = score.eventVersion;
+        }
+        subscriber.next(score);
+      };
+
+      const refreshSnapshot = (): void => {
+        requests.add(
+          this.http.get<LiveScore>(this.snapshotUrl(inningsId)).pipe(
+            catchError(() => EMPTY)
+          ).subscribe(publish)
+        );
+      };
+
+      // Load immediately, then poll every 15 seconds as a reconnect-safe fallback.
+      refreshSnapshot();
+      requests.add(
+        timer(15000, 15000).pipe(
+          switchMap(() => this.http.get<LiveScore>(this.snapshotUrl(inningsId)).pipe(
+            catchError(() => EMPTY)
+          ))
+        ).subscribe(publish)
+      );
 
       const client = new Client({
-        brokerURL: this.apiUrl.replace('http', 'ws') + '/ws',
+        brokerURL: this.apiUrl.replace(/^http/, 'ws') + '/ws',
         reconnectDelay: 3000,
         connectionTimeout: 10000,
         onConnect: () => {
           if (stopped) return;
-          subscription?.unsubscribe();
-          subscription = client.subscribe(`/topic/innings/${inningsId}`, (message: IMessage) => {
-            try {
-              const score = JSON.parse(message.body) as LiveScore;
-              if (score?.inningsId === inningsId) subscriber.next(score);
-            } catch { subscriber.error(new Error('Invalid live score payload')); }
-          });
+          stompSubscription?.unsubscribe();
+          stompSubscription = client.subscribe(
+            `/topic/innings/${inningsId}`,
+            (message: IMessage) => {
+              try {
+                publish(JSON.parse(message.body) as LiveScore);
+              } catch {
+                // Ignore a malformed broadcast; keep the stream alive for the next valid event.
+              }
+            }
+          );
+          // Refresh after every successful reconnect to close any missed-event gap.
+          refreshSnapshot();
         },
-        onStompError: frame => subscriber.error(new Error(frame.headers['message'] ?? 'WebSocket error')),
-        onWebSocketError: () => { }
+        onStompError: () => {
+          // Do not terminate the observable. STOMP reconnect and snapshot polling
+          // remain responsible for restoring a current score.
+        },
+        onWebSocketError: () => {
+          // Reconnection is handled by the STOMP client's reconnectDelay.
+        }
       });
+
       client.activate();
-      return () => { stopped = true; subscription?.unsubscribe(); void client.deactivate(); };
+
+      return () => {
+        stopped = true;
+        requests.unsubscribe();
+        stompSubscription?.unsubscribe();
+        void client.deactivate();
+      };
     });
   }
 }
