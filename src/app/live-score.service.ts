@@ -18,12 +18,30 @@ export interface LiveScore {
   recentBalls?: LiveRecentBall[]; partnership?: LivePartnership | null; fallOfWickets?: LiveFallOfWicket[];
 }
 
+/**
+ * Local Angular development keeps using the separately running API on :8080.
+ * Deployed builds use the current origin and expect the web server/reverse proxy
+ * to route /api and /ws to the backend (including HTTPS -> WSS).
+ */
+export function resolveLiveApiOrigin(location: Pick<Location, 'hostname' | 'origin'>): string {
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    return 'http://localhost:8080';
+  }
+  return location.origin;
+}
+
+export function resolveLiveWebSocketUrl(apiOrigin: string): string {
+  const url = new URL('/ws', apiOrigin);
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+  return url.toString();
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080';
+  private readonly apiOrigin = resolveLiveApiOrigin(window.location);
   private readonly snapshotUrl = (inningsId: string) =>
-    `${this.apiUrl}/api/public/innings/${encodeURIComponent(inningsId)}`;
+    `${this.apiOrigin}/api/public/innings/${encodeURIComponent(inningsId)}`;
 
   /**
    * WebSocket provides low-latency updates; periodic public snapshots keep
@@ -43,8 +61,6 @@ export class LiveScoreService {
 
       const publish = (score: LiveScore | null | undefined): void => {
         if (stopped || !score || score.inningsId !== inningsId) return;
-
-        // A delayed HTTP response must not overwrite a newer socket event.
         if (typeof score.eventVersion === 'number') {
           if (typeof lastEventVersion === 'number' && score.eventVersion <= lastEventVersion) return;
           lastEventVersion = score.eventVersion;
@@ -60,7 +76,6 @@ export class LiveScoreService {
         );
       };
 
-      // Load immediately, then poll every 15 seconds as a reconnect-safe fallback.
       refreshSnapshot();
       requests.add(
         timer(15000, 15000).pipe(
@@ -71,7 +86,7 @@ export class LiveScoreService {
       );
 
       const client = new Client({
-        brokerURL: this.apiUrl.replace(/^http/, 'ws') + '/ws',
+        brokerURL: resolveLiveWebSocketUrl(this.apiOrigin),
         reconnectDelay: 3000,
         connectionTimeout: 10000,
         onConnect: () => {
@@ -83,16 +98,14 @@ export class LiveScoreService {
               try {
                 publish(JSON.parse(message.body) as LiveScore);
               } catch {
-                // Ignore a malformed broadcast; keep the stream alive for the next valid event.
+                // Ignore malformed broadcasts and keep the stream alive.
               }
             }
           );
-          // Refresh after every successful reconnect to close any missed-event gap.
           refreshSnapshot();
         },
         onStompError: () => {
-          // Do not terminate the observable. STOMP reconnect and snapshot polling
-          // remain responsible for restoring a current score.
+          // Keep the observable alive; STOMP reconnect and snapshot polling recover it.
         },
         onWebSocketError: () => {
           // Reconnection is handled by the STOMP client's reconnectDelay.
