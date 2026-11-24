@@ -9,14 +9,23 @@ mustInclude('contents: read', 'source access must be read-only');
 mustInclude('packages: write', 'GHCR publishing permission is required');
 mustInclude('id-token: write', 'OIDC signing permission is required');
 mustInclude('attestations: write', 'attestation permission is required');
-mustInclude('branches:\n      - main\n      - develop', 'main and develop pushes must publish images');
+mustInclude(
+  'branches:\n      - main\n      - develop',
+  'main and develop pushes must publish images',
+);
 mustInclude('workflow_dispatch:', 'manual publishing must be available');
 mustInclude(
   "if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'",
   'manual runs must be restricted to release branches',
 );
-mustInclude('group: publish-production-container-${{ github.ref }}', 'publishes must be serialized per ref');
-mustInclude('cancel-in-progress: false', 'an in-flight image publish must not be cancelled');
+mustInclude(
+  'group: publish-production-container-${{ github.ref }}',
+  'publishes must be serialized per ref',
+);
+mustInclude(
+  'cancel-in-progress: false',
+  'an in-flight image publish must not be cancelled',
+);
 mustInclude('docker/build-push-action@v6', 'Buildx action is required');
 mustInclude('push: true', 'image must be pushed');
 mustInclude('sbom: true', 'SBOM generation is required');
@@ -35,7 +44,10 @@ mustInclude(
   'subject-digest: ${{ steps.build.outputs.digest }}',
   'attestation must bind to the pushed digest',
 );
-mustInclude('actions/attest-build-provenance@v2', 'signed GitHub provenance is required');
+mustInclude(
+  'actions/attest-build-provenance@v2',
+  'signed GitHub provenance is required',
+);
 mustInclude('push-to-registry: true', 'attestation must be published');
 assert.ok(!workflow.includes('type=raw,value=main'), 'main tag must come from the selected ref');
 assert.ok(!workflow.includes('load: true'), 'local-only builds are forbidden');
