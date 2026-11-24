@@ -18,7 +18,8 @@
     "test:coverage": "ng test --watch=false --code-coverage",
     "security:audit": "node scripts/audit-security-api.mjs",
     "feature:audit": "node scripts/audit-feature-integration.mjs",
-    "release:provenance:audit": "node scripts/audit-production-image-provenance.mjs"
+    "release:provenance:audit": "node scripts/audit-production-image-provenance.mjs",
+    "ci:policy:audit": "node scripts/audit-frontend-ci-policy.mjs"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
