@@ -27,10 +27,7 @@ for (const forbidden of [
   'git checkout -B',
   'Normalize branch formatting',
 ]) {
-  assert.ok(
-    !workflow.includes(forbidden),
-    `frontend CI must not contain ${forbidden}`,
-  );
+  assert.ok(!workflow.includes(forbidden), `frontend CI must not contain ${forbidden}`);
 }
 
 assert.match(
@@ -44,6 +41,4 @@ assert.match(
   'CI must execute its own policy regression audit',
 );
 
-console.log(
-  'PASS: frontend CI is read-only, lockfile-reproducible, and non-mutating',
-);
+console.log('PASS: frontend CI is read-only, lockfile-reproducible, and non-mutating');
