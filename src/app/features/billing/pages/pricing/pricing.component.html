@@ -1,0 +1,60 @@
+<section class="pricing-page">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">CRICPULSE · INDIA LAUNCH</span>
+      <h1>Plans &amp; pricing</h1>
+      <p>Start free. Upgrade only when your tournament or academy needs more.</p>
+    </div>
+    <button type="button" class="refresh" (click)="load()">Refresh</button>
+  </header>
+
+  <div class="notice" *ngIf="notice()" role="status">{{ notice() }}</div>
+  <div class="error" *ngIf="error()" role="alert">{{ error() }}</div>
+  <div class="loading" *ngIf="loading()">Loading live pricing and account access…</div>
+
+  <div class="price-grid" *ngIf="!loading()">
+    <article class="plan" *ngFor="let item of packages()" [class.featured]="item.code === 'ORGANIZER_PRO'">
+      <div class="plan-top">
+        <span class="plan-label">{{ item.validity }}</span>
+        <h2>{{ item.name }}</h2>
+        <p>{{ item.description }}</p>
+      </div>
+      <div class="price">{{ item.amountPaise === 0 ? 'Free' : price(item.amountPaise) }}</div>
+      <div class="validity">{{ item.amountPaise === 0 ? 'Always free' : item.validity }}</div>
+      <button type="button" [disabled]="busyCode() === item.code || item.amountPaise === 0"
+        (click)="createRequest(item)">
+        <ng-container *ngIf="busyCode() === item.code; else actionLabel">Creating request…</ng-container>
+        <ng-template #actionLabel>{{ item.amountPaise === 0 ? 'Included by default' : 'Request activation' }}</ng-template>
+      </button>
+      <small *ngIf="item.code === 'ORGANIZER_PRO'">Includes Organizer Plus features and Pro sponsor placement.</small>
+      <small *ngIf="item.code === 'BROADCAST_ADDON'">Separate add-on; can be combined with Organizer Pro.</small>
+    </article>
+  </div>
+
+  <section class="policy">
+    <strong>One-time pricing. No auto-renewal.</strong>
+    <span>GST or gateway charges, if applicable, must be shown before payment. Online gateway checkout is not enabled yet. Creating a request does not charge you or activate premium features.</span>
+  </section>
+
+  <div class="account-grid">
+    <section class="account-panel">
+      <div class="section-heading"><div><span class="eyebrow">YOUR ACCOUNT</span><h2>Active access</h2></div></div>
+      <p class="empty" *ngIf="!entitlements().length">No paid access is active. Free tournament features remain available.</p>
+      <div class="record" *ngFor="let access of entitlements()">
+        <strong>{{ access.packageCode.replaceAll('_', ' ') }}</strong>
+        <span>Activated {{ access.activatedAt | date:'mediumDate' }}</span>
+        <span *ngIf="access.expiresAt">Expires {{ access.expiresAt | date:'mediumDate' }}</span>
+        <span *ngIf="!access.expiresAt">No expiry recorded</span>
+      </div>
+    </section>
+    <section class="account-panel">
+      <div class="section-heading"><div><span class="eyebrow">BILLING</span><h2>Order history</h2></div></div>
+      <p class="empty" *ngIf="!orders().length">No payment requests yet.</p>
+      <div class="record order" *ngFor="let order of orders()">
+        <strong>{{ order.packageCode.replaceAll('_', ' ') }}</strong>
+        <span>{{ price(order.amountPaise) }} · {{ order.status }}</span>
+        <span>{{ order.createdAt | date:'medium' }}</span>
+      </div>
+    </section>
+  </div>
+</section>
