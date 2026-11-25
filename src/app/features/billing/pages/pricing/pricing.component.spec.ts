@@ -20,6 +20,7 @@ describe('PricingComponent', () => {
     const component = fixture.componentInstance;
 
     const packages = http.expectOne(`${API_BASE_URL}/payments/packages`);
+    const tournaments = http.expectOne(`${API_BASE_URL}/tournaments/mine`);
     const orders = http.expectOne(`${API_BASE_URL}/payments/orders`);
     const entitlements = http.expectOne(`${API_BASE_URL}/payments/entitlements`);
 
@@ -41,12 +42,15 @@ describe('PricingComponent', () => {
         validity: 'Per tournament',
       },
     ]);
+    tournaments.flush([{ id: 'tournament-1', name: 'City League', status: 'DRAFT' }]);
     orders.flush([]);
     entitlements.flush([]);
 
     expect(component.packages().length).toBe(2);
     expect(component.packages()[1].amountPaise).toBe(9900);
     expect(component.loading()).toBeFalse();
+    expect(component.tournaments()[0].name).toBe('City League');
+    expect(component.selectedTournamentId()).toBe('tournament-1');
     expect(component.orders()).toEqual([]);
     expect(component.entitlements()).toEqual([]);
     fixture.destroy();
@@ -57,6 +61,7 @@ describe('PricingComponent', () => {
     const component = fixture.componentInstance;
 
     http.expectOne(`${API_BASE_URL}/payments/packages`).flush([]);
+    http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([]);
 
