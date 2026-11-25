@@ -26,5 +26,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify frontend authentication and route security contract
+        run: npm run test:security
+
       - name: Build Angular application
         run: npm run build
