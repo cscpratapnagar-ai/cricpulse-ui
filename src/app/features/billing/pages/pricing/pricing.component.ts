@@ -91,7 +91,8 @@ export class PricingComponent {
     this.http.get<WorkspaceOption[]>(`${API_BASE_URL}/teams/workspaces`).subscribe({
       next: (items) => {
         const manageable = (items ?? []).filter(
-          (workspace) => workspace.workspaceRole === 'OWNER' || workspace.workspaceRole === 'MANAGER',
+          (workspace) =>
+            workspace.workspaceRole === 'OWNER' || workspace.workspaceRole === 'MANAGER',
         );
         this.workspaces.set(manageable);
         if (!this.selectedWorkspaceId() && manageable.length) {
@@ -125,7 +126,9 @@ export class PricingComponent {
   }
 
   workspaceName(teamId: string): string {
-    return this.workspaces().find((workspace) => workspace.id === teamId)?.name ?? 'Team workspace';
+    return (
+      this.workspaces().find((workspace) => workspace.id === teamId)?.name ?? 'Team workspace'
+    );
   }
 
   isWorkspacePackage(item: PackageOption): boolean {
@@ -154,9 +157,11 @@ export class PricingComponent {
       const packageMatches =
         entitlement.packageCode === item.code ||
         (item.code === 'ORGANIZER_PLUS' && entitlement.packageCode === 'ORGANIZER_PRO');
-      return packageMatches &&
+      return (
+        packageMatches &&
         entitlement.tournamentId === expectedTournamentId &&
-        entitlement.teamId === expectedTeamId;
+        entitlement.teamId === expectedTeamId
+      );
     });
   }
 
