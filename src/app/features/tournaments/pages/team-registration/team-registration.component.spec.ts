@@ -20,6 +20,7 @@ describe('TeamRegistrationComponent', () => {
             snapshot: {
               paramMap: { get: (key: string) => (key === 'id' ? 'tournament-1' : null) },
               routeConfig: { path: 'tournament/:id/register' },
+              data: { registrationMode: 'public' },
             },
           },
         },
