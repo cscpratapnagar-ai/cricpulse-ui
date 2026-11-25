@@ -36,7 +36,9 @@ function toWebSocketOrigin(origin: string): string {
 const runtimeConfig = getRuntimeConfig();
 const browserOrigin = getBrowserOrigin();
 
-export const API_ORIGIN = normalizeOrigin(runtimeConfig.apiOrigin ?? browserOrigin);
+// Prefer the UI origin for HTTP APIs. Vercel rewrites /api/* to the Spring Boot
+// deployment, keeping auth and CSRF cookies first-party even in Safari.
+export const API_ORIGIN = normalizeOrigin(browserOrigin || runtimeConfig.apiOrigin || '');
 export const API_BASE_URL = `${API_ORIGIN}/api`;
 export const WS_ORIGIN = normalizeOrigin(runtimeConfig.wsOrigin ?? toWebSocketOrigin(API_ORIGIN));
 

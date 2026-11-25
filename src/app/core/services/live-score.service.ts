@@ -1,8 +1,8 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { API_ORIGIN, WS_ORIGIN } from '../config/api.config';
+import { BehaviorSubject, Observable, Subscription, firstValueFrom } from 'rxjs';
+import { API_BASE_URL, API_ORIGIN, WS_ORIGIN } from '../config/api.config';
 import { SKIP_GLOBAL_LOADING } from '../interceptors/loading.interceptor';
 
 export interface LiveBatter {
@@ -252,6 +252,22 @@ export class LiveScoreService {
 
       const client = new Client({
         brokerURL: WS_ORIGIN + '/ws',
+        // Browser WebSocket APIs cannot attach cookies or arbitrary handshake headers.
+        // Fetch a short-lived ticket through the same-origin, cookie-authenticated API
+        // before every initial connection/reconnect; anonymous public viewers still work.
+        beforeConnect: async () => {
+          try {
+            const ticket = await firstValueFrom(
+              this.http.get<{ token: string }>(`${API_BASE_URL}/auth/ws-ticket`, {
+                withCredentials: true,
+                context: new HttpContext().set(SKIP_GLOBAL_LOADING, true),
+              }),
+            );
+            client.connectHeaders = { Authorization: `Bearer ${ticket.token}` };
+          } catch {
+            client.connectHeaders = {};
+          }
+        },
         reconnectDelay: 3000,
         connectionTimeout: 10000,
         onConnect: () => {
