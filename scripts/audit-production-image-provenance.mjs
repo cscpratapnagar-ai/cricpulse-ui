@@ -22,7 +22,10 @@ mustInclude(
   'group: publish-production-container-${{ github.ref }}',
   'publishes must be serialized per ref',
 );
-mustInclude('cancel-in-progress: false', 'an in-flight image publish must not be cancelled');
+mustInclude(
+  'cancel-in-progress: false',
+  'an in-flight image publish must not be cancelled',
+);
 mustInclude('docker/build-push-action@v6', 'Buildx action is required');
 mustInclude('push: true', 'image must be pushed');
 mustInclude('sbom: true', 'SBOM generation is required');
