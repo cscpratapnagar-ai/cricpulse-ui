@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07130f" />
     <script>
-      // Vercel preview runtime target for the deployed Spring Boot API.
+      // HTTP API calls stay on this origin so browser session cookies are first-party.
+      // WebSocket uses the API host; authenticated clients obtain a short-lived STOMP ticket.
       window.__CRICPULSE_CONFIG__ = {
-        apiOrigin: 'https://cricpulse-backend.vercel.app',
         wsOrigin: 'wss://cricpulse-backend.vercel.app',
       };
     </script>
