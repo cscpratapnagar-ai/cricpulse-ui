@@ -43,6 +43,7 @@ import { CreateTournamentComponent } from './features/tournaments/pages/create-t
 import { TournamentQualificationComponent } from './features/tournaments/pages/qualification/tournament-qualification.component';
 import { TournamentScheduleComponent } from './features/tournaments/pages/schedule/tournament-schedule.component';
 import { TournamentDetailComponent } from './features/tournaments/pages/tournament-detail/tournament-detail.component';
+import { TeamRegistrationComponent } from './features/tournaments/pages/team-registration/team-registration.component';
 import { TournamentsComponent } from './features/tournaments/pages/tournament-list/tournaments.component';
 import { authGuard } from './core/auth/auth';
 import { adminGuard } from './core/routing/admin.guard';
@@ -96,6 +97,7 @@ const dashboardChildren: Routes = [
   { path: 'tournaments/:id/qualification', component: TournamentQualificationComponent },
   { path: 'tournaments/:id/schedule', component: TournamentScheduleComponent },
   { path: 'tournaments/:id/analytics', component: TournamentAnalyticsComponent },
+  { path: 'tournaments/:id/registrations', component: TeamRegistrationComponent },
   { path: 'tournaments/:id', component: TournamentDetailComponent },
   { path: 'tournaments', component: TournamentsComponent },
   { path: 'live', component: LiveCenterComponent },
@@ -120,6 +122,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'match/:id', component: PublicLiveScoreComponent },
+  { path: 'tournament/:id/register', component: TeamRegistrationComponent },
   { path: 'tournament/:id', component: PublicTournamentComponent },
   { path: 'live/:id', redirectTo: 'match/:id', pathMatch: 'full' },
   { path: 'broadcast/:id/overlay', component: BroadcastOverlayComponent },
