@@ -3,8 +3,7 @@ name: Publish Production Container
 on:
   push:
     branches:
-      - main
-      - develop
+      - release
   workflow_dispatch:
 
 permissions:
@@ -24,7 +23,7 @@ env:
 jobs:
   publish:
     name: Build, publish, and attest UI image
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +44,7 @@ jobs:
           tags: |
             type=sha
             type=ref,event=branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}
 
       - name: Build and push production image with SBOM and provenance
         id: build
