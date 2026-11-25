@@ -9,10 +9,7 @@ mustInclude('contents: read', 'source access must be read-only');
 mustInclude('packages: write', 'GHCR publishing permission is required');
 mustInclude('id-token: write', 'OIDC signing permission is required');
 mustInclude('attestations: write', 'attestation permission is required');
-mustInclude(
-  'branches:\n      - release',
-  'only release pushes may publish production images',
-);
+mustInclude('branches:\n      - release', 'only release pushes may publish production images');
 mustInclude('workflow_dispatch:', 'manual publishing must be available');
 mustInclude(
   "if: github.ref == 'refs/heads/release'",
