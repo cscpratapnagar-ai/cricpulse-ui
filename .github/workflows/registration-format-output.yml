@@ -4,7 +4,7 @@ on:
     branches:
       - feat/team-registration-workflow
 permissions:
-  contents: read
+  contents: write
 jobs:
   format:
     runs-on: ubuntu-latest
@@ -13,11 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Format and print exact files
+      - name: Format and commit exact files
         run: |
           npx --yes prettier@3.5.3 --write src/app/features/tournaments/pages/team-registration/team-registration.component.{ts,html,scss}
-          for file in src/app/features/tournaments/pages/team-registration/team-registration.component.{ts,html,scss}; do
-            echo "===== FILE: $file ====="
-            cat "$file"
-            echo "===== END FILE ====="
-          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/features/tournaments/pages/team-registration/team-registration.component.{ts,html,scss}
+          if ! git diff --cached --quiet; then
+            git commit -m "style(registration): apply canonical Prettier formatting"
+            git push
+          fi
