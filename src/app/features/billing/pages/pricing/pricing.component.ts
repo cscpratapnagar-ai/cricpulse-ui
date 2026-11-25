@@ -110,7 +110,21 @@ export class PricingComponent {
     }).format(amountPaise / 100);
   }
 
+  isActive(item: PackageOption): boolean {
+    const expectedTournamentId = item.validity === 'Per tournament' ? this.selectedTournamentId() : null;
+    return this.entitlements().some((entitlement) => {
+      const packageMatches =
+        entitlement.packageCode === item.code ||
+        (item.code === 'ORGANIZER_PLUS' && entitlement.packageCode === 'ORGANIZER_PRO');
+      return packageMatches && entitlement.tournamentId === expectedTournamentId;
+    });
+  }
+
   createRequest(item: PackageOption): void {
+    if (this.isActive(item)) {
+      this.notice.set(`${item.name} is already active for the selected scope.`);
+      return;
+    }
     if (item.amountPaise === 0) {
       this.notice.set('Free Tournament is the default tier. No payment is needed.');
       return;
