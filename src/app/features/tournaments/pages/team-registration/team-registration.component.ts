@@ -42,7 +42,10 @@ export class TeamRegistrationComponent {
   contactEmail = '';
   contactPhone = '';
   players: RegistrationPlayer[] = Array.from({ length: 11 }, (_, index) => ({
-    fullName: '', jerseyNumber: index + 1, battingStyle: '', bowlingStyle: '',
+    fullName: '',
+    jerseyNumber: index + 1,
+    battingStyle: '',
+    bowlingStyle: '',
   }));
   registrations: Registration[] = [];
   loading = false;
@@ -54,7 +57,8 @@ export class TeamRegistrationComponent {
     if (this.manageMode) this.loadRegistrations();
   }
   addPlayer(): void {
-    if (this.players.length < 30) this.players.push({ fullName: '', jerseyNumber: null, battingStyle: '', bowlingStyle: '' });
+    if (this.players.length < 30)
+      this.players.push({ fullName: '', jerseyNumber: null, battingStyle: '', bowlingStyle: '' });
   }
   removePlayer(index: number): void {
     if (this.players.length > 2) this.players.splice(index, 1);
@@ -68,43 +72,82 @@ export class TeamRegistrationComponent {
       return;
     }
     const jerseys = players.map((player) => player.jerseyNumber);
-    if (jerseys.some((number) => number === null || number < 0 || number > 999) ||
-        new Set(jerseys).size !== jerseys.length) {
+    if (
+      jerseys.some((number) => number === null || number < 0 || number > 999) ||
+      new Set(jerseys).size !== jerseys.length
+    ) {
       this.error = 'Every player needs a unique jersey number between 0 and 999.';
       return;
     }
     this.submitting = true;
-    this.http.post<Registration>(`${this.api}/public/tournaments/${encodeURIComponent(this.tournamentId)}/registrations`, {
-      teamName: this.teamName, city: this.city, contactName: this.contactName,
-      contactEmail: this.contactEmail, contactPhone: this.contactPhone, players,
-    }).subscribe({
-      next: () => {
-        this.submitting = false;
-        this.message = 'Registration submitted. The organizer will review your application.';
-        this.teamName = ''; this.city = ''; this.players = Array.from({ length: 11 }, (_, index) => ({
-          fullName: '', jerseyNumber: index + 1, battingStyle: '', bowlingStyle: '',
-        }));
-      },
-      error: (e) => {
-        this.submitting = false;
-        this.error = e?.error?.message || 'Registration could not be submitted. Please try again.';
-      },
-    });
+    this.http
+      .post<Registration>(
+        `${this.api}/public/tournaments/${encodeURIComponent(this.tournamentId)}/registrations`,
+        {
+          teamName: this.teamName,
+          city: this.city,
+          contactName: this.contactName,
+          contactEmail: this.contactEmail,
+          contactPhone: this.contactPhone,
+          players,
+        },
+      )
+      .subscribe({
+        next: () => {
+          this.submitting = false;
+          this.message = 'Registration submitted. The organizer will review your application.';
+          this.teamName = '';
+          this.city = '';
+          this.players = Array.from({ length: 11 }, (_, index) => ({
+            fullName: '',
+            jerseyNumber: index + 1,
+            battingStyle: '',
+            bowlingStyle: '',
+          }));
+        },
+        error: (e) => {
+          this.submitting = false;
+          this.error =
+            e?.error?.message || 'Registration could not be submitted. Please try again.';
+        },
+      });
   }
   loadRegistrations(): void {
-    this.loading = true; this.error = '';
-    this.http.get<Registration[]>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registrations`)
+    this.loading = true;
+    this.error = '';
+    this.http
+      .get<
+        Registration[]
+      >(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registrations`)
       .subscribe({
-        next: (rows) => { this.registrations = rows; this.loading = false; },
-        error: (e) => { this.error = e?.error?.message || 'Unable to load registrations.'; this.loading = false; },
+        next: (rows) => {
+          this.registrations = rows;
+          this.loading = false;
+        },
+        error: (e) => {
+          this.error = e?.error?.message || 'Unable to load registrations.';
+          this.loading = false;
+        },
       });
   }
   review(row: Registration, status: 'APPROVED' | 'REJECTED'): void {
-    this.reviewBusy = row.id; this.error = '';
-    this.http.patch<Registration>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registrations/${encodeURIComponent(row.id)}`, { status })
+    this.reviewBusy = row.id;
+    this.error = '';
+    this.http
+      .patch<Registration>(
+        `${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registrations/${encodeURIComponent(row.id)}`,
+        { status },
+      )
       .subscribe({
-        next: () => { this.reviewBusy = ''; this.message = `${row.teamName} ${status.toLowerCase()}.`; this.loadRegistrations(); },
-        error: (e) => { this.reviewBusy = ''; this.error = e?.error?.message || 'Review action failed.'; },
+        next: () => {
+          this.reviewBusy = '';
+          this.message = `${row.teamName} ${status.toLowerCase()}.`;
+          this.loadRegistrations();
+        },
+        error: (e) => {
+          this.reviewBusy = '';
+          this.error = e?.error?.message || 'Review action failed.';
+        },
       });
   }
 }
