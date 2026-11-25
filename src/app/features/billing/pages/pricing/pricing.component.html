@@ -58,7 +58,13 @@
           Creating request…
         </ng-container>
         <ng-template #actionLabel>
-          {{ isActive(item) ? 'Active for selected scope' : (item.amountPaise === 0 ? 'Included by default' : 'Request activation') }}
+          {{
+            isActive(item)
+              ? 'Active for selected scope'
+              : item.amountPaise === 0
+                ? 'Included by default'
+                : 'Request activation'
+          }}
         </ng-template>
       </button>
       <small *ngIf="item.code === 'ORGANIZER_PLUS'">
