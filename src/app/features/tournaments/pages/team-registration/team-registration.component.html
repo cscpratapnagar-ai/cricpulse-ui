@@ -1,0 +1,183 @@
+<main class="registration-page">
+  <header><a routerLink="/">◉ CricPulse</a><span>TEAM REGISTRATION</span></header>
+  @if (manageMode) {
+    <section class="intro">
+      <p class="eyebrow">TOURNAMENT OPERATIONS</p>
+      <h1>Team applications</h1>
+      <p>Review submitted squads and approve eligible teams into this tournament.</p>
+    </section>
+    @if (loading) {
+      <p class="notice">Loading applications…</p>
+    }
+    @if (error) {
+      <p class="notice error" role="alert">{{ error }}</p>
+    }
+    @if (message) {
+      <p class="notice success" role="status">{{ message }}</p>
+    }
+    <section class="registration-control">
+      <div>
+        <strong>Public registration</strong>
+        <p>
+          {{
+            registrationOpen
+              ? 'Applications are being accepted.'
+              : 'New applications are currently closed.'
+          }}
+        </p>
+      </div>
+      <button
+        type="button"
+        [disabled]="registrationSettingsLoading || registrationSettingsBusy"
+        (click)="toggleRegistration()"
+      >
+        {{
+          registrationSettingsBusy
+            ? 'Saving…'
+            : registrationOpen
+              ? 'Close registration'
+              : 'Open registration'
+        }}
+      </button>
+    </section>
+    <section class="applications">
+      @for (row of registrations; track row.id) {
+        <article class="application">
+          <div class="application-head">
+            <div>
+              <h2>{{ row.teamName }}</h2>
+              <p>{{ row.city || 'City not provided' }} · {{ row.contactName }}</p>
+            </div>
+            <span class="status" [class.pending]="row.status === 'PENDING'">{{ row.status }}</span>
+          </div>
+          <p class="contact">{{ row.contactEmail }} · {{ row.contactPhone }}</p>
+          <div class="roster">
+            <strong>Roster · {{ row.players.length }} players</strong>
+            <div class="player-list">
+              @for (player of row.players; track $index) {
+                <span>#{{ player.jerseyNumber }} {{ player.fullName }}</span>
+              }
+            </div>
+          </div>
+          @if (row.reviewNote) {
+            <p class="contact">Review note: {{ row.reviewNote }}</p>
+          }
+          @if (row.status === 'PENDING') {
+            <div class="actions">
+              <button
+                type="button"
+                [disabled]="reviewBusy === row.id"
+                (click)="review(row, 'APPROVED')"
+              >
+                Approve & add team</button
+              ><button
+                class="secondary"
+                type="button"
+                [disabled]="reviewBusy === row.id"
+                (click)="review(row, 'REJECTED')"
+              >
+                Reject
+              </button>
+            </div>
+          }
+        </article>
+      } @empty {
+        @if (!loading) {
+          <p class="notice">No team applications yet.</p>
+        }
+      }
+    </section>
+  } @else {
+    <section class="intro">
+      <p class="eyebrow">JOIN THE TOURNAMENT</p>
+      <h1>Register your team</h1>
+      <p>Submit team details and a player roster. The organizer will review your application.</p>
+    </section>
+    @if (error) {
+      <p class="notice error" role="alert">{{ error }}</p>
+    }
+    @if (message) {
+      <p class="notice success" role="status">{{ message }}</p>
+    }
+    <form (ngSubmit)="submit()">
+      <section class="form-section">
+        <h2>Team & contact details</h2>
+        <div class="fields">
+          <label
+            >Team name<input name="teamName" [(ngModel)]="teamName" required maxlength="120"
+          /></label>
+          <label>City<input name="city" [(ngModel)]="city" maxlength="120" /></label>
+          <label
+            >Contact person<input
+              name="contactName"
+              [(ngModel)]="contactName"
+              required
+              maxlength="120"
+          /></label>
+          <label
+            >Email<input
+              type="email"
+              name="contactEmail"
+              [(ngModel)]="contactEmail"
+              required
+              maxlength="254"
+          /></label>
+          <label
+            >Phone<input
+              type="tel"
+              name="contactPhone"
+              [(ngModel)]="contactPhone"
+              required
+              pattern="[+0-9() .-]{7,32}"
+          /></label>
+        </div>
+      </section>
+      <section class="form-section">
+        <div class="roster-heading">
+          <div>
+            <h2>Player roster</h2>
+            <p>Minimum 2, maximum 30 players. Jersey numbers must be unique.</p>
+          </div>
+          <button
+            class="secondary"
+            type="button"
+            (click)="addPlayer()"
+            [disabled]="players.length >= 30"
+          >
+            + Add player
+          </button>
+        </div>
+        @for (player of players; track $index) {
+          <div class="player-row">
+            <span>{{ $index + 1 }}</span
+            ><input
+              [name]="'player-' + $index"
+              [(ngModel)]="player.fullName"
+              placeholder="Player full name"
+              [required]="$index < 2"
+              maxlength="120"
+            /><input
+              type="number"
+              [name]="'jersey-' + $index"
+              [(ngModel)]="player.jerseyNumber"
+              min="0"
+              max="999"
+              placeholder="Jersey"
+            /><button
+              class="remove"
+              type="button"
+              (click)="removePlayer($index)"
+              [disabled]="players.length <= 2"
+              aria-label="Remove player"
+            >
+              ×
+            </button>
+          </div>
+        }
+      </section>
+      <button class="submit" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Submitting…' : 'Submit registration' }}
+      </button>
+    </form>
+  }
+</main>

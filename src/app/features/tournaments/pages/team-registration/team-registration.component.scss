@@ -1,0 +1,238 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: var(--cp-bg, #07130f);
+  color: var(--cp-text, #edf8f2);
+}
+.registration-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 22px 64px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 28px;
+  border-bottom: 1px solid var(--cp-border);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--cp-text-muted);
+}
+header a {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--cp-text);
+  text-decoration: none;
+}
+.intro {
+  padding: 34px 0 24px;
+}
+.eyebrow {
+  color: var(--cp-accent);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  font-weight: 800;
+}
+.intro h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  margin: 8px 0;
+}
+.intro p:last-child,
+.roster-heading p {
+  color: var(--cp-text-muted);
+}
+form,
+.applications {
+  display: grid;
+  gap: 18px;
+}
+.form-section,
+.application {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 22px;
+}
+.form-section h2,
+.application h2 {
+  font-size: 18px;
+  margin: 0 0 18px;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--cp-text-muted);
+}
+input {
+  width: 100%;
+  min-width: 0;
+  background: var(--cp-bg);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 9px;
+  padding: 12px;
+  color: var(--cp-text);
+  font: inherit;
+}
+input:focus {
+  outline: 2px solid var(--cp-accent);
+  outline-offset: 1px;
+}
+.roster-heading,
+.application-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.roster-heading p,
+.application p {
+  margin: 5px 0 14px;
+  color: var(--cp-text-muted);
+  font-size: 13px;
+}
+.player-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 100px 34px;
+  gap: 9px;
+  align-items: center;
+  margin-top: 10px;
+}
+.player-row > span {
+  color: var(--cp-text-muted);
+  font-size: 12px;
+}
+.player-row input {
+  padding: 10px;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 16px;
+  background: var(--cp-accent);
+  color: var(--cp-accent-contrast, #142018);
+  font-weight: 800;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.secondary,
+.remove {
+  background: var(--cp-surface-raised);
+  color: var(--cp-text);
+  border: 1px solid var(--cp-border-strong);
+}
+.remove {
+  padding: 6px;
+  font-size: 20px;
+}
+.submit {
+  justify-self: start;
+  padding: 14px 22px;
+}
+.notice {
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--cp-surface-raised);
+}
+.error {
+  color: #ff8585;
+}
+.success {
+  color: #8ee6a0;
+}
+.application-head h2 {
+  margin: 0;
+}
+.status {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 9px;
+  border-radius: 20px;
+  background: var(--cp-surface-raised);
+}
+.status.pending {
+  color: #e8bf68;
+}
+.contact {
+  font-size: 13px;
+  color: var(--cp-text-muted);
+}
+.roster {
+  border-top: 1px solid var(--cp-border);
+  padding-top: 14px;
+}
+.player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.player-list span {
+  background: var(--cp-surface-raised);
+  border-radius: 7px;
+  padding: 6px 9px;
+  font-size: 12px;
+}
+.actions .secondary {
+  color: #ff9b9b;
+}
+@media (max-width: 640px) {
+  .registration-page {
+    padding: 18px 14px 44px;
+  }
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .form-section,
+  .application {
+    padding: 16px;
+  }
+  .player-row {
+    grid-template-columns: 22px minmax(0, 1fr) 76px 30px;
+    gap: 6px;
+  }
+  .roster-heading {
+    align-items: center;
+  }
+  .intro {
+    padding-top: 24px;
+  }
+}
+
+.registration-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  border: 1px solid var(--cp-border);
+  border-radius: 14px;
+  background: var(--cp-surface);
+}
+.registration-control p {
+  margin: 5px 0 0;
+  color: var(--cp-text-muted);
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .registration-control {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
