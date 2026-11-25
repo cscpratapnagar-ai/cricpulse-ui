@@ -49,7 +49,8 @@
         [disabled]="
           busyCode() === item.code ||
           item.amountPaise === 0 ||
-          (item.validity === 'Per tournament' && !selectedTournamentId())
+          (item.validity === 'Per tournament' && !selectedTournamentId()) ||
+          isActive(item)
         "
         (click)="createRequest(item)"
       >
@@ -57,9 +58,12 @@
           Creating request…
         </ng-container>
         <ng-template #actionLabel>
-          {{ item.amountPaise === 0 ? 'Included by default' : 'Request activation' }}
+          {{ isActive(item) ? 'Active for selected scope' : (item.amountPaise === 0 ? 'Included by default' : 'Request activation') }}
         </ng-template>
       </button>
+      <small *ngIf="item.code === 'ORGANIZER_PLUS'">
+        Organizer Pro automatically includes all Organizer Plus capabilities.
+      </small>
       <small *ngIf="item.code === 'ORGANIZER_PRO'">
         Includes Organizer Plus features and Pro sponsor placement.
       </small>
