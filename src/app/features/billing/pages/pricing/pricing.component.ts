@@ -14,6 +14,7 @@ interface PackageOption {
 
 interface PaymentOrder {
   id: string;
+  tournamentId: string | null;
   packageCode: string;
   amountPaise: number;
   currency: string;
@@ -22,7 +23,14 @@ interface PaymentOrder {
   createdAt: string;
 }
 
+interface TournamentOption {
+  id: string;
+  name: string;
+  status: string;
+}
+
 interface Entitlement {
+  tournamentId: string | null;
   packageCode: string;
   activationSource: string;
   activatedAt: string;
@@ -39,6 +47,8 @@ interface Entitlement {
 export class PricingComponent {
   private readonly http = inject(HttpClient);
   readonly packages = signal<PackageOption[]>([]);
+  readonly tournaments = signal<TournamentOption[]>([]);
+  readonly selectedTournamentId = signal('');
   readonly orders = signal<PaymentOrder[]>([]);
   readonly entitlements = signal<Entitlement[]>([]);
   readonly loading = signal(true);
@@ -57,6 +67,15 @@ export class PricingComponent {
       next: (items) => this.packages.set(items ?? []),
       error: () => this.error.set('Pricing catalogue could not be loaded. Please retry.'),
     });
+    this.http.get<TournamentOption[]>(`${API_BASE_URL}/tournaments/mine`).subscribe({
+      next: (items) => {
+        this.tournaments.set(items ?? []);
+        if (!this.selectedTournamentId() && items?.length) {
+          this.selectedTournamentId.set(items[0].id);
+        }
+      },
+      error: () => this.error.set('Your tournament list could not be loaded.'),
+    });
     this.http.get<PaymentOrder[]>(`${API_BASE_URL}/payments/orders`).subscribe({
       next: (items) => this.orders.set(items ?? []),
       error: () => this.error.set('Your payment history could not be loaded.'),
@@ -71,6 +90,10 @@ export class PricingComponent {
         this.error.set('Your active access could not be loaded.');
       },
     });
+  }
+
+  selectTournament(tournamentId: string): void {
+    this.selectedTournamentId.set(tournamentId);
   }
 
   price(amountPaise: number): string {
@@ -93,6 +116,7 @@ export class PricingComponent {
       .post<PaymentOrder>(`${API_BASE_URL}/payments/orders`, {
         packageCode: item.code,
         idempotencyKey: globalThis.crypto.randomUUID(),
+        tournamentId: item.validity === 'Per tournament' ? this.selectedTournamentId() : null,
       })
       .subscribe({
         next: (order) => {
