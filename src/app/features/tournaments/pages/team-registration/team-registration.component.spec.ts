@@ -32,14 +32,14 @@ describe('TeamRegistrationComponent', () => {
   });
 
   it('starts with an editable eleven-player roster', () => {
-    expect(component.players).toHaveLength(11);
+    expect(component.players.length).toBe(11);
     expect(component.players[0].jerseyNumber).toBe(1);
     expect(component.players[10].jerseyNumber).toBe(11);
   });
 
   it('allows adding players up to the thirty-player limit', () => {
     for (let index = 0; index < 25; index += 1) component.addPlayer();
-    expect(component.players).toHaveLength(30);
+    expect(component.players.length).toBe(30);
     component.addPlayer();
     expect(component.players).toHaveLength(30);
   });
@@ -47,7 +47,7 @@ describe('TeamRegistrationComponent', () => {
   it('does not allow the roster to shrink below two players', () => {
     while (component.players.length > 2) component.removePlayer(0);
     component.removePlayer(0);
-    expect(component.players).toHaveLength(2);
+    expect(component.players.length).toBe(2);
   });
 
   it('identifies public registration mode from the route', () => {
