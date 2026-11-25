@@ -97,8 +97,9 @@ export class PricingComponent {
   }
 
   tournamentName(tournamentId: string): string {
-    return this.tournaments().find((tournament) => tournament.id === tournamentId)?.name
-      ?? 'Tournament';
+    return (
+      this.tournaments().find((tournament) => tournament.id === tournamentId)?.name ?? 'Tournament'
+    );
   }
 
   price(amountPaise: number): string {
