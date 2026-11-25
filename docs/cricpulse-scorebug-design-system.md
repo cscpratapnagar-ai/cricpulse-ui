@@ -17,4 +17,4 @@ The broadcast scorebug is a live Angular component, not a screenshot. Match valu
 - Wicket red: `#D94B4B`
 
 ## Transparent PNG frames
-Five 1920x220 RGBA frame assets are supplied under `src/assets/broadcast/scorebug/`. They are decorative framing only; live text and score values must remain in Angular HTML.
+Five separate 1920x220 RGBA frame assets are provided in the companion PNG pack. They are decorative framing only; live text and score values remain in Angular HTML.
