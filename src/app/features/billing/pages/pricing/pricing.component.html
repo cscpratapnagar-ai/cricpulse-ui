@@ -29,9 +29,28 @@
       <div class="validity">
         {{ item.amountPaise === 0 ? 'Always free' : item.validity }}
       </div>
+      <label class="tournament-picker" *ngIf="item.validity === 'Per tournament'">
+        Choose tournament
+        <select
+          [value]="selectedTournamentId()"
+          (change)="selectTournament($any($event.target).value)"
+        >
+          <option value="">Select a tournament</option>
+          <option *ngFor="let tournament of tournaments()" [value]="tournament.id">
+            {{ tournament.name }}
+          </option>
+        </select>
+      </label>
+      <small class="empty" *ngIf="item.validity === 'Per tournament' && !tournaments().length">
+        Create a tournament before requesting this package.
+      </small>
       <button
         type="button"
-        [disabled]="busyCode() === item.code || item.amountPaise === 0"
+        [disabled]="
+          busyCode() === item.code ||
+          item.amountPaise === 0 ||
+          (item.validity === 'Per tournament' && !selectedTournamentId())
+        "
         (click)="createRequest(item)"
       >
         <ng-container *ngIf="busyCode() === item.code; else actionLabel">
@@ -71,6 +90,9 @@
       </p>
       <div class="record" *ngFor="let access of entitlements()">
         <strong>{{ access.packageCode.replaceAll('_', ' ') }}</strong>
+        <span *ngIf="access.tournamentId">
+          Tournament: {{ tournamentName(access.tournamentId) }}
+        </span>
         <span>Activated {{ access.activatedAt | date: 'mediumDate' }}</span>
         <span *ngIf="access.expiresAt">Expires {{ access.expiresAt | date: 'mediumDate' }}</span>
         <span *ngIf="!access.expiresAt">No expiry recorded</span>
@@ -87,6 +109,9 @@
       <p class="empty" *ngIf="!orders().length">No payment requests yet.</p>
       <div class="record order" *ngFor="let order of orders()">
         <strong>{{ order.packageCode.replaceAll('_', ' ') }}</strong>
+        <span *ngIf="order.tournamentId">
+          Tournament: {{ tournamentName(order.tournamentId) }}
+        </span>
         <span>{{ price(order.amountPaise) }} · {{ order.status }}</span>
         <span>{{ order.createdAt | date: 'medium' }}</span>
       </div>
