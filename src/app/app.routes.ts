@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { AccountProfileComponent } from './features/account/pages/profile/account-profile.component';
+import { PricingComponent } from './features/billing/pages/pricing/pricing.component';
 import { AnalyticsComponent } from './features/analytics/pages/analytics/analytics.component';
 import { LeaderboardsComponent } from './features/analytics/pages/leaderboards/leaderboards.component';
 import { LoginComponent } from './features/auth/pages/login/login.component';
@@ -109,6 +110,7 @@ const dashboardChildren: Routes = [
   { path: 'analytics', component: AnalyticsComponent },
   { path: 'leaderboards', component: LeaderboardsComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'pricing', component: PricingComponent },
   { path: 'admin/users', component: AdminUsersComponent, canActivate: [adminGuard] },
   { path: 'notifications', component: NotificationsComponent },
   { path: 'account', component: AccountProfileComponent },
