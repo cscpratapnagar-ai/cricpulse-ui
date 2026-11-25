@@ -14,6 +14,7 @@ import {
   tap,
 } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
+import { CricPulseScorebugComponent } from '../../components/scorebug/cricpulse-scorebug.component';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import {
   LiveBatter,
@@ -93,7 +94,7 @@ interface AutoEvent {
 @Component({
   selector: 'app-broadcast-overlay',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, CricPulseScorebugComponent],
   templateUrl: './broadcast-overlay.component.html',
   styleUrl: './broadcast-overlay.component.scss',
 })
