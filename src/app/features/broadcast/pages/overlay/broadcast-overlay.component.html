@@ -47,80 +47,14 @@
           }
         </section>
 
-        <section class="scorebug">
-          <div class="scorebug-team">
-            <span class="eyebrow">{{ inningsLabel(score) }} · {{ formatLabel() }}</span>
-            <strong>{{ battingTeam(score) }}</strong>
-            <small>{{ bowlingTeam(score) }}</small>
-          </div>
-
-          <div class="scorebug-score">
-            <strong
-              >{{ score.runs }}<em>/{{ score.wickets }}</em></strong
-            >
-            <span>{{ overs(score.legalBalls) }} <small>OVERS</small></span>
-          </div>
-
-          <div class="scorebug-context">
-            <div class="context-main">
-              <b>{{ contextPrimary(score) }}</b>
-              <span>{{ contextSecondary(score) }}</span>
-            </div>
-            <div class="context-rate">
-              <span>{{ contextRateLabel(score) }}</span>
-              <strong>{{ contextRate(score) }}</strong>
-            </div>
-          </div>
-
-          <div class="scorebug-players">
-            <article class="mini-player striker">
-              <i></i>
-              <div>
-                <strong>{{ batterName(score) }}</strong
-                ><span
-                  >{{ batterBalls(score) }}b · {{ batterFours(score) }}x4 ·
-                  {{ batterSixes(score) }}x6 · SR
-                  {{ batterStrikeRate(score, score.strikerId) }}</span
-                >
-              </div>
-              <b>{{ batterRuns(score) }}</b>
-            </article>
-            <article class="mini-player">
-              <i></i>
-              <div>
-                <strong>{{ nonStrikerName(score) }}</strong
-                ><span
-                  >{{ nonStrikerBalls(score) }}b · SR
-                  {{ batterStrikeRate(score, score.nonStrikerId) }}</span
-                >
-              </div>
-              <b>{{ nonStrikerRuns(score) }}</b>
-            </article>
-          </div>
-
-          <div class="scorebug-bowler">
-            <span class="eyebrow">CURRENT BOWLER</span>
-            <strong>{{ bowlerName(score) }}</strong>
-            <div class="bowler-stats">
-              <span
-                ><b>{{ bowlerOvers(score) }}</b
-                ><small>OV</small></span
-              >
-              <span
-                ><b>{{ bowlerRuns(score) }}</b
-                ><small>R</small></span
-              >
-              <span
-                ><b>{{ bowlerWickets(score) }}</b
-                ><small>W</small></span
-              >
-              <span
-                ><b>{{ bowlerEconomy(score) }}</b
-                ><small>ECON</small></span
-              >
-            </div>
-          </div>
-        </section>
+        <app-cricpulse-scorebug
+          [score]="score"
+          [battingTeam]="battingTeam(score)"
+          [bowlingTeam]="bowlingTeam(score)"
+          [format]="formatLabel()"
+          [innings]="inningsLabel(score)"
+          [variant]="score.targetRuns != null ? 'chase' : 'standard'"
+        />
 
         <section class="over-dock">
           <div class="over-title">
