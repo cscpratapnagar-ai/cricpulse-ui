@@ -56,7 +56,7 @@ describe('PricingComponent', () => {
     fixture.destroy();
   });
 
-  it('treats Organizer Pro as inherited Organizer Plus access for the selected tournament', () => {
+  it('inherits Organizer Plus access from Organizer Pro', () => {
     const fixture = TestBed.createComponent(PricingComponent);
     const component = fixture.componentInstance;
     http.expectOne(`${API_BASE_URL}/payments/packages`).flush([]);
