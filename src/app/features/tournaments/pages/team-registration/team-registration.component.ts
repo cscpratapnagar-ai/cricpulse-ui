@@ -53,8 +53,14 @@ export class TeamRegistrationComponent {
   error = '';
   message = '';
   reviewBusy = '';
+  registrationOpen = false;
+  registrationSettingsLoading = false;
+  registrationSettingsBusy = false;
   constructor() {
-    if (this.manageMode) this.loadRegistrations();
+    if (this.manageMode) {
+      this.loadRegistrations();
+      this.loadRegistrationSettings();
+    }
   }
   addPlayer(): void {
     if (this.players.length < 30)
@@ -109,6 +115,40 @@ export class TeamRegistrationComponent {
           this.submitting = false;
           this.error =
             e?.error?.message || 'Registration could not be submitted. Please try again.';
+        },
+      });
+  }
+  loadRegistrationSettings(): void {
+    this.registrationSettingsLoading = true;
+    this.http
+      .get<{ open: boolean }>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`)
+      .subscribe({
+        next: (settings) => {
+          this.registrationOpen = settings.open;
+          this.registrationSettingsLoading = false;
+        },
+        error: () => {
+          this.registrationSettingsLoading = false;
+        },
+      });
+  }
+  toggleRegistration(): void {
+    this.registrationSettingsBusy = true;
+    this.error = '';
+    this.http
+      .patch<{ open: boolean }>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`, {
+        open: !this.registrationOpen,
+        deadline: null,
+      })
+      .subscribe({
+        next: (settings) => {
+          this.registrationOpen = settings.open;
+          this.registrationSettingsBusy = false;
+          this.message = settings.open ? 'Public team registration is now open.' : 'Public team registration is closed.';
+        },
+        error: (e) => {
+          this.registrationSettingsBusy = false;
+          this.error = e?.error?.message || 'Unable to update registration settings.';
         },
       });
   }
