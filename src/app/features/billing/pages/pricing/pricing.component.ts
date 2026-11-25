@@ -11,6 +11,7 @@ interface PackageOption {
   description: string;
   validity: string;
 }
+
 interface PaymentOrder {
   id: string;
   packageCode: string;
@@ -20,6 +21,7 @@ interface PaymentOrder {
   provider: string;
   createdAt: string;
 }
+
 interface Entitlement {
   packageCode: string;
   activationSource: string;
@@ -87,19 +89,23 @@ export class PricingComponent {
     this.busyCode.set(item.code);
     this.error.set('');
     this.notice.set('');
-    this.http.post<PaymentOrder>(`${API_BASE_URL}/payments/orders`, {
-      packageCode: item.code,
-      idempotencyKey: globalThis.crypto.randomUUID(),
-    }).subscribe({
-      next: (order) => {
-        this.busyCode.set('');
-        this.notice.set(`Request created for ${item.name}. Order ${order.id} is ${order.status.toLowerCase()}. Payment is not collected online yet; access starts only after verified admin activation.`);
-        this.load();
-      },
-      error: (response) => {
-        this.busyCode.set('');
-        this.error.set(response?.error?.message || 'Unable to create the payment request.');
-      },
-    });
+    this.http
+      .post<PaymentOrder>(`${API_BASE_URL}/payments/orders`, {
+        packageCode: item.code,
+        idempotencyKey: globalThis.crypto.randomUUID(),
+      })
+      .subscribe({
+        next: (order) => {
+          this.busyCode.set('');
+          this.notice.set(
+            `Request created for ${item.name}. Order ${order.id} is ${order.status.toLowerCase()}. Payment is not collected online yet; access starts only after verified admin activation.`,
+          );
+          this.load();
+        },
+        error: (response) => {
+          this.busyCode.set('');
+          this.error.set(response?.error?.message || 'Unable to create the payment request.');
+        },
+      });
   }
 }
