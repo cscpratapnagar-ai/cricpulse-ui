@@ -96,6 +96,11 @@ export class PricingComponent {
     this.selectedTournamentId.set(tournamentId);
   }
 
+  tournamentName(tournamentId: string): string {
+    return this.tournaments().find((tournament) => tournament.id === tournamentId)?.name
+      ?? 'Tournament';
+  }
+
   price(amountPaise: number): string {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
