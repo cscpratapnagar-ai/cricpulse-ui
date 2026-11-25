@@ -56,6 +56,39 @@ describe('PricingComponent', () => {
     fixture.destroy();
   });
 
+  it('treats Organizer Pro as inherited Organizer Plus access for the selected tournament', () => {
+    const fixture = TestBed.createComponent(PricingComponent);
+    const component = fixture.componentInstance;
+    http.expectOne(`${API_BASE_URL}/payments/packages`).flush([]);
+    http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([
+      { id: 'tournament-1', name: 'City League', status: 'DRAFT' },
+    ]);
+    http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
+    http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([
+      {
+        tournamentId: 'tournament-1',
+        packageCode: 'ORGANIZER_PRO',
+        activationSource: 'MANUAL',
+        activatedAt: '2026-11-25T10:00:00Z',
+        expiresAt: null,
+      },
+    ]);
+
+    component.packages.set([
+      {
+        code: 'ORGANIZER_PLUS',
+        name: 'Organizer Plus',
+        amountPaise: 9900,
+        currency: 'INR',
+        description: 'Plus',
+        validity: 'Per tournament',
+      },
+    ]);
+
+    expect(component.isActive(component.packages()[0])).toBeTrue();
+    fixture.destroy();
+  });
+
   it('formats paise as Indian rupees', () => {
     const fixture = TestBed.createComponent(PricingComponent);
     const component = fixture.componentInstance;
