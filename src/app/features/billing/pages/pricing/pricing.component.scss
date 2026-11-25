@@ -207,3 +207,24 @@
     min-height: 0;
   }
 }
+
+.tournament-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 14px 0;
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tournament-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border, #dce3e8);
+  border-radius: 9px;
+  background: var(--surface, #fff);
+  color: var(--text-primary, #172033);
+  padding: 10px 12px;
+  font: inherit;
+}
