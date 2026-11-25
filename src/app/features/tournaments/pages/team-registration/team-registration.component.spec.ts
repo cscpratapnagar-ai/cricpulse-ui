@@ -41,7 +41,7 @@ describe('TeamRegistrationComponent', () => {
     for (let index = 0; index < 25; index += 1) component.addPlayer();
     expect(component.players.length).toBe(30);
     component.addPlayer();
-    expect(component.players).toHaveLength(30);
+    expect(component.players.length).toBe(30);
   });
 
   it('does not allow the roster to shrink below two players', () => {
