@@ -126,9 +126,7 @@ export class PricingComponent {
   }
 
   workspaceName(teamId: string): string {
-    return (
-      this.workspaces().find((workspace) => workspace.id === teamId)?.name ?? 'Team workspace'
-    );
+    return this.workspaces().find((workspace) => workspace.id === teamId)?.name ?? 'Team workspace';
   }
 
   isWorkspacePackage(item: PackageOption): boolean {
