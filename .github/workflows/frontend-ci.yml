@@ -47,8 +47,6 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Audit CI security and reproducibility policy
         run: npm run ci:policy:audit
-      - name: Diagnose provenance audit formatting
-        run: npx --yes prettier@3.5.3 scripts/audit-production-image-provenance.mjs | diff -u scripts/audit-production-image-provenance.mjs - || true
       - name: Verify formatting
         run: npm run format:check
       - name: Verify TypeScript
