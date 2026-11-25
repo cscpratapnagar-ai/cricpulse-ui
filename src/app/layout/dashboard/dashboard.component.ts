@@ -32,6 +32,7 @@ export class DashboardComponent {
     { label: 'Teams', group: 'Management', route: '/teams', icon: '◇' },
     { label: 'Players', group: 'Management', route: '/players', icon: '♙' },
     { label: 'Tournaments', group: 'Management', route: '/tournaments', icon: '♜' },
+    { label: 'Plans & Pricing', group: 'Account', route: '/pricing', icon: '₹' },
     { label: 'Analytics', group: 'Intelligence', route: '/analytics', icon: '✦' },
     { label: 'Leaderboards', group: 'Intelligence', route: '/leaderboards', icon: '↗' },
     { label: 'Notifications', group: 'Activity center', route: '/notifications', icon: '♢' },
@@ -122,7 +123,7 @@ export class DashboardComponent {
     return this.commandItems.filter((item) => {
       if (item.label === 'User & Roles') return this.isAdmin;
       if (this.hasWorkspaceAccess) return true;
-      return ['Dashboard', 'Teams', 'Settings'].includes(item.label);
+      return ['Dashboard', 'Teams', 'Settings', 'Plans & Pricing'].includes(item.label);
     });
   }
 
