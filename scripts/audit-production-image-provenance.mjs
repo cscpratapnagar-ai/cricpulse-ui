@@ -10,13 +10,13 @@ mustInclude('packages: write', 'GHCR publishing permission is required');
 mustInclude('id-token: write', 'OIDC signing permission is required');
 mustInclude('attestations: write', 'attestation permission is required');
 mustInclude(
-  'branches:\n      - main\n      - develop',
-  'main and develop pushes must publish images',
+  'branches:\n      - release',
+  'only release pushes may publish production images',
 );
 mustInclude('workflow_dispatch:', 'manual publishing must be available');
 mustInclude(
-  "if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'",
-  'manual runs must be restricted to release branches',
+  "if: github.ref == 'refs/heads/release'",
+  'manual runs must be restricted to the exact release branch',
 );
 mustInclude(
   'group: publish-production-container-${{ github.ref }}',
@@ -30,8 +30,8 @@ mustInclude('provenance: mode=max', 'BuildKit provenance is required');
 mustInclude('type=sha', 'immutable commit tags are required');
 mustInclude('type=ref,event=branch', 'branch-specific image tags are required');
 mustInclude(
-  "type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}",
-  'latest must only point to main builds',
+  "type=raw,value=latest,enable=${{ github.ref == 'refs/heads/release' }}",
+  'latest must only point to release builds',
 );
 mustInclude(
   'IMAGE_NAME: cscpratapnagar-ai/cricpulse-ui',
