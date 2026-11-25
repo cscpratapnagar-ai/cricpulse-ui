@@ -34,7 +34,7 @@ export class PublicLiveScoreComponent {
     if(!this.matchId)return;
     this.http.get<Match>(`${this.api}/matches/${encodeURIComponent(this.matchId)}`).subscribe({next:m=>this.match=m,error:e=>console.error('[PublicLive] match load failed',e)});
     this.http.get<CurrentInnings>(`${this.api}/public/matches/${encodeURIComponent(this.matchId)}/current-innings`).subscribe({
-      next:innings=>{const inningsId=innings.inningsId;if(!inningsId)return;this.score$=this.liveScore.watch(inningsId).pipe(catchError(e=>{console.error('[PublicLive] score failed',e);return of<LiveScore|null>(null);}));},
+      next:innings=>{const inningsId=innings.inningsId;if(!inningsId)return;this.score$=this.liveScore.watchPublic(inningsId).pipe(catchError(e=>{console.error('[PublicLive] score failed',e);return of<LiveScore|null>(null);}));},
       error:e=>{console.error('[PublicLive] current innings failed',e);this.score$=of(null);}
     });
   }

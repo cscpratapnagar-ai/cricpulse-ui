@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { EMPTY, Observable, Subscription, catchError, switchMap, timer } from 'rxjs';
+import { EMPTY, Observable, Subscription, catchError, firstValueFrom, switchMap, timer } from 'rxjs';
 
 export interface LiveBatter { playerId: string; runs: number; ballsFaced: number; fours: number; sixes: number; strikeRate?: number | null; out: boolean; dismissalType?: string | null; }
 export interface LiveBowler { playerId: string; legalBalls: number; runsConceded: number; wickets: number; wides: number; noBalls: number; economy?: number | null; }
@@ -17,6 +17,8 @@ export interface LiveScore {
   eventVersion?: number; batters?: LiveBatter[]; bowlers?: LiveBowler[]; overs?: LiveOver[];
   recentBalls?: LiveRecentBall[]; partnership?: LivePartnership | null; fallOfWickets?: LiveFallOfWicket[];
 }
+
+export type LiveFeedAccess = 'public' | 'private';
 
 /**
  * Local Angular development keeps using the separately running API on :8080.
@@ -36,18 +38,25 @@ export function resolveLiveWebSocketUrl(apiOrigin: string): string {
   return url.toString();
 }
 
+export function resolveLiveTopic(inningsId: string, access: LiveFeedAccess): string {
+  const prefix = access === 'public' ? '/topic/public/innings/' : '/topic/innings/';
+  return prefix + encodeURIComponent(inningsId);
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiveScoreService {
   private readonly http = inject(HttpClient);
   private readonly apiOrigin = resolveLiveApiOrigin(window.location);
   private readonly snapshotUrl = (inningsId: string) =>
     `${this.apiOrigin}/api/public/innings/${encodeURIComponent(inningsId)}`;
+  private readonly ticketUrl = `${this.apiOrigin}/api/auth/ws-ticket`;
 
   /**
-   * WebSocket provides low-latency updates; periodic public snapshots keep
-   * viewers current while the socket is disconnected or reconnecting.
+   * Public viewers use the anonymous read-only topic. Authenticated scoring
+   * screens request a short-lived ticket and use the protected private topic.
+   * Both paths refresh the REST snapshot after every successful reconnect.
    */
-  watch(inningsId: string): Observable<LiveScore> {
+  watch(inningsId: string, access: LiveFeedAccess = 'private'): Observable<LiveScore> {
     return new Observable<LiveScore>((subscriber) => {
       if (!inningsId) {
         subscriber.error(new Error('Innings ID is required'));
@@ -56,6 +65,7 @@ export class LiveScoreService {
 
       let stopped = false;
       let stompSubscription: StompSubscription | undefined;
+      let client: Client;
       let lastEventVersion: number | undefined;
       const requests = new Subscription();
 
@@ -85,15 +95,25 @@ export class LiveScoreService {
         ).subscribe(publish)
       );
 
-      const client = new Client({
+      client = new Client({
         brokerURL: resolveLiveWebSocketUrl(this.apiOrigin),
         reconnectDelay: 3000,
         connectionTimeout: 10000,
+        beforeConnect: async () => {
+          if (stopped || access === 'public') return;
+          // Tickets are deliberately short-lived. Fetch a fresh one for every
+          // initial connection and automatic reconnect, never persist it.
+          const ticket = await firstValueFrom(
+            this.http.get<{ token: string }>(this.ticketUrl, { withCredentials: true })
+          );
+          if (!ticket?.token) throw new Error('WebSocket authentication ticket was not returned');
+          client.connectHeaders = { Authorization: `Bearer ${ticket.token}` };
+        },
         onConnect: () => {
           if (stopped) return;
           stompSubscription?.unsubscribe();
           stompSubscription = client.subscribe(
-            `/topic/innings/${inningsId}`,
+            resolveLiveTopic(inningsId, access),
             (message: IMessage) => {
               try {
                 publish(JSON.parse(message.body) as LiveScore);
@@ -121,5 +141,13 @@ export class LiveScoreService {
         void client.deactivate();
       };
     });
+  }
+
+  watchPublic(inningsId: string): Observable<LiveScore> {
+    return this.watch(inningsId, 'public');
+  }
+
+  watchPrivate(inningsId: string): Observable<LiveScore> {
+    return this.watch(inningsId, 'private');
   }
 }
