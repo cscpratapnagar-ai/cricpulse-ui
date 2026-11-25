@@ -15,6 +15,9 @@ Vercel Git deployments are allowed only from the exact `release` branch. All oth
 6. Create the matching semantic version tag (for example, `v1.0.0`) on the deployed release commit. Never tag an unverified build.
 7. For rollback, promote the last known-good commit back to `release`.
 
+## Production container publishing
+The `Publish Production Container` workflow runs only for pushes to `release` or a manual dispatch selecting `release`. Its publish job enforces the same exact-branch guard. Development branches (`develop` and any feature branch) must not publish production images or update the `latest` image tag.
+
 ## Version tags
 Use semantic versioning: `vMAJOR.MINOR.PATCH`. Tags are immutable release records, not the deployment trigger. Vercel Git deployment is triggered by a push/merge to `release`.
 
