@@ -16,9 +16,28 @@
       <p class="notice success" role="status">{{ message }}</p>
     }
     <section class="registration-control">
-      <div><strong>Public registration</strong><p>{{ registrationOpen ? 'Applications are being accepted.' : 'New applications are currently closed.' }}</p></div>
-      <button type="button" [disabled]="registrationSettingsLoading || registrationSettingsBusy" (click)="toggleRegistration()">
-        {{ registrationSettingsBusy ? 'Saving…' : registrationOpen ? 'Close registration' : 'Open registration' }}
+      <div>
+        <strong>Public registration</strong>
+        <p>
+          {{
+            registrationOpen
+              ? 'Applications are being accepted.'
+              : 'New applications are currently closed.'
+          }}
+        </p>
+      </div>
+      <button
+        type="button"
+        [disabled]="registrationSettingsLoading || registrationSettingsBusy"
+        (click)="toggleRegistration()"
+      >
+        {{
+          registrationSettingsBusy
+            ? 'Saving…'
+            : registrationOpen
+              ? 'Close registration'
+              : 'Open registration'
+        }}
       </button>
     </section>
     <section class="applications">

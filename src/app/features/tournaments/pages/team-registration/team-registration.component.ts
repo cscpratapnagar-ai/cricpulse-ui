@@ -121,7 +121,9 @@ export class TeamRegistrationComponent {
   loadRegistrationSettings(): void {
     this.registrationSettingsLoading = true;
     this.http
-      .get<{ open: boolean }>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`)
+      .get<{
+        open: boolean;
+      }>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`)
       .subscribe({
         next: (settings) => {
           this.registrationOpen = settings.open;
@@ -136,15 +138,20 @@ export class TeamRegistrationComponent {
     this.registrationSettingsBusy = true;
     this.error = '';
     this.http
-      .patch<{ open: boolean }>(`${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`, {
-        open: !this.registrationOpen,
-        deadline: null,
-      })
+      .patch<{ open: boolean }>(
+        `${this.api}/tournaments/${encodeURIComponent(this.tournamentId)}/registration`,
+        {
+          open: !this.registrationOpen,
+          deadline: null,
+        },
+      )
       .subscribe({
         next: (settings) => {
           this.registrationOpen = settings.open;
           this.registrationSettingsBusy = false;
-          this.message = settings.open ? 'Public team registration is now open.' : 'Public team registration is closed.';
+          this.message = settings.open
+            ? 'Public team registration is now open.'
+            : 'Public team registration is closed.';
         },
         error: (e) => {
           this.registrationSettingsBusy = false;
