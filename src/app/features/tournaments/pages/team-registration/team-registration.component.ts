@@ -35,7 +35,7 @@ export class TeamRegistrationComponent {
   private readonly route = inject(ActivatedRoute);
   readonly api = API_BASE_URL;
   readonly tournamentId = this.route.snapshot.paramMap.get('id') ?? '';
-  readonly manageMode = this.route.snapshot.routeConfig?.path === 'tournaments/:id/registrations';
+  readonly manageMode = this.route.snapshot.data['registrationMode'] === 'manage';
   teamName = '';
   city = '';
   contactName = '';
