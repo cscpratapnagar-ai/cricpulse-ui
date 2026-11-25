@@ -90,7 +90,9 @@ export class PricingComponent {
     });
     this.http.get<WorkspaceOption[]>(`${API_BASE_URL}/teams/workspaces`).subscribe({
       next: (items) => {
-        const manageable = (items ?? []).filter((workspace) => workspace.canManage);
+        const manageable = (items ?? []).filter(
+          (workspace) => workspace.workspaceRole === 'OWNER' || workspace.workspaceRole === 'MANAGER',
+        );
         this.workspaces.set(manageable);
         if (!this.selectedWorkspaceId() && manageable.length) {
           this.selectedWorkspaceId.set(manageable[0].id);
