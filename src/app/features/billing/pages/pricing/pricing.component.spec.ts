@@ -15,7 +15,7 @@ describe('PricingComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('loads the catalogue, tournaments, orders and entitlements', () => {
+  it('loads the catalogue, tournaments, workspaces, orders and entitlements', () => {
     const fixture = TestBed.createComponent(PricingComponent);
     const component = fixture.componentInstance;
     const freePackage = {
@@ -38,6 +38,7 @@ describe('PricingComponent', () => {
 
     http.expectOne(`${API_BASE_URL}/payments/packages`).flush([freePackage, plusPackage]);
     http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([tournament]);
+    http.expectOne(`${API_BASE_URL}/teams/workspaces`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([]);
 
@@ -57,6 +58,7 @@ describe('PricingComponent', () => {
     const tournament = { id: 'tournament-1', name: 'City League', status: 'DRAFT' };
     const entitlement = {
       tournamentId: 'tournament-1',
+      teamId: null,
       packageCode: 'ORGANIZER_PRO',
       activationSource: 'MANUAL',
       activatedAt: '2026-11-25T10:00:00Z',
@@ -73,10 +75,49 @@ describe('PricingComponent', () => {
 
     http.expectOne(`${API_BASE_URL}/payments/packages`).flush([]);
     http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([tournament]);
+    http.expectOne(`${API_BASE_URL}/teams/workspaces`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([entitlement]);
     component.packages.set([plusPackage]);
 
+    expect(component.isActive(component.packages()[0])).toBeTrue();
+    fixture.destroy();
+  });
+
+  it('scopes Club and Academy Plus access to the selected team workspace', () => {
+    const fixture = TestBed.createComponent(PricingComponent);
+    const component = fixture.componentInstance;
+    const workspace = {
+      id: 'team-1',
+      name: 'Vansda Cricket Club',
+      city: 'Vansda',
+      workspaceRole: 'OWNER',
+      canManage: true,
+    };
+    const entitlement = {
+      tournamentId: null,
+      teamId: 'team-1',
+      packageCode: 'CLUB_ACADEMY_PLUS',
+      activationSource: 'MANUAL',
+      activatedAt: '2026-11-25T10:00:00Z',
+      expiresAt: '2027-11-25T10:00:00Z',
+    };
+    const academyPackage = {
+      code: 'CLUB_ACADEMY_PLUS',
+      name: 'Club / Academy Plus',
+      amountPaise: 39900,
+      currency: 'INR',
+      description: 'Academy',
+      validity: '1 year',
+    };
+
+    http.expectOne(`${API_BASE_URL}/payments/packages`).flush([academyPackage]);
+    http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([]);
+    http.expectOne(`${API_BASE_URL}/teams/workspaces`).flush([workspace]);
+    http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
+    http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([entitlement]);
+
+    expect(component.selectedWorkspaceId()).toBe('team-1');
     expect(component.isActive(component.packages()[0])).toBeTrue();
     fixture.destroy();
   });
@@ -87,6 +128,7 @@ describe('PricingComponent', () => {
 
     http.expectOne(`${API_BASE_URL}/payments/packages`).flush([]);
     http.expectOne(`${API_BASE_URL}/tournaments/mine`).flush([]);
+    http.expectOne(`${API_BASE_URL}/teams/workspaces`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/orders`).flush([]);
     http.expectOne(`${API_BASE_URL}/payments/entitlements`).flush([]);
 
