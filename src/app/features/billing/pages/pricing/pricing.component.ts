@@ -111,7 +111,8 @@ export class PricingComponent {
   }
 
   isActive(item: PackageOption): boolean {
-    const expectedTournamentId = item.validity === 'Per tournament' ? this.selectedTournamentId() : null;
+    const expectedTournamentId =
+      item.validity === 'Per tournament' ? this.selectedTournamentId() : null;
     return this.entitlements().some((entitlement) => {
       const packageMatches =
         entitlement.packageCode === item.code ||
