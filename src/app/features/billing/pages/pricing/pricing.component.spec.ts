@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { PricingComponent } from './pricing.component';
+import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../../core/config/api.config';
+import { PricingComponent } from './pricing.component';
 
 describe('PricingComponent', () => {
   let http: HttpTestingController;
@@ -24,8 +24,22 @@ describe('PricingComponent', () => {
     const entitlements = http.expectOne(`${API_BASE_URL}/payments/entitlements`);
 
     packages.flush([
-      { code: 'FREE_TOURNAMENT', name: 'Free Tournament', amountPaise: 0, currency: 'INR', description: 'Free', validity: 'Free' },
-      { code: 'ORGANIZER_PLUS', name: 'Organizer Plus', amountPaise: 9900, currency: 'INR', description: 'Plus', validity: 'Per tournament' },
+      {
+        code: 'FREE_TOURNAMENT',
+        name: 'Free Tournament',
+        amountPaise: 0,
+        currency: 'INR',
+        description: 'Free',
+        validity: 'Free',
+      },
+      {
+        code: 'ORGANIZER_PLUS',
+        name: 'Organizer Plus',
+        amountPaise: 9900,
+        currency: 'INR',
+        description: 'Plus',
+        validity: 'Per tournament',
+      },
     ]);
     orders.flush([]);
     entitlements.flush([]);
