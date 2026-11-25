@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "test:security": "node scripts/test-frontend-security-contract.mjs"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
