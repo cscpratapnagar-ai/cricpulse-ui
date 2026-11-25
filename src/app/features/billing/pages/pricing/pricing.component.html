@@ -29,6 +29,21 @@
       <div class="validity">
         {{ item.amountPaise === 0 ? 'Always free' : item.validity }}
       </div>
+      <label class="tournament-picker" *ngIf="isWorkspacePackage(item)">
+        Choose team workspace
+        <select
+          [value]="selectedWorkspaceId()"
+          (change)="selectWorkspace($any($event.target).value)"
+        >
+          <option value="">Select a team workspace</option>
+          <option *ngFor="let workspace of workspaces()" [value]="workspace.id">
+            {{ workspace.name }}
+          </option>
+        </select>
+      </label>
+      <small class="empty" *ngIf="isWorkspacePackage(item) && !workspaces().length">
+        Create a team or ask its manager to request this package.
+      </small>
       <label class="tournament-picker" *ngIf="item.validity === 'Per tournament'">
         Choose tournament
         <select
@@ -50,6 +65,7 @@
           busyCode() === item.code ||
           item.amountPaise === 0 ||
           (item.validity === 'Per tournament' && !selectedTournamentId()) ||
+          (isWorkspacePackage(item) && !selectedWorkspaceId()) ||
           isActive(item)
         "
         (click)="createRequest(item)"
@@ -103,6 +119,7 @@
         <span *ngIf="access.tournamentId">
           Tournament: {{ tournamentName(access.tournamentId) }}
         </span>
+        <span *ngIf="access.teamId">Workspace: {{ workspaceName(access.teamId) }}</span>
         <span>Activated {{ access.activatedAt | date: 'mediumDate' }}</span>
         <span *ngIf="access.expiresAt">Expires {{ access.expiresAt | date: 'mediumDate' }}</span>
         <span *ngIf="!access.expiresAt">No expiry recorded</span>
@@ -122,6 +139,7 @@
         <span *ngIf="order.tournamentId">
           Tournament: {{ tournamentName(order.tournamentId) }}
         </span>
+        <span *ngIf="order.teamId">Workspace: {{ workspaceName(order.teamId) }}</span>
         <span>{{ price(order.amountPaise) }} · {{ order.status }}</span>
         <span>{{ order.createdAt | date: 'medium' }}</span>
       </div>
