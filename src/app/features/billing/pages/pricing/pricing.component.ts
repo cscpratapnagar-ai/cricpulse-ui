@@ -15,6 +15,7 @@ interface PackageOption {
 interface PaymentOrder {
   id: string;
   tournamentId: string | null;
+  teamId: string | null;
   packageCode: string;
   amountPaise: number;
   currency: string;
@@ -29,8 +30,17 @@ interface TournamentOption {
   status: string;
 }
 
+interface WorkspaceOption {
+  id: string;
+  name: string;
+  city: string | null;
+  workspaceRole: string;
+  canManage: boolean;
+}
+
 interface Entitlement {
   tournamentId: string | null;
+  teamId: string | null;
   packageCode: string;
   activationSource: string;
   activatedAt: string;
@@ -49,6 +59,8 @@ export class PricingComponent {
   readonly packages = signal<PackageOption[]>([]);
   readonly tournaments = signal<TournamentOption[]>([]);
   readonly selectedTournamentId = signal('');
+  readonly workspaces = signal<WorkspaceOption[]>([]);
+  readonly selectedWorkspaceId = signal('');
   readonly orders = signal<PaymentOrder[]>([]);
   readonly entitlements = signal<Entitlement[]>([]);
   readonly loading = signal(true);
@@ -76,6 +88,19 @@ export class PricingComponent {
       },
       error: () => this.error.set('Your tournament list could not be loaded.'),
     });
+    this.http.get<WorkspaceOption[]>(`${API_BASE_URL}/teams/workspaces`).subscribe({
+      next: (items) => {
+        const manageable = (items ?? []).filter(
+          (workspace) =>
+            workspace.workspaceRole === 'OWNER' || workspace.workspaceRole === 'MANAGER',
+        );
+        this.workspaces.set(manageable);
+        if (!this.selectedWorkspaceId() && manageable.length) {
+          this.selectedWorkspaceId.set(manageable[0].id);
+        }
+      },
+      error: () => this.error.set('Your team workspaces could not be loaded.'),
+    });
     this.http.get<PaymentOrder[]>(`${API_BASE_URL}/payments/orders`).subscribe({
       next: (items) => this.orders.set(items ?? []),
       error: () => this.error.set('Your payment history could not be loaded.'),
@@ -96,6 +121,18 @@ export class PricingComponent {
     this.selectedTournamentId.set(tournamentId);
   }
 
+  selectWorkspace(teamId: string): void {
+    this.selectedWorkspaceId.set(teamId);
+  }
+
+  workspaceName(teamId: string): string {
+    return this.workspaces().find((workspace) => workspace.id === teamId)?.name ?? 'Team workspace';
+  }
+
+  isWorkspacePackage(item: PackageOption): boolean {
+    return item.code === 'CLUB_ACADEMY_PLUS' || item.code === 'ACADEMY_BRANDING';
+  }
+
   tournamentName(tournamentId: string): string {
     return (
       this.tournaments().find((tournament) => tournament.id === tournamentId)?.name ?? 'Tournament'
@@ -113,11 +150,16 @@ export class PricingComponent {
   isActive(item: PackageOption): boolean {
     const expectedTournamentId =
       item.validity === 'Per tournament' ? this.selectedTournamentId() : null;
+    const expectedTeamId = this.isWorkspacePackage(item) ? this.selectedWorkspaceId() : null;
     return this.entitlements().some((entitlement) => {
       const packageMatches =
         entitlement.packageCode === item.code ||
         (item.code === 'ORGANIZER_PLUS' && entitlement.packageCode === 'ORGANIZER_PRO');
-      return packageMatches && entitlement.tournamentId === expectedTournamentId;
+      return (
+        packageMatches &&
+        entitlement.tournamentId === expectedTournamentId &&
+        entitlement.teamId === expectedTeamId
+      );
     });
   }
 
@@ -138,6 +180,7 @@ export class PricingComponent {
         packageCode: item.code,
         idempotencyKey: globalThis.crypto.randomUUID(),
         tournamentId: item.validity === 'Per tournament' ? this.selectedTournamentId() : null,
+        teamId: this.isWorkspacePackage(item) ? this.selectedWorkspaceId() : null,
       })
       .subscribe({
         next: (order) => {
