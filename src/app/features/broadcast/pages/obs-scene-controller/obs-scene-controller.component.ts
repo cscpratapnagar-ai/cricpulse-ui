@@ -182,6 +182,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   private automationWatchedInningsId = '';
   private automationReturnTimer?: ReturnType<typeof setTimeout>;
   private automationBaseScene = '';
+  private automationExpectedScene = '';
   private automationTransitionVersion = 0;
   private automationSwitchQueue: Promise<void> = Promise.resolve();
   private previousAutomationScore: ObsAutomationScore | null = null;
@@ -223,6 +224,10 @@ export class ObsSceneControllerComponent implements OnDestroy {
     );
     this.obsSubscriptions.add(
       this.obs.sceneChanged$.subscribe((sceneName) => {
+        if (this.automationReturnTimer && sceneName !== this.automationExpectedScene) {
+          this.invalidateAutomationTransitions();
+          this.automationStatus = `Automatic return cancelled after OBS scene changed to ${sceneName}.`;
+        }
         this.currentScene = sceneName;
         this.selectedScene = sceneName;
         this.notice = `OBS program scene changed to “${sceneName}”.`;
@@ -683,6 +688,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
       )
         return;
       try {
+        this.automationExpectedScene = sceneName;
         await this.obs.switchScene(sceneName);
         if (transitionVersion !== this.automationTransitionVersion) return;
         this.currentScene = sceneName;
@@ -697,7 +703,12 @@ export class ObsSceneControllerComponent implements OnDestroy {
           )
             return;
           const target = this.automationReturnScene || this.automationBaseScene;
-          if (!target || target === sceneName) return;
+          if (!target || target === sceneName) {
+            this.automationBaseScene = '';
+            this.automationExpectedScene = '';
+            return;
+          }
+          this.automationExpectedScene = target;
           void this.obs
             .switchScene(target)
             .then(() => {
@@ -706,6 +717,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
               this.selectedScene = target;
               this.automationStatus = `Returned to ${target}.`;
               this.automationBaseScene = '';
+              this.automationExpectedScene = '';
             })
             .catch(() => {
               if (transitionVersion === this.automationTransitionVersion)
@@ -729,6 +741,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
     if (this.automationReturnTimer) clearTimeout(this.automationReturnTimer);
     this.automationReturnTimer = undefined;
     this.automationBaseScene = '';
+    this.automationExpectedScene = '';
   }
 
   private startAutomationFeeds(): void {
