@@ -162,10 +162,9 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', sequenceNo: 9, runs: 9 });
     emit(handler, { inningsId: 'innings-a', sequenceNo: 11, runs: 11 });
 
-    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
-      10,
-      11,
-    ]);
+    expect(
+      onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs),
+    ).toEqual([10, 11]);
   });
 
   it('rejects unsequenced legacy frames after sequence ordering is established', () => {
@@ -175,10 +174,9 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', runs: 99 });
     emit(handler, { inningsId: 'innings-a', sequenceNo: 5, runs: 5 });
 
-    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
-      4,
-      5,
-    ]);
+    expect(
+      onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs),
+    ).toEqual([4, 5]);
   });
 
   it('does not allow legacy frames to overwrite a versioned feed', () => {
@@ -190,11 +188,9 @@ describe('LiveScoreSocketService', () => {
     emit(handler, { inningsId: 'innings-a', runs: 100 });
     emit(handler, { inningsId: 'innings-a', eventVersion: 2, runs: 22 });
 
-    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
-      20,
-      21,
-      22,
-    ]);
+    expect(
+      onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs),
+    ).toEqual([20, 21, 22]);
   });
 
   it('resets the legacy sequence baseline when switching innings', () => {
@@ -204,10 +200,9 @@ describe('LiveScoreSocketService', () => {
     const secondHandler = connect('innings-b');
     emit(secondHandler, { inningsId: 'innings-b', sequenceNo: 1, runs: 1 });
 
-    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
-      50,
-      1,
-    ]);
+    expect(
+      onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs),
+    ).toEqual([50, 1]);
   });
 
 });
