@@ -1,8 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  LiveRecentBall,
-  LiveScore,
-} from '../../../../core/services/live-score.service';
+import { LiveRecentBall, LiveScore } from '../../../../core/services/live-score.service';
 import {
   CricPulseScorebugComponent,
   CricPulseScorebugVariant,
