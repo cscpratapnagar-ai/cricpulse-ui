@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {
-  LiveRecentBall,
-  LiveScore,
-} from '../../../../core/services/live-score.service';
+import { LiveRecentBall, LiveScore } from '../../../../core/services/live-score.service';
 
 export type CricPulseScorebugVariant =
   | 'standard'
@@ -45,10 +42,7 @@ export class CricPulseScorebugComponent {
 
   get remainingBalls(): number | null {
     if (!this.score?.totalOvers) return null;
-    return Math.max(
-      0,
-      this.score.totalOvers * 6 - (this.score.legalBalls ?? 0),
-    );
+    return Math.max(0, this.score.totalOvers * 6 - (this.score.legalBalls ?? 0));
   }
 
   get requiredRate(): string {
