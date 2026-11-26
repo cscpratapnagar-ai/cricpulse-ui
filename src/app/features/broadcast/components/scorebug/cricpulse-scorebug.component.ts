@@ -45,7 +45,10 @@ export class CricPulseScorebugComponent {
 
   get remainingBalls(): number | null {
     if (!this.score?.totalOvers) return null;
-    return Math.max(0, this.score.totalOvers * 6 - (this.score.legalBalls ?? 0));
+    return Math.max(
+      0,
+      this.score.totalOvers * 6 - (this.score.legalBalls ?? 0),
+    );
   }
 
   get requiredRate(): string {
@@ -124,10 +127,12 @@ export class CricPulseScorebugComponent {
 
   initials(name: string): string {
     const words = (name || '').trim().split(/\s+/).filter(Boolean);
-    return words
-      .slice(0, 2)
-      .map((word) => word[0].toUpperCase())
-      .join('') || 'CP';
+    return (
+      words
+        .slice(0, 2)
+        .map((word) => word[0].toUpperCase())
+        .join('') || 'CP'
+    );
   }
 
   ballToken(ball: LiveRecentBall): string | number {
