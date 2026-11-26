@@ -81,3 +81,14 @@ The scorer's STOMP socket now applies the same monotonic ordering contract to le
 - Both ordering baselines reset when the scorer switches innings.
 
 The regression suite exercises duplicate, out-of-order, missing-sequence, versioned-to-legacy downgrade, and innings-reset cases. These are deterministic client-side contract tests; they do not replace the real two-device broadcast rehearsal.
+
+
+## Public broadcast reconciliation contract regression coverage
+
+The public live-score service regression suite exercises critical cross-consumer delivery boundaries:
+- Public viewers subscribe to the public innings destination, separate from the authenticated scorer destination.
+- A REST recovery response already in flight cannot overwrite a newer WebSocket event when it returns late.
+- Multiple version gaps received during one in-flight recovery are coalesced into a follow-up authoritative snapshot, avoiding parallel recovery storms while still catching up to the newest version.
+- Existing multi-viewer coverage verifies independent public viewers receive the same authoritative event and reject stale versions.
+
+These are deterministic Angular HTTP/STOMP contract tests. They validate client-side public broadcast synchronization and recovery, but are not a deployed-backend/browser/OBS multi-device E2E rehearsal. The manual certification matrix above remains required for production sign-off.

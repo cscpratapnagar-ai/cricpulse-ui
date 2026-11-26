@@ -243,6 +243,153 @@ describe('LiveScoreService', () => {
     stateSubscription.unsubscribe();
   });
 
+  it('subscribes public viewers to the public innings destination', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    const subscribeSpy = spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'public-destination-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const watcher = service.watch('innings-public').subscribe();
+    expect(subscribeSpy).toHaveBeenCalledWith(
+      '/topic/public/innings/innings-public',
+      jasmine.any(Function),
+    );
+
+    watcher.unsubscribe();
+  });
+
+  it('does not let an in-flight recovery snapshot overwrite a newer websocket event', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    const subscribeSpy = spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'recovery-race-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const receivedVersions: number[] = [];
+    const watcher = service.watch('innings-race').subscribe((score) => {
+      receivedVersions.push(score.eventVersion ?? 0);
+    });
+    const snapshots = httpMock.match((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-race'),
+    );
+    expect(snapshots.length).toBe(2);
+    snapshots[0].flush({
+      inningsId: 'innings-race',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 10,
+      wickets: 0,
+      legalBalls: 5,
+      eventVersion: 10,
+    });
+
+    const onMessage = subscribeSpy.calls.mostRecent().args[1] as (message: {
+      body: string;
+    }) => void;
+    onMessage({
+      body: JSON.stringify({
+        inningsId: 'innings-race',
+        matchId: 'match-1',
+        inningsNumber: 1,
+        runs: 12,
+        wickets: 0,
+        legalBalls: 6,
+        eventVersion: 11,
+      }),
+    });
+
+    snapshots[1].flush({
+      inningsId: 'innings-race',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 9,
+      wickets: 0,
+      legalBalls: 4,
+      eventVersion: 9,
+    });
+
+    expect(receivedVersions).toEqual([10, 11]);
+    watcher.unsubscribe();
+  });
+
+  it('coalesces version-gap recovery while a snapshot is already in flight', () => {
+    const activateSpy = Client.prototype.activate as jasmine.Spy;
+    activateSpy.and.callFake(function (this: Client) {
+      this.onConnect({} as never);
+    });
+    const subscribeSpy = spyOn(Client.prototype, 'subscribe').and.returnValue({
+      id: 'coalesced-recovery-subscription',
+      unsubscribe: jasmine.createSpy('unsubscribe'),
+    } as unknown as StompSubscription);
+
+    const receivedVersions: number[] = [];
+    const watcher = service.watch('innings-gap').subscribe((score) => {
+      receivedVersions.push(score.eventVersion ?? 0);
+    });
+    const snapshots = httpMock.match((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-gap'),
+    );
+    expect(snapshots.length).toBe(2);
+    snapshots[0].flush({
+      inningsId: 'innings-gap',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 1,
+      wickets: 0,
+      legalBalls: 1,
+      eventVersion: 1,
+    });
+
+    const onMessage = subscribeSpy.calls.mostRecent().args[1] as (message: {
+      body: string;
+    }) => void;
+    for (const version of [3, 4, 5]) {
+      onMessage({
+        body: JSON.stringify({
+          inningsId: 'innings-gap',
+          matchId: 'match-1',
+          inningsNumber: 1,
+          runs: version,
+          wickets: 0,
+          legalBalls: version,
+          eventVersion: version,
+        }),
+      });
+    }
+
+    snapshots[1].flush({
+      inningsId: 'innings-gap',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 2,
+      wickets: 0,
+      legalBalls: 2,
+      eventVersion: 2,
+    });
+    const queuedRecovery = httpMock.expectOne((candidate) =>
+      candidate.url.endsWith('/api/public/innings/innings-gap'),
+    );
+    queuedRecovery.flush({
+      inningsId: 'innings-gap',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      runs: 5,
+      wickets: 0,
+      legalBalls: 5,
+      eventVersion: 5,
+    });
+
+    expect(receivedVersions).toEqual([1, 2, 5]);
+    watcher.unsubscribe();
+  });
+
   it('rejects an empty innings id', (done) => {
     service.watch('').subscribe({
       error: (error) => {
