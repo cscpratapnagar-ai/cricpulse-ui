@@ -359,4 +359,78 @@ describe('ObsWebSocketService', () => {
 
     await expectAsync(connecting).toBeRejectedWithError('OBS returned an invalid scene list.');
   });
+
+  it('times out a stalled OBS request without corrupting the active connection', async () => {
+    jasmine.clock().install();
+    try {
+      await connectService();
+
+      const timedOutRequest = service.currentScene();
+      const request = socket.lastRequest();
+      expect(request.d['requestType']).toBe('GetCurrentProgramScene');
+
+      jasmine.clock().tick(8000);
+      await expectAsync(timedOutRequest).toBeRejectedWithError(
+        'OBS request timed out: GetCurrentProgramScene',
+      );
+      expect(service.connected).toBeTrue();
+
+      const nextRequest = service.currentScene();
+      const next = socket.lastRequest();
+      expect(next.d['requestId']).not.toBe(request.d['requestId']);
+      socket.emit({
+        op: 7,
+        d: {
+          requestId: next.d['requestId'],
+          requestStatus: { result: true, code: 100 },
+          responseData: { currentProgramSceneName: 'Scoreboard' },
+        },
+      });
+
+      await expectAsync(nextRequest).toBeResolvedTo('Scoreboard');
+      expect(service.connected).toBeTrue();
+    } finally {
+      service.disconnect();
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('ignores late responses for timed-out requests after their correlation is removed', async () => {
+    jasmine.clock().install();
+    try {
+      await connectService();
+
+      const timedOutRequest = service.currentScene();
+      const request = socket.lastRequest();
+      jasmine.clock().tick(8000);
+      await expectAsync(timedOutRequest).toBeRejected();
+
+      socket.emit({
+        op: 7,
+        d: {
+          requestId: request.d['requestId'],
+          requestStatus: { result: true, code: 100 },
+          responseData: { currentProgramSceneName: 'Stale Scene' },
+        },
+      });
+
+      const pending = service.currentScene();
+      const next = socket.lastRequest();
+      socket.emit({
+        op: 7,
+        d: {
+          requestId: next.d['requestId'],
+          requestStatus: { result: true, code: 100 },
+          responseData: { currentProgramSceneName: 'Live Scene' },
+        },
+      });
+
+      await expectAsync(pending).toBeResolvedTo('Live Scene');
+      expect(service.connected).toBeTrue();
+    } finally {
+      service.disconnect();
+      jasmine.clock().uninstall();
+    }
+  });
+
 });
