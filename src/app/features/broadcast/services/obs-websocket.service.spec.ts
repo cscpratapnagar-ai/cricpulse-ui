@@ -297,6 +297,8 @@ describe('ObsWebSocketService', () => {
       });
       await Promise.resolve();
       await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
 
       const internals = service as unknown as {
         reconnectTimer?: ReturnType<typeof setTimeout>;
