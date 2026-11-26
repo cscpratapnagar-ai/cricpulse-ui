@@ -35,7 +35,9 @@ export class CricPulseScorebugComponent {
   }
 
   get remainingRuns(): number | null {
-    return this.score?.targetRuns == null ? null : Math.max(0, this.score.targetRuns - this.score.runs);
+    return this.score?.targetRuns == null
+      ? null
+      : Math.max(0, this.score.targetRuns - this.score.runs);
   }
 
   get remainingBalls(): number | null {
@@ -51,7 +53,9 @@ export class CricPulseScorebugComponent {
   }
 
   get striker(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.strikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.strikerId,
+    );
     return batter?.playerName || this.score?.strikerName || 'Striker';
   }
 
@@ -61,7 +65,9 @@ export class CricPulseScorebugComponent {
   }
 
   get nonStriker(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.nonStrikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.nonStrikerId,
+    );
     return batter?.playerName || this.score?.nonStrikerName || 'Non-striker';
   }
 
@@ -71,7 +77,9 @@ export class CricPulseScorebugComponent {
   }
 
   get bowler(): string {
-    const bowler = this.score?.bowlers?.find((item) => item.playerId === this.score.currentBowlerId);
+    const bowler = this.score?.bowlers?.find(
+      (item) => item.playerId === this.score.currentBowlerId,
+    );
     return bowler?.playerName || this.score?.currentBowlerName || 'Bowler';
   }
 
