@@ -193,7 +193,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(requestOptions.context.get(SKIP_GLOBAL_LOADING)).toBeTrue();
     expect(liveScore.watch).toHaveBeenCalledWith('innings-1');
     expect(document.documentElement.classList.contains('cricpulse-overlay-mode')).toBeTrue();
-    expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.cp-scorebug')).not.toBeNull();
     expect(fixture.nativeElement.textContent).toContain('12');
     expect(fixture.nativeElement.textContent).toContain('Falcons');
   });
@@ -294,7 +294,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     createOverlay();
 
     expect(fixture.nativeElement.querySelector('.legacy-strip')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('.scorebug')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.cp-scorebug')).toBeNull();
   });
 
   it('detects a new boundary and exposes the automatic FOUR moment', fakeAsync(() => {
@@ -466,7 +466,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     fixture.detectChanges();
 
     expect(liveScore.watch).toHaveBeenCalledTimes(2);
-    expect(fixture.nativeElement.querySelector('.scorebug')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.cp-scorebug')).not.toBeNull();
   }));
 
   it('celebrates a batter reaching a half-century with a dedicated graphic', fakeAsync(() => {
