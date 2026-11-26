@@ -205,6 +205,69 @@ describe('ObsSceneControllerComponent', () => {
     expect(component.favoriteSceneNames).toEqual([]);
   });
 
+  it('ignores out-of-order score snapshots so automation state cannot move backwards', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    const runAutomationScene = spyOn<any>(component, 'runAutomationScene').and.resolveTo();
+    component.automationEnabled = true;
+    component.scenes = [{ sceneName: 'Camera', sceneIndex: 0 }];
+    component.automationRules = component.automationRules.map((rule) =>
+      rule.event === 'FOUR' ? { ...rule, sceneName: 'Camera' } : rule,
+    );
+
+    component.onAutomationScore({
+      inningsId: 'innings-1',
+      runs: 0,
+      wickets: 0,
+      legalBalls: 0,
+      sequenceNo: 8,
+    });
+    component.onAutomationScore({
+      inningsId: 'innings-1',
+      runs: 4,
+      wickets: 0,
+      legalBalls: 1,
+      sequenceNo: 10,
+      recentBalls: [{ deliveryId: 'delivery-10', totalRuns: 4, legalDelivery: true }],
+    });
+
+    expect(runAutomationScene).toHaveBeenCalledOnceWith('Camera', 'Four');
+
+    component.onAutomationScore({
+      inningsId: 'innings-1',
+      runs: 6,
+      wickets: 0,
+      legalBalls: 2,
+      sequenceNo: 9,
+      recentBalls: [{ deliveryId: 'delivery-9', totalRuns: 6, legalDelivery: true }],
+    });
+
+    expect(runAutomationScene).toHaveBeenCalledTimes(1);
+    expect((component as any).previousAutomationScore.runs).toBe(4);
+    expect((component as any).previousAutomationScore.sequenceNo).toBe(10);
+  });
+
+  it('accepts a new innings even when its sequence number restarts', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    component.onAutomationScore({
+      inningsId: 'innings-1',
+      runs: 120,
+      wickets: 3,
+      legalBalls: 90,
+      sequenceNo: 500,
+    });
+
+    component.onAutomationScore({
+      inningsId: 'innings-2',
+      runs: 0,
+      wickets: 0,
+      legalBalls: 0,
+      sequenceNo: 1,
+    });
+
+    expect((component as any).previousAutomationScore.inningsId).toBe('innings-2');
+    expect((component as any).previousAutomationScore.sequenceNo).toBe(1);
+  });
+
   it('keeps event automation disabled by default and persists configured rules', () => {
     const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
     expect(component.automationEnabled).toBeFalse();
