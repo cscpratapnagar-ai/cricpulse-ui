@@ -689,6 +689,49 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(secondFinalized).toBe(1);
   });
 
+  it('does not render duplicate or out-of-order live score versions', () => {
+    const feed = new Subject<LiveScore>();
+    liveScore.watch.and.returnValue(feed);
+    const component = createOverlay();
+
+    feed.next({ ...score, eventVersion: 2, runs: 20 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('20');
+
+    feed.next({ ...score, eventVersion: 2, runs: 99 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('20');
+    expect(fixture.nativeElement.textContent).not.toContain('99');
+
+    feed.next({ ...score, eventVersion: 1, runs: 88 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('20');
+    expect(fixture.nativeElement.textContent).not.toContain('88');
+
+    feed.next({ ...score, eventVersion: 3, runs: 21 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('21');
+  });
+
+  it('uses sequence numbers when event versions are unavailable', () => {
+    const feed = new Subject<LiveScore>();
+    liveScore.watch.and.returnValue(feed);
+    createOverlay();
+
+    feed.next({ ...score, eventVersion: undefined, sequenceNo: 7, runs: 30 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('30');
+
+    feed.next({ ...score, eventVersion: undefined, sequenceNo: 6, runs: 80 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('30');
+    expect(fixture.nativeElement.textContent).not.toContain('80');
+
+    feed.next({ ...score, eventVersion: undefined, sequenceNo: 8, runs: 31 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('31');
+  });
+
   it('removes the OBS transparency class when the overlay is destroyed', () => {
     createOverlay();
     expect(document.documentElement.classList.contains('cricpulse-overlay-mode')).toBeTrue();
