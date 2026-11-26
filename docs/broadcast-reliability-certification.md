@@ -20,6 +20,14 @@ This change set consolidates the six broadcast workstreams into one frontend PR.
 - Overlay stream validation rejects duplicate/out-of-order `eventVersion` values before rendering; once a versioned snapshot is accepted, an unversioned legacy snapshot cannot overwrite it.
 - Legacy feeds without event versions use strictly increasing `sequenceNo` values when available; innings changes establish a fresh comparison baseline.
 
+## OBS scene-snapshot recovery regression coverage
+
+The automated OBS WebSocket suite also verifies both failure boundaries:
+- An initial connection that completes the WebSocket identification handshake but cannot load `GetSceneList` closes the partial socket and ends in `DISCONNECTED`; it must not leave a ghost connected session or schedule an automatic retry.
+- A reconnect that identifies successfully but cannot load `GetSceneList` closes that partial socket, remains in `RECONNECTING`, and schedules another capped-backoff retry. Recovery is not announced until a valid scene snapshot is received.
+
+These are simulated WebSocket contract tests. They do not replace a real OBS/vMix workstation and network-interruption rehearsal.
+
 ## Automated checks
 
 Run from the frontend repository:
