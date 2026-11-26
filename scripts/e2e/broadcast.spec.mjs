@@ -50,12 +50,8 @@ async function stubPublicMatchApi(page) {
   await page.route('**/api/public/matches/match-e2e/current-innings', (route) =>
     route.fulfill({ json: innings }),
   );
-  await page.route('**/api/public/matches/match-e2e', (route) =>
-    route.fulfill({ json: match }),
-  );
-  await page.route('**/api/public/innings/innings-e2e', (route) =>
-    route.fulfill({ json: score }),
-  );
+  await page.route('**/api/public/matches/match-e2e', (route) => route.fulfill({ json: match }));
+  await page.route('**/api/public/innings/innings-e2e', (route) => route.fulfill({ json: score }));
 }
 
 test('public match centre renders the authoritative live score in a real browser', async ({
