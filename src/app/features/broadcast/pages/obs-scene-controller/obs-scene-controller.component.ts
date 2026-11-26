@@ -224,7 +224,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
     );
     this.obsSubscriptions.add(
       this.obs.sceneChanged$.subscribe((sceneName) => {
-        if (this.automationReturnTimer && sceneName !== this.automationExpectedScene) {
+        if (this.automationBaseScene && this.automationExpectedScene && sceneName !== this.automationExpectedScene) {
           this.invalidateAutomationTransitions();
           this.automationStatus = `Automatic return cancelled after OBS scene changed to ${sceneName}.`;
         }
