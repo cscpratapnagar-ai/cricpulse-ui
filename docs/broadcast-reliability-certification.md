@@ -17,7 +17,8 @@ This change set consolidates the six broadcast workstreams into one frontend PR.
 - A dropped WebSocket is represented as `RECONNECTING`; a successful STOMP reconnect resets the retry counter.
 - Overlay health is explicitly represented as connecting, live, local-feed, stale, or error.
 - A failed refresh after a previously loaded match is surfaced as stale data instead of silently presenting old scores as current.
-- Existing event-version filtering remains in place to prevent out-of-order score regressions.
+- Overlay stream validation rejects duplicate/out-of-order `eventVersion` values before rendering; once a versioned snapshot is accepted, an unversioned legacy snapshot cannot overwrite it.
+- Legacy feeds without event versions use strictly increasing `sequenceNo` values when available; innings changes establish a fresh comparison baseline.
 
 ## Automated checks
 
@@ -39,7 +40,8 @@ The CI run on this PR is the authoritative automated result. Do not treat the ma
 |---|---|---|
 | OBS reconnect | Disconnect OBS network briefly, then restore it | Controller shows reconnecting, then restores scenes and current scene |
 | Intentional disconnect | Click Disconnect in OBS controller | No automatic reconnect; credentials/config remain intentionally cleared according to existing behavior |
-| Score version ordering | Deliver a newer score, then replay an older version | Older version is ignored |
+| Score version ordering | Deliver a newer score, then replay a duplicate, older, and unversioned snapshot | Duplicate/older/unverifiable snapshots are ignored before rendering |
+| Legacy sequence ordering | Deliver sequence 10, then 10, 9, and 11 | Duplicate/older sequence snapshots are ignored; sequence 11 is rendered |
 | Overlay API outage | Stop backend after overlay has loaded a score | Overlay shows STALE DATA, not a false LIVE state |
 | API recovery | Restart backend | Next successful poll restores LIVE DATA and current score |
 | Two-device scoring | Score from device A; observe overlay on device B | Same committed score and version appear without manual refresh |

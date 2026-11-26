@@ -453,6 +453,31 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.four')).toBeNull();
   }));
 
+  it('rejects unversioned snapshots after a versioned score', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 4 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined })).toBeFalse();
+  });
+
+  it('rejects duplicate and stale score versions', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 5 };
+    expect(state.isFreshScore({ ...score, eventVersion: 5 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 3 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 6 })).toBeTrue();
+  });
+
+  it('uses strictly increasing sequence numbers for legacy scores', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: undefined, sequenceNo: 10 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 10 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 9 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 11 })).toBeTrue();
+  });
+
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
     liveScore.watch.and.returnValues(
       throwError(() => new Error('WebSocket disconnected')),
