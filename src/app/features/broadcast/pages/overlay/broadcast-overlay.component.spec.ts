@@ -657,7 +657,6 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     }));
   }
 
-
   it('unsubscribes the previous local authoritative feed on innings change and destroy', () => {
     spyOnProperty(navigator, 'onLine', 'get').and.returnValue(true);
     const firstFeed = new Subject<LiveScore>();
