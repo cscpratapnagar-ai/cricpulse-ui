@@ -398,40 +398,40 @@ describe('ObsWebSocketService', () => {
   it(
     'ignores late responses for timed-out requests after their correlation is removed',
     async () => {
-    jasmine.clock().install();
-    try {
-      await connectService();
-
-      const timedOutRequest = service.currentScene();
-      const request = socket.lastRequest();
-      jasmine.clock().tick(8000);
-      await expectAsync(timedOutRequest).toBeRejected();
-
-      socket.emit({
-        op: 7,
-        d: {
-          requestId: request.d['requestId'],
-          requestStatus: { result: true, code: 100 },
-          responseData: { currentProgramSceneName: 'Stale Scene' },
-        },
-      });
-
-      const pending = service.currentScene();
-      const next = socket.lastRequest();
-      socket.emit({
-        op: 7,
-        d: {
-          requestId: next.d['requestId'],
-          requestStatus: { result: true, code: 100 },
-          responseData: { currentProgramSceneName: 'Live Scene' },
-        },
-      });
-
-      await expectAsync(pending).toBeResolvedTo('Live Scene');
-      expect(service.connected).toBeTrue();
-    } finally {
-      service.disconnect();
-      jasmine.clock().uninstall();
-    }
-  });
+      jasmine.clock().install();
+      try {
+        await connectService();
+  
+        const timedOutRequest = service.currentScene();
+        const request = socket.lastRequest();
+        jasmine.clock().tick(8000);
+        await expectAsync(timedOutRequest).toBeRejected();
+  
+        socket.emit({
+          op: 7,
+          d: {
+            requestId: request.d['requestId'],
+            requestStatus: { result: true, code: 100 },
+            responseData: { currentProgramSceneName: 'Stale Scene' },
+          },
+        });
+  
+        const pending = service.currentScene();
+        const next = socket.lastRequest();
+        socket.emit({
+          op: 7,
+          d: {
+            requestId: next.d['requestId'],
+            requestStatus: { result: true, code: 100 },
+            responseData: { currentProgramSceneName: 'Live Scene' },
+          },
+        });
+  
+        await expectAsync(pending).toBeResolvedTo('Live Scene');
+        expect(service.connected).toBeTrue();
+      } finally {
+        service.disconnect();
+        jasmine.clock().uninstall();
+    },
+  );
 });
