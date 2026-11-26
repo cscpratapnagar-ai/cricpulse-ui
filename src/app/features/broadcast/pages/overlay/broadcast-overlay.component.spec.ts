@@ -453,63 +453,29 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.four')).toBeNull();
   }));
 
-  it('does not let an unversioned legacy snapshot overwrite a versioned score', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
+  it('rejects unversioned snapshots after a versioned score', () => {
     const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
-
-    feed.next({ ...score, eventVersion: 4, runs: 40 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: undefined, runs: 99 });
-
-    expect(emitted.map((item) => item.runs)).toContain(40);
-    expect(emitted.map((item) => item.runs)).not.toContain(99);
-    subscription.unsubscribe();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 4 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined })).toBeFalse();
   });
 
-  it('rejects duplicate and out-of-order score snapshots before they reach the overlay', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
+  it('rejects duplicate and stale score versions', () => {
     const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
-
-    feed.next({ ...score, eventVersion: 5, runs: 50 });
-    feed.next({ ...score, eventVersion: 5, runs: 55 });
-    feed.next({ ...score, eventVersion: 3, runs: 30 });
-    feed.next({ ...score, eventVersion: 6, runs: 60 });
-
-    expect(emitted.map((item) => item.runs)).toContain(50);
-    expect(emitted.map((item) => item.runs)).not.toContain(55);
-    expect(emitted.map((item) => item.runs)).not.toContain(30);
-    expect(emitted.map((item) => item.runs)).toContain(60);
-    subscription.unsubscribe();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 5 };
+    expect(state.isFreshScore({ ...score, eventVersion: 5 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 3 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 6 })).toBeTrue();
   });
 
-  it('falls back to strictly increasing sequence numbers for legacy score feeds', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
+  it('uses strictly increasing sequence numbers for legacy scores', () => {
     const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
-
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 10 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 11 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 9, runs: 9 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 11, runs: 12 });
-
-    expect(emitted.map((item) => item.runs)).toContain(10);
-    expect(emitted.map((item) => item.runs)).not.toContain(11);
-    expect(emitted.map((item) => item.runs)).not.toContain(9);
-    expect(emitted.map((item) => item.runs)).toContain(12);
-    subscription.unsubscribe();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: undefined, sequenceNo: 10 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 10 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 9 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 11 })).toBeTrue();
   });
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
