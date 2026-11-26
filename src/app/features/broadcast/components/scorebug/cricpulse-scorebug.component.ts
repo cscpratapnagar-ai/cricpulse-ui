@@ -51,4 +51,116 @@ export class CricPulseScorebugComponent {
     );
   }
 
-  get requÿÿÿ¶»§q«^ÿÿÿ
+  get requiredRate(): string {
+    if (
+      this.remainingRuns == null ||
+      this.remainingBalls == null ||
+      this.remainingBalls === 0
+    ) {
+      return "";
+    }
+    return ((this.remainingRuns * 6) / this.remainingBalls).toFixed(2);
+  }
+
+  get striker(): string {
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.strikerId,
+    );
+    return batter?.playerName || this.score?.strikerName || "Striker";
+  }
+
+  get strikerStats(): string {
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.strikerId,
+    );
+    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "";
+  }
+
+  get nonStriker(): string {
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.nonStrikerId,
+    );
+    return batter?.playerName || this.score?.nonStrikerName || "Non-striker";
+  }
+
+  get nonStrikerStats(): string {
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.nonStrikerId,
+    );
+    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "";
+  }
+
+  get bowler(): string {
+    const bowler = this.score?.bowlers?.find(
+      (item) => item.playerId === this.score.currentBowlerId,
+    );
+    return bowler?.playerName || this.score?.currentBowlerName || "Bowler";
+  }
+
+  get bowlerFigures(): string {
+    const bowler = this.score?.bowlers?.find(
+      (item) => item.playerId === this.score.currentBowlerId,
+    );
+    if (!bowler) return "";
+    return (
+      bowler.wickets +
+      "/" +
+      bowler.runsConceded +
+      " (" +
+      Math.floor(bowler.legalBalls / 6) +
+      "." +
+      (bowler.legalBalls % 6) +
+      ")"
+    );
+  }
+
+  get recentBalls(): LiveRecentBall[] {
+    return (this.score?.recentBalls || []).slice(-6);
+  }
+
+  get partnership(): string {
+    const partnership = this.score?.partnership;
+    return partnership ? partnership.runs + " (" + partnership.balls + ")" : "";
+  }
+
+  initials(name: string): string {
+    const words = (name || "").trim().split(/\s+/).filter(Boolean);
+    return (
+      words
+        .slice(0, 2)
+        .map((word) => word[0].toUpperCase())
+        .join("") || "CP"
+    );
+  }
+
+  ballToken(ball: LiveRecentBall): string | number {
+    if (ball.wicketType) return "W";
+    if (ball.extraType === "WIDE") return "Wd";
+    if (ball.extraType === "NO_BALL") return "Nb";
+    if (ball.extraType === "BYE") return "B" + ball.totalRuns;
+    if (ball.extraType === "LEG_BYE") return "Lb" + ball.totalRuns;
+    return ball.totalRuns;
+  }
+
+  ballClass(ball: LiveRecentBall): string {
+    if (ball.wicketType) return "wicket";
+    if (ball.totalRuns === 6) return "six";
+    if (ball.totalRuns === 4) return "four";
+    return "normal";
+  }
+
+  get contextText(): string {
+    if (this.variant === "super-over") return "SUPER OVER";
+    if (this.variant === "powerplay") return "POWERPLAY";
+    if (this.remainingRuns != null && this.remainingBalls != null) {
+      return (
+        "NEED " +
+        this.remainingRuns +
+        " RUNS IN " +
+        this.remainingBalls +
+        " BALLS"
+      );
+    }
+    return this.innings.toUpperCase();
+  }
+}
