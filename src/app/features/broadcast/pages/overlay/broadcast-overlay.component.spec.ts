@@ -496,18 +496,26 @@ describe('BroadcastOverlayComponent browser runtime', () => {
 
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 10 });
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).toContain('10/0');
+    expect(
+      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
+    ).toContain('10/0');
 
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 11 });
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 9, runs: 9 });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).toContain('10/0');
-    expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).not.toContain('11/0');
-    expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).not.toContain('9/0');
+    expect(
+      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
+    ).not.toContain('11/0');
+    expect(
+      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
+    ).not.toContain('9/0');
 
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 11, runs: 12 });
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).toContain('12/0');
+    expect(
+      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
+    ).toContain('12/0');
   });
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
