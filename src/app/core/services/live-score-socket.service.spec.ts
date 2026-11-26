@@ -204,5 +204,4 @@ describe('LiveScoreSocketService', () => {
       onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs),
     ).toEqual([50, 1]);
   });
-
 });
