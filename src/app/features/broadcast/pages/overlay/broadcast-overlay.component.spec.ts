@@ -503,7 +503,9 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 11 });
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 9, runs: 9 });
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.score-total strong')?.textContent).toContain('10/0');
+    expect(
+      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
+    ).toContain('10/0');
     expect(
       fixture.nativeElement.querySelector('.score-total strong')?.textContent,
     ).not.toContain('11/0');
