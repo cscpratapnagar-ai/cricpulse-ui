@@ -246,6 +246,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
       this.localScoreStreamInningsId = inningsId;
       this.score$ = this.localScore$.pipe(
         filter((local): local is LiveScore => !!local && local.inningsId === inningsId),
+        filter((local) => this.isFreshScore(local)),
         tap((local) => this.onScore(local)),
       );
 
@@ -413,9 +414,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
                 filter((score): score is LiveScore => !!score && score.inningsId === current),
               ),
             ).pipe(
-              tap((score) => {
-                if (score) this.onScore(score);
-              }),
+              filter((score): score is LiveScore => !!score && this.isFreshScore(score)),
+              tap((score) => this.onScore(score)),
               catchError(() => {
                 this.broadcastError = 'Unable to connect to the live score feed. Reconnecting…';
                 // Allow the next broadcast-state poll to create a fresh watch
@@ -442,6 +442,35 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (this.broadcastHealth === 'ERROR') return 'FEED ERROR';
     if (this.broadcastHealth === 'CONNECTING') return 'CONNECTING';
     return 'LIVE DATA';
+  }
+
+  /**
+   * Keep the rendered score and automatic-event baseline on the same
+   * monotonically advancing snapshot. REST, WebSocket and local relay can race.
+   */
+  private isFreshScore(score: LiveScore): boolean {
+    const previous = this.previousScore;
+    if (!previous || previous.inningsId !== score.inningsId) return true;
+
+    if (
+      typeof previous.eventVersion === 'number' &&
+      Number.isFinite(previous.eventVersion) &&
+      typeof score.eventVersion === 'number' &&
+      Number.isFinite(score.eventVersion)
+    ) {
+      return score.eventVersion > previous.eventVersion;
+    }
+
+    if (
+      typeof previous.sequenceNo === 'number' &&
+      Number.isFinite(previous.sequenceNo) &&
+      typeof score.sequenceNo === 'number' &&
+      Number.isFinite(score.sequenceNo)
+    ) {
+      return score.sequenceNo > previous.sequenceNo;
+    }
+
+    return true;
   }
 
   onScore(score: LiveScore) {
