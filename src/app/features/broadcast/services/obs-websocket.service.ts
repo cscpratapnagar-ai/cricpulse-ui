@@ -20,6 +20,8 @@ export class ObsWebSocketService {
   readonly reconnected$ = new Subject<ObsScene[]>();
   private readonly connectionStateSubject = new BehaviorSubject<ObsConnectionState>('DISCONNECTED');
   readonly connectionState$ = this.connectionStateSubject.asObservable();
+  private readonly reconnectAttemptSubject = new BehaviorSubject<number>(0);
+  readonly reconnectAttempt$ = this.reconnectAttemptSubject.asObservable();
 
   private socket?: WebSocket;
   private requestSequence = 0;
@@ -140,6 +142,7 @@ export class ObsWebSocketService {
     try {
       const scenes = this.parseScenes(await this.request('GetSceneList'));
       this.reconnectAttempts = 0;
+      this.reconnectAttemptSubject.next(0);
       if (recovering) this.reconnected$.next(scenes);
       return scenes;
     } catch (error) {
@@ -181,6 +184,7 @@ export class ObsWebSocketService {
     if (this.manuallyDisconnected || !this.reconnectConfig || this.reconnectTimer) return;
     const delay = Math.min(30000, 1000 * 2 ** Math.min(this.reconnectAttempts, 5));
     this.reconnectAttempts++;
+    this.reconnectAttemptSubject.next(this.reconnectAttempts);
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = undefined;
       const config = this.reconnectConfig;
@@ -195,6 +199,7 @@ export class ObsWebSocketService {
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.reconnectTimer = undefined;
     this.reconnectAttempts = 0;
+    this.reconnectAttemptSubject.next(0);
   }
 
   private parseScenes(response: Record<string, unknown>): ObsScene[] {
