@@ -14,6 +14,7 @@ describe('ObsSceneControllerComponent', () => {
   let connectionState$: BehaviorSubject<
     'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING'
   >;
+  let reconnectAttempt$: BehaviorSubject<number>;
 
   beforeEach(() => {
     localStorage.removeItem('cricpulse.obs-scene-presets.match-123');
@@ -30,11 +31,13 @@ describe('ObsSceneControllerComponent', () => {
     connectionState$ = new BehaviorSubject<
       'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'RECONNECTING'
     >('DISCONNECTED');
+    reconnectAttempt$ = new BehaviorSubject<number>(0);
     Object.defineProperty(obs, 'connected', { get: () => true });
     Object.defineProperty(obs, 'sceneChanged$', { value: sceneChanged$ });
     Object.defineProperty(obs, 'connectionLost$', { value: connectionLost$ });
     Object.defineProperty(obs, 'reconnected$', { value: reconnected$ });
     Object.defineProperty(obs, 'connectionState$', { value: connectionState$.asObservable() });
+    Object.defineProperty(obs, 'reconnectAttempt$', { value: reconnectAttempt$.asObservable() });
     obs.connect.and.resolveTo([
       { sceneName: 'Camera', sceneIndex: 0 },
       { sceneName: 'Camera + Score', sceneIndex: 1 },
@@ -86,6 +89,14 @@ describe('ObsSceneControllerComponent', () => {
     expect(component.port).toBe('4455');
     expect(component.connectionUrl).toBe('ws://127.0.0.1:4455');
     expect(component.matchId).toBe('match-123');
+  });
+
+  it('shows the current OBS reconnect attempt while recovery is in progress', () => {
+    const component = TestBed.createComponent(ObsSceneControllerComponent).componentInstance;
+    reconnectAttempt$.next(3);
+    expect(component.reconnectAttempt).toBe(3);
+    reconnectAttempt$.next(0);
+    expect(component.reconnectAttempt).toBe(0);
   });
 
   it('loads scenes and current program scene after connecting', async () => {

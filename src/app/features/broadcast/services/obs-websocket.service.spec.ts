@@ -180,7 +180,11 @@ describe('ObsWebSocketService', () => {
   it('enters reconnecting state and schedules automatic recovery after an unexpected close', async () => {
     const states: string[] = [];
     const messages: string[] = [];
+    const attempts: number[] = [];
     const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
+    const attemptSubscription = service.reconnectAttempt$.subscribe((attempt) =>
+      attempts.push(attempt),
+    );
     const lostSubscription = service.connectionLost$.subscribe((message) => messages.push(message));
 
     await connectService();
@@ -189,6 +193,7 @@ describe('ObsWebSocketService', () => {
     socket.close();
 
     expect(states[states.length - 1]).toBe('RECONNECTING');
+    expect(attempts[attempts.length - 1]).toBe(1);
     expect(messages.length).toBe(1);
     const internals = service as unknown as { reconnectTimer?: ReturnType<typeof setTimeout> };
     expect(internals.reconnectTimer).toBeDefined();
@@ -196,7 +201,9 @@ describe('ObsWebSocketService', () => {
     service.disconnect();
     expect(states[states.length - 1]).toBe('DISCONNECTED');
     expect(internals.reconnectTimer).toBeUndefined();
+    expect(attempts[attempts.length - 1]).toBe(0);
     stateSubscription.unsubscribe();
+    attemptSubscription.unsubscribe();
     lostSubscription.unsubscribe();
   });
 

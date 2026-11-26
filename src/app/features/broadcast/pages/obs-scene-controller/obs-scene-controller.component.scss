@@ -90,6 +90,13 @@ p {
   box-shadow: 0 0 9px #f59e0b;
   animation: obs-reconnect-pulse 1.2s ease-in-out infinite;
 }
+.reconnect-attempt {
+  align-self: center;
+  color: #d97706;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 @keyframes obs-reconnect-pulse {
   50% {
     opacity: 0.35;
