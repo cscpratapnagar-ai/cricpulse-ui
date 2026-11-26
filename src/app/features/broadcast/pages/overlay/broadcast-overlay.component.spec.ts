@@ -667,6 +667,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       firstFeed.pipe(finalize(() => firstFinalized++)),
       secondFeed.pipe(finalize(() => secondFinalized++)),
     );
+    mode = 'sponsor';
     const component = createOverlay();
     const acceptMessage = (inningsId: string) =>
       (component as any).acceptLocalScoreMessage({
