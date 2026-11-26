@@ -582,6 +582,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   }
 
   onAutomationScore(score: ObsAutomationScore, match?: AutomationScoreMessage['match']): void {
+    if (this.isStaleAutomationScore(score)) return;
     const previous = this.previousAutomationScore;
     const events = this.detectAutomationEvents(score, previous, match?.status);
     this.previousAutomationScore = score;
@@ -620,6 +621,19 @@ export class ObsSceneControllerComponent implements OnDestroy {
     this.automationStatus = disabled
       ? 'Detected event rules are disabled.'
       : 'Detected events were skipped by cooldown or have no assigned scene.';
+  }
+
+  private isStaleAutomationScore(score: ObsAutomationScore): boolean {
+    const previous = this.previousAutomationScore;
+    if (!previous || previous.inningsId !== score.inningsId) return false;
+
+    const incomingVersion = score.eventVersion ?? score.sequenceNo;
+    const previousVersion = previous.eventVersion ?? previous.sequenceNo;
+    return (
+      incomingVersion !== undefined &&
+      previousVersion !== undefined &&
+      incomingVersion <= previousVersion
+    );
   }
 
   private detectAutomationEvents(
