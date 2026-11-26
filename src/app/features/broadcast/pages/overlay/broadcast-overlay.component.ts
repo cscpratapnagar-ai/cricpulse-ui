@@ -452,23 +452,34 @@ export class BroadcastOverlayComponent implements OnDestroy {
     const previous = this.previousScore;
     if (!previous || previous.inningsId !== score.inningsId) return true;
 
-    if (
-      typeof previous.eventVersion === 'number' &&
-      Number.isFinite(previous.eventVersion) &&
-      typeof score.eventVersion === 'number' &&
-      Number.isFinite(score.eventVersion)
-    ) {
-      return score.eventVersion > previous.eventVersion;
-    }
+    const previousVersion =
+      typeof previous.eventVersion === 'number' && Number.isFinite(previous.eventVersion)
+        ? previous.eventVersion
+        : undefined;
+    const nextVersion =
+      typeof score.eventVersion === 'number' && Number.isFinite(score.eventVersion)
+        ? score.eventVersion
+        : undefined;
 
-    if (
-      typeof previous.sequenceNo === 'number' &&
-      Number.isFinite(previous.sequenceNo) &&
-      typeof score.sequenceNo === 'number' &&
-      Number.isFinite(score.sequenceNo)
-    ) {
-      return score.sequenceNo > previous.sequenceNo;
+    // Once a versioned snapshot has been accepted, an unversioned legacy
+    // snapshot cannot prove that it is newer and must not replace the display.
+    if (previousVersion !== undefined) {
+      return nextVersion !== undefined && nextVersion > previousVersion;
     }
+    if (nextVersion !== undefined) return true;
+
+    const previousSequence =
+      typeof previous.sequenceNo === 'number' && Number.isFinite(previous.sequenceNo)
+        ? previous.sequenceNo
+        : undefined;
+    const nextSequence =
+      typeof score.sequenceNo === 'number' && Number.isFinite(score.sequenceNo)
+        ? score.sequenceNo
+        : undefined;
+    if (previousSequence !== undefined) {
+      return nextSequence !== undefined && nextSequence > previousSequence;
+    }
+    if (nextSequence !== undefined) return true;
 
     return true;
   }
