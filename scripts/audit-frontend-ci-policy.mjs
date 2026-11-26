@@ -10,13 +10,13 @@ assert.match(
 );
 assert.equal(
   (workflow.match(/run: npm ci --no-audit --no-fund/g) ?? []).length,
-  2,
-  'quality and production-build jobs must install exactly from the lockfile',
+  3,
+  'quality, production-build, and browser jobs must install exactly from the lockfile',
 );
 assert.equal(
   (workflow.match(/persist-credentials: false/g) ?? []).length,
-  2,
-  'checkout credentials must not persist in either CI job',
+  3,
+  'checkout credentials must not persist in any CI job',
 );
 
 for (const forbidden of [

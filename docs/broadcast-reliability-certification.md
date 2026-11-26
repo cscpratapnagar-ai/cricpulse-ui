@@ -92,3 +92,13 @@ The public live-score service regression suite exercises critical cross-consumer
 - Existing multi-viewer coverage verifies independent public viewers receive the same authoritative event and reject stale versions.
 
 These are deterministic Angular HTTP/STOMP contract tests. They validate client-side public broadcast synchronization and recovery, but are not a deployed-backend/browser/OBS multi-device E2E rehearsal. The manual certification matrix above remains required for production sign-off.
+
+
+## Chromium broadcast browser regression suite
+
+The frontend CI now runs a real Chromium browser against the Angular development server with deterministic public API fixtures:
+- Public match centre loads the match, discovers its current innings, and renders the authoritative score snapshot.
+- OBS broadcast overlay loads the broadcast-state endpoint and renders the same innings score, batting team, and over in its strip graphic.
+- Public match centre recovers and renders the score when the first innings snapshot request returns HTTP 503 and the subsequent retry succeeds.
+
+The Playwright suite is intentionally isolated from the application dependency lockfile: CI installs a pinned test runner without modifying the product dependency manifest. API responses are mocked, so this suite validates browser routing, Angular rendering, and client retry behavior, not backend scoring writes, authenticated scorer sessions, a live STOMP server, two physical devices, or an actual OBS/vMix capture session. Those remain separate integration/manual certification requirements.

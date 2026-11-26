@@ -88,3 +88,27 @@ jobs:
         run: npm run build -- --configuration production
       - name: Build production container
         run: docker build --tag cricpulse-ui:ci .
+
+
+  browser-e2e:
+    name: Chromium broadcast browser tests
+    runs-on: ubuntu-24.04
+    needs: quality
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.3'
+          cache: npm
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install isolated Playwright test runner
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run broadcast browser certification
+        run: npx playwright test --config scripts/e2e/playwright.config.mjs
