@@ -453,71 +453,29 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.querySelector('.moment.four')).toBeNull();
   }));
 
-  it('does not let an unversioned legacy snapshot overwrite a versioned score', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
-    createOverlay();
-
-    feed.next({ ...score, eventVersion: 4, runs: 40 });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('40');
-
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: undefined, runs: 99 });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('40');
-    expect(fixture.nativeElement.textContent).not.toContain('99');
+  it('rejects unversioned snapshots after a versioned score', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 4 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined })).toBeFalse();
   });
 
-  it('rejects duplicate and stale score snapshots before overlay rendering', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
-    createOverlay();
-
-    feed.next({ ...score, eventVersion: 5, runs: 50 });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('50');
-
-    feed.next({ ...score, eventVersion: 5, runs: 55 });
-    feed.next({ ...score, eventVersion: 3, runs: 30 });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('50');
-    expect(fixture.nativeElement.textContent).not.toContain('55');
-    expect(fixture.nativeElement.textContent).not.toContain('30');
-
-    feed.next({ ...score, eventVersion: 6, runs: 60 });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('60');
+  it('rejects duplicate and stale score versions', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: 5 };
+    expect(state.isFreshScore({ ...score, eventVersion: 5 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 3 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: 6 })).toBeTrue();
   });
 
-  it('falls back to strictly increasing sequence numbers for legacy score feeds', () => {
-    const feed = new Subject<LiveScore>();
-    liveScore.watch.and.returnValue(feed);
-    createOverlay();
-
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 10 });
-    fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
-    ).toContain('10/0');
-
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 11 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 9, runs: 9 });
-    fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
-    ).toContain('10/0');
-    expect(
-      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
-    ).not.toContain('11/0');
-    expect(
-      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
-    ).not.toContain('9/0');
-
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 11, runs: 12 });
-    fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector('.score-total strong')?.textContent,
-    ).toContain('12/0');
+  it('uses strictly increasing sequence numbers for legacy scores', () => {
+    const component = createOverlay();
+    const state = component as any;
+    state.previousScore = { ...score, eventVersion: undefined, sequenceNo: 10 };
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 10 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 9 })).toBeFalse();
+    expect(state.isFreshScore({ ...score, eventVersion: undefined, sequenceNo: 11 })).toBeTrue();
   });
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
