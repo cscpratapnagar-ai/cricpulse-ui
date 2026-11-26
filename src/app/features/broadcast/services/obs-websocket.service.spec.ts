@@ -288,13 +288,19 @@ describe('ObsWebSocketService', () => {
         op: 7,
         d: {
           requestId: request.d['requestId'],
-          requestStatus: { result: false, code: 500, comment: 'Scene list temporarily unavailable.' },
+          requestStatus: {
+            result: false,
+            code: 500,
+            comment: 'Scene list temporarily unavailable.',
+          },
         },
       });
       await Promise.resolve();
       await Promise.resolve();
 
-      const internals = service as unknown as { reconnectTimer?: ReturnType<typeof setTimeout> };
+      const internals = service as unknown as {
+        reconnectTimer?: ReturnType<typeof setTimeout>;
+      };
       expect(service.connected).toBeFalse();
       expect(states[states.length - 1]).toBe('RECONNECTING');
       expect(internals.reconnectTimer).toBeDefined();

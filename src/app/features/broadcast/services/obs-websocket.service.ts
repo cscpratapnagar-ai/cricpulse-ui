@@ -146,20 +146,7 @@ export class ObsWebSocketService {
       if (recovering) this.reconnected$.next(scenes);
       return scenes;
     } catch (error) {
-      // A successful WebSocket handshake is not enough to declare recovery:
-      // the scene snapshot must also load. Tear down a half-recovered socket
-      // so the operator never sees CONNECTED with stale scene state.
-      if (this.socket === socket) {
-        this.identified = false;
-        this.socket = undefined;
-        socket.close();
-      }
-      if (recovering && !this.manuallyDisconnected) {
-        this.connectionStateSubject.next('RECONNECTING');
-        this.scheduleReconnect();
-      } else if (!this.manuallyDisconnected) {
-        this.connectionStateSubject.next('DISCONNECTED');
-      }
+      if (recovering && !this.manuallyDisconnected) this.scheduleReconnect();
       throw error;
     }
   }
