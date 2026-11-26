@@ -468,7 +468,7 @@ describe('BroadcastOverlayComponent browser runtime', () => {
     expect(fixture.nativeElement.textContent).not.toContain('99');
   });
 
-  it('rejects duplicate and out-of-order score snapshots before they reach the overlay', () => {
+  it('rejects duplicate and stale score snapshots before overlay rendering', () => {
     const feed = new Subject<LiveScore>();
     liveScore.watch.and.returnValue(feed);
     createOverlay();
