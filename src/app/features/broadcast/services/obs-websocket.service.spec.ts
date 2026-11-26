@@ -200,6 +200,62 @@ describe('ObsWebSocketService', () => {
     lostSubscription.unsubscribe();
   });
 
+  it('rejects in-flight requests when OBS unexpectedly disconnects', async () => {
+    await connectService();
+
+    const currentScene = service.currentScene();
+    socket.close();
+
+    await expectAsync(currentScene).toBeRejectedWithError('OBS connection closed.');
+    expect(service.connected).toBeFalse();
+  });
+
+  it('reconnects after the backoff and publishes the recovered scene list', async () => {
+    jasmine.clock().install();
+    try {
+      await connectService();
+      const recoveredSocket = new FakeWebSocket('ws://127.0.0.1:4455');
+      (window.WebSocket as unknown as jasmine.Spy).and.returnValue(
+        recoveredSocket as unknown as WebSocket,
+      );
+      const recoveredScenes: Array<{ sceneName: string; sceneIndex: number }> = [
+        { sceneName: 'Live Scorebug', sceneIndex: 0 },
+      ];
+      let emittedScenes: Array<{ sceneName: string; sceneIndex: number }> | undefined;
+      const subscription = service.reconnected$.subscribe((scenes) => (emittedScenes = scenes));
+
+      socket.close();
+      jasmine.clock().tick(1000);
+      await Promise.resolve();
+
+      expect(recoveredSocket.sent).toEqual([]);
+      recoveredSocket.emit({ op: 0, d: { rpcVersion: 1 } });
+      await Promise.resolve();
+      recoveredSocket.emit({ op: 2, d: {} });
+      await Promise.resolve();
+
+      const request = recoveredSocket.lastRequest();
+      expect(request.d['requestType']).toBe('GetSceneList');
+      recoveredSocket.emit({
+        op: 7,
+        d: {
+          requestId: request.d['requestId'],
+          requestStatus: { result: true, code: 100 },
+          responseData: { scenes: recoveredScenes },
+        },
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(service.connected).toBeTrue();
+      expect(emittedScenes).toEqual(recoveredScenes);
+      subscription.unsubscribe();
+    } finally {
+      service.disconnect();
+      jasmine.clock().uninstall();
+    }
+  });
+
   it('rejects malformed scene-list responses instead of returning an empty list', async () => {
     const connecting = service.connect('ws://127.0.0.1:4455', '');
     socket.emit({ op: 0, d: { rpcVersion: 1 } });
