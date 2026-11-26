@@ -92,7 +92,7 @@ jobs:
 
   browser-e2e:
     name: Chromium broadcast browser tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: quality
     steps:
       - name: Checkout
@@ -107,7 +107,7 @@ jobs:
       - name: Install application dependencies
         run: npm ci --no-audit --no-fund
       - name: Install isolated Playwright test runner
-        run: npm install --no-save --no-package-lock @playwright/test@1.56.1
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run broadcast browser certification
