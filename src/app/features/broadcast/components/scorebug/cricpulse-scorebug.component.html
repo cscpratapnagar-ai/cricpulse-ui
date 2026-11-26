@@ -6,7 +6,7 @@
   <div class="scorebug-main">
     <div class="identity identity-batting">
       @if (battingLogoUrl) {
-        <img [src]="battingLogoUrl" [alt]="battingTeam + ' logo'">
+        <img [src]="battingLogoUrl" [alt]="battingTeam + ' logo'" />
       } @else {
         <span class="identity-fallback">{{ initials(battingTeam) }}</span>
       }
@@ -44,7 +44,7 @@
         <small>OPPOSITION</small>
       </div>
       @if (bowlingLogoUrl) {
-        <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'">
+        <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'" />
       } @else {
         <span class="identity-fallback opponent">{{ initials(bowlingTeam) }}</span>
       }
