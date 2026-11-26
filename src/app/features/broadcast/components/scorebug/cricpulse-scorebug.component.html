@@ -46,7 +46,9 @@
       @if (bowlingLogoUrl) {
         <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'" />
       } @else {
-        <span class="identity-fallback opponent">{{ initials(bowlingTeam) }}</span>
+        <span class="identity-fallback opponent">
+          {{ initials(bowlingTeam) }}
+        </span>
       }
     </div>
   </div>
