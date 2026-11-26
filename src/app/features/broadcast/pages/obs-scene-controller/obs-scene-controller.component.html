@@ -22,6 +22,9 @@
         "
         ><i></i>{{ connectionState }}</span
       >
+      @if (connectionState === 'RECONNECTING') {
+        <span class="reconnect-attempt" role="status">Retry attempt {{ reconnectAttempt }}</span>
+      }
     </div>
     <div class="connection-grid">
       <label
