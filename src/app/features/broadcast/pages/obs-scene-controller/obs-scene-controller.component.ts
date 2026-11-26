@@ -97,6 +97,7 @@ export class ObsSceneControllerComponent implements OnDestroy {
   selectedScene = '';
   connecting = false;
   connectionState: ObsConnectionState = 'DISCONNECTED';
+  reconnectAttempt = 0;
   switching = false;
   error = '';
   notice = '';
@@ -193,6 +194,11 @@ export class ObsSceneControllerComponent implements OnDestroy {
   constructor() {
     this.loadPreferences();
     if (this.automationEnabled) this.startAutomationFeeds();
+    this.obsSubscriptions.add(
+      this.obs.reconnectAttempt$.subscribe((attempt) => {
+        this.reconnectAttempt = attempt;
+      }),
+    );
     this.obsSubscriptions.add(
       this.obs.connectionState$.subscribe((state) => {
         this.connectionState = state;
