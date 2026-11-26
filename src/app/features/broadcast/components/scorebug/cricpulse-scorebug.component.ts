@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {
-  LiveRecentBall,
-  LiveScore,
-} from '../../../../core/services/live-score.service';
+import { LiveRecentBall, LiveScore } from '../../../../core/services/live-score.service';
 
 export type CricPulseScorebugVariant =
   | 'standard'
@@ -45,10 +42,7 @@ export class CricPulseScorebugComponent {
 
   get remainingBalls(): number | null {
     if (!this.score?.totalOvers) return null;
-    return Math.max(
-      0,
-      this.score.totalOvers * 6 - (this.score.legalBalls ?? 0),
-    );
+    return Math.max(0, this.score.totalOvers * 6 - (this.score.legalBalls ?? 0));
   }
 
   get requiredRate(): string {
@@ -63,44 +57,32 @@ export class CricPulseScorebugComponent {
   }
 
   get striker(): string {
-    const batter = this.score?.batters?.find(
-      (item) => item.playerId === this.score.strikerId,
-    );
+    const batter = this.score?.batters?.find((item) => item.playerId === this.score.strikerId);
     return batter?.playerName || this.score?.strikerName || 'Striker';
   }
 
   get strikerStats(): string {
-    const batter = this.score?.batters?.find(
-      (item) => item.playerId === this.score.strikerId,
-    );
+    const batter = this.score?.batters?.find((item) => item.playerId === this.score.strikerId);
     return batter ? batter.runs + ' (' + batter.ballsFaced + ')' : '—';
   }
 
   get nonStriker(): string {
-    const batter = this.score?.batters?.find(
-      (item) => item.playerId === this.score.nonStrikerId,
-    );
+    const batter = this.score?.batters?.find((item) => item.playerId === this.score.nonStrikerId);
     return batter?.playerName || this.score?.nonStrikerName || 'Non-striker';
   }
 
   get nonStrikerStats(): string {
-    const batter = this.score?.batters?.find(
-      (item) => item.playerId === this.score.nonStrikerId,
-    );
+    const batter = this.score?.batters?.find((item) => item.playerId === this.score.nonStrikerId);
     return batter ? batter.runs + ' (' + batter.ballsFaced + ')' : '—';
   }
 
   get bowler(): string {
-    const bowler = this.score?.bowlers?.find(
-      (item) => item.playerId === this.score.currentBowlerId,
-    );
+    const bowler = this.score?.bowlers?.find((item) => item.playerId === this.score.currentBowlerId);
     return bowler?.playerName || this.score?.currentBowlerName || 'Bowler';
   }
 
   get bowlerFigures(): string {
-    const bowler = this.score?.bowlers?.find(
-      (item) => item.playerId === this.score.currentBowlerId,
-    );
+    const bowler = this.score?.bowlers?.find((item) => item.playerId === this.score.currentBowlerId);
     if (!bowler) return '—';
     return (
       bowler.wickets +
