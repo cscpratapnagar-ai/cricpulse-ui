@@ -57,7 +57,9 @@ export class CricPulseScorebugComponent {
   }
 
   get striker(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.strikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.strikerId,
+    );
     return batter?.playerName || this.score?.strikerName || 'Striker';
   }
 
@@ -67,7 +69,9 @@ export class CricPulseScorebugComponent {
   }
 
   get nonStriker(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.nonStrikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.nonStrikerId,
+    );
     return batter?.playerName || this.score?.nonStrikerName || 'Non-striker';
   }
 
@@ -106,12 +110,16 @@ export class CricPulseScorebugComponent {
 
   get partnership(): string {
     const partnership = this.score?.partnership;
-    return partnership ? partnership.runs + ' (' + partnership.balls + ')' : '—';
+    return partnership
+      ? partnership.runs + ' (' + partnership.balls + ')'
+      : '—';
   }
 
   initials(name: string): string {
     const words = (name || '').trim().split(/\s+/).filter(Boolean);
-    return words.slice(0, 2).map((word) => word[0].toUpperCase()).join('') || 'CP';
+    return (
+      words.slice(0, 2).map((word) => word[0].toUpperCase()).join('') || 'CP'
+    );
   }
 
   ballToken(ball: LiveRecentBall): string | number {
@@ -134,7 +142,13 @@ export class CricPulseScorebugComponent {
     if (this.variant === 'super-over') return 'SUPER OVER';
     if (this.variant === 'powerplay') return 'POWERPLAY';
     if (this.remainingRuns != null && this.remainingBalls != null) {
-      return 'NEED ' + this.remainingRuns + ' RUNS IN ' + this.remainingBalls + ' BALLS';
+      return (
+        'NEED ' +
+        this.remainingRuns +
+        ' RUNS IN ' +
+        this.remainingBalls +
+        ' BALLS'
+      );
     }
     return this.innings.toUpperCase();
   }
