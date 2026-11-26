@@ -57,7 +57,7 @@ export class CricPulseScorebugComponent {
       this.remainingBalls == null ||
       this.remainingBalls === 0
     ) {
-      return "";
+      return "—";
     }
     return ((this.remainingRuns * 6) / this.remainingBalls).toFixed(2);
   }
@@ -73,7 +73,7 @@ export class CricPulseScorebugComponent {
     const batter = this.score?.batters?.find(
       (item) => item.playerId === this.score.strikerId,
     );
-    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "";
+    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "—";
   }
 
   get nonStriker(): string {
@@ -87,7 +87,7 @@ export class CricPulseScorebugComponent {
     const batter = this.score?.batters?.find(
       (item) => item.playerId === this.score.nonStrikerId,
     );
-    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "";
+    return batter ? batter.runs + " (" + batter.ballsFaced + ")" : "—";
   }
 
   get bowler(): string {
@@ -101,7 +101,7 @@ export class CricPulseScorebugComponent {
     const bowler = this.score?.bowlers?.find(
       (item) => item.playerId === this.score.currentBowlerId,
     );
-    if (!bowler) return "";
+    if (!bowler) return "—";
     return (
       bowler.wickets +
       "/" +
@@ -120,7 +120,9 @@ export class CricPulseScorebugComponent {
 
   get partnership(): string {
     const partnership = this.score?.partnership;
-    return partnership ? partnership.runs + " (" + partnership.balls + ")" : "";
+    return partnership
+      ? partnership.runs + " (" + partnership.balls + ")"
+      : "—";
   }
 
   initials(name: string): string {
