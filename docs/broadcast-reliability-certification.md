@@ -70,3 +70,14 @@ The OBS WebSocket suite now verifies request lifecycle isolation:
 - A response arriving after its request timed out is ignored because its correlation entry has been removed; it cannot resolve or overwrite a newer in-flight request.
 
 These tests use a simulated WebSocket and a controlled clock. They validate client-side request correlation and timeout handling, not real OBS availability or end-to-end broadcast latency.
+
+
+## Legacy live-score event ordering
+
+The scorer's STOMP socket now applies the same monotonic ordering contract to legacy feeds:
+- Versioned events must have a strictly newer `eventVersion`; after a versioned event is accepted, unversioned frames are ignored because they cannot prove freshness.
+- Before versioned events are available, legacy events with `sequenceNo` must be strictly increasing. Duplicate and older sequence numbers are ignored.
+- Once sequence ordering is observed, unsequenced legacy frames are ignored rather than being allowed to overwrite the latest known state.
+- Both ordering baselines reset when the scorer switches innings.
+
+The regression suite exercises duplicate, out-of-order, missing-sequence, versioned-to-legacy downgrade, and innings-reset cases. These are deterministic client-side contract tests; they do not replace the real two-device broadcast rehearsal.
