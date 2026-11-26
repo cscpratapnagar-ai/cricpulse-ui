@@ -46,7 +46,7 @@ async function stubPublicMatchApi(page) {
     if (message.type() === 'error') console.log('browser console error:', message.text());
   });
   await page.route('**/api/auth/ws-ticket', (route) =>
-    route.fulfill({ status: 401, contentType: 'application/json', body: '{}' }),
+    route.fulfill({ json: { token: 'browser-test-ticket' } }),
   );
   await page.route('**/api/public/matches/match-e2e/scorecard', (route) =>
     route.fulfill({ json: [] }),
