@@ -46,4 +46,41 @@
         <small>OPPOSITION</small>
       </div>
       @if (bowlingLogoUrl) {
-        <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'ÿÿÿ¶»§q«^ÿÿÿ
+        <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'" />
+      } @else {
+        <span class="identity-fallback opponent">
+          {{ initials(bowlingTeam) }}
+        </span>
+      }
+    </div>
+  </div>
+  <div class="scorebug-details">
+    <div class="batter">
+      <i class="striker-dot"></i>
+      <span
+        >{{ striker }} <b>{{ strikerStats }}</b></span
+      >
+    </div>
+    <div class="batter">
+      <span
+        >{{ nonStriker }} <b>{{ nonStrikerStats }}</b></span
+      >
+    </div>
+    <div class="partnership">
+      <small>PARTNERSHIP</small>
+      <strong>{{ partnership }}</strong>
+    </div>
+    <div class="bowler">
+      <small>{{ bowler }}</small>
+      <strong>{{ bowlerFigures }}</strong>
+    </div>
+    <div class="recent">
+      <small>LAST BALLS</small>
+      <span class="ball-list">
+        @for (ball of recentBalls; track ball.deliveryId) {
+          <b [class]="ballClass(ball)">{{ ballToken(ball) }}</b>
+        }
+      </span>
+    </div>
+  </div>
+</section>
