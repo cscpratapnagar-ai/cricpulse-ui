@@ -153,4 +153,61 @@ describe('LiveScoreSocketService', () => {
       }),
     );
   });
+
+  it('delivers only strictly newer legacy sequence numbers', () => {
+    const handler = connect();
+
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 10, runs: 10 });
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 10, runs: 10 });
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 9, runs: 9 });
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 11, runs: 11 });
+
+    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
+      10,
+      11,
+    ]);
+  });
+
+  it('rejects unsequenced legacy frames after sequence ordering is established', () => {
+    const handler = connect();
+
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 4, runs: 4 });
+    emit(handler, { inningsId: 'innings-a', runs: 99 });
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 5, runs: 5 });
+
+    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
+      4,
+      5,
+    ]);
+  });
+
+  it('does not allow legacy frames to overwrite a versioned feed', () => {
+    const handler = connect();
+
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 20, runs: 20 });
+    emit(handler, { inningsId: 'innings-a', eventVersion: 1, runs: 21 });
+    emit(handler, { inningsId: 'innings-a', sequenceNo: 21, runs: 99 });
+    emit(handler, { inningsId: 'innings-a', runs: 100 });
+    emit(handler, { inningsId: 'innings-a', eventVersion: 2, runs: 22 });
+
+    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
+      20,
+      21,
+      22,
+    ]);
+  });
+
+  it('resets the legacy sequence baseline when switching innings', () => {
+    const firstHandler = connect('innings-a');
+    emit(firstHandler, { inningsId: 'innings-a', sequenceNo: 50, runs: 50 });
+
+    const secondHandler = connect('innings-b');
+    emit(secondHandler, { inningsId: 'innings-b', sequenceNo: 1, runs: 1 });
+
+    expect(onScore.calls.allArgs().map(([value]) => (value as { runs: number }).runs)).toEqual([
+      50,
+      1,
+    ]);
+  });
+
 });
