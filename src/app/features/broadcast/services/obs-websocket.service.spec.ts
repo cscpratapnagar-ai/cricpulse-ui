@@ -263,6 +263,80 @@ describe('ObsWebSocketService', () => {
     }
   });
 
+  it('closes the identified socket and stays disconnected when the initial scene snapshot fails', async () => {
+    const states: string[] = [];
+    const subscription = service.connectionState$.subscribe((state) => states.push(state));
+    const connecting = service.connect('ws://127.0.0.1:4455', '');
+
+    socket.emit({ op: 0, d: { rpcVersion: 1 } });
+    await Promise.resolve();
+    socket.emit({ op: 2, d: {} });
+    await Promise.resolve();
+
+    const request = socket.lastRequest();
+    expect(request.d['requestType']).toBe('GetSceneList');
+    socket.emit({
+      op: 7,
+      d: {
+        requestId: request.d['requestId'],
+        requestStatus: { result: false, code: 500, comment: 'Scene collection unavailable.' },
+      },
+    });
+
+    await expectAsync(connecting).toBeRejectedWithError('Scene collection unavailable.');
+    expect(socket.readyState).toBe(FakeWebSocket.CLOSED);
+    expect(service.connected).toBeFalse();
+    expect(states[states.length - 1]).toBe('DISCONNECTED');
+    expect((service as unknown as { reconnectTimer?: ReturnType<typeof setTimeout> }).reconnectTimer)
+      .toBeUndefined();
+    subscription.unsubscribe();
+  });
+
+  it('keeps reconnecting and schedules another retry when the recovered scene snapshot fails', async () => {
+    jasmine.clock().install();
+    try {
+      await connectService();
+      const recoveredSocket = new FakeWebSocket('ws://127.0.0.1:4455');
+      (window.WebSocket as unknown as jasmine.Spy).and.returnValue(
+        recoveredSocket as unknown as WebSocket,
+      );
+      const states: string[] = [];
+      const subscription = service.connectionState$.subscribe((state) => states.push(state));
+
+      socket.close();
+      jasmine.clock().tick(1000);
+      await Promise.resolve();
+
+      recoveredSocket.emit({ op: 0, d: { rpcVersion: 1 } });
+      await Promise.resolve();
+      recoveredSocket.emit({ op: 2, d: {} });
+      await Promise.resolve();
+
+      const request = recoveredSocket.lastRequest();
+      expect(request.d['requestType']).toBe('GetSceneList');
+      recoveredSocket.emit({
+        op: 7,
+        d: {
+          requestId: request.d['requestId'],
+          requestStatus: { result: false, code: 500, comment: 'Scene collection unavailable.' },
+        },
+      });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(recoveredSocket.readyState).toBe(FakeWebSocket.CLOSED);
+      expect(service.connected).toBeFalse();
+      expect(states[states.length - 1]).toBe('RECONNECTING');
+      expect((service as unknown as { reconnectTimer?: ReturnType<typeof setTimeout> }).reconnectTimer)
+        .toBeDefined();
+      expect((service as unknown as { reconnectAttempts: number }).reconnectAttempts).toBe(2);
+      subscription.unsubscribe();
+    } finally {
+      service.disconnect();
+      jasmine.clock().uninstall();
+    }
+  });
+
   it('rejects malformed scene-list responses instead of returning an empty list', async () => {
     const connecting = service.connect('ws://127.0.0.1:4455', '');
     socket.emit({ op: 0, d: { rpcVersion: 1 } });
