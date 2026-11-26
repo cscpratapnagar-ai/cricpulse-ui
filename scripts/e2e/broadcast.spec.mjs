@@ -41,6 +41,10 @@ const score = {
 };
 
 async function stubPublicMatchApi(page) {
+  page.on('pageerror', (error) => console.log('browser pageerror:', error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') console.log('browser console error:', message.text());
+  });
   await page.route('**/api/auth/ws-ticket', (route) =>
     route.fulfill({ status: 401, contentType: 'application/json', body: '{}' }),
   );
@@ -60,6 +64,8 @@ test('public match centre renders the authoritative live score in a real browser
   await stubPublicMatchApi(page);
 
   await page.goto('/match/match-e2e');
+  await page.waitForTimeout(500);
+  console.log('public match browser body:', await page.locator('body').innerText());
 
   await expect(page.locator('.hero h1')).toHaveText('CricPulse Browser Cup');
   await expect(page.locator('.score')).toContainText('42');
@@ -79,6 +85,8 @@ test('OBS broadcast overlay renders the same public innings snapshot', async ({ 
   );
 
   await page.goto('/broadcast/match-e2e/overlay?mode=strip');
+  await page.waitForTimeout(500);
+  console.log('broadcast overlay browser body:', await page.locator('body').innerText());
 
   await expect(page.locator('.legacy-team')).toContainText('Falcons');
   await expect(page.locator('.legacy-score')).toContainText('42');
