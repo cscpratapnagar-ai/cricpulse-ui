@@ -12,6 +12,7 @@ import {
   of,
   switchMap,
   tap,
+  Subscription,
 } from 'rxjs';
 import { API_ORIGIN } from '../../../../core/config/api.config';
 import { CricPulseScorebugComponent } from '../../components/scorebug/cricpulse-scorebug.component';
@@ -123,6 +124,7 @@ export class BroadcastOverlayComponent implements OnDestroy {
   autoEvent: AutoEvent | null = null;
   private currentInningsId: string | null = null;
   private localScoreStreamInningsId: string | null = null;
+  private localAuthoritativeSubscription?: Subscription;
   private previousScore: LiveScore | null = null;
   private previousInningsId: string | null = null;
   private autoTimer: ReturnType<typeof setTimeout> | undefined;
@@ -203,6 +205,8 @@ export class BroadcastOverlayComponent implements OnDestroy {
     if (this.localRelayReconnectTimer) clearTimeout(this.localRelayReconnectTimer);
     this.localRelaySocket?.close();
     this.localRelaySocket = undefined;
+    this.localAuthoritativeSubscription?.unsubscribe();
+    this.localAuthoritativeSubscription = undefined;
     this.localScore$.complete();
     if (this.autoTimer) clearTimeout(this.autoTimer);
     if (this.refreshTimer) clearInterval(this.refreshTimer);
@@ -247,8 +251,10 @@ export class BroadcastOverlayComponent implements OnDestroy {
 
       // Do not attach an authoritative server stream while offline: its older
       // snapshot can overwrite the newer local projection after OBS refresh.
+      this.localAuthoritativeSubscription?.unsubscribe();
+      this.localAuthoritativeSubscription = undefined;
       if (navigator.onLine) {
-        this.liveScore.watch(inningsId).subscribe({
+        this.localAuthoritativeSubscription = this.liveScore.watch(inningsId).subscribe({
           next: (serverScore) => {
             if (serverScore?.inningsId === inningsId && navigator.onLine) {
               this.localScore$.next(serverScore);

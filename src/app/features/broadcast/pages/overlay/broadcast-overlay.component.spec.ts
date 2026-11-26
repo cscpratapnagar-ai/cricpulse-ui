@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, finalize, of, throwError } from 'rxjs';
 import { SKIP_GLOBAL_LOADING } from '../../../../core/interceptors/loading.interceptor';
 import { LiveScore, LiveScoreService } from '../../../../core/services/live-score.service';
 import { BroadcastOverlayComponent } from './broadcast-overlay.component';
@@ -656,6 +656,38 @@ describe('BroadcastOverlayComponent browser runtime', () => {
       expect(fixture.nativeElement.querySelector('.moment.wicket')).not.toBeNull();
     }));
   }
+
+  it('unsubscribes the previous local authoritative feed on innings change and destroy', () => {
+    spyOnProperty(navigator, 'onLine', 'get').and.returnValue(true);
+    const firstFeed = new Subject<LiveScore>();
+    const secondFeed = new Subject<LiveScore>();
+    let firstFinalized = 0;
+    let secondFinalized = 0;
+    liveScore.watch.and.returnValues(
+      firstFeed.pipe(finalize(() => firstFinalized++)),
+      secondFeed.pipe(finalize(() => secondFinalized++)),
+    );
+    mode = 'sponsor';
+    const component = createOverlay();
+    const acceptMessage = (inningsId: string) =>
+      (component as any).acceptLocalScoreMessage({
+        source: 'cricpulse-scorer',
+        matchId: 'match-1',
+        score: { ...score, inningsId },
+      });
+
+    acceptMessage('innings-1');
+    expect(liveScore.watch).toHaveBeenCalledWith('innings-1');
+    expect(firstFinalized).toBe(0);
+
+    acceptMessage('innings-2');
+    expect(liveScore.watch).toHaveBeenCalledWith('innings-2');
+    expect(firstFinalized).toBe(1);
+    expect(secondFinalized).toBe(0);
+
+    fixture.destroy();
+    expect(secondFinalized).toBe(1);
+  });
 
   it('removes the OBS transparency class when the overlay is destroyed', () => {
     createOverlay();
