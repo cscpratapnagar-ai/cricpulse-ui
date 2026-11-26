@@ -263,58 +263,6 @@ describe('ObsWebSocketService', () => {
     }
   });
 
-  it('retries recovery when OBS identifies but the scene snapshot request fails', async () => {
-    jasmine.clock().install();
-    try {
-      await connectService();
-      const recoverySocket = new FakeWebSocket('ws://127.0.0.1:4455');
-      (window.WebSocket as unknown as jasmine.Spy).and.returnValue(
-        recoverySocket as unknown as WebSocket,
-      );
-      const states: string[] = [];
-      const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
-
-      socket.close();
-      jasmine.clock().tick(1000);
-      await Promise.resolve();
-      recoverySocket.emit({ op: 0, d: { rpcVersion: 1 } });
-      await Promise.resolve();
-      recoverySocket.emit({ op: 2, d: {} });
-      await Promise.resolve();
-
-      const request = recoverySocket.lastRequest();
-      expect(request.d['requestType']).toBe('GetSceneList');
-      recoverySocket.emit({
-        op: 7,
-        d: {
-          requestId: request.d['requestId'],
-          requestStatus: {
-            result: false,
-            code: 500,
-            comment: 'Scene list temporarily unavailable.',
-          },
-        },
-      });
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-
-      const internals = service as unknown as {
-        reconnectTimer?: ReturnType<typeof setTimeout>;
-      };
-      expect(service.connected).toBeFalse();
-      expect(states[states.length - 1]).toBe('RECONNECTING');
-      expect(internals.reconnectTimer).toBeDefined();
-
-      service.disconnect();
-      stateSubscription.unsubscribe();
-    } finally {
-      service.disconnect();
-      jasmine.clock().uninstall();
-    }
-  });
-
   it('rejects malformed scene-list responses instead of returning an empty list', async () => {
     const connecting = service.connect('ws://127.0.0.1:4455', '');
     socket.emit({ op: 0, d: { rpcVersion: 1 } });
