@@ -61,3 +61,12 @@ The CI run on this PR is the authoritative automated result. Do not treat the ma
 - Automated CI: pending until GitHub Actions completes for the final PR head SHA.
 - Manual multi-device / live-network scenarios: operator sign-off required.
 - Production release: do not promote until the manual certification matrix is completed on the target deployment.
+
+
+## OBS request-timeout and late-response regression coverage
+
+The OBS WebSocket suite now verifies request lifecycle isolation:
+- A request that receives no response is rejected after the configured eight-second timeout, while the identified WebSocket remains connected and can serve a subsequent request.
+- A response arriving after its request timed out is ignored because its correlation entry has been removed; it cannot resolve or overwrite a newer in-flight request.
+
+These tests use a simulated WebSocket and a controlled clock. They validate client-side request correlation and timeout handling, not real OBS availability or end-to-end broadcast latency.
