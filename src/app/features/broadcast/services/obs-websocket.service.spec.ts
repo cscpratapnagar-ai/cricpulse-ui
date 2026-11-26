@@ -182,7 +182,9 @@ describe('ObsWebSocketService', () => {
     const messages: string[] = [];
     const attempts: number[] = [];
     const stateSubscription = service.connectionState$.subscribe((state) => states.push(state));
-    const attemptSubscription = service.reconnectAttempt$.subscribe((attempt) => attempts.push(attempt));
+    const attemptSubscription = service.reconnectAttempt$.subscribe((attempt) =>
+      attempts.push(attempt),
+    );
     const lostSubscription = service.connectionLost$.subscribe((message) => messages.push(message));
 
     await connectService();
