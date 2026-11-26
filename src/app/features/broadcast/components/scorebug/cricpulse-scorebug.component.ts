@@ -1,5 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { LiveRecentBall, LiveScore } from '../../../../core/services/live-score.service';
+import {
+  LiveRecentBall,
+  LiveScore,
+} from '../../../../core/services/live-score.service';
 
 export type CricPulseScorebugVariant =
   | 'standard'
@@ -64,7 +67,9 @@ export class CricPulseScorebugComponent {
   }
 
   get strikerStats(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.strikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.strikerId,
+    );
     return batter ? batter.runs + ' (' + batter.ballsFaced + ')' : '—';
   }
 
@@ -76,7 +81,9 @@ export class CricPulseScorebugComponent {
   }
 
   get nonStrikerStats(): string {
-    const batter = this.score?.batters?.find((item) => item.playerId === this.score.nonStrikerId);
+    const batter = this.score?.batters?.find(
+      (item) => item.playerId === this.score.nonStrikerId,
+    );
     return batter ? batter.runs + ' (' + batter.ballsFaced + ')' : '—';
   }
 
@@ -117,9 +124,10 @@ export class CricPulseScorebugComponent {
 
   initials(name: string): string {
     const words = (name || '').trim().split(/\s+/).filter(Boolean);
-    return (
-      words.slice(0, 2).map((word) => word[0].toUpperCase()).join('') || 'CP'
-    );
+    return words
+      .slice(0, 2)
+      .map((word) => word[0].toUpperCase())
+      .join('') || 'CP';
   }
 
   ballToken(ball: LiveRecentBall): string | number {
