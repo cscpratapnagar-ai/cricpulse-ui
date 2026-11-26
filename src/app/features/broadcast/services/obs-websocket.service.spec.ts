@@ -395,9 +395,7 @@ describe('ObsWebSocketService', () => {
     }
   });
 
-  it(
-    'ignores late responses for timed-out requests after their correlation is removed',
-    async () => {
+  it('ignores late OBS responses after timeout', async () => {
       jasmine.clock().install();
       try {
         await connectService();
@@ -433,6 +431,5 @@ describe('ObsWebSocketService', () => {
         service.disconnect();
         jasmine.clock().uninstall();
       }
-    },
-  );
+  });
 });
