@@ -456,60 +456,58 @@ describe('BroadcastOverlayComponent browser runtime', () => {
   it('does not let an unversioned legacy snapshot overwrite a versioned score', () => {
     const feed = new Subject<LiveScore>();
     liveScore.watch.and.returnValue(feed);
-    const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
+    createOverlay();
 
     feed.next({ ...score, eventVersion: 4, runs: 40 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: undefined, runs: 99 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('40');
 
-    expect(emitted.map((item) => item.runs)).toContain(40);
-    expect(emitted.map((item) => item.runs)).not.toContain(99);
-    subscription.unsubscribe();
+    feed.next({ ...score, eventVersion: undefined, sequenceNo: undefined, runs: 99 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('40');
+    expect(fixture.nativeElement.textContent).not.toContain('99');
   });
 
   it('rejects duplicate and out-of-order score snapshots before they reach the overlay', () => {
     const feed = new Subject<LiveScore>();
     liveScore.watch.and.returnValue(feed);
-    const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
+    createOverlay();
 
     feed.next({ ...score, eventVersion: 5, runs: 50 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('50');
+
     feed.next({ ...score, eventVersion: 5, runs: 55 });
     feed.next({ ...score, eventVersion: 3, runs: 30 });
-    feed.next({ ...score, eventVersion: 6, runs: 60 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('50');
+    expect(fixture.nativeElement.textContent).not.toContain('55');
+    expect(fixture.nativeElement.textContent).not.toContain('30');
 
-    expect(emitted.map((item) => item.runs)).toContain(50);
-    expect(emitted.map((item) => item.runs)).not.toContain(55);
-    expect(emitted.map((item) => item.runs)).not.toContain(30);
-    expect(emitted.map((item) => item.runs)).toContain(60);
-    subscription.unsubscribe();
+    feed.next({ ...score, eventVersion: 6, runs: 60 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('60');
   });
 
   it('falls back to strictly increasing sequence numbers for legacy score feeds', () => {
     const feed = new Subject<LiveScore>();
     liveScore.watch.and.returnValue(feed);
-    const component = createOverlay();
-    const emitted: LiveScore[] = [];
-    const subscription = component.score$.subscribe((value) => {
-      if (value) emitted.push(value);
-    });
+    createOverlay();
 
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 10 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('10');
+
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 10, runs: 11 });
     feed.next({ ...score, eventVersion: undefined, sequenceNo: 9, runs: 9 });
-    feed.next({ ...score, eventVersion: undefined, sequenceNo: 11, runs: 12 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('10');
+    expect(fixture.nativeElement.textContent).not.toContain('11');
+    expect(fixture.nativeElement.textContent).not.toContain('9');
 
-    expect(emitted.map((item) => item.runs)).toContain(10);
-    expect(emitted.map((item) => item.runs)).not.toContain(11);
-    expect(emitted.map((item) => item.runs)).not.toContain(9);
-    expect(emitted.map((item) => item.runs)).toContain(12);
-    subscription.unsubscribe();
+    feed.next({ ...score, eventVersion: undefined, sequenceNo: 11, runs: 12 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('12');
   });
 
   it('re-subscribes to the live score feed after a connection error', fakeAsync(() => {
