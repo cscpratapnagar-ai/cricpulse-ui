@@ -1,31 +1,78 @@
-<section class="cp-scorebug" [class]="'cp-scorebug variant-' + variant" aria-label="CricPulse live cricket score">
+<section
+  class="cp-scorebug"
+  [class]="'cp-scorebug variant-' + variant"
+  aria-label="CricPulse live cricket score"
+>
   <div class="scorebug-main">
     <div class="identity identity-batting">
-      @if (battingLogoUrl) { <img [src]="battingLogoUrl" [alt]="battingTeam + ' logo'"> }
-      @else { <span class="identity-fallback">{{ initials(battingTeam) }}</span> }
-      <div class="team-copy"><strong>{{ battingTeam }}</strong><small>{{ innings }} · {{ format }}</small></div>
+      @if (battingLogoUrl) {
+        <img [src]="battingLogoUrl" [alt]="battingTeam + ' logo'">
+      } @else {
+        <span class="identity-fallback">{{ initials(battingTeam) }}</span>
+      }
+      <div class="team-copy">
+        <strong>{{ battingTeam }}</strong>
+        <small>{{ innings }} · {{ format }}</small>
+      </div>
     </div>
-    <div class="score-total"><strong>{{ score.runs }}<span>/{{ score.wickets }}</span></strong></div>
-    <div class="overs"><strong>{{ overs }}</strong><small>OVERS</small></div>
-    <div class="rate"><small>CRR</small><strong>{{ currentRate }}</strong></div>
+    <div class="score-total">
+      <strong>{{ score.runs }}<span>/{{ score.wickets }}</span></strong>
+    </div>
+    <div class="overs">
+      <strong>{{ overs }}</strong>
+      <small>OVERS</small>
+    </div>
+    <div class="rate">
+      <small>CRR</small>
+      <strong>{{ currentRate }}</strong>
+    </div>
     @if (score.targetRuns != null) {
-      <div class="chase-context"><small>TARGET {{ score.targetRuns }}</small><strong>{{ contextText }}</strong><small>RRR {{ requiredRate }}</small></div>
+      <div class="chase-context">
+        <small>TARGET {{ score.targetRuns }}</small>
+        <strong>{{ contextText }}</strong>
+        <small>RRR {{ requiredRate }}</small>
+      </div>
     } @else {
-      <div class="chase-context"><small>MATCH STATUS</small><strong>{{ contextText }}</strong></div>
+      <div class="chase-context">
+        <small>MATCH STATUS</small>
+        <strong>{{ contextText }}</strong>
+      </div>
     }
     <div class="identity identity-bowling">
-      <div class="team-copy"><strong>{{ bowlingTeam }}</strong><small>OPPOSITION</small></div>
-      @if (bowlingLogoUrl) { <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'"> }
-      @else { <span class="identity-fallback opponent">{{ initials(bowlingTeam) }}</span> }
+      <div class="team-copy">
+        <strong>{{ bowlingTeam }}</strong>
+        <small>OPPOSITION</small>
+      </div>
+      @if (bowlingLogoUrl) {
+        <img [src]="bowlingLogoUrl" [alt]="bowlingTeam + ' logo'">
+      } @else {
+        <span class="identity-fallback opponent">{{ initials(bowlingTeam) }}</span>
+      }
     </div>
   </div>
   <div class="scorebug-details">
-    <div class="batter"><i class="striker-dot"></i><span>{{ striker }} <b>{{ strikerStats }}</b></span></div>
-    <div class="batter"><span>{{ nonStriker }} <b>{{ nonStrikerStats }}</b></span></div>
-    <div class="partnership"><small>PARTNERSHIP</small><strong>{{ partnership }}</strong></div>
-    <div class="bowler"><small>{{ bowler }}</small><strong>{{ bowlerFigures }}</strong></div>
-    <div class="recent"><small>LAST BALLS</small><span class="ball-list">
-      @for (ball of recentBalls; track ball.deliveryId) { <b [class]="ballClass(ball)">{{ ballToken(ball) }}</b> }
-    </span></div>
+    <div class="batter">
+      <i class="striker-dot"></i>
+      <span>{{ striker }} <b>{{ strikerStats }}</b></span>
+    </div>
+    <div class="batter">
+      <span>{{ nonStriker }} <b>{{ nonStrikerStats }}</b></span>
+    </div>
+    <div class="partnership">
+      <small>PARTNERSHIP</small>
+      <strong>{{ partnership }}</strong>
+    </div>
+    <div class="bowler">
+      <small>{{ bowler }}</small>
+      <strong>{{ bowlerFigures }}</strong>
+    </div>
+    <div class="recent">
+      <small>LAST BALLS</small>
+      <span class="ball-list">
+        @for (ball of recentBalls; track ball.deliveryId) {
+          <b [class]="ballClass(ball)">{{ ballToken(ball) }}</b>
+        }
+      </span>
+    </div>
   </div>
 </section>
