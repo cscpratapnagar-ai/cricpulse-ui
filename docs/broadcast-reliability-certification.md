@@ -14,7 +14,8 @@ This change set consolidates the six broadcast workstreams into one frontend PR.
 ## Implemented frontend safeguards
 
 - Live score socket now exposes connection state, reconnect-attempt count, and the timestamp of the last accepted score event.
-- A dropped WebSocket is represented as `RECONNECTING`; a successful STOMP reconnect resets the retry counter.
+- A dropped WebSocket is represented as `RECONNECTING`; a successful OBS reconnect resets the retry counter.
+- OBS is not reported as recovered until the post-handshake scene-list snapshot succeeds; failed scene snapshots tear down the partial socket and retry with backoff.
 - Overlay health is explicitly represented as connecting, live, local-feed, stale, or error.
 - A failed refresh after a previously loaded match is surfaced as stale data instead of silently presenting old scores as current.
 - Overlay stream validation rejects duplicate/out-of-order `eventVersion` values before rendering; once a versioned snapshot is accepted, an unversioned legacy snapshot cannot overwrite it.
@@ -39,6 +40,7 @@ The CI run on this PR is the authoritative automated result. Do not treat the ma
 | Scenario | Procedure | Expected result |
 |---|---|---|
 | OBS reconnect | Disconnect OBS network briefly, then restore it | Controller shows reconnecting, then restores scenes and current scene |
+| OBS scene snapshot failure during recovery | Allow WebSocket identification but fail `GetSceneList` | Partial connection is closed, state remains RECONNECTING, and retry is scheduled |
 | Intentional disconnect | Click Disconnect in OBS controller | No automatic reconnect; credentials/config remain intentionally cleared according to existing behavior |
 | Score version ordering | Deliver a newer score, then replay a duplicate, older, and unversioned snapshot | Duplicate/older/unverifiable snapshots are ignored before rendering |
 | Legacy sequence ordering | Deliver sequence 10, then 10, 9, and 11 | Duplicate/older sequence snapshots are ignored; sequence 11 is rendered |
