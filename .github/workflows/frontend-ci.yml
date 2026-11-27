@@ -29,5 +29,8 @@ jobs:
       - name: Verify frontend authentication and route security contract
         run: npm run test:security
 
+      - name: Verify live feed version reconciliation
+        run: npm run test:live-feed
+
       - name: Build Angular application
         run: npm run build

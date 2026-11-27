@@ -146,7 +146,7 @@ interface InningsResponse {
                   <div class="score-meta">
                     <span>{{ overs(score.legalBalls) }} OVERS</span>
                     <span>INNINGS {{ score.inningsNumber }}</span>
-                    <span class="synced">● SYNCED</span>
+                    <span [class.synced]="score.feedStatus === 'connected'" [class.degraded]="score.feedStatus === 'reconnecting' || score.feedStatus === 'stale'">● {{ score.feedStatus === 'stale' ? 'STALE DATA' : score.feedStatus === 'reconnecting' ? 'RECONNECTING' : 'LIVE SYNC' }}</span>
                   </div>
                 </div>
               } @else {
@@ -267,7 +267,7 @@ interface InningsResponse {
     .runs{font-size:86px;line-height:1;font-weight:900;letter-spacing:-6px;color:#f2fbe9}
     .runs small{font-size:34px;color:#91aa9d;letter-spacing:-2px}
     .score-meta{display:flex;gap:18px;flex-wrap:wrap;color:#91aa9d;font-size:10px;letter-spacing:1.2px;font-weight:800}
-    .synced{color:#b8f45c}
+    .synced{color:#b8f45c}.degraded{color:#ffca78}
     .waiting{color:#91aa9d}
     .inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
     .button-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
