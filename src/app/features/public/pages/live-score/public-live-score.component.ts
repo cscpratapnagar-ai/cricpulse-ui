@@ -1,7 +1,7 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, distinctUntilChanged, filter, of, retry, switchMap, tap, timer } from 'rxjs';
+import { catchError, distinctUntilChanged, exhaustMap, filter, of, retry, switchMap, tap, timer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {
   LiveScore,
@@ -143,7 +143,7 @@ export class PublicLiveScoreComponent {
 
   startLiveFeed(): void {
     this.score$ = timer(0, 5000).pipe(
-      switchMap(() =>
+      exhaustMap(() =>
         this.http
           .get<CurrentInnings>(`${this.api}/public/matches/${this.matchId}/current-innings`)
           .pipe(
