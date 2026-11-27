@@ -112,6 +112,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
 
     fixture.destroy();
   }));
+
   it('switches to the replacement innings and disposes the previous score watcher', fakeAsync(() => {
     const fixture = TestBed.createComponent(PublicLiveScoreComponent);
     fixture.detectChanges();
@@ -163,9 +164,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
     });
 
     expect(firstScoreSnapshot.cancelled).toBeTrue();
-    httpMock.expectOne((request) =>
-      request.url.endsWith('/api/public/innings/innings-2'),
-    );
+    httpMock.expectOne((request) => request.url.endsWith('/api/public/innings/innings-2'));
 
     fixture.destroy();
   }));
@@ -189,7 +188,10 @@ describe('PublicLiveScoreComponent live innings polling', () => {
     tick(0);
     httpMock
       .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
-      .flush({ message: 'temporary failure' }, { status: 503, statusText: 'Service Unavailable' });
+      .flush(
+        { message: 'temporary failure' },
+        { status: 503, statusText: 'Service Unavailable' },
+      );
 
     tick(5000);
     httpMock
@@ -211,5 +213,4 @@ describe('PublicLiveScoreComponent live innings polling', () => {
 
     fixture.destroy();
   }));
-
 });
