@@ -1,0 +1,22 @@
+name: Temporary Prettier Format Inspection
+
+on:
+  push:
+    branches:
+      - test/public-live-innings-switch-recovery
+
+permissions:
+  contents: read
+
+jobs:
+  format-inspection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Print Prettier-formatted spec
+        run: |
+          npx --yes prettier@3.5.3 "src/app/features/public/pages/live-score/public-live-score.component.spec.ts" > /tmp/formatted-spec.ts
+          cat /tmp/formatted-spec.ts
