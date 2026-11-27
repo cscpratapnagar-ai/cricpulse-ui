@@ -186,26 +186,26 @@ describe('PublicLiveScoreComponent live innings polling', () => {
       .flush([]);
 
     tick(0);
-    httpMock
-      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
-      .flush(
-        { message: 'temporary failure' },
-        { status: 503, statusText: 'Service Unavailable' },
-      );
+    httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/matches/match-1/current-innings'),
+    ).flush(
+      { message: 'temporary failure' },
+      { status: 503, statusText: 'Service Unavailable' },
+    );
 
     tick(5000);
-    httpMock
-      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
-      .flush({
-        inningsId: 'innings-recovered',
-        matchId: 'match-1',
-        inningsNumber: 1,
-        battingTeamId: 'team-a',
-        runs: 4,
-        wickets: 0,
-        legalBalls: 3,
-        status: 'LIVE',
-      });
+    httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/matches/match-1/current-innings'),
+    ).flush({
+      inningsId: 'innings-recovered',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      battingTeamId: 'team-a',
+      runs: 4,
+      wickets: 0,
+      legalBalls: 3,
+      status: 'LIVE',
+    });
 
     httpMock.expectOne((request) =>
       request.url.endsWith('/api/public/innings/innings-recovered'),
