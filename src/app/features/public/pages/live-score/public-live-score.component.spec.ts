@@ -187,13 +187,8 @@ describe('PublicLiveScoreComponent live innings polling', () => {
 
     tick(0);
     httpMock
-      .expectOne((request) =>
-        request.url.endsWith('/api/public/matches/match-1/current-innings'),
-      )
-      .flush(
-        { message: 'temporary failure' },
-        { status: 503, statusText: 'Service Unavailable' },
-      );
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
+      .flush({ message: 'temporary failure' }, { status: 503, statusText: 'Service Unavailable' });
 
     tick(5000);
     httpMock
@@ -211,9 +206,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
         status: 'LIVE',
       });
 
-    httpMock.expectOne((request) =>
-      request.url.endsWith('/api/public/innings/innings-recovered'),
-    );
+    httpMock.expectOne((request) => request.url.endsWith('/api/public/innings/innings-recovered'));
 
     fixture.destroy();
   }));
