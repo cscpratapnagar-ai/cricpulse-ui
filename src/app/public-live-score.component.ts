@@ -1,7 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { of } from 'rxjs';
+import { createPublicLiveFeed } from './public-live-innings-feed.mjs';
 import { HttpClient } from '@angular/common/http';
 import { LiveScore, LiveScoreService, resolveLiveApiOrigin } from './live-score.service';
 
@@ -40,10 +41,7 @@ export class PublicLiveScoreComponent {
   constructor(){
     if(!this.matchId)return;
     this.http.get<Match>(`${this.api}/matches/${encodeURIComponent(this.matchId)}`).subscribe({next:m=>this.match=m,error:e=>console.error('[PublicLive] match load failed',e)});
-    this.http.get<CurrentInnings>(`${this.api}/public/matches/${encodeURIComponent(this.matchId)}/current-innings`).subscribe({
-      next:innings=>{const inningsId=innings.inningsId;if(!inningsId)return;this.score$=this.liveScore.watchPublic(inningsId).pipe(catchError(e=>{console.error('[PublicLive] score failed',e);return of<LiveScore|null>(null);}));},
-      error:e=>{console.error('[PublicLive] current innings failed',e);this.score$=of(null);}
-    });
+    this.score$ = createPublicLiveFeed(this.http, this.api, this.matchId, this.liveScore);
   }
   overs(balls:number){return `${Math.floor(balls/6)}.${balls%6}`;}
   runRate(score:LiveScore){return score.legalBalls?(score.runs/(score.legalBalls/6)).toFixed(2):'0.00';}
