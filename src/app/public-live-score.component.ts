@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { LiveScore, LiveScoreService, resolveLiveApiOrigin } from './live-score.service';
 
 interface Match { id:string; name:string; format:string; status:string; teamAName?:string; teamBName?:string; }
-interface CurrentInnings { inningsId:string; matchId?:string; inningsNumber:number; battingTeamId:string; bowlingTeamId?:string; runs:number; wickets:number; legalBalls:number; status:string; strikerId?:string; nonStrikerId?:string; currentBowlerId?:string; }
 
 @Component({
   selector:'app-public-live-score', standalone:true, imports:[AsyncPipe,RouterLink],
