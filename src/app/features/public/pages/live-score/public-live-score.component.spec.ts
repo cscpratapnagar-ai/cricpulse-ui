@@ -129,6 +129,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
       .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/scorecard'))
       .flush([]);
 
+    fixture.detectChanges();
     tick(0);
     const firstDiscovery = httpMock.expectOne((request) =>
       request.url.endsWith('/api/public/matches/match-1/current-innings'),
@@ -185,6 +186,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
       .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/scorecard'))
       .flush([]);
 
+    fixture.detectChanges();
     tick(0);
     httpMock
       .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
