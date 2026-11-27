@@ -112,4 +112,104 @@ describe('PublicLiveScoreComponent live innings polling', () => {
 
     fixture.destroy();
   }));
+  it('switches to the replacement innings and disposes the previous score watcher', fakeAsync(() => {
+    const fixture = TestBed.createComponent(PublicLiveScoreComponent);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1'))
+      .flush({
+        id: 'match-1',
+        name: 'Innings Switch Test',
+        format: 'T20',
+        status: 'LIVE',
+      });
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/scorecard'))
+      .flush([]);
+
+    tick(0);
+    const firstDiscovery = httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/matches/match-1/current-innings'),
+    );
+    firstDiscovery.flush({
+      inningsId: 'innings-1',
+      matchId: 'match-1',
+      inningsNumber: 1,
+      battingTeamId: 'team-a',
+      runs: 10,
+      wickets: 0,
+      legalBalls: 6,
+      status: 'LIVE',
+    });
+
+    const firstScoreSnapshot = httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/innings/innings-1'),
+    );
+
+    tick(5000);
+    const secondDiscovery = httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/matches/match-1/current-innings'),
+    );
+    secondDiscovery.flush({
+      inningsId: 'innings-2',
+      matchId: 'match-1',
+      inningsNumber: 2,
+      battingTeamId: 'team-b',
+      runs: 0,
+      wickets: 0,
+      legalBalls: 0,
+      status: 'LIVE',
+    });
+
+    expect(firstScoreSnapshot.cancelled).toBeTrue();
+    httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/innings/innings-2'),
+    );
+
+    fixture.destroy();
+  }));
+
+  it('continues innings discovery after a temporary current-innings API failure', fakeAsync(() => {
+    const fixture = TestBed.createComponent(PublicLiveScoreComponent);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1'))
+      .flush({
+        id: 'match-1',
+        name: 'Polling Recovery Test',
+        format: 'T20',
+        status: 'LIVE',
+      });
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/scorecard'))
+      .flush([]);
+
+    tick(0);
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
+      .flush({ message: 'temporary failure' }, { status: 503, statusText: 'Service Unavailable' });
+
+    tick(5000);
+    httpMock
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
+      .flush({
+        inningsId: 'innings-recovered',
+        matchId: 'match-1',
+        inningsNumber: 1,
+        battingTeamId: 'team-a',
+        runs: 4,
+        wickets: 0,
+        legalBalls: 3,
+        status: 'LIVE',
+      });
+
+    httpMock.expectOne((request) =>
+      request.url.endsWith('/api/public/innings/innings-recovered'),
+    );
+
+    fixture.destroy();
+  }));
+
 });
