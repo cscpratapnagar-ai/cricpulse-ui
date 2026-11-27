@@ -192,9 +192,7 @@ describe('PublicLiveScoreComponent live innings polling', () => {
 
     tick(5000);
     httpMock
-      .expectOne((request) =>
-        request.url.endsWith('/api/public/matches/match-1/current-innings'),
-      )
+      .expectOne((request) => request.url.endsWith('/api/public/matches/match-1/current-innings'))
       .flush({
         inningsId: 'innings-recovered',
         matchId: 'match-1',
