@@ -5,7 +5,7 @@
     "start": "ng serve",
     "build": "ng build",
     "test:security": "node scripts/test-frontend-security-contract.mjs",
-    "test:live-feed": "node --test scripts/test-live-feed-reconciliation.mjs"
+    "test:live-feed": "node --test scripts/test-live-feed-reconciliation.mjs scripts/test-public-innings-feed.mjs"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
