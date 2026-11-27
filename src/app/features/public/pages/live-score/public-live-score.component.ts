@@ -1,7 +1,17 @@
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, distinctUntilChanged, exhaustMap, filter, of, retry, switchMap, tap, timer } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  exhaustMap,
+  filter,
+  of,
+  retry,
+  switchMap,
+  tap,
+  timer,
+} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {
   LiveScore,
