@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { EMPTY, Observable, Subscription, catchError, firstValueFrom, switchMap, timer } from 'rxjs';
+import { shouldAcceptLiveScoreVersion } from './live-score-reconciliation.mjs';
 
 export interface LiveBatter { playerId: string; runs: number; ballsFaced: number; fours: number; sixes: number; strikeRate?: number | null; out: boolean; dismissalType?: string | null; }
 export interface LiveBowler { playerId: string; legalBalls: number; runsConceded: number; wickets: number; wides: number; noBalls: number; economy?: number | null; }
@@ -14,11 +15,15 @@ export interface LiveScore {
   inningsId: string; matchId: string; inningsNumber: number; runs: number; wickets: number; legalBalls: number;
   totalOvers?: number | null; status?: string; targetRuns?: number | null; currentOver?: number; currentBall?: number;
   strikerId?: string | null; nonStrikerId?: string | null; currentBowlerId?: string | null; overBalls?: string[];
-  eventVersion?: number; batters?: LiveBatter[]; bowlers?: LiveBowler[]; overs?: LiveOver[];
+  eventVersion?: number; feedStatus?: LiveFeedStatus; lastUpdatedAt?: number;
+  batters?: LiveBatter[]; bowlers?: LiveBowler[]; overs?: LiveOver[];
   recentBalls?: LiveRecentBall[]; partnership?: LivePartnership | null; fallOfWickets?: LiveFallOfWicket[];
 }
 
 export type LiveFeedAccess = 'public' | 'private';
+export type LiveFeedStatus = 'connecting' | 'connected' | 'reconnecting' | 'stale';
+
+const LIVE_DATA_STALE_AFTER_MS = 30000;
 
 /**
  * Local Angular development keeps using the separately running API on :8080.
@@ -64,35 +69,65 @@ export class LiveScoreService {
       }
 
       let stopped = false;
+      let socketConnected = false;
       let stompSubscription: StompSubscription | undefined;
       let client: Client;
       let lastEventVersion: number | undefined;
+      let lastDataAt = Date.now();
+      let latestScore: LiveScore | undefined;
       const requests = new Subscription();
 
-      const publish = (score: LiveScore | null | undefined): void => {
+      const currentStatus = (): LiveFeedStatus => {
+        if (!latestScore && !socketConnected) return 'connecting';
+        if (Date.now() - lastDataAt >= LIVE_DATA_STALE_AFTER_MS) return 'stale';
+        return socketConnected ? 'connected' : 'reconnecting';
+      };
+
+      const emitStatus = (): void => {
+        if (stopped || !latestScore) return;
+        subscriber.next({ ...latestScore, feedStatus: currentStatus(), lastUpdatedAt: lastDataAt });
+      };
+
+      const publish = (score: LiveScore | null | undefined, source: 'snapshot' | 'event'): void => {
         if (stopped || !score || score.inningsId !== inningsId) return;
-        if (typeof score.eventVersion === 'number') {
-          if (typeof lastEventVersion === 'number' && score.eventVersion <= lastEventVersion) return;
-          lastEventVersion = score.eventVersion;
+        if (!shouldAcceptLiveScoreVersion(score, lastEventVersion)) {
+          // An equal-version REST snapshot confirms freshness without allowing
+          // an older or unversioned response to overwrite a newer live event.
+          if (source === 'snapshot' && typeof score.eventVersion === 'number'
+            && score.eventVersion === lastEventVersion && latestScore) {
+            lastDataAt = Date.now();
+            emitStatus();
+          }
+          return;
         }
-        subscriber.next(score);
+        if (typeof score.eventVersion === 'number') lastEventVersion = score.eventVersion;
+        lastDataAt = Date.now();
+        latestScore = { ...score, feedStatus: currentStatus(), lastUpdatedAt: lastDataAt };
+        subscriber.next(latestScore);
       };
 
       const refreshSnapshot = (): void => {
         requests.add(
           this.http.get<LiveScore>(this.snapshotUrl(inningsId)).pipe(
-            catchError(() => EMPTY)
-          ).subscribe(publish)
+            catchError(() => {
+              emitStatus();
+              return EMPTY;
+            })
+          ).subscribe(score => publish(score, 'snapshot'))
         );
       };
 
       refreshSnapshot();
+      requests.add(timer(5000, 5000).subscribe(() => emitStatus()));
       requests.add(
         timer(15000, 15000).pipe(
           switchMap(() => this.http.get<LiveScore>(this.snapshotUrl(inningsId)).pipe(
-            catchError(() => EMPTY)
+            catchError(() => {
+              emitStatus();
+              return EMPTY;
+            })
           ))
-        ).subscribe(publish)
+        ).subscribe(score => publish(score, 'snapshot'))
       );
 
       client = new Client({
@@ -111,12 +146,14 @@ export class LiveScoreService {
         },
         onConnect: () => {
           if (stopped) return;
+          socketConnected = true;
+          emitStatus();
           stompSubscription?.unsubscribe();
           stompSubscription = client.subscribe(
             resolveLiveTopic(inningsId, access),
             (message: IMessage) => {
               try {
-                publish(JSON.parse(message.body) as LiveScore);
+                publish(JSON.parse(message.body) as LiveScore, 'event');
               } catch {
                 // Ignore malformed broadcasts and keep the stream alive.
               }
@@ -125,9 +162,17 @@ export class LiveScoreService {
           refreshSnapshot();
         },
         onStompError: () => {
+          socketConnected = false;
+          emitStatus();
           // Keep the observable alive; STOMP reconnect and snapshot polling recover it.
         },
+        onWebSocketClose: () => {
+          socketConnected = false;
+          emitStatus();
+        },
         onWebSocketError: () => {
+          socketConnected = false;
+          emitStatus();
           // Reconnection is handled by the STOMP client's reconnectDelay.
         }
       });
